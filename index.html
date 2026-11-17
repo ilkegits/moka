@@ -921,7 +921,7 @@ function syncSummary() {
 }
 function paintSync() { const e = $('#lSyncSub'); if (e) { e.textContent = syncSummary(); $('#lSync .switch')?.classList.toggle('on', SYNC.on); } }
 function syncSheet() {
-  const make = 'https://github.com/settings/personal-access-tokens/new?name=ShiCards%20log&description=Lets%20the%20ShiCards%20app%20upload%20its%20activity%20log&target_name=ilkegits&expires_in=366&contents=write';
+  const make = 'https://github.com/settings/personal-access-tokens/new?name=ShiCards%20log&description=Lets%20the%20ShiCards%20app%20upload%20its%20activity%20log&target_name=ilkegits&expires_in=365&contents=write';
   openSheet(`<h3>Send to Claude automatically</h3>
     <p class="muted" style="margin:-6px 0 12px">The log uploads to your private GitHub repo <b>shicards-log</b>, where Claude can read it. Set it up once:</p>
     <ol class="steps"><li>Tap <b>Make a key</b>. GitHub opens with the details filled in.</li>
@@ -2926,7 +2926,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.36';
+const APP_VERSION = '1.37';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
