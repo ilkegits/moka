@@ -571,6 +571,24 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .cal-d i{font-style:normal}
 .cal-d.done em{position:absolute;right:-3px;top:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#FFD15C;color:var(--ink);font-style:normal;font-size:10px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px var(--card)}
 
+/* day sheet (tap a day in the calendar) */
+.cal-d.busy{background:var(--seal-soft);color:var(--seal);font-weight:600}
+.cal-d.busy::after{content:"";position:absolute;bottom:5px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--seal)}
+.day-zh{font-family:var(--hanzi);font-size:15px;color:var(--seal);margin:-8px 0 14px;letter-spacing:.04em;text-align:center}
+.day-stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-radius:14px;box-shadow:var(--ring);margin-bottom:18px}
+.day-stat{display:flex;flex-direction:column;align-items:center;padding:12px 6px 10px;text-align:center}
+.day-stat + .day-stat{border-left:1px solid var(--line)}
+.day-stat b{font-family:var(--display);font-size:32px;font-weight:600;line-height:1}
+.day-stat span{font-size:12.5px;color:var(--ink-2);margin-top:4px;line-height:1.2}
+.day-stat small{font-family:var(--hanzi);font-size:11.5px;color:var(--seal);margin-top:2px}
+.day-h{font-size:15px;font-weight:600;margin:0 2px 8px}
+.day-words{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.day-w{display:flex;flex-direction:column;align-items:flex-start;min-width:76px;max-width:calc(50% - 4px);padding:8px 12px 9px;background:var(--card);border-radius:12px;box-shadow:var(--ring);text-align:left}
+.day-w:active{background:var(--paper-deep)}
+.day-w b{font-family:var(--hanzi);font-size:22px;font-weight:600;line-height:1.2}
+.day-w span{font-size:12px;color:var(--seal)}
+.day-w small{font-size:12px;color:var(--muted);line-height:1.25;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ---------- profile section ---------- */
 .me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
 .me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
@@ -709,6 +727,7 @@ let db = load();
 db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs);
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
 db.readDone = Array.isArray(db.readDone) ? db.readDone : [];   // finished stories: [{ id, zh, en, lines, hsk, done, learned }], newest first
+db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("2026-10-17", month from 0): { decks: { deckId: { name, n, cards } } }: the different cards you practised
 save();
 
 const deckById = id => id === 'bank' ? bankDeck() : db.decks.find(d => d.id === id);
@@ -954,14 +973,17 @@ const FLAME = `<svg class="flame" viewBox="0 0 24 24"><path d="M12 2.5c.6 3.2-1.
 function MonthCal() {
   const now = new Date(), y = now.getFullYear(), m = now.getMonth(), td = now.getDate();
   const len = new Date(y, m + 1, 0).getDate(), lead = (new Date(y, m, 1).getDay() + 6) % 7;   // weeks start on Monday, as in China
-  const by = {};
+  const by = {}, busy = new Set();
   for (const s of db.readDone) { const d = new Date(s.done); if (d.getFullYear() === y && d.getMonth() === m) (by[d.getDate()] ||= []).unshift(s); }   // oldest first
+  for (const w of db.bank) { const d = new Date(w.added); if (d.getFullYear() === y && d.getMonth() === m) busy.add(d.getDate()); }
+  for (let d = 1; d <= len; d++) if (db.days[`${y}-${m}-${d}`]) busy.add(d);
   const monthEn = now.toLocaleDateString('en-GB', { month: 'long' }), { n, today } = readStreak();
   const cells = Array.from({ length: lead }, () => '<span class="cal-d pad"></span>');
   for (let d = 1; d <= len; d++) {
     const list = by[d], cls = `${d === td ? ' today' : ''}${d > td ? ' future' : ''}`;
     cells.push(list
       ? `<button class="cal-d done${cls}" data-act="cal-day" data-d="${d}" aria-label="${d} ${monthEn}: ${list.length === 1 ? '1 story' : list.length + ' stories'}"><b>${esc(storyGlyph(list[0]))}</b><i>${d}</i>${list.length > 1 ? `<em>${list.length}</em>` : ''}</button>`
+      : busy.has(d) ? `<button class="cal-d busy${cls}" data-act="cal-day" data-d="${d}" aria-label="${d} ${monthEn}: words or decks"><i>${d}</i></button>`
       : `<span class="cal-d${cls}"><i>${d}</i></span>`);
   }
   const note = n ? (today ? 'Today’s story is done' : 'Finish a story today to keep it going') : 'Finish a story to start a streak';
@@ -972,16 +994,36 @@ function MonthCal() {
       <div class="cal-grid">${cells.join('')}</div>
     </div>`;
 }
+function noteDeck(d, cardId) {   // you practised this card of this deck today (each card counts once a day)
+  if (!d || !cardId) return;
+  const k = dayKey(Date.now()), day = db.days[k] ||= { decks: {} }, e = day.decks[d.id] ||= { name: d.name, n: 0, cards: [] };
+  e.name = d.name; e.cards ||= [];
+  if (e.cards.includes(cardId)) return;
+  e.cards.push(cardId); e.n = e.cards.length; save();
+}
+/* one day of the calendar: the words you added, the decks you practised and the stories you finished */
 function calDaySheet(d) {
-  const now = new Date(), list = db.readDone.filter(s => { const t = new Date(s.done); return t.getFullYear() === now.getFullYear() && t.getMonth() === now.getMonth() && t.getDate() === d; }).reverse();
-  if (!list.length) return;
-  LOG.add('cal-day', { day: d, stories: list.length });
-  if (list.length === 1) { nav('#/read/' + list[0].id); return; }
-  const when = new Date(now.getFullYear(), now.getMonth(), d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  openSheet(`<h3>${when}</h3><p class="muted" style="margin:-6px 0 14px">${list.length} stories finished this day</p>
-    <div class="group">${list.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
-      <span class="row-main"><span class="row-t"><span class="read-row-zh">${esc(s.zh)}</span> ${esc(s.en)}</span>
-      <span class="row-s">finished at ${clock(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`);
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), same = t => { const x = new Date(t); return x.getFullYear() === y && x.getMonth() === m && x.getDate() === d; };
+  const stories = db.readDone.filter(s => same(s.done)).reverse();
+  const words = db.bank.filter(w => same(w.added)).reverse();
+  const decks = Object.entries(db.days[`${y}-${m}-${d}`]?.decks || {});
+  const date = new Date(y, m, d), when = date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const zh = `${m + 1}月${d}日 星期${'日一二三四五六'[date.getDay()]}`;
+  LOG.add('cal-day', { day: d, words: words.length, decks: decks.length, stories: stories.length });
+  const stat = (n, one, many, zhw) => `<div class="day-stat"><b>${n}</b><span>${n === 1 ? one : many}</span><small>${zhw}</small></div>`;
+  const deckRow = ([id, e]) => { const live = deckById(id);
+    return `<${live ? `button class="row" data-act="day-deck" data-id="${id}"` : 'div class="row"'}><span class="row-main"><span class="row-t">${esc(live?.name || e.name)}</span>
+      <span class="row-s">${plural(e.n, 'card')} practised${live ? '' : ' · deck deleted'}</span></span>${live ? `<span class="chev">${I.chev}</span>` : ''}</${live ? 'button' : 'div'}>`; };
+  openSheet(`<h3>${when}</h3><p class="day-zh">${zh}</p>
+    <div class="day-stats">${stat(words.length, 'word learned', 'words learned', '生词')}${stat(decks.length, 'deck practised', 'decks practised', '卡组')}${stat(stories.length, 'story read', 'stories read', '故事')}</div>
+    ${words.length ? `<div class="day-h">Words you learned</div>
+      <div class="day-words">${words.map(w => `<button class="day-w" data-act="day-word" data-id="${w.id}"><b>${esc(w.hanzi)}</b><span>${esc(w.pinyin || '')}</span><small>${esc(w.en || '')}</small></button>`).join('')}</div>` : ''}
+    ${decks.length ? `<div class="day-h">Decks you worked on</div><div class="group">${decks.map(deckRow).join('')}</div>` : ''}
+    ${stories.length ? `<div class="day-h">Stories you read</div>
+      <div class="group">${stories.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
+        <span class="row-main"><span class="row-t"><span class="read-row-zh">${esc(s.zh)}</span> ${esc(s.en)}</span>
+        <span class="row-s">finished at ${clock(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>` : ''}
+    ${words.length || decks.length || stories.length ? '' : '<p class="muted" style="text-align:center;margin:18px 0 8px">Nothing on this day yet.</p>'}`);
 }
 function ProfileView() {
   const cards = db.decks.flatMap(d => d.cards);
@@ -1586,6 +1628,7 @@ function mountStudy() {
       if (target === base && Math.abs(down.v) > 0.45) target = base + Math.sign(down.v) * 180;
       st.angle = target;
     }
+    noteDeck(curDeck(), st.order[st.i]);
     LOG.add(down.moved ? 'card-turn' : 'card-flip', { shows: Math.abs(Math.round(st.angle / 180)) % 2 ? 'English' : 'Chinese', bounced: down.moved && st.angle === base ? true : undefined });
     down = null; setAngle(true); dismissHint();
   };
@@ -1598,6 +1641,7 @@ function dismissHint() { if (!S.study.hinted) { S.study.hinted = true; const h =
 function stepCard(dir) {
   const st = S.study, d = curDeck(), n = st.order.length, wrap = $('#wrap');
   const ni = (st.i + dir + n) % n;
+  if (dir > 0) noteDeck(d, st.order[st.i]);   // the card you are leaving
   LOG.add(dir > 0 ? 'card-next' : 'card-prev', { card: `${ni + 1}/${n}`, hz: cardById(d, st.order[ni])?.hanzi });
   if (dir > 0 && ni === 0 && n > 1) toast('Round complete — from the top 🎉');
   const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
@@ -1989,7 +2033,7 @@ function finishGuided(gaveUp) {
 }
 function gradeWrite(ok) {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
-  W.results[c.id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); save();
+  W.results[c.id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); save(); noteDeck(d, c.id);
   LOG.add('write-grade', { hz: c.hanzi, counted: ok ? 'right' : 'wrong', mode: db.prefs.writeMode, checker: W.judge ? W.judge.ok : undefined });
   W.i++;
   if (W.i >= W.order.length) { W.done = true; LOG.add('write-round', { right: W.order.filter(id => W.results[id]).length, of: W.order.length }); }
@@ -2729,7 +2773,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.30';
+const APP_VERSION = '1.31';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2808,7 +2852,7 @@ function settingsSheet() {
       };
       sh.querySelector('#sImp').onchange = async e => {
         const f = e.target.files[0]; if (!f) return;
-        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
         catch (_) { toast('That file isn’t a ShiCards backup'); }
       };
     });
@@ -2832,6 +2876,8 @@ const A = {
   'settings': () => settingsSheet(),
   'set-name': () => nameSheet(),
   'cal-day': t => calDaySheet(+t.dataset.d),
+  'day-word': t => wordSheet(t.dataset.id),
+  'day-deck': t => { closeSheet(true); nav('#/deck/' + t.dataset.id); },
   'drawer': () => openDrawer(),
   'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
   'dr-photo': () => { closeDrawer(); pickPhoto(); },
