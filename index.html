@@ -334,6 +334,15 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .hsk-dock .btn{flex:1}
 .link-btn{font-size:15px;font-weight:500;color:var(--seal);padding:10px 2px;white-space:nowrap}
 .link-btn:active{opacity:.5}
+/* ready-made HSK decks on the Decks page: a sideways shelf of levels */
+.shelf{display:flex;gap:10px;overflow-x:auto;margin:0 -20px 8px;padding:2px 20px 4px;scroll-snap-type:x mandatory;scroll-padding:0 20px;scrollbar-width:none;overscroll-behavior-x:contain}
+.shelf::-webkit-scrollbar{display:none}
+.shelf-tile{flex:none;width:104px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;padding:14px 14px 12px;border-radius:14px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
+.shelf-tile:active{background:var(--paper-deep);transition:none}
+.shelf-tile .ring-s{width:44px;height:44px;margin-bottom:12px}
+.shelf-t{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.shelf-s{font-size:12.5px;color:var(--muted)}
+.shelf-note{font-size:13px;color:var(--muted);margin:0 2px 28px}
 .qa-seg{margin-bottom:14px}
 .qa-seg button{flex:1;height:36px}
 .qa-word{flex:1;min-width:0}
@@ -700,7 +709,7 @@ function logSheet() {
 /* ---------- render ---------- */
 function render() {
   const app = $('#app'); const d = curDeck();
-  if (S.view === 'home') { app.innerHTML = Home(); }
+  if (S.view === 'home') { app.innerHTML = Home(); if (!S.H) loadHsk().then(() => { const sh = $('#hskShelf'); if (sh) sh.outerHTML = HskShelf(); }, () => {}); }
   else if (S.view === 'deck') { app.innerHTML = DeckView(d); }
   else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
@@ -785,6 +794,9 @@ function Home() {
       <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
     <div class="section-head"><h2>Word bank</h2></div>
     ${BankTile()}
+    <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
+    ${HskShelf()}
+    <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
     <div class="section-head"><h2>Your decks</h2></div>
     <div class="decks">${db.decks.map(DeckTile).join('') || `<div class="empty"><div class="big">空</div><p>No decks yet — make your first one.</p></div>`}</div>
     <div class="dock row-btns"><button class="btn btn-ghost" data-act="new-deck">${I.plus} New deck</button>
@@ -1832,6 +1844,16 @@ function wireSearch(inp, onClear) {
    complete-hsk-vocabulary (MIT) with CC-CEDICT meanings; rebuild with tools/build_hsk.py.
    One line per word: level <TAB> simplified <TAB> pinyin <TAB> meanings. */
 const HSK_NAME = l => l === 7 ? 'HSK 7–9' : 'HSK ' + l;
+const HSK_COUNT = { 1: 294, 2: 197, 3: 487, 4: 972, 5: 1547, 6: 1684, 7: 4876 };   // words per level, shown before the lists load
+/* the shelf of HSK levels on the Decks page; rings fill in once the lists are loaded */
+function HskShelf() {
+  const inBank = S.H && new Set(db.bank.map(w => w.hanzi));
+  return `<div class="shelf" id="hskShelf">${[1, 2, 3, 4, 5, 6, 7].map(l => {
+    const L = S.H?.levels[l], n = L ? L.length : HSK_COUNT[l], k = L ? L.filter(r => inBank.has(r.h)).length : 0;
+    return `<button class="shelf-tile" data-act="hsk-level" data-lv="${l}">${ring(l === 7 ? '7–9' : String(l), n ? k / n : 0)}
+      <span class="shelf-t">${HSK_NAME(l)}</span><span class="shelf-s">${k ? `${k.toLocaleString('en')} of ${n.toLocaleString('en')}` : `${n.toLocaleString('en')} words`}</span></button>`;
+  }).join('')}</div>`;
+}
 let hskP = null;
 function loadHsk() {
   return hskP ||= fetch('dict/hsk.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
@@ -1971,7 +1993,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.16';
+const APP_VERSION = '1.17';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2173,7 +2195,7 @@ document.addEventListener('click', e => {
   };
   app.addEventListener('pointerdown', e => {
     if (g || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas')) return;
+    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf')) return;
     const T = targets(); if (!T) return;
     g = { id: e.pointerId, sx: e.clientX, sy: e.clientY, hist: [[e.clientX, e.timeStamp]], v: 0, x0: 0, T, on: false };
   });
