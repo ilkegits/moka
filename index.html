@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Mòkǎ · 墨卡</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/favicon-64.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="墨卡">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,6 +83,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .icon-btn:active{background:var(--seal-soft)}
 .icon-btn.lg{width:54px;height:54px;background:var(--card);box-shadow:var(--shadow-sm);color:var(--ink)}
 .brand{display:flex;align-items:center;gap:10px;flex:1;padding-left:6px}
+.logo{width:36px;height:36px;display:block;margin-right:-2px}
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:var(--hanzi);font-weight:600;font-size:21px;letter-spacing:.08em}
@@ -370,7 +371,7 @@ function Home() {
   const [hz, py, en] = greeting();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
-    <header class="bar"><div class="brand"><span class="seal">墨</span><span class="brand-name">墨卡</span><span class="brand-py">mò kǎ</span></div>
+    <header class="bar"><div class="brand"><img class="logo" src="icons/logo.svg" alt="" width="36" height="36"><span class="brand-name">墨卡</span><span class="brand-py">mò kǎ</span></div>
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
     <section class="hello"><div class="hello-hz">${hz}</div><div class="hello-py">${py}</div>
       <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
@@ -813,7 +814,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('墨卡 is on your home screen'); });
