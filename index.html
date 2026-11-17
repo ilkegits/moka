@@ -32,6 +32,7 @@
   --ui:"Inter",system-ui,-apple-system,sans-serif;
   --r:22px;
   --kb:0px;
+  --tabh:64px;
   color-scheme:light;
 }
 /* Dark mode is off for now (light only). To bring it back, change "not all" to "(prefers-color-scheme: dark)" here and below. */
@@ -266,6 +267,34 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:14px;font-size:14px;
   opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:60;white-space:nowrap;max-width:90%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+/* ---------- bottom tab bar ---------- */
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:480px;margin:0 auto;display:none;
+  height:calc(var(--tabh) + env(safe-area-inset-bottom));padding:0 14px env(safe-area-inset-bottom);
+  background:var(--card);border-top:1px solid var(--line);box-shadow:0 -10px 24px -20px rgba(70,45,20,.4)}
+#frame.tabs #tabbar{display:flex}
+#frame.tabs .screen{padding-bottom:calc(var(--tabh) + env(safe-area-inset-bottom))}
+#frame.tabs .dock{bottom:calc(var(--tabh) + env(safe-area-inset-bottom));padding-bottom:16px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);border-radius:14px}
+.tab-ic{width:42px;height:30px;border-radius:9px;display:grid;place-items:center;transition:background .2s,color .2s,transform .25s cubic-bezier(.2,.9,.3,1.4)}
+.tab-ic svg.i{width:21px;height:21px}
+.tab.on{color:var(--ink)}
+.tab.on .tab-ic{background:var(--seal);color:var(--seal-ink);transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
+.tab:focus-visible{outline:2px solid var(--seal);outline-offset:-4px}
+
+/* ---------- learn + profile ---------- */
+.learn-list{display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
+.learn-deck{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.learn-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 14px}
+.learn-head .deck-name{flex:1;font-size:22px}
+.learn-head::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--accent);transform:rotate(-6deg);flex:none;align-self:center}
+.learn-deck .btn{height:46px;font-size:14px;padding:0 12px}
+.learn-deck .btn svg.i{width:19px;height:19px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px}
+.stat{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:16px 16px 14px}
+.stat b{display:block;font-family:var(--display);font-size:40px;font-weight:600;line-height:1;font-variant-numeric:lining-nums}
+.stat span{display:block;font-size:13px;color:var(--muted);margin-top:6px}
+.menu-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:0 14px}
+
 .fade-in{animation:fadeIn .35s ease both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -273,6 +302,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 <body>
 <div id="frame">
   <main id="app"></main>
+  <nav id="tabbar" aria-label="Main"></nav>
   <div id="sheet-root"></div>
   <div id="toast"></div>
 </div>
@@ -309,6 +339,10 @@ const I = {
   swap: ic('<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'),
   bksp: ic('<path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M12 9l6 6M18 9l-6 6"/>'),
   play: ic('<path d="M7 5l12 7-12 7z"/>'),
+  pen: ic('<path d="M4 20l1.2-4.6L15.8 4.8a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8z"/><path d="M14 6.6l3.4 3.4"/>'),
+  decks: ic('<rect x="8" y="3.5" width="11.5" height="14.5" rx="2"/><path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/>'),
+  learn: ic('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/>'),
+  profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
 };
 const TZG = `<svg class="tzg-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
   <rect x=".8" y=".8" width="98.4" height="98.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
@@ -344,6 +378,7 @@ const S = { view: 'home', deckId: null, study: null, write: null };
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
+  if (p[0] === 'learn' || p[0] === 'profile') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
@@ -366,6 +401,54 @@ function render() {
   else if (S.view === 'deck') { app.innerHTML = DeckView(d); }
   else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
+  else if (S.view === 'learn') { app.innerHTML = LearnView(); }
+  else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
+  renderTabs();
+}
+
+/* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
+const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['profile', 'Profile', '#/profile']];
+function renderTabs() {
+  const cur = S.view === 'home' || S.view === 'deck' ? 'decks' : S.view;
+  const show = TABS.some(t => t[0] === cur);
+  $('#frame').classList.toggle('tabs', show);
+  $('#tabbar').innerHTML = show ? TABS.map(([k, label, h]) =>
+    `<button class="tab ${k === cur ? 'on' : ''}" data-act="tab" data-h="${h}" ${k === cur ? 'aria-current="page"' : ''}><span class="tab-ic">${I[k]}</span>${label}</button>`).join('') : '';
+}
+
+function LearnView() {
+  const ready = db.decks.filter(d => d.cards.length);
+  return `<div class="screen fade-in">
+    <header class="bar"><div class="bar-title">Learn</div></header>
+    <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
+      <div class="hello-en">Pick a deck and how you want to practise</div></section>
+    ${ready.length ? `<div class="learn-list">${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
+        <div class="learn-head"><div class="deck-name">${esc(d.name)}</div><span class="deck-count">${plural(d.cards.length, 'card')}</span></div>
+        <div class="row-btns"><button class="btn btn-ghost" data-act="learn-study" data-id="${d.id}">${I.flip}Flip cards</button>
+          <button class="btn btn-seal" data-act="learn-write" data-id="${d.id}">${I.pen}Write</button></div></div>`).join('')}</div>`
+      : `<div class="empty"><div class="big">学</div><p>Add cards to a deck first, then practise them here.</p>
+          <button class="btn btn-primary" data-act="tab" data-h="#/">Go to decks</button></div>`}
+  </div>`;
+}
+
+function ProfileView() {
+  const cards = db.decks.flatMap(d => d.cards);
+  const hist = cards.flatMap(c => c.hist || []);
+  const written = cards.filter(c => (c.hist || []).length).length;
+  const pct = hist.length ? Math.round(hist.filter(Boolean).length / hist.length * 100) + '%' : '–';
+  return `<div class="screen fade-in">
+    <header class="bar"><div class="bar-title">Profile</div></header>
+    <section class="hello"><div class="hello-hz">我的</div><div class="hello-py">wǒ de</div>
+      <div class="hello-en">Your progress so far</div></section>
+    <div class="stats">
+      <div class="stat"><b>${db.decks.length}</b><span>${db.decks.length === 1 ? 'Deck' : 'Decks'}</span></div>
+      <div class="stat"><b>${cards.length}</b><span>${cards.length === 1 ? 'Card' : 'Cards'}</span></div>
+      <div class="stat"><b>${written}</b><span>Cards written</span></div>
+      <div class="stat"><b>${pct}</b><span>Written correctly</span></div>
+    </div>
+    <div class="section-head"><h2>App</h2></div>
+    <div class="menu-card"><button class="list-btn" data-act="settings"><span>Settings and backup<br><small>Install, updates, card side, export and import</small></span><span class="side">${I.chev}</span></button></div>
+  </div>`;
 }
 
 function greeting() {
@@ -615,7 +698,15 @@ function drawStroke(ctx, pts, base, color) {
       taken into account, minus points for missing or extra strokes.
    2. Recognition: Google's handwriting reader says which character your drawing looks like.
    Tuned on 240 test drawings (neat, sloppy, look-alike characters, missing strokes). */
-const JUDGE = { tol: .05, dirW: .04, missPen: 25, extraPen: 15, pass: 65, passClean: 50, passRank2: 90, offlinePass: 78, wordRescue: 80 };
+const JUDGE = {
+  step: .015,      // ink is sampled every 1.5% of the character size
+  tol: .09,        // how far ink may sit from the right spot and still count as "on" it
+  dirW: .04,       // ink going in a clearly different direction counts as further away
+  strokeCov: .7,   // every stroke of the character must be covered at least this much by your ink
+  inkOn: .65,      // every stroke you draw must lie at least this much on the character (short joins are fine)
+  inkTotal: .75,   // and all your ink together at least this much
+  maxRank: 2,      // the handwriting reader must list the character among its top 3 guesses
+};
 function polyNorm(lines) {
   const all = lines.flat(); if (!all.length) return [];
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -623,42 +714,63 @@ function polyNorm(lines) {
   const w = x1 - x0, h = y1 - y0, k = Math.max(w, h) || 1;
   return lines.map(l => l.map(p => ({ x: (p.x - x0 - w / 2) / k + .5, y: (p.y - y0 - h / 2) / k + .5 })));
 }
-function resample(lines, step) {
-  const out = [];
-  for (const l of lines) {
-    if (!l.length) continue;
-    if (l.length === 1) { out.push({ x: l[0].x, y: l[0].y, a: null }); continue; }
-    out.push({ x: l[0].x, y: l[0].y, a: Math.atan2(l[1].y - l[0].y, l[1].x - l[0].x) }); let carry = 0;
+function resampleLines(lines, step) {
+  return lines.map(l => {
+    if (!l.length) return [];
+    if (l.length === 1) return [{ x: l[0].x, y: l[0].y, a: null }];
+    const out = [{ x: l[0].x, y: l[0].y, a: Math.atan2(l[1].y - l[0].y, l[1].x - l[0].x) }]; let carry = 0;
     for (let i = 1; i < l.length; i++) {
       const a = l[i - 1], b = l[i], L = Math.hypot(b.x - a.x, b.y - a.y); if (!L) continue;
       const ang = Math.atan2(b.y - a.y, b.x - a.x); let d = step - carry;
       for (; d <= L; d += step) out.push({ x: a.x + (b.x - a.x) * d / L, y: a.y + (b.y - a.y) * d / L, a: ang });
       carry = L - (d - step);
     }
-  }
-  return out;
+    return out;
+  });
 }
-const JUDGE_STEP = .015;
-function coverage(from, to) {
-  const { tol, dirW } = JUDGE; let sum = 0;
-  for (const p of from) {
-    let best = Infinity;
-    for (const q of to) {
-      let d = Math.hypot(p.x - q.x, p.y - q.y); if (d > best) continue;
-      if (p.a !== null && q.a !== null) d += dirW * Math.abs(Math.sin(p.a - q.a));
-      if (d < best) best = d;
-    }
-    sum += best <= tol ? 1 : best >= 2.5 * tol ? 0 : 1 - (best - tol) / (1.5 * tol);
+function nearest(p, pts) {
+  let best = Infinity;
+  for (const q of pts) {
+    let d = Math.hypot(p.x - q.x, p.y - q.y); if (d > best) continue;
+    if (p.a !== null && q.a !== null) d += JUDGE.dirW * Math.abs(Math.sin(p.a - q.a));
+    if (d < best) best = d;
   }
-  return from.length ? sum / from.length : 0;
+  return best;
 }
-function shapeScore(userStrokes, medians) {
-  const U = resample(polyNorm(userStrokes.map(s => s.map(p => ({ x: p.x, y: p.y })))), JUDGE_STEP);
-  const R = resample(polyNorm(medians.map(m => m.map(([x, y]) => ({ x, y: 900 - y })))), JUDGE_STEP);
-  if (!U.length || !R.length) return 0;
-  const P = coverage(U, R), Rc = coverage(R, U), diff = medians.length - userStrokes.length;
-  const raw = P + Rc ? 200 * P * Rc / (P + Rc) : 0;
-  return Math.max(0, Math.round(raw - (diff > 0 ? diff * JUDGE.missPen : -diff * JUDGE.extraPen)));
+/* Line your drawing up with the real character: small overall stretch and shift only (a few rounds of
+   "match each point to its closest partner, then refit"), so a stroke in the wrong place stays in the wrong place. */
+function alignTo(U, R, rounds = 4) {
+  const closest = (p, pts) => { let b = pts[0], bd = Infinity; for (const q of pts) { const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2; if (d < bd) { bd = d; b = q; } } return b; };
+  const Ra = R.flat();
+  for (let it = 0; it < rounds; it++) {
+    const Ua = U.flat(), pairs = [];
+    for (const p of Ua) pairs.push([p, closest(p, Ra)]);
+    for (const q of Ra) pairs.push([closest(q, Ua), q]);
+    const fit = k => {
+      let mu = 0, mr = 0; for (const [u, r] of pairs) { mu += u[k]; mr += r[k]; } mu /= pairs.length; mr /= pairs.length;
+      let sur = 0, suu = 0; for (const [u, r] of pairs) { sur += (u[k] - mu) * (r[k] - mr); suu += (u[k] - mu) ** 2; }
+      const sc = Math.max(.85, Math.min(1.18, suu ? sur / suu : 1)); return [sc, mr - sc * mu];
+    };
+    const [sx, tx] = fit('x'), [sy, ty] = fit('y');
+    U = U.map(l => l.map(p => ({ ...p, x: sx * p.x + tx, y: sy * p.y + ty })));
+  }
+  return U;
+}
+/* Order-free stroke placement check.
+   Both drawings are scaled to the same size and lined up; then every stroke of the real character must be covered
+   by your ink, and every stroke you drew must lie on the character. Joining strokes in one movement is allowed. */
+function strokeCheck(userStrokes, medians) {
+  let U = resampleLines(polyNorm(userStrokes.map(st => st.map(p => ({ x: p.x, y: p.y })))), JUDGE.step).filter(l => l.length);
+  const R = resampleLines(polyNorm(medians.map(m => m.map(([x, y]) => ({ x, y: 900 - y })))), JUDGE.step);
+  if (!U.length || !R.flat().length) return null;
+  U = alignTo(U, R);
+  const Ua = U.flat(), Ra = R.flat();
+  const frac = (line, other) => line.length ? line.filter(p => nearest(p, other) <= JUDGE.tol).length / line.length : 1;
+  const refCov = R.map(l => frac(l, Ua)), userOn = U.map(l => frac(l, Ra));
+  const total = userOn.reduce((a, f, i) => a + f * U[i].length, 0) / Ua.length;
+  const missing = refCov.filter(c => c < JUDGE.strokeCov).length, stray = userOn.filter(c => c < JUDGE.inkOn).length;
+  const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
+  return { ok: !missing && !stray && total >= JUDGE.inkTotal, missing, stray, total, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -670,15 +782,15 @@ async function recognize(strokes, s, lang = 'zh_CN') {
   const j = await r.json();
   return j[0] === 'SUCCESS' ? (j[1]?.[0]?.[1] || []) : [];
 }
-/* Whole-word reading: lay the boxes side by side and let the recognizer use word context.
-   Only used to rescue characters that already scored well on shape and were a close 2nd-5th choice. */
+/* Whole-word reading: lay the boxes side by side so the reader can use word context.
+   Only rescues characters whose strokes are all in place but that the reader ranked a bit low. */
 async function rescueWithWord(word, chars, boxes, res) {
-  const weak = res.map((r, i) => !r.ok && r.score !== null && r.score >= JUDGE.wordRescue && r.rank >= 1 && r.rank <= 4 ? i : -1).filter(i => i >= 0);
+  const weak = res.map((r, i) => !r.ok && r.shape?.ok && r.rank !== null && r.rank > JUDGE.maxRank && r.rank <= 6 ? i : -1).filter(i => i >= 0);
   if (chars.length < 2 || !weak.length) return res;
   const s = boxes[0]._s; let t = 0;
   const strokes = boxes.flatMap((b, i) => (b._strokes || []).map(st => st.map(p => ({ x: p.x + i * s, y: p.y, t: (t += 10) }))));
   try {
-    const t0 = 0, ink = strokes.map(st => [st.map(p => Math.round(p.x)), st.map(p => Math.round(p.y)), st.map(p => p.t - t0)]);
+    const ink = strokes.map(st => [st.map(p => Math.round(p.x)), st.map(p => Math.round(p.y)), st.map(p => p.t)]);
     const r = await fetch('https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ options: 'enable_pre_space', requests: [{ writing_guide: { writing_area_width: s * chars.length, writing_area_height: s }, ink, language: 'zh_CN' }] }),
@@ -691,22 +803,28 @@ async function rescueWithWord(word, chars, boxes, res) {
 const refCache = new Map();
 const loadRef = ch => { if (!refCache.has(ch)) refCache.set(ch, HanziWriter.loadCharacterData(ch).catch(e => { refCache.delete(ch); throw e; })); return refCache.get(ch); };
 async function judgeChar(ch, strokes, s) {
-  if (!strokes.length) return { ok: false, score: 0, rank: -1, empty: true, diff: 0, cands: [] };
+  if (!strokes.length) return { ok: false, empty: true, shape: null, rank: -1, cands: [] };
   const [ref, cands] = await Promise.all([
     window.HanziWriter ? loadRef(ch).catch(() => null) : null,
     recognize(strokes, s).catch(() => null),
   ]);
-  const score = ref ? shapeScore(strokes, ref.medians) : null;
+  const shape = ref ? strokeCheck(strokes, ref.medians) : null;
   const rank = cands ? cands.indexOf(ch) : null;
-  return { score, rank, cands: cands || [], diff: ref ? ref.medians.length - strokes.length : 0, ok: verdict(score, rank, ref ? ref.medians.length - strokes.length : 0) };
+  let ok = verdict(shape, rank);
+  // Look-alike guard: if the reader's first guess is another character, and your drawing fits that one better, it isn't green.
+  const other = cands?.[0];
+  if (ok && shape && rank > 0 && other && [...other].length === 1 && HAN.test(other)) {
+    const oref = await loadRef(other).catch(() => null), o = oref && strokeCheck(strokes, oref.medians);
+    if (o && o.fit < shape.fit) ok = false;
+  }
+  return { shape, rank, cands: cands || [], ok };
 }
-function verdict(score, rank, diff = 0) {
-  if (score === null && rank === null) return null;            // offline and no stroke data: the learner decides
-  if (score === null) return rank === 0;
-  if (rank === null) return score >= JUDGE.offlinePass;        // offline: shape only (less reliable)
-  return (rank === 0 && score >= (diff === 0 ? JUDGE.passClean : JUDGE.pass)) || (rank >= 1 && rank <= 2 && score >= JUDGE.passRank2);
+function verdict(shape, rank) {
+  if (!shape && rank === null) return null;                    // offline and no stroke data: the learner decides
+  if (!shape) return rank === 0;
+  if (rank === null) return shape.ok;                          // offline: stroke placement only
+  return shape.ok && rank >= 0 && rank <= JUDGE.maxRank;
 }
-const scoreWord = n => n >= 90 ? 'Beautiful' : n >= 80 ? 'Nice' : n >= 65 ? 'Okay' : 'Messy';
 
 function writerOpts(s, extra) {
   return Object.assign({ width: s, height: s, padding: Math.round(s * 0.09), showOutline: false, strokeAnimationSpeed: 1.3, delayBetweenStrokes: 140 }, extra);
@@ -714,15 +832,15 @@ function writerOpts(s, extra) {
 function judgeNote(chars) {
   const J = S.write.judge; if (!J) return '';
   if (J.ok === null) return 'Couldn’t check your writing (offline). Grade yourself.';
-  const scored = J.chars.filter(j => j.score !== null), avg = scored.length ? Math.round(scored.reduce((a, j) => a + j.score, 0) / scored.length) : null;
-  if (J.ok) return `<span class="verdict ok">Correct ✓</span>${avg !== null ? ` · ${scoreWord(avg)} handwriting (${avg}/100)` : ''}`;
+  if (J.ok) return '<span class="verdict ok">Correct ✓</span>';
   const i = J.chars.findIndex(j => !j.ok), j = J.chars[i], ch = chars[i], where = chars.length > 1 ? `Box ${i + 1}` : 'Your character';
-  const lookalike = j.rank !== 0 && j.cands[0] && HAN.test(j.cands[0]) && [...j.cands[0]].length === 1 && j.cands[0] !== ch;
+  const sh = j.shape, lookalike = j.cands[0] && j.cands[0] !== ch && HAN.test(j.cands[0]) && [...j.cands[0]].length === 1;
   const why = j.empty ? `${where} is empty`
+    : sh && sh.missing ? `${where}: ${sh.missing === 1 ? 'a stroke is' : sh.missing + ' strokes are'} missing or in the wrong place`
+    : sh && sh.stray ? `${where}: ${sh.stray === 1 ? 'there’s an extra stroke' : sh.stray + ' extra strokes'}`
+    : sh && !sh.ok ? `${where}: some ink is off the character`
     : lookalike ? `${where} looks more like <span class="hz">${esc(j.cands[0])}</span>`
-    : j.diff > 0 ? `${where}: ${plural(j.diff, 'stroke')} missing`
-    : j.diff < 0 ? `${where}: ${plural(-j.diff, 'extra stroke')}`
-    : j.rank === 0 ? `${where}: the shape is too far off` : `${where} is hard to read`;
+    : `${where} is hard to read`;
   return `<span class="verdict no">Not quite</span> · ${why}`;
 }
 function revealFree() {
@@ -740,7 +858,6 @@ function revealFree() {
     const j = W.judge?.chars?.[i];
     if (j && j.ok !== null) {
       box.classList.add(j.ok ? 'judged-ok' : 'judged-no');
-      if (j.score !== null) box.insertAdjacentHTML('beforeend', `<span class="mark ${j.ok ? '' : 'no'}">${j.score}</span>`);
     }
   });
   $('#rline').innerHTML = revealLine(c);
@@ -946,7 +1063,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.6';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
@@ -1025,6 +1142,9 @@ const A = {
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
   'close-sheet': () => closeSheet(),
+  'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } nav(t.dataset.h); },
+  'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
+  'learn-write': t => { S.write = null; nav(`#/deck/${t.dataset.id}/write`); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
   'write': () => { S.write = null; nav(`#/deck/${S.deckId}/write`); },
   'back-deck': () => goBack('#/deck/' + S.deckId),
