@@ -255,6 +255,58 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .cand:first-child{background:var(--ink);color:var(--paper)}
 .cand:active{transform:scale(.94)}
 .cands .msg{font-size:13px;color:var(--muted);align-self:center;padding-left:4px}
+/* ---------- word bank + quick add ---------- */
+.bank-tile{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px 16px 20px;margin-bottom:26px;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);text-align:left;transition:transform .15s}
+.bank-tile:active{transform:scale(.985)}
+.bank-count{display:flex;align-items:flex-end;gap:10px;flex:none}
+.bank-num{font-family:var(--display);font-weight:600;font-size:54px;line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums}
+.bank-lbl{font-size:13px;line-height:1.35;color:var(--muted)}
+.bank-lbl b{color:var(--ink-2);font-weight:500}
+.bank-chars{flex:1;min-width:0;display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:5px;max-height:63px;overflow:hidden}
+.bank-chars i{font-style:normal;width:29px;height:29px;display:grid;place-items:center;border-radius:7px;background:var(--card-2);border:1px solid var(--line-2);font-family:var(--hanzi);font-size:17px;color:var(--ink)}
+.bank-chars i:first-child{background:var(--seal);border-color:var(--seal);color:var(--seal-ink);transform:rotate(-4deg)}
+.bank-chars .msg{font-size:13px;line-height:1.35;color:var(--muted);text-align:right;max-width:150px}
+.qa-glyph{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--seal);color:var(--seal-ink);font-family:var(--hanzi);font-size:15px;transform:rotate(-4deg)}
+.dock.row-btns{display:flex}
+.bank-hero{display:flex;align-items:flex-end;gap:14px;padding:22px 4px 24px}
+.bank-hero .bank-num{font-size:76px}
+.bank-hero .bank-lbl{font-size:15px;color:var(--ink-2)}
+.bank-hero .bank-lbl small{display:block;font-size:13px;color:var(--muted)}
+.char-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:26px}
+.char-grid span{width:40px;height:40px;display:grid;place-items:center;border-radius:9px;background:var(--card);box-shadow:var(--shadow-sm);font-family:var(--hanzi);font-size:23px}
+.word-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.word-row{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);box-shadow:var(--shadow-sm);text-align:left}
+.word-row .hz{font-size:26px;flex:none;min-width:40px}
+.word-row .wm{flex:1;min-width:0}
+.word-row .wp{font-size:13px;color:var(--seal)}
+.word-row .we{font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa-seg{margin-bottom:14px}
+.qa-seg button{flex:1;height:36px}
+.qa-word{flex:1;min-width:0}
+.compose-py{font-size:14px;color:var(--seal);margin-top:1px;min-height:18px}
+.qa-pad{display:flex;gap:12px;align-items:flex-end}
+.qa-tools{display:flex;flex-direction:column;gap:10px}
+.en-res{display:flex;flex-direction:column;gap:8px;padding:10px 0 10px;min-height:58px}
+.en-res .msg{font-size:13px;color:var(--muted);padding:8px 4px}
+.en-row{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px;border-radius:14px;background:var(--card);box-shadow:var(--shadow-sm);text-align:left}
+.en-row .hz{font-size:26px;flex:none;min-width:44px}
+.en-row .wp{font-size:13px;color:var(--seal)}
+.en-row .we{font-size:13.5px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.means{display:flex;flex-wrap:wrap;gap:6px;margin:-6px 0 16px}
+.means:empty{display:none}
+.mean{padding:7px 11px;border-radius:10px;background:var(--card-2);border:1px solid var(--line-2);font-size:13px;color:var(--ink-2);text-align:left}
+.mean.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.lbl-note{text-transform:none;letter-spacing:0;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:12px;background:var(--card);box-shadow:var(--shadow-sm);font-size:14px;font-weight:500;color:var(--ink-2);transition:background .15s,color .15s}
+.chip i{width:8px;height:8px;border-radius:2px;background:var(--accent);flex:none}
+.chip.on{background:var(--ink);color:var(--paper)}
+.chip.on i{box-shadow:0 0 0 2px var(--paper)}
+.chip.has{background:var(--card-2);box-shadow:none;border:1px solid var(--line-2);color:var(--muted)}
+.chip.add{background:transparent;box-shadow:none;border:1.5px dashed var(--line-2);color:var(--ink-2)}
+.chip-new{display:flex;gap:8px;width:100%}
+.chip-new .input{height:44px;flex:1}
+.chip-new .btn{height:44px;padding:0 16px}
 .swatches{display:flex;gap:12px}
 .sw{width:36px;height:36px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
 .sw.on{box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--c)}
@@ -407,6 +459,7 @@ function load() { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d &
 function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
 let db = load();
 db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs);
+db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
 save();
 
 const deckById = id => db.decks.find(d => d.id === id);
@@ -418,7 +471,7 @@ const S = { view: 'home', deckId: null, study: null, write: null };
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
-  if (p[0] === 'learn' || p[0] === 'profile') return { view: p[0], deckId: null };
+  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
@@ -588,6 +641,7 @@ function render() {
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
+  else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
 }
@@ -595,7 +649,7 @@ function render() {
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
 const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
-  const cur = S.view === 'home' || S.view === 'deck' ? 'decks' : S.view;
+  const cur = S.view === 'home' || S.view === 'deck' || S.view === 'bank' ? 'decks' : S.view;
   const i = TABS.findIndex(t => t[0] === cur), bar = $('#tabbar'), frame = $('#frame');
   const wasShown = frame.classList.contains('tabs');
   frame.classList.toggle('tabs', i >= 0);
@@ -659,10 +713,21 @@ function Home() {
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
     <section class="hello"><div class="hello-hz">${hz}</div><div class="hello-py">${py}</div>
       <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
+    <div class="section-head"><h2>Word bank</h2></div>
+    ${BankTile()}
     <div class="section-head"><h2>Your decks</h2></div>
     <div class="decks">${db.decks.map(DeckTile).join('') || `<div class="empty"><div class="big">空</div><p>No decks yet — make your first one.</p></div>`}</div>
-    <div class="dock"><button class="btn btn-primary wide" data-act="new-deck">${I.plus} New deck</button></div>
+    <div class="dock row-btns"><button class="btn btn-ghost" data-act="new-deck">${I.plus} New deck</button>
+      <button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
   </div>`;
+}
+function BankTile() {
+  const chars = bankCharList(), latest = chars.slice(-12).reverse();
+  return `<button class="bank-tile" data-act="open-bank">
+    <div class="bank-count"><div class="bank-num">${chars.length}</div>
+      <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'}<br><b>${plural(db.bank.length, 'word')}</b></div></div>
+    <div class="bank-chars">${latest.length ? latest.map(c => `<i>${esc(c)}</i>`).join('') : '<span class="msg">Add the characters you know with Quick add</span>'}</div>
+    <span class="chev">${I.chev}</span></button>`;
 }
 function DeckTile(d) {
   const first = hanChars(d.cards[0]?.hanzi)[0] || '字';
@@ -1242,7 +1307,7 @@ function sheetDrag(sh, scrim) {
     else setTimeout(() => { if (!g) sh.style.transition = ''; }, 400);
   };
   // touch: decide on the first move so the browser never starts scrolling a drag we take over
-  sh.addEventListener('touchstart', e => { if (e.touches.length === 1) begin(e.touches[0].clientX, e.touches[0].clientY, e.timeStamp); else g = null; }, { passive: true });
+  sh.addEventListener('touchstart', e => { if (e.target.closest('.no-drag')) { g = null; return; } if (e.touches.length === 1) begin(e.touches[0].clientX, e.touches[0].clientY, e.timeStamp); else g = null; }, { passive: true });
   sh.addEventListener('touchmove', e => {
     if (!g) return; const p = e.touches[0], dx = p.clientX - g.x, dy = p.clientY - g.y;
     if (!g.on) { if (g.top && dy > 0 && dy >= Math.abs(dx) && e.cancelable) claim(); else { g = null; return; } }
@@ -1251,7 +1316,7 @@ function sheetDrag(sh, scrim) {
   sh.addEventListener('touchend', finish); sh.addEventListener('touchcancel', finish);
   // mouse (desktop): grab anywhere that is not a control
   sh.addEventListener('pointerdown', e => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('input,textarea,select,button,label,a,.cands')) return;
+    if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('input,textarea,select,button,label,a,.cands,.no-drag')) return;
     begin(e.clientX, e.clientY, e.timeStamp);
     const mv = ev => { if (!g) return; if (!g.on) { if (ev.clientY - g.y > 4 && g.top) claim(); else if (Math.abs(ev.clientY - g.y) > 4) { g = null; return; } else return; } follow(ev.clientY, ev.timeStamp); };
     const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); finish(); };
@@ -1379,9 +1444,310 @@ function cardSheet(cardId) {
     });
 }
 
+/* ---------- dictionary ----------
+   dict/zh-en.tsv: CC-CEDICT (CC BY-SA 4.0, mdbg.net) ranked by word frequency (jieba, MIT); rebuild with tools/build_dict.py.
+   One line per word, most common first: simplified <TAB> pinyin <TAB> meanings. Loaded on first quick add, then kept offline. */
+let dictP = null;
+function loadDict() {
+  return dictP ||= fetch('dict/zh-en.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    const rows = [], byHz = new Map();
+    for (const l of t.split('\n')) {
+      if (!l || l[0] === '#') continue;
+      const [h, p, e] = l.split('\t'); if (!e) continue;
+      const row = { h, p, e, r: rows.length }; rows.push(row);
+      const a = byHz.get(h); if (a) a.push(row); else byHz.set(h, [row]);
+    }
+    return { rows, byHz };
+  }).catch(e => { dictP = null; throw e; });
+}
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const meanings = row => row.e.split('; ');
+const plainMeaning = m => m.replace(/^(\([^)]*\)\s*)+/, '').trim() || m;   // "(bound form) to walk" -> "to walk"
+/* English -> Chinese: exact meanings first ("eat" finds 吃 "to eat"), then words that mention it; common words first within each group */
+function searchEnglish(D, q) {
+  q = q.toLowerCase().trim().replace(/\s+/g, ' ').replace(/^(to|a|an|the) /, '');
+  if (q.length < 2) return [];
+  const re = new RegExp(`(^|[^a-z])${escRe(q)}($|[^a-z])`), hits = [];
+  for (const row of D.rows) {
+    const e = row.lc ||= row.e.toLowerCase();
+    if (!e.includes(q) || !re.test(e)) continue;
+    const ms = e.split('; ').map(m => plainMeaning(m).replace(/^(to|a|an|the) /, ''));
+    const k = ms.indexOf(q);
+    hits.push([k === 0 ? 0 : k > 0 ? 1 : re.test(ms[0]) ? 2 : 3, row]);
+  }
+  hits.sort((a, b) => a[0] - b[0] || a[1].r - b[1].r);
+  const seen = new Set(), out = [];
+  for (const [, row] of hits) { if (seen.has(row.h)) continue; seen.add(row.h); out.push(row); if (out.length >= 12) break; }
+  return out;
+}
+
+/* ---------- word bank ----------
+   Everything you add with Quick add lands here; the count of different characters is "characters you know". */
+function bankCharList() {   // oldest first
+  const seen = new Set();
+  for (let i = db.bank.length - 1; i >= 0; i--) for (const c of hanChars(db.bank[i].hanzi)) seen.add(c);
+  return [...seen];
+}
+const bankHas = hz => db.bank.find(w => w.hanzi === hz);
+function addCardTo(d, w) {
+  if (d.cards.some(c => c.hanzi === w.hanzi)) return false;
+  d.cards.push({ id: uid(), en: w.en, hanzi: w.hanzi, pinyin: w.pinyin, created: Date.now(), hist: [] });
+  return true;
+}
+function newDeckNamed(name) {
+  const d = { id: uid(), name, accent: ACCENTS[db.decks.length % ACCENTS.length], created: Date.now(), cards: [] };
+  db.decks.push(d); save(); return d;
+}
+/* chips for picking decks; `has` = decks that already have the word (shown, not tappable) */
+function deckChips(box, sel, has, onChange) {
+  const paint = () => {
+    box.innerHTML = db.decks.map(d => has.has(d.id)
+      ? `<span class="chip has" style="--accent:${d.accent}"><i></i>${esc(d.name)} ✓</span>`
+      : `<button class="chip ${sel.has(d.id) ? 'on' : ''}" data-id="${d.id}" style="--accent:${d.accent}"><i></i>${esc(d.name)}</button>`).join('')
+      + `<button class="chip add" data-new="1">${I.plus.replace('class="i"', 'class="i" style="width:16px;height:16px"')}New deck</button>`;
+  };
+  box.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.id) { sel.has(b.dataset.id) ? sel.delete(b.dataset.id) : sel.add(b.dataset.id); b.classList.toggle('on'); onChange(); return; }
+    if (!b.dataset.new) return;
+    b.outerHTML = `<div class="chip-new"><input class="input" placeholder="New deck name" maxlength="40" autocomplete="off"><button class="btn btn-primary">Create</button></div>`;
+    const wrap = box.querySelector('.chip-new'), inp = wrap.querySelector('input');
+    const make = () => { const name = inp.value.trim(); if (!name) { inp.focus(); return; } const d = newDeckNamed(name); sel.add(d.id); LOG.add('deck-new', { name, from: 'chips' }); paint(); onChange(); };
+    wrap.querySelector('button').onclick = make; inp.onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); make(); } };
+    inp.focus();
+  };
+  paint();
+}
+
+function quickAddSheet() {
+  const Q = { mode: db.prefs.qaMode || 'write', word: '', pick: null, reading: 0, enDirty: false, D: null, seq: 0 };
+  const sel = new Set();   // decks to also add to; kept while the pop-up stays open
+  openSheet(`<h3>Quick add</h3>
+    <div class="seg qa-seg" id="qaSeg">${[['write', 'Write'], ['pinyin', 'Pinyin'], ['english', 'English']].map(([k, l]) => `<button data-m="${k}" class="${Q.mode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="compose"><div class="qa-word"><div class="compose-hz" id="qaHz"></div><div class="compose-py" id="qaPy"></div></div>
+      <button class="icon-btn" id="qaBk" aria-label="Delete last character">${I.bksp}</button></div>
+    <div id="qaMode"></div>
+    <div id="qaInfo" hidden>
+      <div class="means" id="qaReads" style="margin:4px 0 12px"></div>
+      <label class="field"><span class="lbl"><span>Meaning · English</span><span class="lbl-note" id="qaNote"></span></span>
+        <input class="input" id="qaEn" placeholder="What it means" autocomplete="off"></label>
+      <div class="means" id="qaMeans"></div>
+    </div>
+    <div class="field"><span class="lbl"><span>Also add to decks</span><span class="lbl-note">optional</span></span><div class="chips" id="qaDecks"></div></div>
+    <button class="btn btn-primary wide" id="qaAdd" disabled>Add to word bank</button>`,
+  sh => {
+    const $q = s => sh.querySelector(s);
+    const hzEl = $q('#qaHz'), pyEl = $q('#qaPy'), modeEl = $q('#qaMode'), info = $q('#qaInfo'), enEl = $q('#qaEn'), addBtn = $q('#qaAdd');
+    const readings = () => (Q.D && Q.word && Q.D.byHz.get(Q.word)) || [];
+    const curPinyin = () => readings()[Q.reading]?.p || autoPinyin(Q.word);
+
+    const paintButton = () => {
+      const hz = hanChars(Q.word).length, had = Q.word && bankHas(Q.word), n = sel.size;
+      addBtn.disabled = !hz || (had && !n);
+      addBtn.textContent = !hz ? 'Add to word bank' : had ? (n ? `Add to ${plural(n, 'deck')}` : 'Already in your word bank')
+        : `Add to word bank${n ? ` + ${plural(n, 'deck')}` : ''}`;
+    };
+    const paintInfo = () => {
+      const R = readings();
+      info.hidden = !Q.word;
+      if (!Q.word) return;
+      const row = R[Q.reading];
+      $q('#qaReads').innerHTML = R.length > 1 ? R.map((r, i) => `<button class="mean ${i === Q.reading ? 'on' : ''}" data-r="${i}">${esc(r.p)}</button>`).join('') : '';
+      const ms = row ? meanings(row) : [];
+      if (!Q.enDirty) enEl.value = ms[0] ? plainMeaning(ms[0]) : (bankHas(Q.word)?.en || '');
+      $q('#qaMeans').innerHTML = ms.length > 1 ? ms.map(m => `<button class="mean">${esc(plainMeaning(m))}</button>`).join('') : '';
+      $q('#qaNote').textContent = row ? 'from the dictionary · editable' : Q.D ? 'not in the dictionary · type it' : '';
+    };
+    const paintWord = () => {
+      hzEl.textContent = Q.word || (Q.mode === 'write' ? 'Write a character below…' : Q.mode === 'pinyin' ? 'Type pinyin below…' : 'Search in English below…');
+      hzEl.classList.toggle('ph', !Q.word);
+      pyEl.textContent = Q.word ? curPinyin() : '';
+      paintInfo(); paintButton();
+    };
+    const setWord = (w, row, typed) => {
+      Q.word = w; Q.enDirty = false; Q.typed = typed || '';
+      const R = readings(), said = Q.typed && R.findIndex(r => normPy(r.p) === Q.typed);   // the reading you typed comes first
+      Q.reading = row ? Math.max(0, R.indexOf(row)) : said > 0 ? said : 0;
+      paintWord();
+    };
+    $q('#qaReads').onclick = e => { const b = e.target.closest('[data-r]'); if (!b) return; Q.reading = +b.dataset.r; Q.enDirty = false; paintWord(); };
+    $q('#qaMeans').onclick = e => { const b = e.target.closest('.mean'); if (!b) return; enEl.value = b.textContent; Q.enDirty = true; };
+    enEl.addEventListener('input', () => { Q.enDirty = true; });
+    $q('#qaBk').onclick = () => { if (Q.word) setWord([...Q.word].slice(0, -1).join('')); };
+    deckChips($q('#qaDecks'), sel, new Set(), paintButton);
+
+    /* --- the three ways in --- */
+    const modes = {
+      write() {
+        const s = Math.min(210, Math.max(150, sh.clientWidth - 48 - 116));
+        modeEl.innerHTML = `<div class="qa-pad"><div class="tzg no-drag" id="qaBox" style="--s:${s}px">${TZG}<canvas></canvas></div>
+          <div class="qa-tools"><button class="pill" id="qaUndo">${I.undo}Undo</button><button class="pill" id="qaClr">${I.trash}Clear</button></div></div>
+          <div class="cands" id="qaC" style="margin-bottom:8px"><span class="msg">Write one character — matches appear here.</span></div>`;
+        const box = $q('#qaBox'), cv = box.querySelector('canvas'), dpr = Math.min(3, devicePixelRatio || 1), cands = $q('#qaC');
+        cv.width = cv.height = s * dpr; cv.style.width = cv.style.height = s + 'px';
+        box._ctx = cv.getContext('2d'); box._ctx.setTransform(dpr, 0, 0, dpr, 0, 0); box._s = s; box._strokes = [];
+        let cur = null, t;
+        const pt = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top, t: e.timeStamp }; };
+        const read = () => {
+          clearTimeout(t); const seq = ++Q.seq;
+          if (!box._strokes.length) { cands.innerHTML = '<span class="msg">Write one character — matches appear here.</span>'; return; }
+          t = setTimeout(async () => {
+            try {
+              const list = (await recognize(box._strokes, s)).filter(c => [...c].length === 1 && HAN.test(c)).slice(0, 12);
+              if (seq !== Q.seq) return;
+              cands.innerHTML = list.length ? list.map(c => `<button class="cand">${esc(c)}</button>`).join('') : '<span class="msg">No match yet — keep writing.</span>';
+              cands.scrollLeft = 0;
+            } catch (_) { if (seq === Q.seq) cands.innerHTML = '<span class="msg">Offline — handwriting needs internet. Try Pinyin.</span>'; }
+          }, 160);
+        };
+        const clearPad = () => { box._strokes = []; redraw(box); read(); };
+        cv.addEventListener('pointerdown', e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); cur = [pt(e)]; box._strokes.push(cur); redraw(box); });
+        cv.addEventListener('pointermove', e => { if (!cur) return; const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]; for (const ev of (evs.length ? evs : [e])) cur.push(pt(ev)); redraw(box); });
+        const up = () => { if (cur) { cur = null; read(); } };
+        cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+        $q('#qaUndo').onclick = () => { box._strokes.pop(); redraw(box); read(); };
+        $q('#qaClr').onclick = clearPad;
+        cands.onclick = e => { const b = e.target.closest('.cand'); if (!b) return; LOG.add('qa-write-pick', { picked: b.textContent, strokes: box._strokes.length }); setWord(Q.word + b.textContent); clearPad(); };
+        Q.reset = clearPad;
+      },
+      pinyin() {
+        modeEl.innerHTML = `<input class="input" id="qaIn" placeholder="Type pinyin — e.g. tushuguan" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done">
+          <div class="cands" id="qaC"><span class="msg">Characters appear here as you type.</span></div>`;
+        const inp = $q('#qaIn'), cands = $q('#qaC'); let t;
+        const paint = list => {
+          if (!inp.value) { cands.innerHTML = `<span class="msg">${Q.word ? 'Keep typing to add more.' : 'Characters appear here as you type.'}</span>`; cands._list = []; return; }
+          cands.innerHTML = list.length ? list.map((x, i) => `<button class="cand" data-i="${i}">${esc(x.h)}</button>`).join('') : '<span class="msg">No match yet…</span>';
+          cands.scrollLeft = 0; cands._list = list;
+        };
+        const lookup = () => {
+          const py = normPy(inp.value); clearTimeout(t);
+          if (!py) { paint([]); return; }
+          const seq = ++Q.seq;
+          t = setTimeout(async () => {
+            try { const list = await fetchCands(py); if (seq === Q.seq) paint(list); }
+            catch (e) { if (e.name !== 'AbortError' && seq === Q.seq) cands.innerHTML = '<span class="msg">Offline — pinyin lookup needs internet.</span>'; }
+          }, 110);
+        };
+        const pick = i => {
+          const x = cands._list?.[i]; if (!x) return;
+          LOG.add('qa-pinyin-pick', { typed: normPy(inp.value), picked: x.h, choice: i + 1 });
+          setWord(Q.word + x.h, null, (Q.word ? Q.typed : '') + normPy(inp.value).slice(0, x.len)); inp.value = normPy(inp.value).slice(x.len); lookup(); inp.focus();
+        };
+        cands.addEventListener('pointerdown', e => { if (e.target.closest('.cand')) e.preventDefault(); });
+        cands.onclick = e => { const b = e.target.closest('.cand'); if (b) pick(+b.dataset.i); };
+        inp.addEventListener('input', () => {
+          const han = hanChars(inp.value).join('');
+          if (han) { setWord(Q.word + han); inp.value = inp.value.replace(/\p{Script=Han}/gu, ''); }
+          lookup();
+        });
+        inp.addEventListener('keydown', e => {
+          if ((e.key === 'Enter' || e.key === ' ') && inp.value && cands._list?.length) { e.preventDefault(); pick(0); }
+          else if (e.key === 'Backspace' && !inp.value && Q.word) { e.preventDefault(); setWord([...Q.word].slice(0, -1).join('')); }
+        });
+        Q.reset = () => { inp.value = ''; paint([]); };
+        setTimeout(() => inp.focus(), 250);
+      },
+      english() {
+        modeEl.innerHTML = `<input class="input" id="qaIn" placeholder="Type English — e.g. library" autocomplete="off" spellcheck="false" enterkeyhint="search">
+          <div class="en-res" id="qaR"><span class="msg">Matching Chinese words appear here.</span></div>`;
+        const inp = $q('#qaIn'), res = $q('#qaR'); let t;
+        const run = async () => {
+          const q = inp.value.trim(), seq = ++Q.seq;
+          if (q.length < 2) { res.innerHTML = '<span class="msg">Matching Chinese words appear here.</span>'; return; }
+          if (!Q.D) { res.innerHTML = '<span class="msg">Loading the dictionary…</span>'; try { Q.D = await loadDict(); } catch (_) { if (seq === Q.seq) res.innerHTML = '<span class="msg">Couldn’t load the dictionary. Are you online?</span>'; return; } }
+          if (seq !== Q.seq) return;
+          const rows = searchEnglish(Q.D, q); res._rows = rows;
+          res.innerHTML = rows.length ? rows.map((r, i) => `<button class="en-row" data-i="${i}"><span class="hz">${esc(r.h)}</span>
+              <span class="wm"><div class="wp">${esc(r.p)}</div><div class="we">${esc(r.e)}</div></span></button>`).join('')
+            : `<span class="msg">Nothing found for “${esc(q)}”. Try another word.</span>`;
+        };
+        inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 140); });
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(t); run(); } });
+        res.onclick = e => {
+          const b = e.target.closest('.en-row'); if (!b) return; const row = res._rows[+b.dataset.i];
+          LOG.add('qa-english-pick', { typed: inp.value.trim(), picked: row.h, choice: +b.dataset.i + 1 });
+          setWord(row.h, row); inp.blur();
+          res._rows = []; res.innerHTML = `<span class="msg">Picked ${esc(row.h)}. Type again to search for another word.</span>`;
+        };
+        Q.reset = () => { inp.value = ''; run(); };
+        setTimeout(() => inp.focus(), 250);
+      },
+    };
+    const setMode = m => {
+      Q.mode = m; db.prefs.qaMode = m; save(); Q.seq++;
+      $q('#qaSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+      modes[m](); paintWord();
+    };
+    $q('#qaSeg').onclick = e => { const b = e.target.closest('button'); if (b && b.dataset.m !== Q.mode) setMode(b.dataset.m); };
+
+    addBtn.onclick = () => {
+      const hz = Q.word, en = enEl.value.trim(), pinyin = curPinyin();
+      if (!hanChars(hz).length) return;
+      if (sel.size && !en) { enEl.focus(); toast('Add a meaning — it goes on the back of the card'); return; }
+      let w = bankHas(hz); const isNew = !w;
+      if (isNew) { w = { id: uid(), hanzi: hz, pinyin, en, added: Date.now() }; db.bank.unshift(w); }
+      else if (en && !w.en) w.en = en;
+      const card = { hanzi: hz, pinyin, en: en || w.en };
+      const into = [...sel].map(deckById).filter(Boolean).filter(d => addCardTo(d, card));
+      save();
+      LOG.add('quick-add', { hz, pinyin, en, via: Q.mode, new_in_bank: isNew, decks: into.map(d => d.name) });
+      toast(`${isNew ? `Added ${hz} to your word bank` : `${hz} is already in your word bank`}${into.length ? ` · ${into.length === 1 ? into[0].name : plural(into.length, 'deck')}` : ''}`);
+      setWord(''); Q.reset?.(); render();
+    };
+    setMode(Q.mode);
+    loadDict().then(D => { Q.D = D; paintWord(); }).catch(() => {});
+  });
+}
+
+function BankView() {
+  const chars = bankCharList(), n = db.bank.length;
+  return `<div class="screen fade-in">
+    <header class="bar"><button class="icon-btn" data-act="home" aria-label="Back">${I.back}</button><div class="bar-title">Word bank</div><div style="width:42px"></div></header>
+    <section class="bank-hero"><div class="bank-num">${chars.length}</div>
+      <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
+    ${n ? `<input class="input" id="bankQ" placeholder="Search hanzi, pinyin or English" autocomplete="off" spellcheck="false" style="margin-bottom:22px">
+      <div class="section-head"><h2>Characters</h2></div>
+      <div class="char-grid">${chars.map(c => `<span>${esc(c)}</span>`).join('')}</div>
+      <div class="section-head"><h2>Words</h2><span class="muted" style="font-size:12.5px">newest first</span></div>
+      <div class="word-list" id="bankWords">${db.bank.map(w => `<button class="word-row" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
+          <span class="hz">${esc(w.hanzi)}</span><span class="wm"><div class="wp">${esc(w.pinyin)}</div><div class="we">${esc(w.en || '—')}</div></span><span class="chev">${I.chev}</span></button>`).join('')}</div>
+      <p class="muted" style="font-size:11.5px;margin:18px 2px 0">Meanings from CC-CEDICT (mdbg.net, CC BY-SA 4.0)</p>`
+    : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Add every character you know with Quick add, by writing it, typing pinyin or searching in English. The count grows as you go.</p></div>`}
+    <div class="dock"><button class="btn btn-primary wide" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
+  </div>`;
+}
+function mountBank() {
+  const q = $('#bankQ'); if (!q) return;
+  q.oninput = () => { const s = q.value.trim().toLowerCase(), sp = normPy(s); $$('#bankWords .word-row').forEach(r => { r.hidden = !!s && !r.dataset.s.includes(s) && !(sp && r.dataset.s.includes(sp)); }); };
+}
+function wordSheet(id) {
+  const w = db.bank.find(x => x.id === id); if (!w) return;
+  const has = new Set(db.decks.filter(d => d.cards.some(c => c.hanzi === w.hanzi)).map(d => d.id)), sel = new Set();
+  openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div></div></div>
+    <label class="field"><span class="lbl">Meaning · English</span><input class="input" id="wEn" value="${esc(w.en || '')}" placeholder="What it means" autocomplete="off"></label>
+    <div class="field"><span class="lbl"><span>Decks</span><span class="lbl-note">tap to add it</span></span><div class="chips" id="wDecks"></div></div>
+    <div class="row-btns" style="margin-top:6px"><button class="btn btn-ghost" id="wDel" style="flex:0 0 56px;padding:0;color:var(--seal)" aria-label="Remove from word bank">${I.trash}</button>
+      <button class="btn btn-primary" id="wSave">Done</button></div>`,
+  sh => {
+    const en = sh.querySelector('#wEn'), btn = sh.querySelector('#wSave');
+    const paint = () => { btn.textContent = sel.size ? `Save + add to ${plural(sel.size, 'deck')}` : 'Done'; };
+    deckChips(sh.querySelector('#wDecks'), sel, has, paint);
+    btn.onclick = () => {
+      w.en = en.value.trim();
+      if (sel.size && !w.en) { en.focus(); toast('Add a meaning — it goes on the back of the card'); return; }
+      const into = [...sel].map(deckById).filter(Boolean).filter(d => addCardTo(d, w));
+      save(); closeSheet(); render();
+      if (into.length) toast(`Added ${w.hanzi} to ${into.length === 1 ? into[0].name : plural(into.length, 'deck')}`);
+    };
+    sh.querySelector('#wDel').onclick = () => confirmSheet('Remove from word bank?', `${esc(w.hanzi)} will leave your word bank. Cards in your decks stay.`, 'Remove', () => {
+      db.bank = db.bank.filter(x => x !== w); save(); render(); toast('Removed from word bank');
+    });
+  });
+}
+
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.13';
+const APP_VERSION = '1.14';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -1413,7 +1779,7 @@ function settingsSheet() {
     ${isInstalled() ? '' : `<button class="list-btn" id="sInst"><span>Install app<br><small>Put ShiCards on your home screen</small></span><span class="side">${I.chev}</span></button>`}
     <button class="list-btn" id="sUpd"><span>Check for updates<br><small id="sUpdSub">You have version ${APP_VERSION}</small></span><span class="side" id="sUpdR">${I.chev}</span></button>
     <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
-    <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks as a .json file</small></span><span class="side">${I.chev}</span></button>
+    <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks and your word bank as a .json file</small></span><span class="side">${I.chev}</span></button>
     <label class="list-btn" style="cursor:pointer"><span>Import backup<br><small>Replaces everything on this device</small></span><span class="side">${I.chev}</span><input type="file" id="sImp" accept="application/json,.json" hidden></label>
     <button class="list-btn" id="sLog"><span>Activity log<br><small class="log-count">${logSummary()}</small></span><span class="side with-dot">${LOG.on ? '<span class="rec-dot"></span>' : ''}${I.chev}</span></button>
     <p class="muted" style="font-size:12.5px;margin:14px 2px 0">Decks are stored only in this browser. Pinyin lookup uses Google Input Tools, so typing pinyin needs internet.</p>`,
@@ -1446,7 +1812,7 @@ function settingsSheet() {
       };
       sh.querySelector('#sImp').onchange = async e => {
         const f = e.target.files[0]; if (!f) return;
-        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
         catch (_) { toast('That file isn’t a ShiCards backup'); }
       };
     });
@@ -1457,6 +1823,9 @@ const A = {
   'home': () => goBack('#/'),
   'open-deck': t => nav('#/deck/' + t.dataset.id),
   'new-deck': () => deckSheet(null),
+  'quick-add': () => quickAddSheet(),
+  'open-bank': () => nav('#/bank'),
+  'bank-word': t => wordSheet(t.dataset.id),
   'deck-menu': () => deckSheet(curDeck()),
   'add-card': () => cardSheet(null),
   'edit-card': t => cardSheet(t.dataset.id),
@@ -1532,7 +1901,7 @@ document.addEventListener('click', e => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let g = null, noClickUntil = 0;
   const targets = () => {
-    if (S.view === 'deck') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
+    if (S.view === 'deck' || S.view === 'bank') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
     const order = ['home', 'learn', 'profile'], views = [Home, LearnView, ProfileView], i = order.indexOf(S.view);
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
