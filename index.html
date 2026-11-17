@@ -525,6 +525,22 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .dr-item svg.i{color:var(--seal)}
 .dr-foot{margin-top:auto;padding:0 10px;font-size:12px;color:var(--muted)}
 
+/* ---------- Move and zoom (profile photo) ---------- */
+.crop{position:fixed;inset:0;z-index:55;background:#14110D;color:#F4EEE3;display:flex;flex-direction:column;align-items:center;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);animation:cropIn .22s ease-out both}
+.crop.out{animation:cropOut .2s ease-in both}
+@keyframes cropIn{from{opacity:0}to{opacity:1}}
+@keyframes cropOut{to{opacity:0}}
+.crop-top{display:grid;grid-template-columns:90px 1fr 90px;align-items:center;width:100%;max-width:480px;height:60px;padding:0 6px}
+.crop-cancel{justify-self:start;padding:10px 12px;font-size:16px;color:rgba(244,238,227,.85)}
+.crop-title{text-align:center;font-weight:600;font-size:17px}
+.crop-stage{position:relative;margin:auto 0 0;width:min(calc(100% - 32px),400px);aspect-ratio:1;overflow:hidden;touch-action:none;cursor:grab;border-radius:6px}
+.crop-stage:active{cursor:grabbing}
+.crop-stage img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;user-select:none;-webkit-user-select:none;pointer-events:none}
+.crop-ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 999px rgba(20,17,13,.62);pointer-events:none}
+.crop-hint{margin:16px 0 auto;font-size:14px;color:rgba(244,238,227,.6)}
+.crop-dock{width:100%;max-width:480px;padding:12px 20px 18px}
+
 /* ---------- profile section ---------- */
 .me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
 .me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
@@ -681,7 +697,7 @@ function parse() {
   return { view: 'home', deckId: null };
 }
 function route() {
-  closeSheet(true); $('#cheer')?.remove(); closeDrawer();
+  closeSheet(true); $('#cheer')?.remove(); closeDrawer(); $('#crop')?.remove();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
   S.hskLevel = r.lv || null; S.readId = r.readId || null;
@@ -932,16 +948,90 @@ function pickPhoto() {
   inp.onchange = () => { if (inp.files[0]) usePhoto(inp.files[0]); };
   LOG.add('photo-pick'); inp.click();
 }
-async function usePhoto(f) {
-  try {
-    const url = await squarePhoto(f, 320), before = db.prefs.photo;
-    db.prefs.photo = url; save();
-    const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
-    // phone storage full: keep the old photo
-    if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return; }
-    LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
-    closeSheet(); if (['home', 'learn', 'read', 'profile'].includes(S.view)) render(); toast('Photo updated');
-  } catch (_) { toast('Couldn’t open that picture'); }
+/* a picture picked from the gallery first goes to the Move and zoom screen; Save keeps what is inside the circle */
+function usePhoto(f) { closeSheet(); cropPhoto(f); }
+function savePhoto(url) {
+  const before = db.prefs.photo;
+  db.prefs.photo = url; save();
+  const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
+  // phone storage full: keep the old photo
+  if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return false; }
+  LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
+  if (['home', 'learn', 'read', 'profile'].includes(S.view)) render();
+  toast('Photo updated'); return true;
+}
+
+/* ---------- Move and zoom ----------
+   Full screen: pinch with two fingers to zoom, drag with one to move (mouse: drag, and the wheel zooms).
+   The picture always fills the square, so there are never empty corners. Save cuts out the square as 320 px. */
+function cropPhoto(file) {
+  const src = URL.createObjectURL(file), img = new Image();
+  img.onerror = () => { URL.revokeObjectURL(src); toast('Couldn’t open that picture'); };
+  img.onload = () => {
+    const el = document.createElement('div');
+    el.id = 'crop'; el.className = 'crop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Move and zoom your photo');
+    el.innerHTML = `<div class="crop-top"><button class="crop-cancel">Cancel</button><div class="crop-title">Move and zoom</div><span></span></div>
+      <div class="crop-stage"><img alt="" draggable="false"><div class="crop-ring"></div></div>
+      <p class="crop-hint">Pinch to zoom · drag to move</p>
+      <div class="crop-dock"><button class="btn btn-seal wide crop-save">Save</button></div>`;
+    $('#frame').appendChild(el);
+    const stage = el.querySelector('.crop-stage'), pic = el.querySelector('img');
+    pic.src = src;
+    const W = img.naturalWidth, H = img.naturalHeight;
+    let S = stage.clientWidth, base = S / Math.min(W, H), k = base, tx = (S - W * k) / 2, ty = (S - H * k) / 2;
+    const MAXZ = 6;
+    const clamp = () => {
+      k = Math.min(base * MAXZ, Math.max(base, k));
+      tx = Math.min(0, Math.max(S - W * k, tx)); ty = Math.min(0, Math.max(S - H * k, ty));
+    };
+    const paint = () => { pic.style.width = W + 'px'; pic.style.height = H + 'px'; pic.style.transform = `translate(${tx}px,${ty}px) scale(${k})`; };
+    // zoom by factor f keeping the point (px, py) of the stage still
+    const zoomAt = (nk, px, py, k0 = k, tx0 = tx, ty0 = ty) => {
+      nk = Math.min(base * MAXZ, Math.max(base, nk));
+      tx = px - (px - tx0) * nk / k0; ty = py - (py - ty0) * nk / k0; k = nk; clamp(); paint();
+    };
+    clamp(); paint();
+    const pts = new Map(); let st = null;
+    const local = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    const startGesture = () => {
+      const p = [...pts.values()];
+      if (p.length >= 2) {
+        const [a, b] = p;
+        st = { two: true, d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2, k, tx, ty };
+      } else if (p.length === 1) st = { two: false, x: p[0][0], y: p[0][1], tx, ty };
+      else st = null;
+    };
+    stage.addEventListener('pointerdown', e => { try { stage.setPointerCapture(e.pointerId); } catch (_) {} pts.set(e.pointerId, local(e)); startGesture(); });
+    stage.addEventListener('pointermove', e => {
+      if (!pts.has(e.pointerId) || !st) return;
+      pts.set(e.pointerId, local(e));
+      const p = [...pts.values()];
+      if (st.two && p.length >= 2) {
+        const [a, b] = p, d = Math.hypot(a[0] - b[0], a[1] - b[1]), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        // the point that was under your fingers stays under them while you pinch and move
+        const nk = Math.min(base * MAXZ, Math.max(base, st.k * d / st.d));
+        tx = mx - (st.mx - st.tx) * nk / st.k; ty = my - (st.my - st.ty) * nk / st.k; k = nk; clamp(); paint();
+      } else if (!st.two) {
+        tx = st.tx + p[0][0] - st.x; ty = st.ty + p[0][1] - st.y; clamp(); paint();
+      }
+    });
+    const lift = e => { if (pts.delete(e.pointerId)) startGesture(); };
+    stage.addEventListener('pointerup', lift); stage.addEventListener('pointercancel', lift);
+    stage.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = local(e); zoomAt(k * Math.exp(-e.deltaY * 0.0015), x, y); }, { passive: false });
+    const onResize = () => { const n = stage.clientWidth; if (!n || n === S) return; const f = n / S; S = n; base = S / Math.min(W, H); k *= f; tx *= f; ty *= f; clamp(); paint(); };
+    addEventListener('resize', onResize);
+    const close = () => { removeEventListener('resize', onResize); el.classList.add('out'); setTimeout(() => { el.remove(); URL.revokeObjectURL(src); }, 220); };
+    el.querySelector('.crop-cancel').onclick = () => { LOG.add('photo-crop', 'cancel'); close(); };
+    el.querySelector('.crop-save').onclick = () => {
+      const c = document.createElement('canvas'); c.width = c.height = 320;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+      g.drawImage(img, -tx / k, -ty / k, S / k, S / k, 0, 0, 320, 320);
+      LOG.add('photo-crop', { zoom: +(k / base).toFixed(2) });
+      if (savePhoto(c.toDataURL('image/jpeg', 0.86))) close();
+    };
+    LOG.add('photo-crop', 'open');
+  };
+  img.src = src;
 }
 
 /* ---------- side menu ----------
@@ -1009,20 +1099,6 @@ function photoSheet() {
       const del = sh.querySelector('#phDel');
       if (del) del.onclick = () => { delete db.prefs.photo; save(); closeSheet(); if (['home', 'learn', 'read', 'profile'].includes(S.view)) render(); toast('Photo removed'); };
     });
-}
-function squarePhoto(file, size) {
-  return new Promise((ok, fail) => {
-    const img = new Image(), src = URL.createObjectURL(file);
-    img.onload = () => {
-      const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement('canvas');
-      c.width = c.height = size;
-      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
-      g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
-      URL.revokeObjectURL(src); ok(c.toDataURL('image/jpeg', 0.85));
-    };
-    img.onerror = () => { URL.revokeObjectURL(src); fail(new Error('decode')); };
-    img.src = src;
-  });
 }
 /* tap, or swipe up/down, on the photo opens its menu; a sideways drag is left to the page swipe */
 let picDown = null;
@@ -2576,7 +2652,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.26';
+const APP_VERSION = '1.27';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
