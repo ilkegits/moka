@@ -234,7 +234,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .tzg .quiz:empty{display:none}
 .tzg .ans{pointer-events:none;opacity:0;transition:opacity .4s}
 .tzg.revealed .ans{opacity:1}
-.tzg.revealed canvas{opacity:.35;transition:opacity .4s}
+.tzg.revealed canvas{opacity:0;transition:opacity .15s .4s}   /* the answer fades in on top first, so the ink never looks washed out */
+.tzg.morphing .ans{opacity:0}
+.tzg.morphing canvas{opacity:1}
 .tzg.dim{opacity:.45;transform:scale(.96)}
 .tzg.done-ok{box-shadow:0 0 0 2px var(--jade), var(--shadow-sm)}
 .tzg.judged-ok{box-shadow:0 0 0 2.5px var(--jade), var(--shadow-sm)}
@@ -246,7 +248,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .verdict{font-weight:600;font-size:15px;color:var(--ink)}
 .verdict.ok{color:var(--jade)} .verdict.no{color:var(--seal)}
 .btn .spin{width:16px;height:16px;border-color:rgba(255,255,255,.35);border-top-color:#fff}
-.ans-fallback{display:grid;place-items:center;height:100%;font-family:var(--hanzi);font-size:calc(var(--s) * .72);color:var(--seal);opacity:.75}
+.ans-fallback{display:grid;place-items:center;height:100%;font-family:var(--hanzi);font-size:calc(var(--s) * .72);color:var(--ink)}
 .tools{display:flex;justify-content:center;gap:10px;margin-top:22px;min-height:38px}
 .note{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;min-height:20px}
 @media (max-height:720px){ /* short phones: give the writing boxes the room */
@@ -1728,7 +1730,7 @@ function initFreeBox(box, s) {
   let cur = null;
   const pt = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top, t: e.timeStamp }; };
   cv.addEventListener('pointerdown', e => {
-    if (W.revealed) { box._ans?.animateCharacter?.(); return; }
+    if (W.revealed) { box._endMorph?.(); box._ans?.animateCharacter?.(); return; }
     e.preventDefault(); cv.setPointerCapture(e.pointerId);
     cur = [pt(e)]; box._strokes.push(cur); W.history.push(box); redraw(box);
   });
@@ -1972,16 +1974,75 @@ function judgeNote(chars) {
     : `${where} is hard to read`;
   return `<span class="verdict no">Not quite</span> · ${why}`;
 }
+/* After Check, your own ink turns into the real character: each stroke you drew slides onto the stroke it
+   matches best (order and direction don't matter), extra ink shrinks away, missing strokes grow out of your
+   ink, and the lines thicken to brush width. Then the real character fades in over it, in ink. */
+const MORPH = { n: 32, ms: 800 };
+function alongLine(pts, n) {           // n points spread evenly along a line
+  const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  const L = d[d.length - 1], out = []; let j = 1;
+  for (let k = 0; k < n; k++) {
+    const t = L * k / (n - 1); while (j < pts.length - 1 && d[j] < t) j++;
+    const a = pts[j - 1] || pts[0], b = pts[j] || pts[0], f = d[j] - d[j - 1] ? (t - d[j - 1]) / (d[j] - d[j - 1]) : 0;
+    out.push({ x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f });
+  }
+  return out;
+}
+function morphToChar(box, ref) {
+  const s = box._s, ctx = box._ctx, n = MORPH.n, p = Math.round(s * .09), k = (s - 2 * p) / 1024;   // same placement as HanziWriter
+  const R = ref.medians.map(m => alongLine(m.map(([x, y]) => ({ x: p + x * k, y: p + (900 - y) * k })), n));
+  const U = box._strokes.filter(st => st.length).map(st => alongLine(st, n));
+  const w0 = Math.max(2.4, Math.min(3.6, s / 32)), w1 = 56 * k, color = css('--ink');
+  const gap = (a, b) => a.reduce((t, q, i) => t + Math.hypot(q.x - b[i].x, q.y - b[i].y), 0) / n;
+  const pairs = [];
+  U.forEach((u, i) => R.forEach((r, j) => { const ur = [...u].reverse(), f = gap(u, r), b = gap(ur, r); pairs.push({ i, j, c: Math.min(f, b), u: b < f ? ur : u }); }));
+  pairs.sort((a, b) => a.c - b.c);
+  const usedU = new Set(), usedR = new Set(), tracks = [];
+  for (const q of pairs) if (!usedU.has(q.i) && !usedR.has(q.j)) { usedU.add(q.i); usedR.add(q.j); tracks.push({ from: q.u, to: R[q.j], a0: 1, a1: 1 }); }
+  const nearestPt = (q, A) => A.reduce((b, x) => Math.hypot(x.x - q.x, x.y - q.y) < Math.hypot(b.x - q.x, b.y - q.y) ? x : b);
+  const Ua = U.flat(), Ra = R.flat();
+  U.forEach((u, i) => { if (usedU.has(i)) return;                       // extra ink: shrink onto the character and fade
+    const c = { x: u.reduce((a, q) => a + q.x, 0) / n, y: u.reduce((a, q) => a + q.y, 0) / n }, to = nearestPt(c, Ra);
+    tracks.push({ from: u, to: u.map(() => to), a0: 1, a1: 0 }); });
+  R.forEach((r, j) => { if (usedR.has(j)) return;                       // missing stroke: grow out of the nearest ink
+    const from = Ua.length ? nearestPt(r[n >> 1], Ua) : r[0];
+    tracks.push({ from: r.map(() => from), to: r, a0: 0, a1: 1 }); });
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+  let raf, t0 = null;
+  const end = () => { cancelAnimationFrame(raf); box._endMorph = null; box.classList.remove('morphing'); };
+  const frame = now => {
+    if (!box.isConnected) return;
+    t0 ??= now; const t = Math.min(1, (now - t0) / MORPH.ms), e = ease(t);
+    ctx.clearRect(0, 0, s, s); ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = w0 + (w1 - w0) * e;
+    for (const tr of tracks) {
+      ctx.globalAlpha = Math.max(0, Math.min(1, tr.a0 + (tr.a1 - tr.a0) * e)); if (ctx.globalAlpha < .01) continue;
+      ctx.beginPath();
+      tr.from.forEach((a, i) => { const b = tr.to[i], x = a.x + (b.x - a.x) * e, y = a.y + (b.y - a.y) * e; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    if (t < 1) raf = requestAnimationFrame(frame); else end();
+  };
+  box._endMorph = end;
+  raf = requestAnimationFrame(frame);
+}
 function revealFree() {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   W.revealed = true;
   $$('#grid .tzg').forEach((box, i) => {
     const el = box.querySelector('.ans'); el.innerHTML = '';
     if (window.HanziWriter) {
       box._ans = HanziWriter.create(el, chars[i], writerOpts(box._s, {
-        strokeColor: css('--seal'),
+        strokeColor: css('--ink'),
+        charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err),
         onLoadCharDataError: () => { el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`; },
       }));
+      if (!still && box._strokes?.length) {
+        box.classList.add('morphing');
+        loadRef(chars[i]).then(ref => morphToChar(box, ref), () => box.classList.remove('morphing'));
+      }
     } else el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`;
     box.classList.add('revealed');
     const j = W.judge?.chars?.[i];
@@ -2771,7 +2832,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.32';
+const APP_VERSION = '1.33';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
