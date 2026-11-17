@@ -412,6 +412,13 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .mean{padding:7px 11px;border-radius:9px;background:var(--fill);font-size:13.5px;color:var(--ink);text-align:left}
 .mean.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .lbl-note{text-transform:none;letter-spacing:0;font-weight:500}
+/* quick add: what you wrote is not a dictionary word; real words that start with it */
+.qa-not{margin:2px 0 16px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.qa-not b{font-family:var(--hanzi);font-weight:500;color:var(--seal)}
+.qa-sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.qa-sugg button{display:flex;align-items:baseline;gap:7px;padding:7px 11px;border-radius:9px;background:var(--fill);color:var(--ink);text-align:left}
+.qa-sugg .hz{font-family:var(--hanzi);font-size:19px}
+.qa-sugg .wp{font-size:12.5px;color:var(--seal)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 13px;border-radius:10px;background:var(--fill);font-size:14.5px;font-weight:500;color:var(--ink);transition:background .15s,color .15s}
 .chip i{width:8px;height:8px;border-radius:2px;background:var(--accent);flex:none}
@@ -2482,7 +2489,8 @@ function cardSheet(cardId) {
 
 /* ---------- dictionary ----------
    dict/zh-en.tsv: CC-CEDICT (CC BY-SA 4.0, mdbg.net) ranked by word frequency (jieba, MIT); rebuild with tools/build_dict.py.
-   One line per word, most common first: simplified <TAB> pinyin <TAB> meanings. Loaded on first quick add, then kept offline. */
+   One line per word, most common first: simplified <TAB> pinyin <TAB> meanings. Every CC-CEDICT word is in it, so quick add
+   only takes real words. Loaded on first quick add, then kept offline. */
 let dictP = null;
 function loadDict() {
   return dictP ||= fetch('dict/zh-en.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
@@ -2563,6 +2571,7 @@ function quickAddSheet() {
     <div class="compose"><div class="qa-word"><div class="compose-hz" id="qaHz"></div><div class="compose-py" id="qaPy"></div></div>
       <button class="icon-btn" id="qaBk" aria-label="Delete last character">${I.bksp}</button></div>
     <div id="qaMode"></div>
+    <div class="qa-not" id="qaNot" hidden></div>
     <div id="qaInfo" hidden>
       <div class="means" id="qaReads" style="margin:4px 0 12px"></div>
       <label class="field"><span class="lbl"><span>Meaning · English</span><span class="lbl-note" id="qaNote"></span></span>
@@ -2575,24 +2584,44 @@ function quickAddSheet() {
     const $q = s => sh.querySelector(s);
     const hzEl = $q('#qaHz'), pyEl = $q('#qaPy'), modeEl = $q('#qaMode'), info = $q('#qaInfo'), enEl = $q('#qaEn'), addBtn = $q('#qaAdd');
     const readings = () => (Q.D && Q.word && Q.D.byHz.get(Q.word)) || [];
-    const curPinyin = () => readings()[Q.reading]?.p || autoPinyin(Q.word);
+    const curPinyin = () => readings()[Q.reading]?.p || S.H?.byHz.get(Q.word)?.p || autoPinyin(Q.word);
+    /* only real words go in: the word must be in CC-CEDICT (or on the HSK lists), like a Pleco look-up.
+       true = a word, false = not a word, null = the dictionary has not loaded yet */
+    const isWord = () => !Q.word ? false : S.H?.byHz.has(Q.word) || (Q.D ? Q.D.byHz.has(Q.word) : null);
+    const startsWith = w => {   // real words that begin with what you wrote, most common first
+      if (!Q.D || !w) return [];
+      const out = [], seen = new Set([w]);
+      for (const r of Q.D.rows) { if (r.h.length > w.length && r.h.startsWith(w) && !seen.has(r.h)) { seen.add(r.h); out.push(r); if (out.length >= 8) break; } }
+      return out;
+    };
 
     const paintButton = () => {
-      const hz = hanChars(Q.word).length, had = Q.word && bankHas(Q.word), n = sel.size;
-      addBtn.disabled = !hz || (had && !n);
-      addBtn.textContent = !hz ? 'Add to word bank' : had ? (n ? `Add to ${plural(n, 'deck')}` : 'Already in your word bank')
+      const hz = hanChars(Q.word).length, had = Q.word && bankHas(Q.word), n = sel.size, ok = isWord();
+      addBtn.disabled = !hz || !ok || (had && !n);
+      addBtn.textContent = !hz ? 'Add to word bank' : ok === null ? (Q.dictErr ? 'The dictionary needs internet once' : 'Loading the dictionary…')
+        : !ok ? 'Not a word in the dictionary' : had ? (n ? `Add to ${plural(n, 'deck')}` : 'Already in your word bank')
         : `Add to word bank${n ? ` + ${plural(n, 'deck')}` : ''}`;
+    };
+    const paintNot = () => {
+      const not = $q('#qaNot'), off = !Q.word || isWord() !== false;
+      not.hidden = off; if (off) return;
+      const more = startsWith(Q.word);
+      not.innerHTML = `<b>${esc(Q.word)}</b> is not a word in the dictionary, so it can’t go in your word bank. `
+        + (more.length ? 'Keep writing, or pick a word that starts with it:' : 'Tap ⌫ to take the last character off.')
+        + (more.length ? `<div class="qa-sugg">${more.map(r => `<button data-h="${esc(r.h)}"><span class="hz">${esc(r.h)}</span><span class="wp">${esc(r.p)}</span></button>`).join('')}</div>` : '');
     };
     const paintInfo = () => {
       const R = readings();
-      info.hidden = !Q.word;
-      if (!Q.word) return;
+      paintNot();
+      info.hidden = !Q.word || !isWord();
+      if (info.hidden) return;
       const row = R[Q.reading];
       $q('#qaReads').innerHTML = R.length > 1 ? R.map((r, i) => `<button class="mean ${i === Q.reading ? 'on' : ''}" data-r="${i}">${esc(r.p)}</button>`).join('') : '';
       const ms = row ? meanings(row) : [];
       if (!Q.enDirty) enEl.value = ms[0] ? plainMeaning(ms[0]) : (bankHas(Q.word)?.en || '');
       $q('#qaMeans').innerHTML = ms.length > 1 ? ms.map(m => `<button class="mean">${esc(plainMeaning(m))}</button>`).join('') : '';
-      $q('#qaNote').textContent = row ? 'from the dictionary · editable' : Q.D ? 'not in the dictionary · type it' : '';
+      const lv = S.H?.byHz.get(Q.word)?.lv;
+      $q('#qaNote').textContent = `${lv ? HSK_NAME(lv) : S.H ? 'not on the HSK lists' : ''}${lv || S.H ? ' · ' : ''}editable`;
     };
     const paintWord = () => {
       hzEl.textContent = Q.word || (Q.mode === 'write' ? 'Write a character below…' : Q.mode === 'pinyin' ? 'Type pinyin below…' : 'Search in English below…');
@@ -2610,6 +2639,7 @@ function quickAddSheet() {
     $q('#qaMeans').onclick = e => { const b = e.target.closest('.mean'); if (!b) return; enEl.value = b.textContent; Q.enDirty = true; };
     enEl.addEventListener('input', () => { Q.enDirty = true; });
     $q('#qaBk').onclick = () => { if (Q.word) setWord([...Q.word].slice(0, -1).join('')); };
+    $q('#qaNot').onclick = e => { const b = e.target.closest('[data-h]'); if (!b) return; LOG.add('qa-word-pick', { had: Q.word, picked: b.dataset.h }); setWord(b.dataset.h); Q.reset?.(); };
     deckChips($q('#qaDecks'), sel, new Set(), paintButton);
 
     /* --- the three ways in --- */
@@ -2718,7 +2748,7 @@ function quickAddSheet() {
 
     addBtn.onclick = () => {
       const hz = Q.word, en = enEl.value.trim(), pinyin = curPinyin();
-      if (!hanChars(hz).length) return;
+      if (!hanChars(hz).length || !isWord()) return;
       if (sel.size && !en) { enEl.focus(); toast('Add a meaning — it goes on the back of the card'); return; }
       let w = bankHas(hz); const isNew = !w;
       if (isNew) { w = { id: uid(), hanzi: hz, pinyin, en, added: Date.now(), hsk: S.H ? S.H.byHz.get(hz)?.lv || 0 : undefined }; db.bank.unshift(w); }
@@ -2731,7 +2761,8 @@ function quickAddSheet() {
       setWord(''); Q.reset?.(); render();
     };
     setMode(Q.mode);
-    loadDict().then(D => { Q.D = D; paintWord(); }).catch(() => {});
+    loadDict().then(D => { Q.D = D; paintWord(); }).catch(() => { Q.dictErr = true; paintButton(); });
+    if (!S.H) loadHsk().then(paintWord, () => {});
   });
 }
 
@@ -3009,7 +3040,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.44';
+const APP_VERSION = '1.45';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

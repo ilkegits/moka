@@ -13,8 +13,8 @@ import gzip, io, re, sys, unicodedata
 src, freqsrc = sys.argv[1], sys.argv[2]
 out = sys.argv[3] if len(sys.argv) > 3 else 'dict/zh-en.tsv'
 
-MAX_LEN = 4          # characters per word
-MIN_FREQ = 8         # jieba count for multi-character words (single characters are always kept)
+# Every CC-CEDICT word is kept (any length, however rare), so quick add can tell a real word from
+# characters strung together; jieba frequency only decides the order.
 MAX_DEFS = 4
 MAX_CHARS = 110     # total length of the meanings shown
 
@@ -61,13 +61,12 @@ for line in raw:
     if not m:
         continue
     trad, simp, py, defs = m.groups()
-    if not HAN.match(simp) or len(simp) > MAX_LEN:
+    if not HAN.match(simp):
         continue
     f = freq.get(simp, 0)
-    if len(simp) > 1 and f < MIN_FREQ:
-        continue
-    ds = [clean(d) for d in defs.split('/') if d and not SKIP_DEF.match(d)]
-    ds = [d for d in ds if d and len(d) < 90]
+    every = [clean(d) for d in defs.split('/') if d]
+    ds = [d for d in every if d and not SKIP_DEF.match(d)] or [d for d in every if d][:1]   # "variant of …" words stay, with that note
+    ds = [d if len(d) < 90 else d[:86].rsplit(' ', 1)[0] + ' …' for d in ds]                # long meanings are shortened, not dropped
     if not ds:
         continue
     proper = py[:1].isupper()
