@@ -467,6 +467,24 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .rpop-en{font-size:14.5px;line-height:1.35;margin-top:5px}
 .rpop-tag{font-size:11.5px;margin-top:7px;color:#FFD15C;font-weight:600}
 
+/* ---------- profile section ---------- */
+.me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
+.me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
+  box-shadow:var(--ring),0 14px 28px -16px rgba(70,45,20,.55);touch-action:none;transition:transform .2s}
+.me-pic:active{transform:scale(.96);transition:none}
+.me-pic img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none}
+.me-pic>svg.i{width:58px;height:58px;stroke-width:1.2}
+.me-ini{font-family:var(--display);font-size:56px;font-weight:600;line-height:1;color:var(--seal)}
+.me-cam{position:absolute;right:0;bottom:2px;width:36px;height:36px;border-radius:50%;background:var(--seal);color:var(--seal-ink);display:grid;place-items:center;border:3px solid var(--paper)}
+.me-cam svg.i{width:17px;height:17px;stroke-width:2}
+.me-name{margin-top:14px;width:100%;max-width:290px;height:46px;border:0;border-radius:12px;background:transparent;text-align:center;font-size:25px;font-weight:600;letter-spacing:-.02em;outline:none;transition:background .2s}
+.me-name::placeholder{color:var(--seal);opacity:1}
+.me-name:focus{background:var(--card);box-shadow:var(--ring)}
+.me-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.ph-big{width:168px;height:168px;border-radius:50%;margin:2px auto 18px;background:var(--card);box-shadow:var(--ring);display:grid;place-items:center;color:var(--line-2);overflow:hidden}
+.ph-big img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-big svg.i{width:80px;height:80px;stroke-width:1.1}
+
 /* ---------- learn + profile ---------- */
 .learn-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
 .learn-deck{background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:14px}
@@ -549,6 +567,7 @@ const I = {
   decks: ic('<rect x="8" y="3.5" width="11.5" height="14.5" rx="2"/><path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/>'),
   learn: ic('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/>'),
   profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
+  camera: ic('<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.5"/>'),
   read: ic('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5"/>'),
 };
 /* filled versions, shown on the active tab */
@@ -817,10 +836,12 @@ function ProfileView() {
   const pct = hist.length ? Math.round(hist.filter(Boolean).length / hist.length * 100) + '%' : '–';
   return `<div class="screen fade-in">
     <header class="bar"><div class="bar-title">Profile</div></header>
-    <section class="hello"><div class="hello-hz">我的</div><div class="hello-py">wǒ de</div>
-      <div class="hello-en">Your progress so far</div></section>
-    <label class="field"><span class="lbl">Your name<span>So ShiCards can greet you</span></span>
-      <input class="input" id="pName" placeholder="Type your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false"></label>
+    <section class="me">
+      <button class="me-pic" aria-label="Profile photo. Tap or swipe up to change it">${meAvatar()}</button>
+      <input class="me-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
+      <div class="me-sub">So ShiCards can greet you · stays on this phone</div>
+    </section>
+    <div class="section-head"><h2>Your progress</h2></div>
     <div class="stats">
       <div class="stat"><b>${db.decks.length}</b><span>${db.decks.length === 1 ? 'Deck' : 'Decks'}</span></div>
       <div class="stat"><b>${cards.length}</b><span>${cards.length === 1 ? 'Card' : 'Cards'}</span></div>
@@ -832,6 +853,64 @@ function ProfileView() {
   </div>`;
 }
 
+/* ---------- profile photo ----------
+   Picked from the gallery, cut to a centred square, shrunk to 320 px and kept with your decks on this phone.
+   Tap the photo, or swipe up on it, to open its small menu. */
+function meAvatar() {
+  const ph = db.prefs.photo, name = (db.prefs.name || '').trim();
+  const face = ph ? `<img src="${ph}" alt="" draggable="false">` : name ? `<span class="me-ini">${esc([...name][0].toUpperCase())}</span>` : I.profile;
+  return face + `<span class="me-cam">${I.camera}</span>`;
+}
+function photoSheet() {
+  const ph = db.prefs.photo;
+  openSheet(`<h3>Profile photo</h3>
+    <div class="ph-big">${ph ? `<img src="${ph}" alt="" draggable="false">` : I.profile}</div>
+    <div class="list-group">
+      <label class="list-btn" style="cursor:pointer"><span>Choose from gallery</span><span class="side">${I.chev}</span><input type="file" id="phIn" accept="image/*" hidden></label>
+      ${ph ? `<button class="list-btn" id="phDel"><span style="color:var(--seal)">Remove photo</span><span class="side">${I.trash}</span></button>` : ''}
+    </div>`,
+    sh => {
+      sh.querySelector('#phIn').onchange = async e => {
+        const f = e.target.files[0]; if (!f) return;
+        try {
+          const url = await squarePhoto(f, 320), before = db.prefs.photo;
+          db.prefs.photo = url; save();
+          const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
+          // phone storage full: keep the old photo
+          if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return; }
+          LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
+          closeSheet(); if (S.view === 'profile') render(); toast('Photo updated');
+        } catch (_) { toast('Couldn’t open that picture'); }
+      };
+      const del = sh.querySelector('#phDel');
+      if (del) del.onclick = () => { delete db.prefs.photo; save(); closeSheet(); if (S.view === 'profile') render(); toast('Photo removed'); };
+    });
+}
+function squarePhoto(file, size) {
+  return new Promise((ok, fail) => {
+    const img = new Image(), src = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+      g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(src); ok(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(src); fail(new Error('decode')); };
+    img.src = src;
+  });
+}
+/* tap, or swipe up/down, on the photo opens its menu; a sideways drag is left to the page swipe */
+let picDown = null;
+document.addEventListener('pointerdown', e => { picDown = e.target.closest?.('.me-pic') && !e.target.closest('.peek') ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null; }, true);
+document.addEventListener('pointerup', e => {
+  const d = picDown; picDown = null;
+  if (!d || d.id !== e.pointerId || !e.target.closest?.('.me-pic') || S.view !== 'profile') return;
+  const dx = e.clientX - d.x, dy = e.clientY - d.y;
+  if (Math.abs(dx) > 12 && Math.abs(dx) >= Math.abs(dy)) return;
+  LOG.add('photo-menu', Math.abs(dy) > 24 ? 'swipe' : 'tap'); photoSheet();
+});
+document.addEventListener('click', e => { if (e.detail === 0 && e.target.closest?.('.me-pic')) photoSheet(); });   // keyboard
 /* ---------- read: short stories from your word bank ----------
    Each story is a hand-written frame with gaps; the gaps are filled with words from your word bank that fit
    (a food where a food goes, a place where a place goes), so the Chinese stays correct. A gap no bank word fits
@@ -2267,7 +2346,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.19';
+const APP_VERSION = '1.20';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2521,7 +2600,7 @@ for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev
 document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); }, { passive: false });
 
 /* Profile: your name, used only for the greeting on the Decks page (stored on this phone) */
-document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); } });
+document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); const p = $('.me-pic'); if (p && !db.prefs.photo) p.innerHTML = meAvatar(); } });
 document.addEventListener('change', e => { if (e.target.id === 'pName' && db.prefs.name) toast(`Hello, ${db.prefs.name}`); });
 document.addEventListener('keydown', e => { if (e.target.id === 'pName' && e.key === 'Enter') e.target.blur(); });
 
