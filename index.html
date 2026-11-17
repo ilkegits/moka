@@ -541,6 +541,36 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .crop-hint{margin:16px 0 auto;font-size:14px;color:rgba(244,238,227,.6)}
 .crop-dock{width:100%;max-width:480px;padding:12px 20px 18px}
 
+/* ---------- month calendar + streak (Profile) ---------- */
+.cal-head h2{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cal-zh{font-family:var(--hanzi);font-weight:600;font-size:21px;color:var(--seal);letter-spacing:.04em}
+.cal-py{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0}
+.cal{background:var(--card);border-radius:16px;box-shadow:var(--ring);padding:14px 12px 12px;margin-bottom:24px}
+.cal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px 12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.streak{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.streak .flame{width:30px;height:30px;fill:var(--line-2);flex:none}
+.streak .flame-in{fill:var(--card)}
+.streak.on .flame{fill:#E8742C}
+.streak.on .flame-in{fill:#FFD15C}
+.streak.wait .flame{opacity:.55}
+.streak b{font-family:var(--display);font-size:34px;font-weight:600;line-height:1;color:var(--ink)}
+.streak>span{font-size:13px;line-height:1.2;color:var(--ink-2)}
+.streak small{font-family:var(--hanzi);font-size:12px;color:var(--seal)}
+.cal-note{font-size:12.5px;color:var(--muted);text-align:right;max-width:46%}
+.cal-wk,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-wk span{text-align:center;font-family:var(--hanzi);font-size:13px;color:var(--muted);padding:2px 0 4px}
+.cal-d{position:relative;aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:13px;color:var(--ink-2)}
+.cal-d.pad{visibility:hidden}
+.cal-d.future{color:var(--line-2)}
+.cal-d.today{box-shadow:inset 0 0 0 1.5px var(--seal);color:var(--seal);font-weight:700}
+.cal-d.done{background:var(--seal);color:var(--seal-ink);box-shadow:0 3px 8px -4px rgba(178,58,44,.7);transition:transform .2s}
+.cal-d.done:active{transform:scale(.92);transition:none}
+.cal-d.done.today{box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--seal)}
+.cal-d.done b{font-family:var(--hanzi);font-weight:600;font-size:19px;line-height:1}
+.cal-d.done i{position:absolute;left:4px;top:2px;font-style:normal;font-size:9.5px;font-weight:600;opacity:.8}
+.cal-d i{font-style:normal}
+.cal-d.done em{position:absolute;right:-3px;top:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#FFD15C;color:var(--ink);font-style:normal;font-size:10px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px var(--card)}
+
 /* ---------- profile section ---------- */
 .me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
 .me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
@@ -907,6 +937,52 @@ function LearnView() {
   </div>`;
 }
 
+/* ---------- this month's calendar ----------
+   Every day you finished a story gets a red tile with a character from that story (tap it to read the story again),
+   like a diary of your reading. The flame counts the days in a row with at least one finished story. */
+const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+const ZH_MONTH_PY = ['yīyuè', 'èryuè', 'sānyuè', 'sìyuè', 'wǔyuè', 'liùyuè', 'qīyuè', 'bāyuè', 'jiǔyuè', 'shíyuè', 'shíyīyuè', 'shí’èryuè'];
+const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
+function readStreak() {
+  const days = new Set(db.readDone.map(s => dayKey(s.done))), d = new Date(), today = days.has(dayKey(d));
+  if (!today) d.setDate(d.getDate() - 1);   // today is not over yet: a streak that ran until yesterday still counts
+  let n = 0; while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  return { n, today };
+}
+const storyGlyph = s => [...(s.zh || '').replace(/^狮狮的?/, '')].find(c => HAN.test(c)) || '读';
+const FLAME = `<svg class="flame" viewBox="0 0 24 24"><path d="M12 2.5c.6 3.2-1.3 5-2.9 6.8C7.6 11 6.5 12.6 6.5 15a5.5 5.5 0 0 0 11 0c0-2.4-1-4.4-2.3-5.8.1 1.4-.4 2.6-1.4 3.2.3-3.6-.8-7.1-1.8-9.9z"/><path class="flame-in" d="M12 21a2.6 2.6 0 0 1-2.6-2.6c0-1.5 1.2-2.4 2-3.4.3 1 .9 1.5 1.6 1.8.9.4 1.6 1.1 1.6 1.9A2.6 2.6 0 0 1 12 21z"/></svg>`;
+function MonthCal() {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), td = now.getDate();
+  const len = new Date(y, m + 1, 0).getDate(), lead = (new Date(y, m, 1).getDay() + 6) % 7;   // weeks start on Monday, as in China
+  const by = {};
+  for (const s of db.readDone) { const d = new Date(s.done); if (d.getFullYear() === y && d.getMonth() === m) (by[d.getDate()] ||= []).unshift(s); }   // oldest first
+  const monthEn = now.toLocaleDateString('en-GB', { month: 'long' }), { n, today } = readStreak();
+  const cells = Array.from({ length: lead }, () => '<span class="cal-d pad"></span>');
+  for (let d = 1; d <= len; d++) {
+    const list = by[d], cls = `${d === td ? ' today' : ''}${d > td ? ' future' : ''}`;
+    cells.push(list
+      ? `<button class="cal-d done${cls}" data-act="cal-day" data-d="${d}" aria-label="${d} ${monthEn}: ${list.length === 1 ? '1 story' : list.length + ' stories'}"><b>${esc(storyGlyph(list[0]))}</b><i>${d}</i>${list.length > 1 ? `<em>${list.length}</em>` : ''}</button>`
+      : `<span class="cal-d${cls}"><i>${d}</i></span>`);
+  }
+  const note = n ? (today ? 'Today’s story is done' : 'Finish a story today to keep it going') : 'Finish a story to start a streak';
+  return `<div class="section-head cal-head"><h2>${monthEn} <span class="cal-zh">${ZH_MONTH[m]}</span><span class="cal-py">${ZH_MONTH_PY[m]}</span></h2></div>
+    <div class="cal">
+      <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}</span></div>
+      <div class="cal-wk">${[...'一二三四五六日'].map(c => `<span>${c}</span>`).join('')}</div>
+      <div class="cal-grid">${cells.join('')}</div>
+    </div>`;
+}
+function calDaySheet(d) {
+  const now = new Date(), list = db.readDone.filter(s => { const t = new Date(s.done); return t.getFullYear() === now.getFullYear() && t.getMonth() === now.getMonth() && t.getDate() === d; }).reverse();
+  if (!list.length) return;
+  LOG.add('cal-day', { day: d, stories: list.length });
+  if (list.length === 1) { nav('#/read/' + list[0].id); return; }
+  const when = new Date(now.getFullYear(), now.getMonth(), d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  openSheet(`<h3>${when}</h3><p class="muted" style="margin:-6px 0 14px">${list.length} stories finished this day</p>
+    <div class="group">${list.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
+      <span class="row-main"><span class="row-t"><span class="read-row-zh">${esc(s.zh)}</span> ${esc(s.en)}</span>
+      <span class="row-s">finished at ${clock(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`);
+}
 function ProfileView() {
   const cards = db.decks.flatMap(d => d.cards);
   const hist = cards.flatMap(c => c.hist || []);
@@ -919,6 +995,7 @@ function ProfileView() {
       <input class="me-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
       <div class="me-sub">So ShiCards can greet you · stays on this phone</div>
     </section>
+    ${MonthCal()}
     <div class="section-head"><h2>Your progress</h2></div>
     <div class="stats">
       <div class="stat"><b>${db.decks.length}</b><span>${db.decks.length === 1 ? 'Deck' : 'Decks'}</span></div>
@@ -2652,7 +2729,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.29';
+const APP_VERSION = '1.30';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2754,6 +2831,7 @@ const A = {
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
   'set-name': () => nameSheet(),
+  'cal-day': t => calDaySheet(+t.dataset.d),
   'drawer': () => openDrawer(),
   'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
   'dr-photo': () => { closeDrawer(); pickPhoto(); },
