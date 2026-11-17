@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#F4EEE3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14120F" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Mòkǎ · 墨卡</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="墨卡">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
+<style>
+:root{
+  --paper:#F4EEE3; --paper-deep:#EAE1D0; --card:#FCF9F3; --card-2:#F7F1E6;
+  --ink:#1E1A15; --ink-2:#4A433A; --muted:#978C7C; --line:#E3D8C6; --line-2:#D2C4AD;
+  --seal:#B23A2C; --seal-ink:#FFF8F2; --seal-soft:rgba(178,58,44,.09);
+  --jade:#3F7A5F; --jade-soft:rgba(63,122,95,.12);
+  --grid:rgba(178,58,44,.55);
+  --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 18px 36px -18px rgba(70,45,20,.35), 0 3px 8px -4px rgba(70,45,20,.18);
+  --shadow-sm:0 1px 0 rgba(255,255,255,.7) inset, 0 6px 16px -10px rgba(70,45,20,.35);
+  --hanzi:"Noto Serif SC","Songti SC","STSong",serif;
+  --display:"Cormorant Garamond",Georgia,serif;
+  --ui:"Inter",system-ui,-apple-system,sans-serif;
+  --r:22px;
+  --kb:0px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#14120F; --paper-deep:#0E0D0B; --card:#211E19; --card-2:#1B1915;
+    --ink:#EFE8DA; --ink-2:#C9C0B0; --muted:#8A8071; --line:#2F2A23; --line-2:#3E372D;
+    --seal:#D65A4B; --seal-ink:#1A0F0C; --seal-soft:rgba(214,90,75,.13);
+    --jade:#71B392; --jade-soft:rgba(113,179,146,.14);
+    --grid:rgba(214,90,75,.5);
+    --shadow:0 20px 40px -18px rgba(0,0,0,.8), 0 3px 10px -4px rgba(0,0,0,.5);
+    --shadow-sm:0 8px 18px -10px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--ui); font-size:15px; line-height:1.45;
+  -webkit-font-smoothing:antialiased; overscroll-behavior-y:none;
+}
+body::before{ /* rice-paper grain */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .25 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark){ body::before{mix-blend-mode:screen;opacity:.25} }
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+input{font:inherit;color:inherit}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+#frame{position:relative;z-index:1}
+#app{max-width:480px;margin:0 auto;padding:0 20px}
+.screen{min-height:100dvh;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+
+/* desktop: show as a phone */
+@media (min-width:700px){
+  body{display:grid;place-items:center;min-height:100vh;background:var(--paper-deep)}
+  #frame{width:400px;height:min(860px,94vh);border-radius:44px;overflow:hidden;background:var(--paper);
+    box-shadow:0 0 0 10px #1b1813,0 0 0 11px #3a342b,0 40px 80px -20px rgba(0,0,0,.45);transform:translateZ(0);display:flex}
+  #app{flex:1;overflow-y:auto;width:100%;scrollbar-width:none}
+  .screen{min-height:100%}
+}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;align-items:center;gap:12px;height:60px;position:sticky;top:0;z-index:5;
+  background:linear-gradient(var(--paper) 70%, transparent);margin:0 -20px;padding:0 14px}
+.bar-title{flex:1;text-align:center;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:background .2s}
+.icon-btn:active{background:var(--seal-soft)}
+.icon-btn.lg{width:54px;height:54px;background:var(--card);box-shadow:var(--shadow-sm);color:var(--ink)}
+.brand{display:flex;align-items:center;gap:10px;flex:1;padding-left:6px}
+.seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
+  font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
+.brand-name{font-family:var(--hanzi);font-weight:600;font-size:21px;letter-spacing:.08em}
+.brand-py{font-size:12px;color:var(--seal);letter-spacing:.06em;margin-left:-2px;padding-top:3px}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 22px;border-radius:16px;font-weight:600;font-size:15px;transition:transform .15s, background .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-seal{background:var(--seal);color:var(--seal-ink)}
+.btn-jade{background:var(--jade);color:#fff}
+.btn-ghost{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm)}
+.btn-quiet{color:var(--ink-2)}
+.btn-danger{color:var(--seal)}
+.wide{width:100%}
+.row-btns{display:flex;gap:10px}
+.row-btns>.btn{flex:1}
+.link{color:var(--seal);font-weight:600;font-size:14px;padding:6px 2px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:99px;background:var(--card);box-shadow:var(--shadow-sm);font-size:13px;font-weight:500;color:var(--ink-2)}
+.pill svg.i{width:17px;height:17px}
+.pill.on{background:var(--ink);color:var(--paper)}
+.dock{position:sticky;bottom:0;margin-top:auto;padding:18px 0 calc(18px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent, var(--paper) 30%);z-index:4}
+
+/* ---------- home ---------- */
+.hello{padding:26px 4px 30px}
+.hello-hz{font-family:var(--hanzi);font-size:46px;line-height:1.1;letter-spacing:.04em}
+.hello-py{font-size:14px;color:var(--seal);margin-top:6px;letter-spacing:.02em}
+.hello-en{font-family:var(--display);font-style:italic;font-size:19px;color:var(--ink-2);margin-top:2px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 4px 12px}
+.section-head h2{margin:0;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.decks{display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
+.deck{display:flex;align-items:center;gap:16px;padding:16px 16px 16px 14px;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);text-align:left;transition:transform .15s}
+.deck:active{transform:scale(.985)}
+.deck-stack{position:relative;width:62px;height:74px;flex:none}
+.deck-stack span,.deck-face{position:absolute;inset:0;border-radius:10px;border:1px solid var(--line-2);background:var(--card-2)}
+.deck-stack span:nth-child(1){transform:rotate(-9deg) translate(-3px,2px)}
+.deck-stack span:nth-child(2){transform:rotate(6deg) translate(3px,1px)}
+.deck-face{display:grid;place-items:center;background:var(--card);font-family:var(--hanzi);font-size:30px;color:var(--ink);border-color:var(--line-2)}
+.deck-face::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:2px;background:var(--accent)}
+.deck-meta{flex:1;min-width:0}
+.deck-name{font-family:var(--display);font-size:24px;font-weight:600;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deck-count{font-size:13px;color:var(--muted);margin-top:3px}
+.chev{color:var(--muted)}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .big{font-family:var(--hanzi);font-size:64px;color:var(--line-2);line-height:1}
+
+/* ---------- deck ---------- */
+.deck-hero{padding:8px 4px 22px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent,var(--seal))}
+.deck-title{font-family:var(--display);font-weight:600;font-size:40px;line-height:1.05;margin:6px 0 4px}
+.muted{color:var(--muted);font-size:14px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.mode{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;text-align:left;display:flex;flex-direction:column;gap:14px;transition:transform .15s}
+.mode:active{transform:scale(.97)}
+.mode-ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
+.mode-ic.tz{background:none;padding:0}
+.mode-t{font-weight:600;font-size:16px}
+.mode-s{font-size:12.5px;color:var(--muted);margin-top:1px}
+.cards{list-style:none;margin:0 0 8px;padding:0;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);overflow:hidden}
+.cards li+li{border-top:1px solid var(--line)}
+.crow{display:flex;align-items:center;gap:14px;width:100%;padding:13px 16px;text-align:left}
+.crow:active{background:var(--seal-soft)}
+.crow-hz{font-family:var(--hanzi);font-size:24px;min-width:56px}
+.crow-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.crow-py{font-size:13px;color:var(--seal)}
+.crow-en{font-size:14.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:flex;gap:3px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line-2)}
+.dots i.ok{background:var(--jade)} .dots i.no{background:var(--seal)}
+
+/* ---------- study ---------- */
+.progress{flex:1;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.progress-fill{height:100%;background:var(--seal);border-radius:4px;transition:width .35s ease}
+.count{font-size:13px;color:var(--muted);min-width:42px;text-align:right;font-variant-numeric:tabular-nums;padding-right:6px}
+.stage{flex:1;display:grid;place-items:center;perspective:1300px;padding:12px 0 6px;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;min-height:420px}
+.stage-shadow{position:absolute;bottom:4%;left:50%;width:70%;height:26px;margin-left:-35%;border-radius:50%;background:radial-gradient(closest-side,rgba(60,35,15,.22),transparent);filter:blur(4px)}
+.wrap{width:min(100%,340px);aspect-ratio:3/4;max-height:62dvh;position:relative}
+.card3d{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
+.face{position:absolute;inset:0;border-radius:28px;background:var(--card);box-shadow:var(--shadow);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.face.back{transform:rotateY(180deg);background:var(--card-2)}
+.face-in{position:absolute;inset:12px;border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.face .corner{position:absolute;top:14px;left:16px;font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.face .stamp{position:absolute;top:12px;right:14px;width:22px;height:22px;border-radius:5px;background:var(--accent,var(--seal));color:var(--seal-ink);font-family:var(--hanzi);font-size:12px;display:grid;place-items:center;transform:rotate(-5deg);opacity:.9}
+.face .foot{position:absolute;bottom:14px;left:0;right:0;font-family:var(--display);font-style:italic;font-size:14px;color:var(--muted)}
+.hz{font-family:var(--hanzi);line-height:1.12;letter-spacing:.02em;word-break:break-all}
+.py{font-size:17px;color:var(--seal);margin-top:14px;letter-spacing:.03em}
+.en{font-family:var(--display);font-weight:500;line-height:1.15;color:var(--ink)}
+.hint{text-align:center;font-size:12.5px;color:var(--muted);margin:4px 0 0;transition:opacity .6s;height:18px}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 0 calc(22px + env(safe-area-inset-bottom))}
+.controls .mid{display:flex;gap:8px}
+
+/* ---------- write ---------- */
+.seg{display:flex;background:var(--line);border-radius:12px;padding:3px;gap:2px}
+.seg button{height:32px;padding:0 12px;border-radius:9px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.prompt{text-align:center;padding:18px 0 22px}
+.prompt-en{font-family:var(--display);font-weight:600;line-height:1.1;margin:10px 0 8px}
+.prompt .reveal-line{min-height:28px;display:flex;justify-content:center;align-items:center;gap:10px}
+.prompt .reveal-line .py{margin:0;font-size:16px}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gap,12px)}
+.tzg{position:relative;width:var(--s,150px);height:var(--s,150px);background:var(--card);border-radius:6px;box-shadow:var(--shadow-sm);touch-action:none;color:var(--grid);transition:opacity .25s, transform .25s}
+.tzg *{touch-action:none}
+.tzg-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tzg canvas,.tzg .ans,.tzg .quiz{position:absolute;inset:0}
+.tzg .quiz:empty{display:none}
+.tzg .ans{pointer-events:none;opacity:0;transition:opacity .4s}
+.tzg.revealed .ans{opacity:1}
+.tzg.revealed canvas{opacity:.35;transition:opacity .4s}
+.tzg.dim{opacity:.45;transform:scale(.96)}
+.tzg.done-ok{box-shadow:0 0 0 2px var(--jade), var(--shadow-sm)}
+.ans-fallback{display:grid;place-items:center;height:100%;font-family:var(--hanzi);font-size:calc(var(--s) * .72);color:var(--seal);opacity:.75}
+.tools{display:flex;justify-content:center;gap:10px;margin-top:22px;min-height:38px}
+.note{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;min-height:20px}
+.summary{text-align:center;padding:30px 0 10px;flex:1}
+.ring{width:170px;height:170px;border-radius:50%;margin:10px auto 26px;display:grid;place-items:center;
+  background:conic-gradient(var(--jade) calc(var(--p)*1%), var(--line) 0)}
+.ring>div{width:146px;height:146px;border-radius:50%;background:var(--paper);display:grid;place-items:center;align-content:center}
+.ring b{font-family:var(--display);font-size:54px;font-weight:600;line-height:1}
+.ring span{color:var(--muted);font-size:14px}
+.summary h2{font-family:var(--hanzi);font-weight:400;font-size:34px;margin:0}
+.summary .sub{color:var(--muted);margin-top:4px}
+.missed{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.missed span{font-family:var(--hanzi);font-size:20px;background:var(--card);padding:6px 12px;border-radius:12px;box-shadow:var(--shadow-sm)}
+
+/* ---------- sheet ---------- */
+#sheet-root{position:fixed;inset:0;z-index:50;pointer-events:none}
+#sheet-root.open{pointer-events:auto}
+.scrim{position:absolute;inset:0;background:rgba(20,14,8,.38);opacity:0;transition:opacity .3s}
+#sheet-root.open .scrim{opacity:1}
+.sheet{position:absolute;left:0;right:0;bottom:var(--kb);margin:0 auto;max-width:480px;background:var(--paper);border-radius:28px 28px 0 0;
+  padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:calc(100% - var(--kb) - 30px);overflow-y:auto;
+  transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.85,.25,1), bottom .15s;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+#sheet-root.open .sheet{transform:none}
+.handle{width:40px;height:5px;border-radius:5px;background:var(--line-2);margin:0 auto 14px}
+.sheet h3{font-family:var(--display);font-weight:600;font-size:28px;margin:0 0 16px}
+.field{display:block;margin-bottom:16px}
+.field>.lbl{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 7px 2px}
+.input{width:100%;height:52px;border-radius:14px;border:1px solid var(--line-2);background:var(--card);padding:0 16px;font-size:16px;outline:none;transition:border-color .2s, box-shadow .2s}
+.input:focus{border-color:var(--seal);box-shadow:0 0 0 4px var(--seal-soft)}
+.input::placeholder{color:var(--muted)}
+.compose{display:flex;align-items:center;gap:6px;min-height:78px;border-radius:16px;background:var(--card);border:1px solid var(--line-2);padding:8px 8px 8px 18px;margin-bottom:10px}
+.compose-hz{flex:1;font-family:var(--hanzi);font-size:38px;line-height:1.2;letter-spacing:.04em;word-break:break-all}
+.compose-hz.ph{font-family:var(--ui);font-size:14px;color:var(--muted);letter-spacing:0}
+.cands{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:none;min-height:58px}
+.cands::-webkit-scrollbar{display:none}
+.cand{flex:none;height:44px;min-width:44px;padding:0 14px;border-radius:12px;background:var(--card);box-shadow:var(--shadow-sm);font-family:var(--hanzi);font-size:21px;transition:transform .12s}
+.cand:first-child{background:var(--ink);color:var(--paper)}
+.cand:active{transform:scale(.94)}
+.cands .msg{font-size:13px;color:var(--muted);align-self:center;padding-left:4px}
+.swatches{display:flex;gap:12px}
+.sw{width:36px;height:36px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.sw.on{box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--c)}
+.list-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 4px;border-bottom:1px solid var(--line);font-size:15.5px;text-align:left}
+.list-btn:last-child{border-bottom:0}
+.list-btn small{color:var(--muted);font-size:13px}
+.switch{width:46px;height:28px;border-radius:99px;background:var(--line-2);position:relative;transition:background .2s;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch.on{background:var(--jade)} .switch.on::after{transform:translateX(18px)}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:14px;font-size:14px;
+  opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:60;white-space:nowrap;max-width:90%}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.fade-in{animation:fadeIn .35s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="frame">
+  <main id="app"></main>
+  <div id="sheet-root"></div>
+  <div id="toast"></div>
+</div>
+
+<script>
+/* =========================================================
+   Mòkǎ 墨卡 — hanzi flashcards
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const HAN = /\p{Script=Han}/u;
+const hanChars = s => [...(s || '')].filter(c => HAN.test(c));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ACCENTS = ['#B23A2C', '#3F7A5F', '#3E5C80', '#B5893A', '#7B4B67'];
+
+const ic = p => `<svg class="i" viewBox="0 0 24 24">${p}</svg>`;
+const I = {
+  back: ic('<path d="M15 5l-7 7 7 7"/>'),
+  close: ic('<path d="M6 6l12 12M18 6L6 18"/>'),
+  more: ic('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
+  plus: ic('<path d="M12 5v14M5 12h14"/>'),
+  chev: ic('<path d="M9 6l6 6-6 6"/>'),
+  left: ic('<path d="M15 6l-6 6 6 6"/>'),
+  right: ic('<path d="M9 6l6 6-6 6"/>'),
+  shuffle: ic('<path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6c1.1 1.7 2.3 2.7 4.3 2.7H21M3 17h3.5c1.3 0 2.3-.4 3.1-1.2M13.4 8.2c.8-.8 1.8-1.2 3.1-1.2H21M18 4l3 3-3 3M18 14l3 3-3 3"/>'),
+  flip: ic('<rect x="4" y="4.5" width="11" height="15" rx="2.2"/><path d="M18 8c1.5 1 2.2 2.4 2.2 4 0 2.6-2.4 4.6-5.7 5.1"/><path d="M16 15.3l-1.6 1.8 1.9 1.5"/>'),
+  undo: ic('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+  trash: ic('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
+  check: ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  eye: ic('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  swap: ic('<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'),
+  bksp: ic('<path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M12 9l6 6M18 9l-6 6"/>'),
+  play: ic('<path d="M7 5l12 7-12 7z"/>'),
+};
+const TZG = `<svg class="tzg-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <rect x=".8" y=".8" width="98.4" height="98.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+  <path d="M50 1V99M1 50H99" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5" vector-effect="non-scaling-stroke" opacity=".8"/></svg>`;
+const miniTZG = ch => `<div class="tzg" style="--s:44px;box-shadow:none;border-radius:4px">${TZG}<div style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-size:28px;color:var(--ink)">${ch}</div></div>`;
+
+/* ---------- storage ---------- */
+const KEY = 'moka.v1';
+function seed() {
+  const now = Date.now();
+  const mk = rows => rows.map(([en, hanzi, pinyin]) => ({ id: uid(), en, hanzi, pinyin, created: now, hist: [] }));
+  return {
+    prefs: { englishFirst: false, writeMode: 'free', outline: false },
+    decks: [{ id: uid(), name: 'First words', accent: ACCENTS[0], created: now, cards: mk([
+      ['hello', '你好', 'nǐ hǎo'], ['thank you', '谢谢', 'xiè xie'], ['friend', '朋友', 'péng you'],
+      ['to study', '学习', 'xué xí'], ['cat', '猫', 'māo'], ['tea', '茶', 'chá'],
+      ['library', '图书馆', 'tú shū guǎn'], ['have a safe trip', '一路平安', 'yí lù píng ān'],
+    ]) }],
+  };
+}
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && Array.isArray(d.decks)) return d; } catch (e) {} return seed(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+let db = load();
+db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs);
+save();
+
+const deckById = id => db.decks.find(d => d.id === id);
+const curDeck = () => deckById(S.deckId);
+const cardById = (d, id) => d.cards.find(c => c.id === id);
+
+/* ---------- routing ---------- */
+const S = { view: 'home', deckId: null, study: null, write: null };
+function parse() {
+  const p = location.hash.replace(/^#\/?/, '').split('/');
+  if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
+  return { view: 'home', deckId: null };
+}
+function route() {
+  closeSheet(true);
+  const r = parse(); S.view = r.view; S.deckId = r.deckId;
+  const d = curDeck();
+  if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = 'deck';
+  if (S.view === 'study') startStudy();
+  if (S.view === 'write') startWrite();
+  render();
+}
+function nav(h) { const d = (history.state?.d || 0) + 1; history.pushState({ d }, '', h); route(); window.scrollTo(0, 0); $('#app').scrollTop = 0; }
+function goBack(fallback) { if ((history.state?.d || 0) > 0) history.back(); else { history.replaceState({ d: 0 }, '', fallback); route(); } }
+addEventListener('popstate', route);
+
+/* ---------- render ---------- */
+function render() {
+  const app = $('#app'); const d = curDeck();
+  if (S.view === 'home') { app.innerHTML = Home(); }
+  else if (S.view === 'deck') { app.innerHTML = DeckView(d); }
+  else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
+  else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return ['早上好', 'zǎoshang hǎo', 'Good morning'];
+  if (h >= 12 && h < 18) return ['下午好', 'xiàwǔ hǎo', 'Good afternoon'];
+  return ['晚上好', 'wǎnshang hǎo', 'Good evening'];
+}
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+function Home() {
+  const [hz, py, en] = greeting();
+  const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
+  return `<div class="screen fade-in">
+    <header class="bar"><div class="brand"><span class="seal">墨</span><span class="brand-name">墨卡</span><span class="brand-py">mò kǎ</span></div>
+      <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
+    <section class="hello"><div class="hello-hz">${hz}</div><div class="hello-py">${py}</div>
+      <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
+    <div class="section-head"><h2>Your decks</h2></div>
+    <div class="decks">${db.decks.map(DeckTile).join('') || `<div class="empty"><div class="big">空</div><p>No decks yet — make your first one.</p></div>`}</div>
+    <div class="dock"><button class="btn btn-primary wide" data-act="new-deck">${I.plus} New deck</button></div>
+  </div>`;
+}
+function DeckTile(d) {
+  const first = hanChars(d.cards[0]?.hanzi)[0] || '字';
+  return `<button class="deck" data-act="open-deck" data-id="${d.id}" style="--accent:${d.accent}">
+    <div class="deck-stack"><span></span><span></span><div class="deck-face">${esc(first)}</div></div>
+    <div class="deck-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${plural(d.cards.length, 'card')}</div></div>
+    <span class="chev">${I.chev}</span></button>`;
+}
+function dots(c) {
+  const h = (c.hist || []).slice(-4);
+  if (!h.length) return '';
+  return `<span class="dots">${h.map(x => `<i class="${x ? 'ok' : 'no'}"></i>`).join('')}</span>`;
+}
+function DeckView(d) {
+  const n = d.cards.length;
+  return `<div class="screen fade-in" style="--accent:${d.accent}">
+    <header class="bar"><button class="icon-btn" data-act="home" aria-label="Back">${I.back}</button><div class="bar-title"></div>
+      <button class="icon-btn" data-act="deck-menu" aria-label="Deck options">${I.more}</button></header>
+    <section class="deck-hero"><div class="eyebrow">Deck</div><h1 class="deck-title">${esc(d.name)}</h1><div class="muted">${plural(n, 'card')}</div></section>
+    <div class="modes">
+      <button class="mode" data-act="study" ${n ? '' : 'disabled'}><div class="mode-ic">${I.flip}</div><div><div class="mode-t">Flip cards</div><div class="mode-s">Turn &amp; review</div></div></button>
+      <button class="mode" data-act="write" ${n ? '' : 'disabled'}><div class="mode-ic tz">${miniTZG('写')}</div><div><div class="mode-t">Write</div><div class="mode-s">English → hanzi</div></div></button>
+    </div>
+    <div class="section-head"><h2>Cards</h2></div>
+    ${n ? `<ul class="cards">${d.cards.map(c => `<li><button class="crow" data-act="edit-card" data-id="${c.id}">
+        <span class="crow-hz">${esc(c.hanzi)}</span>
+        <span class="crow-txt"><span class="crow-py">${esc(c.pinyin)}</span><span class="crow-en">${esc(c.en)}</span></span>${dots(c)}</button></li>`).join('')}</ul>`
+      : `<div class="empty"><div class="big">卡</div><p>This deck is empty.<br>Add your first card below.</p></div>`}
+    <div class="dock"><button class="btn btn-primary wide" data-act="add-card">${I.plus} Add card</button></div>
+  </div>`;
+}
+
+/* ---------- study (flip) ---------- */
+function startStudy() {
+  const d = curDeck();
+  const ids = d.cards.map(c => c.id);
+  if (!S.study || S.study.deckId !== d.id || S.study.order.length !== ids.length || !S.study.order.every(id => cardById(d, id)))
+    S.study = { deckId: d.id, order: ids, i: 0, shuffled: false, angle: 0, hinted: false };
+}
+const startAngle = () => db.prefs.englishFirst ? 180 : 0;
+function hzSize(n) { return [0, 132, 104, 80, 64][n] || Math.max(34, Math.floor(250 / n)); }
+function enSize(s) { const l = s.length; return l < 9 ? 46 : l < 16 ? 38 : l < 28 ? 30 : l < 50 ? 24 : 20; }
+function Faces(c, d) {
+  const n = [...c.hanzi].length;
+  return `<div class="face front"><div class="face-in"><span class="corner">中文</span><span class="stamp">墨</span>
+      <div class="hz" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div><div class="py">${esc(c.pinyin)}</div>
+      <span class="foot">${esc(d.name)}</span></div></div>
+    <div class="face back"><div class="face-in"><span class="corner">English</span>
+      <div class="en" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div><span class="foot">${esc(d.name)}</span></div></div>`;
+}
+function StudyView(d) {
+  const st = S.study, c = cardById(d, st.order[st.i]), n = st.order.length;
+  return `<div class="screen fade-in" style="--accent:${d.accent}">
+    <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button>
+      <div class="progress"><div class="progress-fill" id="pfill" style="width:${(st.i + 1) / n * 100}%"></div></div>
+      <div class="count" id="pcount">${st.i + 1} / ${n}</div></header>
+    <div class="stage" id="stage"><div class="stage-shadow" id="sshadow"></div>
+      <div class="wrap" id="wrap"><div class="card3d" id="card3d">${Faces(c, d)}</div></div></div>
+    <p class="hint" id="hint" style="opacity:${st.hinted ? 0 : 1}">Tap to flip · drag sideways to turn it</p>
+    <div class="controls">
+      <button class="icon-btn lg" data-act="prev" aria-label="Previous">${I.left}</button>
+      <div class="mid">
+        <button class="pill ${st.shuffled ? 'on' : ''}" data-act="shuffle">${I.shuffle}Shuffle</button>
+        <button class="pill" data-act="side" id="sidebtn">${I.swap}${db.prefs.englishFirst ? 'EN first' : '中 first'}</button>
+      </div>
+      <button class="icon-btn lg" data-act="next" aria-label="Next">${I.right}</button>
+    </div></div>`;
+}
+function setAngle(anim, tilt = 0) {
+  const st = S.study, el = $('#card3d'); if (!el) return;
+  el.style.transition = anim ? 'transform .7s cubic-bezier(.18,.89,.26,1.05)' : 'none';
+  el.style.transform = `rotateX(${tilt}deg) rotateY(${st.angle}deg)`;
+  const sh = $('#sshadow');
+  if (sh) { sh.style.transition = el.style.transition; sh.style.transform = `scaleX(${0.45 + 0.55 * Math.abs(Math.cos(st.angle * Math.PI / 180))})`; }
+}
+function mountStudy() {
+  const st = S.study; st.angle = startAngle(); setAngle(false);
+  const stage = $('#stage');
+  let down = null;
+  stage.addEventListener('pointerdown', e => {
+    if (!e.target.closest('#wrap')) return;
+    down = { x: e.clientX, y: e.clientY, a: st.angle, t: performance.now(), lx: e.clientX, lt: performance.now(), v: 0, moved: false, id: e.pointerId };
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!down || e.pointerId !== down.id) return;
+    const dx = e.clientX - down.x, dy = e.clientY - down.y;
+    if (!down.moved && Math.abs(dx) > 7 && Math.abs(dx) > Math.abs(dy)) { down.moved = true; try { stage.setPointerCapture(e.pointerId); } catch (_) {} }
+    if (!down.moved) return;
+    const now = performance.now();
+    down.v = (e.clientX - down.lx) / Math.max(1, now - down.lt); down.lx = e.clientX; down.lt = now;
+    st.angle = down.a + dx * 0.6;
+    setAngle(false, Math.max(-8, Math.min(8, -dy * 0.05)));
+  });
+  const end = e => {
+    if (!down || e.pointerId !== down.id) return;
+    const base = Math.round(down.a / 180) * 180;
+    if (!down.moved) st.angle = base + 180;
+    else {
+      let target = Math.round(st.angle / 180) * 180;
+      if (target === base && Math.abs(down.v) > 0.45) target = base + Math.sign(down.v) * 180;
+      st.angle = target;
+    }
+    down = null; setAngle(true); dismissHint();
+  };
+  stage.addEventListener('pointerup', end);
+  stage.addEventListener('pointercancel', end);
+}
+function dismissHint() { if (!S.study.hinted) { S.study.hinted = true; const h = $('#hint'); if (h) h.style.opacity = 0; } }
+function stepCard(dir) {
+  const st = S.study, d = curDeck(), n = st.order.length, wrap = $('#wrap');
+  const ni = (st.i + dir + n) % n;
+  if (dir > 0 && ni === 0 && n > 1) toast('Round complete — from the top 🎉');
+  const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
+  out.onfinish = () => {
+    st.i = ni;
+    $('#card3d').innerHTML = Faces(cardById(d, st.order[st.i]), d);
+    st.angle = startAngle(); setAngle(false);
+    $('#pfill').style.width = `${(st.i + 1) / n * 100}%`; $('#pcount').textContent = `${st.i + 1} / ${n}`;
+    out.cancel();
+    wrap.animate([{ transform: `translateX(${dir * 55}%) rotate(${dir * 7}deg)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.2,.85,.25,1)' });
+  };
+}
+
+/* ---------- write (tianzige) ---------- */
+function startWrite(ids) {
+  const d = curDeck();
+  if (ids || !S.write || S.write.deckId !== d.id || !S.write.order.every(id => cardById(d, id)))
+    S.write = { deckId: d.id, order: ids || shuffle(d.cards.map(c => c.id)), i: 0, results: {}, done: false };
+  resetCardState();
+}
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [] }); }
+function WriteView(d) {
+  const W = S.write, n = W.order.length;
+  if (W.done) return WriteSummary(d);
+  const c = cardById(d, W.order[W.i]);
+  const chars = hanChars(c.hanzi); const guided = db.prefs.writeMode === 'guided';
+  return `<div class="screen fade-in" style="--accent:${d.accent}">
+    <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button>
+      <div class="progress"><div class="progress-fill" style="width:${W.i / n * 100}%"></div></div>
+      <div class="seg"><button data-act="wmode" data-m="free" class="${guided ? '' : 'on'}">Free</button><button data-act="wmode" data-m="guided" class="${guided ? 'on' : ''}">Guided</button></div></header>
+    <section class="prompt">
+      <div class="eyebrow">Write in hanzi · ${plural(chars.length, 'character')}</div>
+      <div class="prompt-en" style="font-size:${Math.min(44, enSize(c.en))}px">${esc(c.en)}</div>
+      <div class="reveal-line" id="rline">${W.revealed || W.guidedDone ? revealLine(c) : `<button class="link" data-act="py-hint">${W.pyShown ? esc(c.pinyin) : 'Show pinyin'}</button>`}</div>
+    </section>
+    <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
+    <div class="note" id="note">${guided ? 'Draw each stroke in order — wrong strokes bounce back.' : 'Write with your finger, then check.'}</div>
+    <div class="tools" id="tools">${guided
+      ? `<button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
+      : `<button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>
+    <div class="dock" id="wdock">${writeDock()}</div></div>`;
+}
+const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(c.pinyin)}</span>`;
+function writeDock() {
+  const W = S.write, guided = db.prefs.writeMode === 'guided';
+  if (W.revealed || W.guidedDone)
+    return `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Missed it</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Got it</button></div>`;
+  if (guided) return `<button class="btn btn-quiet wide" data-act="skip">Skip card</button>`;
+  return `<button class="btn btn-seal wide" data-act="check">${I.check}Check</button>`;
+}
+function boxSize(n, avail) {
+  const k = Math.min(n, 4), gap = k >= 3 ? 10 : 14;
+  if (k === 1) return { s: Math.floor(Math.min(220, avail * 0.64)), gap };
+  return { s: Math.floor(Math.min(k === 2 ? 170 : 200, (avail - gap * (k - 1)) / k)), gap };
+}
+function mountWrite() {
+  const W = S.write; if (W.done) return;
+  const d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
+  const grid = $('#grid'), { s, gap } = boxSize(chars.length, grid.clientWidth);
+  grid.style.setProperty('--s', s + 'px'); grid.style.setProperty('--gap', gap + 'px');
+  const boxes = $$('.tzg', grid);
+  if (db.prefs.writeMode === 'guided') initGuided(boxes, chars, s);
+  else boxes.forEach(b => initFreeBox(b, s));
+}
+function initFreeBox(box, s) {
+  const W = S.write, cv = box.querySelector('canvas'), dpr = Math.min(3, devicePixelRatio || 1);
+  cv.width = s * dpr; cv.height = s * dpr; cv.style.width = cv.style.height = s + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  box._strokes = []; box._ctx = ctx; box._s = s;
+  let cur = null;
+  const pt = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top, t: e.timeStamp }; };
+  cv.addEventListener('pointerdown', e => {
+    if (W.revealed) { box._ans?.animateCharacter?.(); return; }
+    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    cur = [pt(e)]; box._strokes.push(cur); W.history.push(box); redraw(box);
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!cur) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of (evs.length ? evs : [e])) cur.push(pt(ev));
+    redraw(box);
+  });
+  const up = () => { cur = null; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+}
+function redraw(box) {
+  const ctx = box._ctx, s = box._s; ctx.clearRect(0, 0, s, s);
+  const color = css('--ink'), base = s / 15;
+  for (const st of box._strokes) drawStroke(ctx, st, base, color);
+}
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+function drawStroke(ctx, pts, base, color) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (pts.length < 2) { ctx.beginPath(); ctx.arc(pts[0].x, pts[0].y, base * 0.5, 0, 7); ctx.fill(); return; }
+  let w = base * 1.05;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const v = Math.hypot(b.x - a.x, b.y - a.y) / Math.max(1, b.t - a.t);
+    const target = base * Math.max(0.42, Math.min(1.2, 1.2 - v * 0.32));
+    w = w * 0.75 + target * 0.25;
+    const m0 = i > 1 ? mid(pts[i - 2], a) : a, m1 = mid(a, b);
+    ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(m0.x, m0.y); ctx.quadraticCurveTo(a.x, a.y, m1.x, m1.y); ctx.stroke();
+  }
+  const l = pts[pts.length - 1], m = mid(pts[pts.length - 2], l);
+  ctx.lineWidth = w * 0.85; ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(l.x, l.y); ctx.stroke();
+}
+function writerOpts(s, extra) {
+  return Object.assign({ width: s, height: s, padding: Math.round(s * 0.09), showOutline: false, strokeAnimationSpeed: 1.3, delayBetweenStrokes: 140 }, extra);
+}
+function revealFree() {
+  const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
+  W.revealed = true;
+  $$('#grid .tzg').forEach((box, i) => {
+    const el = box.querySelector('.ans'); el.innerHTML = '';
+    if (window.HanziWriter) {
+      box._ans = HanziWriter.create(el, chars[i], writerOpts(box._s, {
+        strokeColor: css('--seal'),
+        onLoadCharDataError: () => { el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`; },
+      }));
+    } else el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`;
+    box.classList.add('revealed');
+  });
+  $('#rline').innerHTML = revealLine(c);
+  $('#note').textContent = 'Tap a box to watch the stroke order.';
+  $('#tools').innerHTML = '';
+  $('#wdock').innerHTML = writeDock();
+}
+function initGuided(boxes, chars, s) {
+  const W = S.write;
+  if (!window.HanziWriter) { $('#note').textContent = 'Guided mode needs internet for stroke data.'; return; }
+  W.writers = boxes.map((box, i) => HanziWriter.create(box.querySelector('.quiz'), chars[i], writerOpts(s, {
+    showCharacter: false, showOutline: db.prefs.outline,
+    strokeColor: css('--ink'), outlineColor: css('--line-2'), drawingColor: css('--ink'), highlightColor: css('--seal'),
+    drawingWidth: Math.max(5, Math.round(s / 16)), showHintAfterMisses: 3, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+    onLoadCharDataError: () => { box.querySelector('.quiz').innerHTML = `<span class="ans-fallback">${chars[i]}</span>`; },
+  })));
+  boxes.forEach((b, j) => b.classList.toggle('dim', j > 0));
+  startQuiz(0);
+}
+function startQuiz(i) {
+  const W = S.write, boxes = $$('#grid .tzg');
+  W.active = i;
+  boxes.forEach((b, j) => b.classList.toggle('dim', j !== i && !b.classList.contains('done-ok')));
+  W.writers[i].quiz({
+    onMistake: () => { W.mistakes++; $('#note').textContent = `${plural(W.mistakes, 'mistake')} so far`; },
+    onComplete: () => {
+      boxes[i].classList.add('done-ok'); boxes[i].classList.remove('dim');
+      if (i + 1 < W.writers.length) setTimeout(() => S.write === W && startQuiz(i + 1), 380);
+      else finishGuided();
+    },
+  });
+}
+function finishGuided(gaveUp) {
+  const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
+  W.guidedDone = true;
+  $$('#grid .tzg').forEach(b => b.classList.remove('dim'));
+  $('#rline').innerHTML = revealLine(c);
+  $('#note').textContent = gaveUp ? 'Watch the strokes, then grade yourself.' : (W.mistakes ? `Done — ${plural(W.mistakes, 'mistake')}.` : 'Flawless — no mistakes! 👏');
+  $('#tools').innerHTML = '';
+  $('#wdock').innerHTML = writeDock();
+}
+function gradeWrite(ok) {
+  const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
+  W.results[c.id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); save();
+  W.i++;
+  if (W.i >= W.order.length) W.done = true;
+  resetCardState(); render();
+}
+function WriteSummary(d) {
+  const W = S.write, ids = W.order, ok = ids.filter(id => W.results[id]).length, n = ids.length, pct = Math.round(ok / n * 100);
+  const missed = ids.filter(id => !W.results[id]).map(id => cardById(d, id)).filter(Boolean);
+  const [hz, py, en] = pct === 100 ? ['太棒了', 'tài bàng le', 'Perfect round'] : pct >= 70 ? ['很好', 'hěn hǎo', 'Well done'] : ['加油', 'jiā yóu', 'Keep going'];
+  return `<div class="screen fade-in" style="--accent:${d.accent}">
+    <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button><div class="bar-title">Session</div><span style="width:42px"></span></header>
+    <section class="summary"><div class="ring" style="--p:${pct}"><div><b>${ok}</b><span>of ${n}</span></div></div>
+      <h2>${hz}</h2><div class="py" style="margin-top:4px">${py}</div><div class="sub">${en}</div>
+      ${missed.length ? `<div class="missed">${missed.map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}</section>
+    <div class="dock" style="display:flex;flex-direction:column;gap:10px">
+      ${missed.length ? `<button class="btn btn-seal wide" data-act="retry-missed">Practise the ${missed.length} missed</button>` : ''}
+      <div class="row-btns"><button class="btn btn-ghost" data-act="write-again">Again</button><button class="btn btn-primary" data-act="back-deck">Done</button></div>
+    </div></div>`;
+}
+
+/* ---------- pinyin → hanzi (online IME) ---------- */
+const candCache = new Map(); let candCtl = null;
+const normPy = s => s.toLowerCase().replace(/ü|u:/g, 'v').replace(/[āáǎà]/g, 'a').replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i').replace(/[ōóǒò]/g, 'o').replace(/[ūúǔù]/g, 'u').replace(/[ǖǘǚǜ]/g, 'v').replace(/[^a-z']/g, '');
+async function fetchCands(py) {
+  if (candCache.has(py)) return candCache.get(py);
+  candCtl?.abort(); candCtl = new AbortController();
+  const url = `https://inputtools.google.com/request?text=${encodeURIComponent(py)}&itc=zh-t-i0-pinyin&num=14&cp=0&cs=1&ie=utf-8&oe=utf-8&app=moka`;
+  const r = await fetch(url, { signal: candCtl.signal });
+  const j = await r.json();
+  if (j[0] !== 'SUCCESS' || !j[1]?.[0]) return [];
+  const [, list, , meta] = j[1][0]; const ml = meta?.matched_length || [];
+  const out = list.map((h, i) => ({ h, len: ml[i] ?? py.length }));
+  candCache.set(py, out); return out;
+}
+const autoPinyin = hz => { try { return window.pinyinPro && hz ? pinyinPro.pinyin(hz) : ''; } catch (e) { return ''; } };
+
+/* ---------- sheets ---------- */
+function openSheet(html, mount) {
+  const root = $('#sheet-root');
+  root.innerHTML = `<div class="scrim" data-act="close-sheet"></div><div class="sheet" role="dialog"><div class="handle"></div>${html}</div>`;
+  root.offsetHeight; root.classList.add('open');
+  mount?.(root.querySelector('.sheet'));
+}
+function closeSheet(instant) {
+  const root = $('#sheet-root'); if (!root.classList.contains('open') && !root.innerHTML) return;
+  root.classList.remove('open');
+  if (instant) root.innerHTML = ''; else setTimeout(() => { if (!root.classList.contains('open')) root.innerHTML = ''; }, 380);
+}
+function confirmSheet(title, body, yesLabel, onYes) {
+  openSheet(`<h3>${title}</h3><p class="muted" style="margin:-6px 0 22px">${body}</p>
+    <div class="row-btns"><button class="btn btn-ghost" data-act="close-sheet">Cancel</button><button class="btn btn-seal" id="yes">${yesLabel}</button></div>`,
+    sh => sh.querySelector('#yes').onclick = () => { closeSheet(); onYes(); });
+}
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+
+function deckSheet(d) {
+  let accent = d?.accent || ACCENTS[db.decks.length % ACCENTS.length];
+  openSheet(`<h3>${d ? 'Edit deck' : 'New deck'}</h3>
+    <label class="field"><span class="lbl">Name</span><input class="input" id="dname" placeholder="e.g. HSK 1 · Food · Travel" value="${esc(d?.name || '')}" maxlength="40" autocomplete="off"></label>
+    <div class="field"><span class="lbl">Colour</span><div class="swatches">${ACCENTS.map(c => `<button class="sw ${c === accent ? 'on' : ''}" style="--c:${c}" data-c="${c}" aria-label="colour"></button>`).join('')}</div></div>
+    <button class="btn btn-primary wide" id="dsave" style="margin-top:8px">${d ? 'Save' : 'Create deck'}</button>
+    ${d ? `<button class="btn btn-danger wide" id="ddel" style="margin-top:6px">${I.trash}Delete deck</button>` : ''}`,
+    sh => {
+      const inp = sh.querySelector('#dname'); setTimeout(() => inp.focus(), 250);
+      sh.querySelectorAll('.sw').forEach(b => b.onclick = () => { accent = b.dataset.c; sh.querySelectorAll('.sw').forEach(x => x.classList.toggle('on', x === b)); });
+      const go = () => {
+        const name = inp.value.trim(); if (!name) { inp.focus(); return; }
+        if (d) { d.name = name; d.accent = accent; save(); closeSheet(); render(); }
+        else { const nd = { id: uid(), name, accent, created: Date.now(), cards: [] }; db.decks.push(nd); save(); closeSheet(); nav('#/deck/' + nd.id); }
+      };
+      sh.querySelector('#dsave').onclick = go;
+      inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+      const del = sh.querySelector('#ddel');
+      if (del) del.onclick = () => confirmSheet('Delete deck?', `“${esc(d.name)}” and its ${plural(d.cards.length, 'card')} will be removed. This can’t be undone.`, 'Delete', () => {
+        db.decks = db.decks.filter(x => x !== d); save(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Deck deleted');
+      });
+    });
+}
+
+function cardSheet(cardId) {
+  const d = curDeck(), c = cardId ? cardById(d, cardId) : null;
+  const E = { hanzi: c?.hanzi || '', toneDirty: !!c && c.pinyin !== autoPinyin(c.hanzi), seq: 0 };
+  openSheet(`<h3>${c ? 'Edit card' : 'New card'}</h3>
+    <label class="field"><span class="lbl">English · back</span><input class="input" id="fen" placeholder="e.g. library" value="${esc(c?.en || '')}" autocomplete="off"></label>
+    <div class="field"><span class="lbl"><span>Chinese · front</span><span id="hzcount"></span></span>
+      <div class="compose"><div class="compose-hz" id="fhz"></div><button class="icon-btn" id="bksp" aria-label="Delete last character">${I.bksp}</button></div>
+      <input class="input" id="fpy" placeholder="Type pinyin — e.g. tushuguan" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done">
+      <div class="cands" id="cands"><span class="msg">Characters appear here as you type.</span></div></div>
+    <label class="field"><span class="lbl"><span>Pinyin on card</span><span style="text-transform:none;letter-spacing:0">auto · editable</span></span>
+      <input class="input" id="ftone" placeholder="filled in for you" value="${esc(c?.pinyin || '')}" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+    <div class="row-btns" style="margin-top:6px">
+      ${c ? `<button class="btn btn-ghost" id="cdel" style="flex:0 0 56px;padding:0;color:var(--seal)" aria-label="Delete card">${I.trash}</button>`
+          : `<button class="btn btn-ghost" id="cnext">Save + next</button>`}
+      <button class="btn btn-primary" id="csave">${c ? 'Save' : 'Save card'}</button></div>`,
+    sh => {
+      const fen = sh.querySelector('#fen'), fhz = sh.querySelector('#fhz'), fpy = sh.querySelector('#fpy'), ftone = sh.querySelector('#ftone'), cands = sh.querySelector('#cands');
+      const paintHz = () => {
+        fhz.textContent = E.hanzi || 'Pick characters below…'; fhz.classList.toggle('ph', !E.hanzi);
+        const k = hanChars(E.hanzi).length; sh.querySelector('#hzcount').textContent = k ? plural(k, 'char') : '';
+        if (!E.toneDirty) ftone.value = autoPinyin(E.hanzi);
+      };
+      const paintCands = list => {
+        if (!fpy.value) { cands.innerHTML = `<span class="msg">${E.hanzi ? 'Keep typing to add more, or save.' : 'Characters appear here as you type.'}</span>`; return; }
+        cands.innerHTML = list.length ? list.map((x, i) => `<button class="cand" data-i="${i}">${esc(x.h)}</button>`).join('') : `<span class="msg">No match yet…</span>`;
+        cands.scrollLeft = 0; cands._list = list;
+      };
+      let t;
+      const lookup = () => {
+        const py = normPy(fpy.value); clearTimeout(t);
+        if (!py) { paintCands([]); return; }
+        const seq = ++E.seq;
+        t = setTimeout(async () => {
+          try { const list = await fetchCands(py); if (seq === E.seq) paintCands(list); }
+          catch (e) { if (e.name !== 'AbortError' && seq === E.seq) cands.innerHTML = `<span class="msg">Offline — can’t look up characters right now.</span>`; }
+        }, 110);
+      };
+      const pick = i => {
+        const x = cands._list?.[i]; if (!x) return;
+        E.hanzi += x.h; paintHz();
+        fpy.value = normPy(fpy.value).slice(x.len); lookup(); fpy.focus();
+      };
+      cands.addEventListener('pointerdown', e => { if (e.target.closest('.cand')) e.preventDefault(); }); // keep keyboard open
+      cands.addEventListener('click', e => { const b = e.target.closest('.cand'); if (b) pick(+b.dataset.i); });
+      fpy.addEventListener('input', () => {
+        const han = hanChars(fpy.value).join('');
+        if (han) { E.hanzi += han; fpy.value = fpy.value.replace(/\p{Script=Han}/gu, ''); paintHz(); }
+        lookup();
+      });
+      fpy.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && fpy.value && cands._list?.length) { e.preventDefault(); pick(0); }
+        else if (e.key === 'Backspace' && !fpy.value && E.hanzi) { e.preventDefault(); E.hanzi = [...E.hanzi].slice(0, -1).join(''); paintHz(); }
+      });
+      sh.querySelector('#bksp').onclick = () => { E.hanzi = [...E.hanzi].slice(0, -1).join(''); paintHz(); };
+      ftone.addEventListener('input', () => { E.toneDirty = ftone.value.trim() !== '' && ftone.value !== autoPinyin(E.hanzi); });
+      fen.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); fpy.focus(); } };
+      const commit = () => {
+        const en = fen.value.trim(), hz = E.hanzi.trim();
+        if (!en) { fen.focus(); toast('Add the English word'); return false; }
+        if (!hanChars(hz).length) { fpy.focus(); toast('Pick at least one character'); return false; }
+        const pinyin = ftone.value.trim() || autoPinyin(hz);
+        if (c) Object.assign(c, { en, hanzi: hz, pinyin });
+        else d.cards.push({ id: uid(), en, hanzi: hz, pinyin, created: Date.now(), hist: [] });
+        save(); return true;
+      };
+      sh.querySelector('#csave').onclick = () => { if (commit()) { closeSheet(); render(); toast(c ? 'Saved' : `Added ${E.hanzi}`); } };
+      const nx = sh.querySelector('#cnext');
+      if (nx) nx.onclick = () => {
+        if (!commit()) return; toast(`Added ${E.hanzi}`); render();
+        E.hanzi = ''; E.toneDirty = false; fen.value = ''; fpy.value = ''; ftone.value = ''; paintHz(); paintCands([]); fen.focus();
+      };
+      const del = sh.querySelector('#cdel');
+      if (del) del.onclick = () => confirmSheet('Delete card?', `${esc(c.hanzi)} · ${esc(c.en)} will be removed from this deck.`, 'Delete', () => {
+        d.cards = d.cards.filter(x => x !== c); save(); render(); toast('Card deleted');
+      });
+      paintHz();
+      if (!c) setTimeout(() => fen.focus(), 250);
+    });
+}
+
+function settingsSheet() {
+  openSheet(`<h3>Settings</h3>
+    <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
+    <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks as a .json file</small></span>${I.chev}</button>
+    <label class="list-btn" style="cursor:pointer"><span>Import backup<br><small>Replaces everything on this device</small></span>${I.chev}<input type="file" id="sImp" accept="application/json,.json" hidden></label>
+    <p class="muted" style="font-size:12.5px;margin:14px 2px 0">Decks are stored only in this browser. Pinyin lookup uses Google Input Tools, so typing pinyin needs internet.</p>`,
+    sh => {
+      sh.querySelector('#sEn').onclick = e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
+      sh.querySelector('#sExp').onclick = () => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
+        a.download = `moka-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      };
+      sh.querySelector('#sImp').onchange = async e => {
+        const f = e.target.files[0]; if (!f) return;
+        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+        catch (_) { toast('That file isn’t a Mòkǎ backup'); }
+      };
+    });
+}
+
+/* ---------- actions ---------- */
+const A = {
+  'home': () => goBack('#/'),
+  'open-deck': t => nav('#/deck/' + t.dataset.id),
+  'new-deck': () => deckSheet(null),
+  'deck-menu': () => deckSheet(curDeck()),
+  'add-card': () => cardSheet(null),
+  'edit-card': t => cardSheet(t.dataset.id),
+  'settings': () => settingsSheet(),
+  'close-sheet': () => closeSheet(),
+  'study': () => nav(`#/deck/${S.deckId}/study`),
+  'write': () => { S.write = null; nav(`#/deck/${S.deckId}/write`); },
+  'back-deck': () => goBack('#/deck/' + S.deckId),
+  'next': () => stepCard(1),
+  'prev': () => stepCard(-1),
+  'shuffle': t => {
+    const st = S.study, d = curDeck(); st.shuffled = !st.shuffled;
+    st.order = st.shuffled ? shuffle(d.cards.map(c => c.id)) : d.cards.map(c => c.id); st.i = 0;
+    t.classList.toggle('on', st.shuffled);
+    $('#card3d').innerHTML = Faces(cardById(d, st.order[0]), d); st.angle = startAngle(); setAngle(false);
+    $('#pfill').style.width = `${100 / st.order.length}%`; $('#pcount').textContent = `1 / ${st.order.length}`;
+    $('#wrap').animate([{ transform: 'scale(.92) rotate(-3deg)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: 350, easing: 'cubic-bezier(.2,.85,.25,1)' });
+    toast(st.shuffled ? 'Shuffled' : 'Original order');
+  },
+  'side': t => {
+    db.prefs.englishFirst = !db.prefs.englishFirst; save();
+    t.innerHTML = `${I.swap}${db.prefs.englishFirst ? 'EN first' : '中 first'}`;
+    const st = S.study; st.angle = Math.round(st.angle / 180) * 180;
+    const showingEn = Math.abs(Math.round(st.angle / 180)) % 2 === 1;
+    if (showingEn !== db.prefs.englishFirst) { st.angle += 180; setAngle(true); }
+  },
+  'wmode': t => { if (db.prefs.writeMode === t.dataset.m) return; db.prefs.writeMode = t.dataset.m; save(); resetCardState(); render(); },
+  'py-hint': t => { const W = S.write; W.pyShown = true; t.textContent = cardById(curDeck(), W.order[W.i]).pinyin; },
+  'undo': () => { const W = S.write, box = W.history.pop(); if (box) { box._strokes.pop(); redraw(box); } },
+  'clear': () => { const W = S.write; $$('#grid .tzg').forEach(b => { b._strokes = []; redraw(b); }); W.history = []; },
+  'check': () => {
+    const W = S.write; if (!W.history.length) { toast('Write something first ✍️'); return; }
+    revealFree();
+  },
+  'outline': t => {
+    db.prefs.outline = !db.prefs.outline; save(); t.classList.toggle('on', db.prefs.outline);
+    S.write.writers.forEach(w => db.prefs.outline ? w.showOutline() : w.hideOutline());
+  },
+  'giveup': () => {
+    const W = S.write; W.mistakes += 99;
+    W.writers.forEach((w, i) => { try { w.cancelQuiz(); } catch (_) {} setTimeout(() => w.animateCharacter(), i * 600); });
+    finishGuided(true);
+  },
+  'skip': () => gradeWrite(false),
+  'grade': t => gradeWrite(t.dataset.ok === '1'),
+  'retry-missed': () => { const W = S.write; startWrite(W.order.filter(id => !W.results[id])); render(); },
+  'write-again': () => { startWrite(shuffle(S.write.order)); render(); },
+};
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if (!t || t.disabled) return;
+  A[t.dataset.act]?.(t, e);
+});
+
+/* keep sheets above the on-screen keyboard */
+if (window.visualViewport) {
+  const vv = visualViewport;
+  const upd = () => document.documentElement.style.setProperty('--kb', Math.max(0, innerHeight - vv.height - vv.offsetTop) + 'px');
+  vv.addEventListener('resize', upd); vv.addEventListener('scroll', upd);
+}
+/* re-layout tianzige on rotation */
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === 'write' && !S.write?.done && !S.write?.revealed && !S.write?.history?.length) render(); }, 200); });
+
+history.replaceState({ d: 0 }, '', location.hash || '#/');
+route();
+if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
