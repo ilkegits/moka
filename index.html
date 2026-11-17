@@ -120,6 +120,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
 /* home bar: the Shi Shi lion head sits in the middle, the menu on the right */
 .bar-home{display:grid;grid-template-columns:42px 1fr 42px}
+/* Learn, Read and Profile: the page name as a headline in the top-left corner */
+.bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:26px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .logo-mid{justify-self:center;width:44px;height:44px;display:block}
 
 /* ---------- buttons ---------- */
@@ -945,7 +947,7 @@ function LearnView() {
       <div class="learn-head"><div class="deck-name">Word bank</div><span class="deck-count">${plural(db.bank.length, 'word')}</span></div>
       <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>` : '';
   return `<div class="screen fade-in">
-    <header class="bar bar-home">${AvBtn()}<div class="bar-title">Learn</div><span></span></header>
+    <header class="bar"><h1 class="bar-head">Learn</h1></header>
     <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
       <div class="hello-en">Pick a deck and how you want to practise</div></section>
     ${ready.length || bankBlk ? `<div class="learn-list">${bankBlk}${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
@@ -1031,7 +1033,7 @@ function ProfileView() {
   const written = cards.filter(c => (c.hist || []).length).length;
   const pct = hist.length ? Math.round(hist.filter(Boolean).length / hist.length * 100) + '%' : '–';
   return `<div class="screen fade-in">
-    <header class="bar"><div class="bar-title">Profile</div></header>
+    <header class="bar"><h1 class="bar-head">Profile</h1></header>
     <section class="me">
       <button class="me-pic" aria-label="Profile photo. Tap or swipe up to change it">${meAvatar()}</button>
       <input class="me-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
@@ -1058,7 +1060,7 @@ function faceHtml() {   // your photo, else the first letter of your name, else 
   return ph ? `<img src="${ph}" alt="" draggable="false">` : name ? `<span class="me-ini">${esc([...name][0].toUpperCase())}</span>` : I.profile;
 }
 const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a photo from your gallery">${I.camera}</span>`;
-/* the small photo in the top-left corner of Decks, Learn and Read; tap it for the side menu */
+/* the small photo in the top-left corner of Decks; tap it for the side menu */
 const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
 /* open the phone's gallery straight away (must run inside a tap) */
 function pickPhoto() {
@@ -1398,7 +1400,7 @@ function ReadView() {
       : '<div class="empty"><p>This story is no longer saved.</p></div>'}
   </div>`;
   return `<div class="screen fade-in">
-    <header class="bar bar-home">${AvBtn()}<div class="bar-title">Read</div><span></span></header>
+    <header class="bar"><h1 class="bar-head">Read</h1></header>
     ${s?.opened ? '' : `<section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
       <div class="hello-en">One short story at a time, made from your word bank</div></section>`}
     <div class="read-tools"${s?.opened ? ' style="margin-top:6px"' : ''}>${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
@@ -2832,7 +2834,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.33';
+const APP_VERSION = '1.34';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
