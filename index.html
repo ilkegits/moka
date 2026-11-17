@@ -96,9 +96,14 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 /* ---------- pull to refresh: a red Chinese knot is lowered on its cord ---------- */
 html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this one replaces it */
 #ptr{position:fixed;top:0;left:50%;width:0;height:0;z-index:4;pointer-events:none;transform-origin:0 0}
-.ptr-charm{position:absolute;top:0;left:-26px;width:52px;opacity:0;transform:translate3d(0,-120%,0);will-change:transform,opacity}
+.ptr-charm{position:absolute;top:0;left:-30px;width:60px;opacity:0;transform:translate3d(0,-120%,0);will-change:transform,opacity}
 .ptr-charm::before{content:"";position:absolute;bottom:calc(100% - 1px);left:calc(50% - .9px);width:1.8px;height:100vh;background:#B5161E}
 .ptr-charm svg{display:block;width:100%;height:auto;transform-origin:50% 0;transition:transform .34s cubic-bezier(.3,1.7,.5,1)}
+.ptr-charm path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ptr-charm .k0{stroke:#7E0D13;stroke-width:6.4}.ptr-charm .k0.butt{stroke-linecap:butt}
+.ptr-charm .k1{stroke:#C8202A;stroke-width:4.6}
+.ptr-charm .k2{stroke:#8E1219;stroke-width:4.6;stroke-dasharray:1.1 1.5;opacity:.35}   /* braided cord */
+.ptr-charm .k3{stroke:#F07A80;stroke-width:1;opacity:.55;transform:translate(-.7px,-.7px)}   /* light catching the cord */
 #ptr.armed svg{transform:scale(1.08)}
 #ptr.swing{animation:ptrSwing .9s ease-in-out infinite alternate}
 @keyframes ptrSwing{from{rotate:-6deg}to{rotate:6deg}}
@@ -2652,7 +2657,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.27';
+const APP_VERSION = '1.28';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2913,35 +2918,21 @@ document.addEventListener('click', e => {
    Let go earlier and everything slides back. */
 (() => {
   const app = $('#app'), box = $('#ptr');
-  box.innerHTML = `<div class="ptr-charm"><svg viewBox="-6 0 76 132">
-    <defs>
-      <linearGradient id="ptrSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#3a0606" stop-opacity=".25"/></linearGradient>
-      <linearGradient id="ptrGold" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F2CF7A"/><stop offset="1" stop-color="#B9852C"/></linearGradient>
-    </defs>
-    <path d="M32 0V22" stroke="#B5161E" stroke-width="2.2"/>
-    <circle cx="32" cy="10" r="4.2" fill="#C8202A" stroke="#7E0D13" stroke-width="1"/>
-    <path d="M29.4 8.6l5.2 2.8M29.4 11.4l5.2-2.8" stroke="#7E0D13" stroke-width=".8"/>
-    <g transform="translate(32 50) rotate(45)">
-      <g fill="none" stroke="#C8202A" stroke-width="3.4">
-        <circle cx="-8.5" cy="-21.5" r="4.2"/><circle cx="8.5" cy="-21.5" r="4.2"/><circle cx="21.5" cy="-8.5" r="4.2"/><circle cx="21.5" cy="8.5" r="4.2"/>
-        <circle cx="8.5" cy="21.5" r="4.2"/><circle cx="-8.5" cy="21.5" r="4.2"/><circle cx="-21.5" cy="8.5" r="4.2"/><circle cx="-21.5" cy="-8.5" r="4.2"/>
-        <circle cx="-21" cy="21" r="5"/><circle cx="21" cy="-21" r="5"/>
-      </g>
-      <rect x="-17.5" y="-17.5" width="35" height="35" rx="3" fill="#C8202A"/>
-      <path d="M-17 -8.5H17M-17 0H17M-17 8.5H17M-8.5 -17V17M0 -17V17M8.5 -17V17" stroke="#7E0D13" stroke-width="1.1"/>
-      <path d="M-17 -10H17M-17 -1.5H17M-17 7H17M-10 -17V17M-1.5 -17V17M7 -17V17" stroke="#E8505A" stroke-width=".7" opacity=".9"/>
-      <rect x="-17.5" y="-17.5" width="35" height="35" rx="3" fill="url(#ptrSheen)" stroke="#7E0D13" stroke-width="1"/>
-    </g>
-    <path d="M32 74V84" stroke="#B5161E" stroke-width="2.2"/>
-    <circle cx="32" cy="84" r="4.6" fill="url(#ptrGold)" stroke="#8E6420" stroke-width=".8"/>
-    <path d="M27 91C26 104 21 116 19 128Q32 132 45 128C43 116 38 104 37 91Z" fill="#C8202A"/>
-    <path d="M30 93C29 106 26 118 25 129M34 93C35 106 38 118 39 129M32 93V130M28 94C27 108 23 119 22 128.5M36 94C37 108 41 119 42 128.5" stroke="#7E0D13" stroke-width=".7" fill="none"/>
-    <path d="M27 91C26 104 21 116 19 128Q32 132 45 128C43 116 38 104 37 91Z" fill="url(#ptrSheen)"/>
-    <rect x="26" y="89" width="12" height="6" rx="1.6" fill="url(#ptrGold)" stroke="#8E6420" stroke-width=".7"/>
+  // a simple cord knot: three loops (top, left, right) around a small woven centre, two cord ends hanging below.
+  // Each piece of cord is drawn as dark edge + red cord + braid texture + sheen; later pieces lie over earlier ones.
+  const cord = (d, cls = '') => `<path class="k0 ${cls}" d="${d}"/><path class="k1" d="${d}"/><path class="k2" d="${d}"/><path class="k3" d="${d}"/>`;
+  const ring = (cx, cy, r) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
+  box.innerHTML = `<div class="ptr-charm"><svg viewBox="0 12.6 64 90.4">
+    ${cord('M29.5 60C29.5 72 28 86 27.5 99')}${cord('M34.5 60C34.5 72 36 86 36.5 99')}
+    ${cord('M29 45C23 33 24 17 32 16C40 17 41 33 35 45')}
+    ${cord('M24 49C15 43 4 45 4 52C4 59 15 61 24 55')}${cord('M40 49C49 43 60 45 60 52C60 59 49 61 40 55')}
+    <circle cx="32" cy="52" r="8.6" fill="#A3161E" stroke="#7E0D13" stroke-width="1"/>
+    ${cord(ring(27.4, 47.4, 6))}${cord(ring(36.6, 47.4, 6))}${cord(ring(36.6, 56.6, 6))}${cord(ring(27.4, 56.6, 6))}
+    ${cord('M22.2 50.4A6 6 0 0 0 32.6 50.4', 'butt')}
   </svg></div>`;
   const charm = box.firstElementChild, EASE = 'cubic-bezier(.2,.8,.2,1)', reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const ARM = 100, HOLD = 104;   // how far the page has to come down (px) before letting go reloads; where it rests while reloading
-  let t = null, busy = false, inset = 0, kh = 90;   // kh: the knot's height, measured once per pull
+  let t = null, busy = false, inset = 0, kh = 85;   // kh: the knot's height, measured once per pull
   const atTop = () => (document.scrollingElement?.scrollTop || 0) <= 0 && app.scrollTop <= 0;
   const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root');
   const topInset = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden'; document.body.append(d); const h = d.offsetHeight; d.remove(); return h; };
