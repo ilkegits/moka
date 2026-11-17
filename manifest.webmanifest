@@ -1,8 +1,8 @@
 {
   "id": "/moka/",
-  "name": "墨卡 Mòkǎ",
-  "short_name": "墨卡",
-  "description": "Hanzi flashcards",
+  "name": "YuCards",
+  "short_name": "YuCards",
+  "description": "Your jade flashcards for Chinese",
   "start_url": "./#/",
   "scope": "./",
   "display": "standalone",

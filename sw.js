@@ -1,8 +1,8 @@
-/* 墨卡 offline helper.
+/* YuCards offline helper.
    - The app page itself: try the internet first (so updates arrive), fall back to the saved copy.
    - Fonts, libraries, icons, stroke data: use the saved copy, fetch once if missing.
    - Pinyin lookups are never cached here (the app caches them itself). */
-const CACHE = 'moka-v2';
+const CACHE = 'moka-v3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/logo.svg',
   'https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js',
   'https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js'];
