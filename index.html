@@ -150,6 +150,14 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hello-py{font-size:14px;color:var(--seal);margin-top:6px;letter-spacing:.02em}
 .hello-en{font-size:15px;color:var(--muted);margin-top:4px}
 .hello-name{font-family:var(--display);font-weight:600;letter-spacing:0;font-size:.92em}
+/* home greeting: the Chinese slowly fades into its English meaning and back, on a loop */
+.hello-swap{display:grid}
+.hello-swap>*{grid-area:1/1;align-self:end}
+.hello-swap .hello-hz{animation:hello-a 12s ease-in-out infinite}
+.hello-swap .hello-tr{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.15;opacity:0;animation:hello-b 12s ease-in-out infinite}
+@keyframes hello-a{0%,38%{opacity:1}50%,88%{opacity:0}100%{opacity:1}}
+@keyframes hello-b{0%,38%{opacity:0}50%,88%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
 .name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
 .section-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
@@ -1593,20 +1601,21 @@ document.addEventListener('click', e => { if (S.view === 'read' && !e.target.clo
 
 function greeting() {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return ['早上好', 'zǎoshang hǎo', 'Good morning'];
-  if (h >= 12 && h < 18) return ['下午好', 'xiàwǔ hǎo', 'Good afternoon'];
-  return ['晚上好', 'wǎnshang hǎo', 'Good evening'];
+  if (h >= 5 && h < 12) return ['早上好', 'Good morning'];
+  if (h >= 12 && h < 18) return ['下午好', 'Good afternoon'];
+  return ['晚上好', 'Good evening'];
 }
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
 function Home() {
-  const [hz, py, en] = greeting(), name = (db.prefs.name || '').trim();
+  const [hz, en] = greeting(), name = (db.prefs.name || '').trim();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
     <header class="bar bar-home">${AvBtn()}<img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
-    <section class="hello"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div><div class="hello-py">${py}</div>
-      <div class="hello-en">${en}${name ? ', ' + esc(name) : ''} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
+    <section class="hello"><div class="hello-swap"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div>
+      <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
+      <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
       ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
     <div class="section-head"><h2>Word bank</h2></div>
     ${BankTile()}
@@ -2004,7 +2013,19 @@ function strokeCheck(userStrokes, ref, s) {
   // the same test with more room for strokes drawn a bit off; only used when the reader is sure (see verdict)
   // each bit of your ink counts only for the stroke it is closest to, so a neighbouring stroke can't stand in for a missing one
   const owner = U.map(l => l.map(q => { let bj = 0, bd = Infinity; R.forEach((r, j) => { const d = r.length ? nearest(q, r) : Infinity; if (d < bd) { bd = d; bj = j; } }); return bj; }));
-  const coverWithout = skip => { const mine = R.map(() => []); U.forEach((l, i) => { if (i !== skip) l.forEach((q, k) => mine[owner[i][k]].push(q)); }); return R.map((l, j) => frac(l, mine[j], JUDGE.looseTol)); };
+  // ...and each of your strokes is also paired, as a whole and one to one, with the stroke it matches best, so a stroke
+  // nudged toward a neighbour still counts for its own (packed parts like 足 in 路). A left-out stroke has no partner.
+  const n = 16, Us = U.map(l => alongLine(l, n)), Rs = R.map(l => l.length ? alongLine(l, n) : null);
+  const gap = (a, b) => a.reduce((t, q, i) => t + Math.hypot(q.x - b[i].x, q.y - b[i].y), 0) / n;
+  const pairs = []; Us.forEach((u, i) => Rs.forEach((r, j) => { if (r) pairs.push([Math.min(gap(u, r), gap([...u].reverse(), r)), i, j]); }));
+  pairs.sort((a, b) => a[0] - b[0]);
+  const coverWithout = skip => {
+    const mine = R.map(() => []), mate = R.map(() => null), usedU = new Set();
+    U.forEach((l, i) => { if (i !== skip) l.forEach((q, k) => mine[owner[i][k]].push(q)); });
+    for (const [, i, j] of pairs) if (i !== skip && !usedU.has(i) && !mate[j]) { usedU.add(i); mate[j] = U[i]; }
+    // a stroke with no partner gets no extra room: your other ink must cover it as closely as the normal check asks
+    return R.map((l, j) => mate[j] ? Math.max(frac(l, mine[j], JUDGE.looseTol), frac(l, mate[j], JUDGE.looseTol)) : frac(l, mine[j], JUDGE.tol));
+  };
   const refL = coverWithout(-1), onL = U.map(l => frac(l, Ra, JUDGE.looseTol));
   // an extra stroke: you drew more strokes than the character has, and it is fully covered without one of the longer ones
   const extra = U.length > R.length && U.some((l, i) => l.length * JUDGE.step >= .15 && coverWithout(i).every(c => c >= JUDGE.strokeCov));
@@ -2954,7 +2975,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.38';
+const APP_VERSION = '1.39';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

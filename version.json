@@ -1,1 +1,1 @@
-{"version": "1.38", "notes": "Activity log: Connect your phone with a QR code"}
+{"version": "1.39", "notes": "Handwriting check: packed characters like 路 no longer fail for a stroke nudged toward its neighbour"}
