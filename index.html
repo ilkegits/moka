@@ -455,8 +455,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .read-note u{text-decoration:underline dotted var(--seal) 1.5px;text-underline-offset:4px}
 .story{position:relative;background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:15px 14px 14px 16px;margin-bottom:26px}
 .story-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
-.story-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:18px;letter-spacing:.02em}
-.story-en{font-size:13px;color:var(--muted)}
+.story-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:21px;letter-spacing:.02em}
+.story-en{font-size:14px;color:var(--muted)}
 .story-done{margin-top:14px}
 .story-cover{padding:24px 18px 18px;text-align:center}
 .cover-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:34px;line-height:1.2;letter-spacing:.04em;color:var(--ink)}
@@ -473,13 +473,13 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .read-lv>span:last-child{margin-left:auto;font-size:12.5px;font-weight:400;color:var(--muted)}
 .read-lv-seal{display:grid;place-items:center;min-width:24px;height:24px;padding:0 4px;border-radius:6px;background:var(--seal);color:var(--seal-ink);font-size:12px;font-weight:700}
 .read-row-zh{font-family:var(--hanzi);font-weight:600}
-.story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:22px;line-height:1.6;color:var(--ink)}
+.story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:28px;line-height:1.6;color:var(--ink)}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
 .rw{border-radius:6px;padding:0 1px;font:inherit;line-height:inherit;transition:background .2s}
 .rg{display:inline-flex;align-items:flex-start}
 .rw.mine{background:radial-gradient(circle,color-mix(in srgb,var(--seal) 80%,transparent) 0.8px,transparent 1.1px) left calc(100% - 2px)/4px 4px repeat-x}
 .rw.hl{background:rgba(255,209,92,.6);transition:none}
-.ry{display:none;font-family:var(--ui);font-size:11.5px;font-weight:500;color:var(--seal);line-height:1.1;margin:-3px 0 5px;white-space:nowrap}
+.ry{display:none;font-family:var(--ui);font-size:14px;font-weight:500;color:var(--seal);line-height:1.1;margin:-3px 0 5px;white-space:nowrap}
 .story.py .ry{display:block}
 .rpop{position:absolute;z-index:6;min-width:128px;max-width:250px;background:var(--ink);color:var(--paper);border-radius:13px;padding:9px 14px 10px;
   box-shadow:0 14px 28px -12px rgba(30,20,10,.6);animation:rpopIn .16s ease-out both}
@@ -1201,9 +1201,9 @@ function ReadView() {
   </div>`;
   return `<div class="screen fade-in">
     <header class="bar bar-home">${AvBtn()}<div class="bar-title">Read</div><span></span></header>
-    <section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
-      <div class="hello-en">One short story at a time, made from your word bank</div></section>
-    <div class="read-tools">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
+    ${s?.opened ? '' : `<section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
+      <div class="hello-en">One short story at a time, made from your word bank</div></section>`}
+    <div class="read-tools"${s?.opened ? ' style="margin-top:6px"' : ''}>${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
       : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
     ${!s ? '' : s.opened ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : StoryCover(s)}
@@ -2573,7 +2573,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.24';
+const APP_VERSION = '1.25';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
