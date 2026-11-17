@@ -1057,16 +1057,14 @@ function renderTabs() {
 
 function LearnView() {
   const ready = db.decks.filter(d => d.cards.length);
-  const head = (en, zh) => `<div class="section-head cal-head"><h2>${en} <span class="cal-zh">${zh}</span></h2></div>`;
+  const head = (en, zh, top) => `<div class="section-head cal-head"${top ? ' style="margin-top:18px"' : ''}><h2>${en} <span class="cal-zh">${zh}</span></h2></div>`;
   const bankBlk = db.bank.length ? `<div class="learn-deck" style="--accent:var(--seal)">
       <div class="learn-head"><div class="deck-name">Word bank</div><span class="deck-count">${plural(db.bank.length, 'word')}</span></div>
       <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>`
     : `<p class="learn-none">No words yet. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>`;
   return `<div class="screen fade-in">
     <header class="bar"><h1 class="bar-head">Learn <span class="bar-zh">学习</span></h1></header>
-    <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
-      <div class="hello-en">Pick a deck and how you want to practise</div></section>
-    ${head('Lessons', '课程')}
+    ${head('Lessons', '课程', 1)}
     <div class="learn-list"><div class="lesson-soon"><span class="seal lesson-seal">课</span>
       <span><b>Lessons are on their way</b><small>Short guided lessons will live here</small></span></div></div>
     ${head('My word bank', '生词本')}
@@ -1522,9 +1520,7 @@ function ReadView() {
   </div>`;
   return `<div class="screen fade-in">
     <header class="bar"><h1 class="bar-head">Read <span class="bar-zh">阅读</span></h1></header>
-    ${s?.opened ? '' : `<section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
-      <div class="hello-en">One short story at a time, made from your word bank</div></section>`}
-    <div class="read-tools"${s?.opened ? ' style="margin-top:6px"' : ''}>${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
+    <div class="read-tools" style="margin-top:6px">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
       : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
     ${!s ? '' : s.opened ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : StoryCover(s)}
