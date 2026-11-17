@@ -447,6 +447,10 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .story-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:18px;letter-spacing:.02em}
 .story-en{font-size:13px;color:var(--muted)}
 .story-done{margin-top:14px}
+.story-cover{padding:24px 18px 18px;text-align:center}
+.cover-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:34px;line-height:1.2;letter-spacing:.04em;color:var(--ink)}
+.cover-en{font-size:15px;color:var(--ink-2);margin-top:4px}
+.cover-meta{font-size:13px;color:var(--muted);margin:12px 0 20px}
 .sheet-go{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom));margin:0 -20px calc(-20px - env(safe-area-inset-bottom));padding:10px 20px calc(20px + env(safe-area-inset-bottom));background:var(--paper)}
 .story-meta{font-size:13px;color:var(--muted);margin:12px 0 0}
 /* finished stories carry a seal, like a chop stamped on a page you have read */
@@ -1097,15 +1101,25 @@ function ReadView() {
     <div class="read-tools">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
       : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
-    ${s ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : ''}
+    ${!s ? '' : s.opened ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : StoryCover(s)}
     ${FinishedList()}
   </div>`;
 }
+/* the next story waits behind a cover: its title, how long it is, its level, and a Start story button */
+function StoryCover(s) {
+  const inBank = new Set(db.bank.map(w => w.hanzi)), mine = new Set(s.lines.flat().filter(h => inBank.has(h))).size, lv = S.H && storyLevel(s);
+  return `<article class="story story-cover">
+      <h3 class="cover-zh">${esc(s.zh)}</h3><div class="cover-en">${esc(s.en)}</div>
+      <div class="cover-meta">${plural(s.lines.length, 'sentence')}${lv ? ` · ${HSK_NAME(lv)}` : ''}${mine ? ` · ${plural(mine, 'word')} you know` : ''}</div>
+      <button class="btn btn-seal wide" data-act="read-start">Start story</button>
+    </article>`;
+}
 function mountRead() {
   if (S.H) return;
-  loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded
+  loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded, and for the cover
     let ch = false; for (const s of db.readDone) if (!s.hsk) { const l = storyLevel(s); if (l) { s.hsk = l; ch = true; } }
-    if (ch) { save(); if (S.view === 'read') render(); }
+    if (ch) save();
+    if (S.view === 'read' && (ch || $('.story-cover'))) { S.instant = true; render(); }
   }, () => {});
 }
 /* finishing: tick the new words you learned, they go into the word bank, the story is filed under its HSK level */
@@ -1140,8 +1154,7 @@ function finishStory(words, offered) {
   db.readCur = makeStory(s.zh); save();
   LOG.add('read-finish', { story: s.zh, level: lv ? HSK_NAME(lv) : 'none', new_words: offered, added: add.length });
   render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
-  toast(`Saved to Finished stories · ${lv ? HSK_NAME(lv) : 'not on the HSK lists'}`);
-  if (add.length) cheer(add.length);
+  cheer(add.length, { zh: '读完了！', py: 'dú wán le', en: `Saved under ${lv ? HSK_NAME(lv) : 'Finished stories'}${add.length ? `<br>+${plural(add.length, 'word')} in your word bank` : ''}` });
 }
 /* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
 function readGroups(l) {
@@ -2345,13 +2358,13 @@ function HskView() {
 /* Shi Shi pops up to cheer: springs out of the bottom bar with a squash, two happy hops, a speech bubble and
    paper confetti from behind his mane, then drops back after about 3 s. Tap him to send him away early. */
 let cheerImg = null;
-function cheer(n) {
+function cheer(n, say) {   // say: { zh, py, en } to replace the words-added message
   $('#cheer')?.remove();
   const dock = $('.dock'), b = dock ? Math.max(0, innerHeight - dock.getBoundingClientRect().top) : 90;
-  const [zh, py] = n >= 20 ? ['太棒了！', 'tài bàng le'] : n >= 5 ? ['真棒！', 'zhēn bàng'] : ['很好！', 'hěn hǎo'];
+  const [zh, py] = say ? [say.zh, say.py] : n >= 20 ? ['太棒了！', 'tài bàng le'] : n >= 5 ? ['真棒！', 'zhēn bàng'] : ['很好！', 'hěn hǎo'];
   const el = document.createElement('div'); el.id = 'cheer'; el.style.setProperty('--cheer-b', b + 'px');
   el.innerHTML = `<div class="cheer-bubble" role="status"><div class="cheer-zh">${zh}</div><div class="cheer-py">${py}</div>
-    <div class="cheer-en">+${plural(n, 'word')} in your word bank</div></div><img class="cheer-lion" src="mascots/shi-shi.svg" alt="Shi Shi the lion cheering">`;
+    <div class="cheer-en">${say ? say.en : `+${plural(n, 'word')} in your word bank`}</div></div><img class="cheer-lion" src="mascots/shi-shi.svg" alt="Shi Shi the lion cheering">`;
   document.body.appendChild(el);
   const lion = el.querySelector('.cheer-lion'), bub = el.querySelector('.cheer-bubble');
   let gone = false;
@@ -2455,7 +2468,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.21';
+const APP_VERSION = '1.22';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2560,6 +2573,7 @@ const A = {
   'rw': t => readPop(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
+  'read-start': () => { if (!db.readCur) return; db.readCur.opened = Date.now(); save(); LOG.add('read-start', db.readCur.zh); render(); },
   'read-finish': () => finishSheet(),
   'read-open': t => nav('#/read/' + t.dataset.id),
   'read-back': () => goBack('#/read'),
