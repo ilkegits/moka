@@ -8,11 +8,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>YuCards</title>
+<title>ShiCards</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/favicon-64.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="YuCards">
+<meta name="apple-mobile-web-app-title" content="ShiCards">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
@@ -321,7 +321,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 
 <script>
 /* =========================================================
-   YuCards — hanzi flashcards
+   ShiCards — hanzi flashcards
    ========================================================= */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -489,7 +489,7 @@ function Home() {
   const [hz, py, en] = greeting();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
-    <header class="bar"><div class="brand"><img class="logo" src="icons/logo.svg" alt="" width="36" height="36"><span class="brand-name">YuCards</span></div>
+    <header class="bar"><div class="brand"><img class="logo" src="icons/logo.svg" alt="" width="36" height="36"><span class="brand-name">ShiCards</span></div>
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
     <section class="hello"><div class="hello-hz">${hz}</div><div class="hello-py">${py}</div>
       <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
@@ -1159,10 +1159,10 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.10';
+const APP_VERSION = '1.11';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
-addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
+addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
 const isInstalled = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const isNewer = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
   for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d > 0; } return false; };
@@ -1180,7 +1180,7 @@ function installHelp() {
   const steps = ios
     ? ['Tap the <b>Share</b> button (a square with an arrow). In Safari it’s at the bottom, in Chrome at the top right.', 'Scroll down and tap <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.']
     : ['Open this page in <b>Chrome</b> itself, not in the camera’s or scanner’s preview window. Use <b>Copy</b> below and paste it into Chrome if needed.', 'Tap <b>⋮</b> at the top right of Chrome.', 'Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm.'];
-  openSheet(`<h3>Install YuCards</h3><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+  openSheet(`<h3>Install ShiCards</h3><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
     <div class="field"><span class="lbl">Address</span><div class="copy-row"><span>${esc(url)}</span><button class="btn btn-ghost" id="cpy">Copy</button></div></div>
     <button class="btn btn-primary wide" data-act="close-sheet">Got it</button>`,
     sh => { sh.querySelector('#cpy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (_) { toast(url); } }; });
@@ -1188,7 +1188,7 @@ function installHelp() {
 
 function settingsSheet() {
   openSheet(`<h3>Menu</h3>
-    ${isInstalled() ? '' : `<button class="list-btn" id="sInst"><span>Install app<br><small>Put YuCards on your home screen</small></span><span class="side">${I.chev}</span></button>`}
+    ${isInstalled() ? '' : `<button class="list-btn" id="sInst"><span>Install app<br><small>Put ShiCards on your home screen</small></span><span class="side">${I.chev}</span></button>`}
     <button class="list-btn" id="sUpd"><span>Check for updates<br><small id="sUpdSub">You have version ${APP_VERSION}</small></span><span class="side" id="sUpdR">${I.chev}</span></button>
     <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
     <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks as a .json file</small></span><span class="side">${I.chev}</span></button>
@@ -1218,12 +1218,12 @@ function settingsSheet() {
       sh.querySelector('#sExp').onclick = () => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
-        a.download = `yucards-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        a.download = `shicards-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       };
       sh.querySelector('#sImp').onchange = async e => {
         const f = e.target.files[0]; if (!f) return;
         try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
-        catch (_) { toast('That file isn’t a YuCards backup'); }
+        catch (_) { toast('That file isn’t a ShiCards backup'); }
       };
     });
 }

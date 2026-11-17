@@ -1,8 +1,8 @@
 {
   "id": "/moka/",
-  "name": "YuCards",
-  "short_name": "YuCards",
-  "description": "Your jade flashcards for Chinese",
+  "name": "ShiCards",
+  "short_name": "ShiCards",
+  "description": "Flashcards for Chinese, with Shi Shi the lion",
   "start_url": "./#/",
   "scope": "./",
   "display": "standalone",
