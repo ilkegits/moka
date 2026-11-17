@@ -274,12 +274,56 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .bank-hero .bank-lbl small{display:block;font-size:13px;color:var(--muted)}
 .char-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:26px}
 .char-grid span{width:40px;height:40px;display:grid;place-items:center;border-radius:9px;background:var(--card);box-shadow:var(--shadow-sm);font-family:var(--hanzi);font-size:23px}
-.word-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
-.word-row{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);box-shadow:var(--shadow-sm);text-align:left}
-.word-row .hz{font-size:26px;flex:none;min-width:40px}
-.word-row .wm{flex:1;min-width:0}
-.word-row .wp{font-size:13px;color:var(--seal)}
-.word-row .we{font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* grouped list: rows inside one rounded group, hairlines start where the text starts (--sep) */
+.group{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba(120,95,60,.06),0 1px 2px rgba(70,45,20,.05);margin-bottom:24px}
+.group-foot{font-size:12.5px;line-height:1.45;color:var(--muted);margin:-16px 16px 24px}
+.row{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px 10px 16px;text-align:left;color:var(--ink);background:transparent;transition:background .25s}
+.row:active{background:var(--paper-deep);transition:none}
+.row + .row::before{content:"";position:absolute;top:0;right:0;left:var(--sep,16px);height:1px;transform:scaleY(.5);transform-origin:top;background:var(--line-2)}
+.row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.row-t{font-size:16px;font-weight:500;line-height:1.3}
+.row-s{font-size:13px;color:var(--muted)}
+.row-val{flex:none;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.row .chev{display:flex;opacity:.55}
+.row .chev svg.i{width:17px;height:17px;stroke-width:2.2}
+.icon-sq{flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:var(--seal);color:#fff;font-family:var(--hanzi);font-size:17px}
+.word .hz{font-size:24px;flex:none;min-width:48px}
+.word .wp{font-size:13px;color:var(--seal)}
+.word .we{font-size:14.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.word-list{margin-bottom:8px}
+/* search field: filled, with a magnifier and a clear button */
+.search{display:flex;align-items:center;gap:7px;height:38px;padding:0 8px 0 10px;border-radius:10px;background:rgba(120,95,60,.11);margin-bottom:16px}
+.search svg.i{width:17px;height:17px;color:var(--muted);flex:none;stroke-width:2.1}
+.search input{flex:1;min-width:0;height:100%;border:0;background:none;outline:none;padding:0;font:inherit;font-size:16px;color:var(--ink);-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:var(--muted)}
+.search input::-webkit-search-cancel-button{display:none}
+.search .clr{flex:none;width:20px;height:20px;border-radius:50%;background:var(--muted);color:var(--card);display:grid;place-items:center}
+.search .clr[hidden]{display:none}
+.search .clr svg.i{width:11px;height:11px;color:var(--card);stroke-width:3}
+.search:focus-within{box-shadow:0 0 0 2px var(--seal-soft)}
+/* selection circle (multi-select) and trailing checkmark (pick from a list) */
+.sel{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;color:#fff;transition:background .15s,border-color .15s}
+.sel svg.i{width:14px;height:14px;stroke-width:3;opacity:0;transition:opacity .15s}
+.row.on .sel{background:var(--seal);border-color:var(--seal)}
+.row.on .sel svg.i,.row.has .sel svg.i{opacity:1}
+.row.has .sel{background:var(--line-2);border-color:var(--line-2)}
+.row.has .hz,.row.has .row-main{opacity:.45}
+.tick{display:flex;flex:none;width:22px;color:var(--seal)}
+.tick svg.i{width:20px;height:20px;stroke-width:2.4;opacity:0}
+.row.on .tick svg.i{opacity:1}
+/* progress ring with the level number inside */
+.ring-s{position:relative;flex:none;width:40px;height:40px}
+.ring-s svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
+.ring-s circle{fill:none;stroke-width:3.2}
+.ring-s .rb{stroke:var(--line)}
+.ring-s .rf{stroke:var(--seal);stroke-linecap:round}
+.ring-s b{position:absolute;inset:0;display:grid;place-items:center;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.ring-s b.sm{font-size:10.5px;letter-spacing:-.01em}
+.hsk-dock{display:flex;align-items:center;gap:14px;margin:0 -20px;padding:10px 20px calc(12px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--paper) 82%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);box-shadow:0 -.5px 0 var(--line-2)}
+.deck-title,.face .foot{font-variant-numeric:lining-nums}
+.hsk-dock .btn{flex:1}
+.link-btn{font-size:15px;font-weight:500;color:var(--seal);padding:10px 2px;white-space:nowrap}
+.link-btn:active{opacity:.5}
 .qa-seg{margin-bottom:14px}
 .qa-seg button{flex:1;height:36px}
 .qa-word{flex:1;min-width:0}
@@ -420,6 +464,7 @@ const I = {
   undo: ic('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
   trash: ic('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
   check: ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  search: ic('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>'),
   eye: ic('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
   swap: ic('<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'),
   bksp: ic('<path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M12 9l6 6M18 9l-6 6"/>'),
@@ -462,7 +507,7 @@ db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: fals
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
 save();
 
-const deckById = id => db.decks.find(d => d.id === id);
+const deckById = id => id === 'bank' ? bankDeck() : db.decks.find(d => d.id === id);
 const curDeck = () => deckById(S.deckId);
 const cardById = (d, id) => d.cards.find(c => c.id === id);
 
@@ -470,15 +515,19 @@ const cardById = (d, id) => d.cards.find(c => c.id === id);
 const S = { view: 'home', deckId: null, study: null, write: null };
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
+  if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
+  if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
   closeSheet(true);
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
+  if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
+  S.hskLevel = r.lv || null;
   const d = curDeck();
-  if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = 'deck';
+  if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = S.deckId === 'bank' ? 'bank' : 'deck';
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
   render();
@@ -642,6 +691,7 @@ function render() {
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
+  else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
 }
@@ -649,7 +699,8 @@ function render() {
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
 const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
-  const cur = S.view === 'home' || S.view === 'deck' || S.view === 'bank' ? 'decks' : S.view;
+  // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
+  const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view;
   const i = TABS.findIndex(t => t[0] === cur), bar = $('#tabbar'), frame = $('#frame');
   const wasShown = frame.classList.contains('tabs');
   frame.classList.toggle('tabs', i >= 0);
@@ -664,11 +715,14 @@ function renderTabs() {
 
 function LearnView() {
   const ready = db.decks.filter(d => d.cards.length);
+  const bankBlk = db.bank.length ? `<div class="learn-deck" style="--accent:var(--seal)">
+      <div class="learn-head"><div class="deck-name">Word bank</div><span class="deck-count">${plural(db.bank.length, 'word')}</span></div>
+      <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>` : '';
   return `<div class="screen fade-in">
     <header class="bar"><div class="bar-title">Learn</div></header>
     <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
       <div class="hello-en">Pick a deck and how you want to practise</div></section>
-    ${ready.length ? `<div class="learn-list">${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
+    ${ready.length || bankBlk ? `<div class="learn-list">${bankBlk}${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
         <div class="learn-head"><div class="deck-name">${esc(d.name)}</div><span class="deck-count">${plural(d.cards.length, 'card')}</span></div>
         <div class="row-btns"><button class="btn btn-ghost" data-act="learn-study" data-id="${d.id}">${I.flip}Flip cards</button>
           <button class="btn btn-seal" data-act="learn-write" data-id="${d.id}">${I.pen}Write</button></div></div>`).join('')}</div>`
@@ -726,7 +780,7 @@ function BankTile() {
   return `<button class="bank-tile" data-act="open-bank">
     <div class="bank-count"><div class="bank-num">${chars.length}</div>
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'}<br><b>${plural(db.bank.length, 'word')}</b></div></div>
-    <div class="bank-chars">${latest.length ? latest.map(c => `<i>${esc(c)}</i>`).join('') : '<span class="msg">Add the characters you know with Quick add</span>'}</div>
+    <div class="bank-chars">${latest.length ? latest.map(c => `<i>${esc(c)}</i>`).join('') : '<span class="msg">Tick the words you know in the HSK lists, or use Quick add</span>'}</div>
     <span class="chev">${I.chev}</span></button>`;
 }
 function DeckTile(d) {
@@ -1685,7 +1739,7 @@ function quickAddSheet() {
       if (!hanChars(hz).length) return;
       if (sel.size && !en) { enEl.focus(); toast('Add a meaning — it goes on the back of the card'); return; }
       let w = bankHas(hz); const isNew = !w;
-      if (isNew) { w = { id: uid(), hanzi: hz, pinyin, en, added: Date.now() }; db.bank.unshift(w); }
+      if (isNew) { w = { id: uid(), hanzi: hz, pinyin, en, added: Date.now(), hsk: S.H ? S.H.byHz.get(hz)?.lv || 0 : undefined }; db.bank.unshift(w); }
       else if (en && !w.en) w.en = en;
       const card = { hanzi: hz, pinyin, en: en || w.en };
       const into = [...sel].map(deckById).filter(Boolean).filter(d => addCardTo(d, card));
@@ -1705,19 +1759,22 @@ function BankView() {
     <header class="bar"><button class="icon-btn" data-act="home" aria-label="Back">${I.back}</button><div class="bar-title">Word bank</div><div style="width:42px"></div></header>
     <section class="bank-hero"><div class="bank-num">${chars.length}</div>
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
-    ${n ? `<input class="input" id="bankQ" placeholder="Search hanzi, pinyin or English" autocomplete="off" spellcheck="false" style="margin-bottom:22px">
+    <div class="group"><button class="row" data-act="open-hsk" style="--sep:58px"><span class="icon-sq">汉</span>
+      <span class="row-main"><span class="row-t">HSK word lists</span><span class="row-s">Tick the words you already know</span></span><span class="chev">${I.chev}</span></button></div>
+    ${n ? `${searchField('bankQ', 'Search hanzi, pinyin or English')}
       <div class="section-head"><h2>Characters</h2></div>
       <div class="char-grid">${chars.map(c => `<span>${esc(c)}</span>`).join('')}</div>
       <div class="section-head"><h2>Words</h2><span class="muted" style="font-size:12.5px">newest first</span></div>
-      <div class="word-list" id="bankWords">${db.bank.map(w => `<button class="word-row" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
-          <span class="hz">${esc(w.hanzi)}</span><span class="wm"><div class="wp">${esc(w.pinyin)}</div><div class="we">${esc(w.en || '—')}</div></span><span class="chev">${I.chev}</span></button>`).join('')}</div>
+      <div class="group word-list" id="bankWords">${db.bank.map(w => `<button class="row word word-row" style="--sep:76px" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
+          <span class="hz">${esc(w.hanzi)}</span><span class="row-main"><span class="wp">${esc(w.pinyin)}</span><span class="we">${esc(w.en || '—')}</span></span>${w.hsk ? `<span class="row-val">${HSK_NAME(w.hsk)}</span>` : ''}<span class="chev">${I.chev}</span></button>`).join('')}</div>
       <p class="muted" style="font-size:11.5px;margin:18px 2px 0">Meanings from CC-CEDICT (mdbg.net, CC BY-SA 4.0)</p>`
-    : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Add every character you know with Quick add, by writing it, typing pinyin or searching in English. The count grows as you go.</p></div>`}
-    <div class="dock"><button class="btn btn-primary wide" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
+    : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Tick the words you know in the HSK lists, or add them one by one with Quick add. The count grows as you go.</p></div>`}
+    <div class="dock row-btns">${n ? `<button class="btn btn-ghost" data-act="practise-bank">${I.flip}Practise</button>` : ''}<button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
   </div>`;
 }
 function mountBank() {
   const q = $('#bankQ'); if (!q) return;
+  wireSearch(q, () => q.oninput());
   q.oninput = () => { const s = q.value.trim().toLowerCase(), sp = normPy(s); $$('#bankWords .word-row').forEach(r => { r.hidden = !!s && !r.dataset.s.includes(s) && !(sp && r.dataset.s.includes(sp)); }); };
 }
 function wordSheet(id) {
@@ -1745,9 +1802,160 @@ function wordSheet(id) {
   });
 }
 
+/* search field with a magnifier and a clear button; onClear runs after the text is wiped */
+const searchField = (id, ph) => `<label class="search">${I.search}<input id="${id}" type="search" placeholder="${ph}" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search"><button type="button" class="clr" hidden aria-label="Clear">${I.close}</button></label>`;
+function wireSearch(inp, onClear) {
+  const clr = inp.parentElement.querySelector('.clr');
+  inp.addEventListener('input', () => { clr.hidden = !inp.value; });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+  clr.onclick = e => { e.preventDefault(); inp.value = ''; clr.hidden = true; onClear(); inp.focus(); };
+}
+
+/* ---------- HSK lists ----------
+   dict/hsk.tsv: the HSK 3.0 word lists of the 2026 syllabus (levels 1-6, and 7 for the 7-9 band), from
+   complete-hsk-vocabulary (MIT) with CC-CEDICT meanings; rebuild with tools/build_hsk.py.
+   One line per word: level <TAB> simplified <TAB> pinyin <TAB> meanings. */
+const HSK_NAME = l => l === 7 ? 'HSK 7–9' : 'HSK ' + l;
+let hskP = null;
+function loadHsk() {
+  return hskP ||= fetch('dict/hsk.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    const levels = {}, byHz = new Map();
+    for (const l of t.split('\n')) {
+      if (!l || l[0] === '#') continue;
+      const [lv, h, p, e] = l.split('\t'); if (!h) continue;
+      const row = { lv: +lv, h, p, e: e || '' };
+      (levels[row.lv] ||= []).push(row); if (!byHz.has(h)) byHz.set(h, row);
+    }
+    S.H = { levels, byHz }; tagBank(); return S.H;
+  }).catch(e => { hskP = null; throw e; });
+}
+function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
+  if (!S.H) return; let changed = false;
+  for (const w of db.bank) { const lv = S.H.byHz.get(w.hanzi)?.lv || 0; if (w.hsk !== lv) { w.hsk = lv; changed = true; } }
+  if (changed) save();
+}
+function shortMeaning(e) {   // what goes on the back of the card: the first meaning, plus a second when both are short
+  const ms = e.split('; ').map(m => plainMeaning(m).replace(/\s*\([^)]*\)$/, '') || plainMeaning(m)).filter(Boolean); if (!ms.length) return '';   // "to be (followed by…)" -> "to be"
+  return ms[0].length < 14 && ms[1] && (ms[0] + '; ' + ms[1]).length <= 30 ? ms[0] + '; ' + ms[1] : ms[0];
+}
+const ring = (label, frac) => `<span class="ring-s"><svg viewBox="0 0 36 36"><circle class="rb" cx="18" cy="18" r="15.5"/>${frac > 0 ? `<circle class="rf" cx="18" cy="18" r="15.5" stroke-dasharray="${(Math.max(.03, frac) * 97.4).toFixed(1)} 97.4"/>` : ''}</svg><b class="${label.length > 1 ? 'sm' : ''}">${label}</b></span>`;
+/* The word bank as a deck, so Flip cards and Write work on it; only the levels picked in "Practise" */
+function bankDeck() {
+  const set = new Set(db.prefs.bankLevels || []);
+  const cards = db.bank.filter(w => !set.size || set.has(w.hsk || 0));
+  const names = [...set].sort((a, b) => (a || 9) - (b || 9)).map(l => l ? (l === 7 ? '7–9' : l) : 'other');
+  return { id: 'bank', name: set.size ? `Word bank · HSK ${names.join(', ')}` : 'Word bank', accent: ACCENTS[0], cards };
+}
+function practiseSheet() {
+  openSheet(`<h3>Practise your word bank</h3><p class="muted" style="margin:-6px 0 16px">Choose the levels you want to be asked about.</p>
+    <div class="group" id="pLv" style="margin-bottom:24px"><div class="row"><span class="row-s">Loading levels…</span></div></div>
+    <p class="group-foot" id="pSum">&nbsp;</p>
+    <div class="row-btns"><button class="btn btn-ghost" id="pFlip">${I.flip}Flip cards</button><button class="btn btn-seal" id="pWrite">${I.pen}Write</button></div>`,
+  sh => {
+    const box = sh.querySelector('#pLv'), sum = sh.querySelector('#pSum'), bF = sh.querySelector('#pFlip'), bW = sh.querySelector('#pWrite');
+    let sel = new Set(), counts = {};
+    const paint = () => {
+      const lvls = [1, 2, 3, 4, 5, 6, 7, 0].filter(l => counts[l]);
+      box.innerHTML = lvls.map(l => `<button class="row ${sel.has(l) ? 'on' : ''}" data-l="${l}"><span class="row-main"><span class="row-t">${l ? HSK_NAME(l) : 'Not in HSK'}</span></span>
+        <span class="row-val">${plural(counts[l], 'word')}</span><span class="tick">${I.check}</span></button>`).join('');
+      const n = db.bank.filter(w => sel.has(w.hsk || 0)).length;
+      sum.textContent = n ? `${plural(n, 'word')} to practise.` : 'Choose at least one level.';
+      bF.disabled = bW.disabled = !n;
+    };
+    const ready = () => {
+      counts = {}; for (const w of db.bank) counts[w.hsk || 0] = (counts[w.hsk || 0] || 0) + 1;
+      sel = new Set((db.prefs.bankLevels || []).filter(l => counts[l]));
+      if (!sel.size) sel = new Set(Object.keys(counts).map(Number));
+      paint();
+    };
+    box.onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; const l = +b.dataset.l; sel.has(l) ? sel.delete(l) : sel.add(l); paint(); };
+    const go = mode => {
+      db.prefs.bankLevels = [...sel]; save();
+      LOG.add('bank-practise', { mode, levels: [...sel].map(l => l ? HSK_NAME(l) : 'not in HSK'), words: bankDeck().cards.length });
+      if (mode === 'write') S.write = null;
+      nav(`#/deck/bank/${mode}`);
+    };
+    bF.onclick = () => go('study'); bW.onclick = () => go('write');
+    bF.disabled = bW.disabled = true;
+    loadHsk().then(ready, ready);   // offline and never loaded: practise with the levels already known
+  });
+}
+function HskView() {
+  const H = S.H, lv = S.hskLevel;
+  const head = `<header class="bar"><button class="icon-btn" data-act="hsk-back" aria-label="Back">${I.back}</button><div class="bar-title"></div><div style="width:42px"></div></header>`;
+  if (!H) return `<div class="screen fade-in">${head}<div class="empty"><div class="big">汉</div><p id="hskLoad">Loading the HSK lists…</p></div></div>`;
+  const inBank = new Set(db.bank.map(w => w.hanzi));
+  if (!lv) return `<div class="screen fade-in">${head}
+    <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
+      <div class="muted">Open a level and tick the words you already know. They go straight into your word bank.</div></section>
+    <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
+      const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
+      return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
+        <span class="row-main"><span class="row-t">${HSK_NAME(l)}</span><span class="row-s">${k ? `${k.toLocaleString('en')} of ${L.length.toLocaleString('en')} words known` : `${L.length.toLocaleString('en')} words`}</span></span><span class="chev">${I.chev}</span></button>`;
+    }).join('')}</div>
+    <p class="group-foot">HSK 3.0, 2026 syllabus. Word lists from complete-hsk-vocabulary (MIT), meanings from CC-CEDICT (CC BY-SA 4.0).</p>
+  </div>`;
+  const L = H.levels[lv] || [], k = L.filter(r => inBank.has(r.h)).length;
+  return `<div class="screen fade-in">${head}
+    <section class="deck-hero"><div class="eyebrow">HSK 3.0 · 2026</div><h1 class="deck-title">${HSK_NAME(lv)}</h1>
+      <div class="muted">${L.length.toLocaleString('en')} words · <span id="hskHave">${k}</span> in your word bank</div></section>
+    ${searchField('hskQ', 'Search this level')}
+    <div class="group" id="hskList" style="margin-bottom:0"></div><div id="hskMore" style="height:1px"></div>
+    <div class="dock hsk-dock"><button class="link-btn" id="hskAll">Select all</button><button class="btn btn-primary" id="hskAdd" disabled>Add to word bank</button></div>
+  </div>`;
+}
+function mountHsk() {
+  S.hskIO?.disconnect();
+  const H = S.H, lv = S.hskLevel;
+  if (!H) { loadHsk().then(() => { if (S.view === 'hsk') render(); }, () => { const p = $('#hskLoad'); if (p) p.textContent = 'Could not load the HSK lists. Check your connection and open this page again.'; }); return; }
+  if (!lv) return;
+  const L = H.levels[lv] || [], sel = S.hskSel, list = $('#hskList'), addB = $('#hskAdd'), allB = $('#hskAll'), q = $('#hskQ');
+  const inBank = new Set(db.bank.map(w => w.hanzi));
+  let rows = L, shown = 0;
+  const row = r => `<button class="row word ${inBank.has(r.h) ? 'has' : sel.has(r.h) ? 'on' : ''}" style="--sep:52px" data-h="${esc(r.h)}"><span class="sel">${I.check}</span><span class="hz">${esc(r.h)}</span>
+    <span class="row-main"><span class="wp">${esc(r.p)}</span><span class="we">${esc(r.s ??= shortMeaning(r.e))}</span></span></button>`;
+  const more = () => { if (shown >= rows.length) return; list.insertAdjacentHTML('beforeend', rows.slice(shown, shown + 150).map(row).join('')); shown += 150; };
+  const fresh = () => rows.filter(r => !inBank.has(r.h));
+  const paint = () => {
+    addB.disabled = !sel.size; addB.textContent = sel.size ? `Add ${plural(sel.size, 'word')}` : 'Add to word bank';
+    const f = fresh(); allB.disabled = !f.length; allB.style.opacity = f.length ? '' : '.35';
+    allB.textContent = f.length && f.every(r => sel.has(r.h)) ? 'Deselect all' : 'Select all';
+  };
+  const reset = () => { list.innerHTML = rows.length ? '' : '<div class="row"><span class="row-s">No word in this level matches.</span></div>'; shown = 0; more(); paint(); };
+  q.oninput = () => {
+    const s = q.value.trim().toLowerCase(), sp = normPy(s);
+    rows = !s ? L : L.filter(r => r.h.includes(s) || (sp && (r.np ??= normPy(r.p)).includes(sp)) || r.e.toLowerCase().includes(s));
+    reset();
+  };
+  wireSearch(q, () => q.oninput());
+  list.onclick = e => {
+    const b = e.target.closest('.row[data-h]'); if (!b) return; const h = b.dataset.h;
+    if (b.classList.contains('has')) { toast(`${h} is already in your word bank`); return; }
+    sel.has(h) ? sel.delete(h) : sel.add(h); b.classList.toggle('on', sel.has(h)); paint();
+  };
+  allB.onclick = () => {
+    const f = fresh(), all = f.every(r => sel.has(r.h)); f.forEach(r => all ? sel.delete(r.h) : sel.add(r.h));
+    $$('.row[data-h]:not(.has)', list).forEach(b => b.classList.toggle('on', sel.has(b.dataset.h))); paint();
+  };
+  addB.onclick = () => {
+    const now = Date.now();
+    const words = L.filter(r => sel.has(r.h) && !inBank.has(r.h)).map((r, i) => ({ id: uid(), hanzi: r.h, pinyin: r.p, en: r.s ??= shortMeaning(r.e), added: now - i, hsk: r.lv }));
+    if (!words.length) return;
+    db.bank = [...words, ...db.bank]; save();
+    words.forEach(w => inBank.add(w.hanzi)); sel.clear();
+    $$('.row.on', list).forEach(b => { b.classList.remove('on'); b.classList.add('has'); });
+    $('#hskHave').textContent = L.filter(r => inBank.has(r.h)).length;
+    LOG.add('hsk-add', { level: HSK_NAME(lv), words: words.length });
+    toast(`Added ${plural(words.length, 'word')} to your word bank`); paint();
+  };
+  S.hskIO = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) more(); }, { rootMargin: '800px' });
+  S.hskIO.observe($('#hskMore'));
+  reset();
+}
+
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.14';
+const APP_VERSION = '1.15';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -1825,6 +2033,10 @@ const A = {
   'new-deck': () => deckSheet(null),
   'quick-add': () => quickAddSheet(),
   'open-bank': () => nav('#/bank'),
+  'open-hsk': () => nav('#/hsk'),
+  'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
+  'hsk-back': () => goBack(S.hskLevel ? '#/hsk' : '#/bank'),
+  'practise-bank': () => practiseSheet(),
   'bank-word': t => wordSheet(t.dataset.id),
   'deck-menu': () => deckSheet(curDeck()),
   'add-card': () => cardSheet(null),
