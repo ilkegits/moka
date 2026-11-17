@@ -312,6 +312,21 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .stat span{display:block;font-size:13px;color:var(--muted);margin-top:6px}
 .menu-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:0 14px}
 
+/* ---------- activity log ---------- */
+/* a small seal-red tab on the left edge while recording; tap it to jot a note */
+#rec{position:fixed;left:0;top:42%;z-index:30;width:15px;height:42px;border-radius:0 12px 12px 0;background:var(--seal);
+  display:grid;place-items:center;box-shadow:0 4px 12px -4px rgba(120,30,20,.5)}
+#rec[hidden]{display:none}
+#rec::before{content:"";position:absolute;inset:-10px -9px -10px 0}  /* bigger tap area */
+#rec i{width:6px;height:6px;border-radius:50%;background:var(--seal-ink);animation:recPulse 1.6s ease-in-out infinite}
+@keyframes recPulse{50%{opacity:.35}}
+@media (prefers-reduced-motion: reduce){ #rec i{animation:none} }
+.list-btn .side.with-dot{display:flex;align-items:center}
+.list-btn .rec-dot{width:9px;height:9px;border-radius:50%;background:var(--seal);margin-right:8px}
+.log-count{font-variant-numeric:tabular-nums}
+.note-input{width:100%;min-height:96px;border-radius:14px;border:1px solid var(--line-2);background:var(--card);padding:12px 16px;font:inherit;font-size:16px;color:inherit;resize:vertical;outline:none}
+.note-input:focus{border-color:var(--ink-2)}
+
 .fade-in{animation:fadeIn .35s ease both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -322,6 +337,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
   <nav id="tabbar" aria-label="Main"></nav>
   <div id="sheet-root"></div>
   <div id="toast"></div>
+  <button id="rec" data-act="rec-note" hidden aria-label="Recording your activity. Tap to add a note"><i></i></button>
 </div>
 
 <script>
@@ -413,11 +429,155 @@ function route() {
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
   render();
+  LOG.add('page', S.deckId ? { deck: d?.name } : undefined);
   if (S.toTop) { S.toTop = false; const top = () => { window.scrollTo(0, 0); $('#app').scrollTop = 0; }; top(); requestAnimationFrame(top); }
 }
 function nav(h) { const d = (history.state?.d || 0) + 1; history.pushState({ d }, '', h); route(); window.scrollTo(0, 0); $('#app').scrollTop = 0; }
 function goBack(fallback) { if ((history.state?.d || 0) > 0) history.back(); else { history.replaceState({ d: 0 }, '', fallback); route(); } }
 addEventListener('popstate', route);
+
+/* ---------- activity log ----------
+   Off unless switched on in the ⋮ menu. While on, it notes what you do (pages, taps, swipes, flips,
+   writing checks, errors, your own notes) and keeps it on this phone only. Share it with Claude to tune the app. */
+const LOG = (() => {
+  const KEYL = 'shicards.log', MAX = 5000;
+  let st = null, timer = 0;
+  try { st = JSON.parse(localStorage.getItem(KEYL)); } catch (_) {}
+  if (!st || !Array.isArray(st.ev)) st = { on: false, ev: [] };
+  const flush = () => {
+    clearTimeout(timer); timer = 0;
+    for (let k = 0; k < 4; k++) {   // storage full: drop the oldest third and try again
+      try { localStorage.setItem(KEYL, JSON.stringify(st)); return; } catch (_) { st.ev.splice(0, Math.ceil(st.ev.length / 3)); }
+    }
+  };
+  const add = (k, d) => {
+    if (!st.on) return;
+    const e = { t: Date.now(), k, at: S.view };
+    if (d !== undefined) e.d = d;
+    st.ev.push(e);
+    if (st.ev.length > MAX) st.ev.splice(0, st.ev.length - MAX);
+    if (!timer) timer = setTimeout(flush, 500);
+  };
+  addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', () => { add('app', document.visibilityState === 'hidden' ? 'left the app' : 'came back'); if (document.hidden) flush(); });
+  addEventListener('error', e => add('error', `${e.message} (line ${e.lineno})`));
+  addEventListener('unhandledrejection', e => add('error', String(e.reason?.message || e.reason)));
+  return {
+    add, flush,
+    get on() { return st.on; },
+    get ev() { return st.ev; },
+    set(on) {
+      if (on === st.on) return;
+      if (!on) add('log', 'stopped');
+      st.on = on;
+      if (on) { add('log', 'started'); add('device', deviceInfo()); }
+      flush(); paintRec();
+    },
+    clear() { st.ev = []; if (st.on) add('log', 'cleared'); flush(); },
+    blocked() {   // the app swallowed the last tap (it ended a swipe): mark it, or drop it if it hit nothing anyway
+      const e = st.ev[st.ev.length - 1];
+      if (e?.k === 'tap') e.k = 'tap-blocked'; else if (e?.k === 'tap-nothing') st.ev.pop();
+    },
+  };
+})();
+function deviceInfo() {
+  const ua = navigator.userAgent;
+  const os = (ua.match(/Android [\d.]+|iPhone OS [\d_]+|iPad; CPU OS [\d_]+|Windows NT [\d.]+|Mac OS X [\d_.]+/) || ['?'])[0].replace(/_/g, '.');
+  const br = (ua.match(/SamsungBrowser\/\d+|EdgA?\/\d+|Firefox\/\d+|CriOS\/\d+|Chrome\/\d+|Version\/[\d.]+ (?:Mobile\/\S+ )?Safari/) || ['?'])[0];
+  return { app: APP_VERSION, os, browser: br, screen: `${innerWidth}x${innerHeight}`, dpr: devicePixelRatio, installed: isInstalled() };
+}
+/* what a tapped thing was, in words: its action, id and visible label */
+function tapLabel(el) {
+  const txt = (el.getAttribute('aria-label') || (el.isConnected ? el.innerText : el.textContent) || el.value || '').trim().replace(/\s*\n\s*/g, ' · ').replace(/\s+/g, ' ').slice(0, 60);
+  return [el.dataset?.act && `[${el.dataset.act}]`, el.id && `#${el.id}`, txt && `"${txt}"`].filter(Boolean).join(' ') || el.tagName.toLowerCase();
+}
+// capture phase: the tap is written down before whatever it causes (a new page, a toast)
+addEventListener('click', e => {
+  if (!LOG.on || !(e.target instanceof Element)) return;
+  const el = e.target.closest('button,a,label,input,select,textarea,[data-act]');
+  if (el) { if (!(el.matches('input[type=file]') && e.target.closest('label'))) LOG.add('tap', tapLabel(el)); return; }
+  if (e.target.closest('canvas,.tzg,.stage')) return;   // drawing and the flip card log themselves
+  // a tap on something that does nothing: often a sign it looked tappable
+  const spot = e.target.closest('[class]'), words = (e.target.textContent || '').replace(/\s+/g, ' ').trim();
+  LOG.add('tap-nothing', { on: spot ? '.' + spot.classList[0] : e.target.tagName.toLowerCase(), text: words.length <= 40 ? words : undefined, x: Math.round(e.clientX), y: Math.round(e.clientY) });
+}, true);
+function paintRec() { const r = $('#rec'); if (r) r.hidden = !LOG.on; }
+const p2 = n => String(n).padStart(2, '0');
+const clock = t => { const d = new Date(t); return `${p2(d.getHours())}:${p2(d.getMinutes())}`; };
+function logSummary() {
+  const ev = LOG.ev; if (!ev.length) return LOG.on ? 'Recording · nothing yet' : 'Off · nothing recorded';
+  const first = new Date(ev[0].t), today = first.toDateString() === new Date().toDateString();
+  return `${LOG.on ? 'Recording' : 'Off'} · ${plural(ev.length, 'event')} since ${clock(ev[0].t)}${today ? ' today' : ', ' + first.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`;
+}
+/* plain text, one line per event, readable by people and by Claude */
+function logText() {
+  const ev = LOG.ev, fmt = d => d == null ? '' : typeof d !== 'object' ? String(d)
+    : Object.entries(d).filter(([, v]) => v !== undefined && v !== null && v !== '').map(([k, v]) => `${k}=${typeof v === 'object' ? JSON.stringify(v) : v}`).join(' ');
+  const hms = t => { const d = new Date(t); return `${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}.${Math.floor(d.getMilliseconds() / 100)}`; };
+  let day = '';
+  const lines = ev.map(e => {
+    const ds = new Date(e.t).toDateString(), head = ds === day ? '' : `\n== ${new Date(e.t).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })} ==\n`;
+    day = ds;
+    return `${head}${hms(e.t)}  ${e.k.padEnd(13)} ${(e.at || '').padEnd(8)} ${fmt(e.d)}`;
+  });
+  return `ShiCards activity log · app ${APP_VERSION} · ${plural(ev.length, 'event')}\n`
+    + `Columns: time · what happened · page · details. "tap-nothing" = a tap on something that does nothing.\n` + lines.join('\n') + '\n';
+}
+function logFileName() { const d = new Date(); return `shicards-log-${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}.txt`; }
+async function copyLog() {
+  const text = logText();
+  try { await navigator.clipboard.writeText(text); }
+  catch (_) {   // older browsers: copy through a hidden text box
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove();
+    if (!ok) { toast('Couldn’t copy. Use Share log instead'); return; }
+  }
+  toast('Log copied. Paste it into your chat with Claude');
+}
+async function shareLog() {
+  const text = logText(), name = logFileName();
+  const file = new File([text], name, { type: 'text/plain' });
+  try {
+    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'ShiCards activity log' }); return; }
+    if (navigator.share) { await navigator.share({ title: 'ShiCards activity log', text }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a');   // no share menu here: save it as a file instead
+  a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Log saved to Downloads');
+}
+function noteSheet() {
+  const at = S.view;
+  openSheet(`<h3>Add a note</h3>
+    <p class="muted" style="margin:-6px 0 14px">It goes into the log at this moment, next to what you just did.</p>
+    <textarea class="note-input" id="nTxt" placeholder="e.g. The Check button is hard to reach" maxlength="500"></textarea>
+    <button class="btn btn-primary wide" id="nSave" style="margin-top:12px">Save note</button>`,
+    sh => {
+      const ta = sh.querySelector('#nTxt'); setTimeout(() => ta.focus(), 250);
+      sh.querySelector('#nSave').onclick = () => {
+        const v = ta.value.trim(); if (!v) { ta.focus(); return; }
+        LOG.add('NOTE', { page: at, text: v }); LOG.flush(); closeSheet(); toast('Note saved');
+      };
+    });
+}
+function logSheet() {
+  openSheet(`<h3>Activity log</h3>
+    <p class="muted" style="margin:-6px 0 8px">While this is on, ShiCards writes down what you do: pages you open, what you tap, swipes, card flips and how your writing checks go. It stays on this phone until you share it. Send it to Claude with what you want improved.</p>
+    <button class="list-btn" id="lOn"><span>Record my activity<br><small class="log-count" id="lSub">${logSummary()}</small></span><span class="switch ${LOG.on ? 'on' : ''}"></span></button>
+    <button class="list-btn" id="lNote"><span>Add a note<br><small>Say what felt off, right where it happened</small></span><span class="side">${I.chev}</span></button>
+    <div class="row-btns" style="margin-top:14px"><button class="btn btn-ghost" id="lCopy">Copy log</button><button class="btn btn-primary" id="lShare">Share log</button></div>
+    <button class="btn btn-danger wide" id="lClear" style="margin-top:6px">${I.trash}Clear log</button>`,
+    sh => {
+      const sub = sh.querySelector('#lSub'), sw = sh.querySelector('#lOn .switch');
+      const paint = () => { sub.textContent = logSummary(); sw.classList.toggle('on', LOG.on); };
+      sh.querySelector('#lOn').onclick = () => { LOG.set(!LOG.on); paint(); toast(LOG.on ? 'Recording your activity' : 'Recording stopped'); };
+      sh.querySelector('#lNote').onclick = () => { if (!LOG.on) LOG.set(true); noteSheet(); };
+      const empty = () => { if (LOG.ev.length) return false; toast('Nothing recorded yet'); return true; };
+      sh.querySelector('#lCopy').onclick = () => { if (!empty()) copyLog(); };
+      sh.querySelector('#lShare').onclick = () => { if (!empty()) shareLog(); };
+      sh.querySelector('#lClear').onclick = () => { if (empty()) return;
+        confirmSheet('Clear the log?', `All ${plural(LOG.ev.length, 'event')} recorded on this phone will be removed. Share it first if you still need it.`, 'Clear', () => { LOG.clear(); toast('Log cleared'); }); };
+    });
+}
 
 /* ---------- render ---------- */
 function render() {
@@ -605,6 +765,7 @@ function mountStudy() {
       if (target === base && Math.abs(down.v) > 0.45) target = base + Math.sign(down.v) * 180;
       st.angle = target;
     }
+    LOG.add(down.moved ? 'card-turn' : 'card-flip', { shows: Math.abs(Math.round(st.angle / 180)) % 2 ? 'English' : 'Chinese', bounced: down.moved && st.angle === base ? true : undefined });
     down = null; setAngle(true); dismissHint();
   };
   stage.addEventListener('pointerup', end);
@@ -616,6 +777,7 @@ function dismissHint() { if (!S.study.hinted) { S.study.hinted = true; const h =
 function stepCard(dir) {
   const st = S.study, d = curDeck(), n = st.order.length, wrap = $('#wrap');
   const ni = (st.i + dir + n) % n;
+  LOG.add(dir > 0 ? 'card-next' : 'card-prev', { card: `${ni + 1}/${n}`, hz: cardById(d, st.order[ni])?.hanzi });
   if (dir > 0 && ni === 0 && n > 1) toast('Round complete — from the top 🎉');
   const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
   out.onfinish = () => {
@@ -635,7 +797,7 @@ function startWrite(ids) {
     S.write = { deckId: d.id, order: ids || shuffle(d.cards.map(c => c.id)), i: 0, results: {}, done: false };
   resetCardState();
 }
-function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false }); }
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, shownAt: Date.now() }); }
 function WriteView(d) {
   const W = S.write, n = W.order.length;
   if (W.done) return WriteSummary(d);
@@ -986,7 +1148,7 @@ function startQuiz(i) {
   W.active = i;
   boxes.forEach((b, j) => b.classList.toggle('dim', j !== i && !b.classList.contains('done-ok')));
   W.writers[i].quiz({
-    onMistake: () => { W.mistakes++; $('#note').textContent = `${plural(W.mistakes, 'mistake')} so far`; },
+    onMistake: () => { W.mistakes++; LOG.add('write-miss', { box: i + 1 }); $('#note').textContent = `${plural(W.mistakes, 'mistake')} so far`; },
     onComplete: () => {
       boxes[i].classList.add('done-ok'); boxes[i].classList.remove('dim');
       if (i + 1 < W.writers.length) setTimeout(() => S.write === W && startQuiz(i + 1), 380);
@@ -997,6 +1159,7 @@ function startQuiz(i) {
 function finishGuided(gaveUp) {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
   W.guidedDone = true;
+  LOG.add('write-guided', { hz: c.hanzi, mistakes: W.mistakes, gave_up: gaveUp ? true : undefined, took: Math.round((Date.now() - W.shownAt) / 1000) + 's' });
   $$('#grid .tzg').forEach(b => b.classList.remove('dim'));
   $('#rline').innerHTML = revealLine(c);
   $('#note').textContent = gaveUp ? 'Watch the strokes, then grade yourself.' : (W.mistakes ? `Done — ${plural(W.mistakes, 'mistake')}.` : 'Flawless — no mistakes! 👏');
@@ -1006,8 +1169,9 @@ function finishGuided(gaveUp) {
 function gradeWrite(ok) {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
   W.results[c.id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); save();
+  LOG.add('write-grade', { hz: c.hanzi, counted: ok ? 'right' : 'wrong', mode: db.prefs.writeMode, checker: W.judge ? W.judge.ok : undefined });
   W.i++;
-  if (W.i >= W.order.length) W.done = true;
+  if (W.i >= W.order.length) { W.done = true; LOG.add('write-round', { right: W.order.filter(id => W.results[id]).length, of: W.order.length }); }
   resetCardState(); render();
 }
 function WriteSummary(d) {
@@ -1047,6 +1211,7 @@ function openSheet(html, mount) {
   root.innerHTML = `<div class="scrim" data-act="close-sheet"></div><div class="sheet" role="dialog"><div class="handle"></div>${html}</div>`;
   root.offsetHeight; root.classList.add('open');
   const sh = root.querySelector('.sheet');
+  LOG.add('sheet-open', sh.querySelector('h3')?.textContent || '');
   sheetDrag(sh, root.querySelector('.scrim'));
   mount?.(sh);
 }
@@ -1070,6 +1235,7 @@ function sheetDrag(sh, scrim) {
   const finish = () => {
     if (!g) return; const G = g; g = null; if (!G.on) return;
     const close = G.off > G.h * 0.25 || (G.v > 0.45 && G.off > 12);
+    LOG.add('sheet-drag', { closed: close, pulled: Math.round(G.off / G.h * 100) + '%', speed: +G.v.toFixed(2) });
     sh.style.transition = close ? 'transform .26s cubic-bezier(.3,.7,.4,1)' : '';
     scrim.style.transition = sh.style.transform = scrim.style.opacity = '';
     if (close) { document.activeElement?.blur?.(); closeSheet(); }
@@ -1095,6 +1261,7 @@ function sheetDrag(sh, scrim) {
 addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheet-root').classList.contains('open')) closeSheet(); });
 function closeSheet(instant) {
   const root = $('#sheet-root'); if (!root.classList.contains('open') && !root.innerHTML) return;
+  if (root.classList.contains('open')) LOG.add('sheet-close', root.querySelector('.sheet h3')?.textContent || '');
   root.classList.remove('open');
   if (instant) root.innerHTML = ''; else setTimeout(() => { if (!root.classList.contains('open')) root.innerHTML = ''; }, 380);
 }
@@ -1104,7 +1271,7 @@ function confirmSheet(title, body, yesLabel, onYes) {
     sh => sh.querySelector('#yes').onclick = () => { closeSheet(); onYes(); });
 }
 let toastT;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+function toast(msg) { LOG.add('toast', msg); const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
 
 function deckSheet(d) {
   let accent = d?.accent || ACCENTS[db.decks.length % ACCENTS.length];
@@ -1164,11 +1331,12 @@ function cardSheet(cardId) {
         const seq = ++E.seq;
         t = setTimeout(async () => {
           try { const list = await fetchCands(py); if (seq === E.seq) paintCands(list); }
-          catch (e) { if (e.name !== 'AbortError' && seq === E.seq) cands.innerHTML = `<span class="msg">Offline — can’t look up characters right now.</span>`; }
+          catch (e) { if (e.name !== 'AbortError' && seq === E.seq) { cands.innerHTML = `<span class="msg">Offline — can’t look up characters right now.</span>`; LOG.add('pinyin-offline', py); } }
         }, 110);
       };
       const pick = i => {
         const x = cands._list?.[i]; if (!x) return;
+        LOG.add('pinyin-pick', { typed: normPy(fpy.value), picked: x.h, choice: i + 1 });
         E.hanzi += x.h; paintHz();
         fpy.value = normPy(fpy.value).slice(x.len); lookup(); fpy.focus();
       };
@@ -1191,6 +1359,7 @@ function cardSheet(cardId) {
         if (!en) { fen.focus(); toast('Add the English word'); return false; }
         if (!hanChars(hz).length) { fpy.focus(); toast('Pick at least one character'); return false; }
         const pinyin = ftone.value.trim() || autoPinyin(hz);
+        LOG.add(c ? 'card-edit' : 'card-add', { en, hz, pinyin, pinyin_typed_by_hand: E.toneDirty || undefined });
         if (c) Object.assign(c, { en, hanzi: hz, pinyin });
         else d.cards.push({ id: uid(), en, hanzi: hz, pinyin, created: Date.now(), hist: [] });
         save(); return true;
@@ -1212,7 +1381,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.12';
+const APP_VERSION = '1.13';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -1246,6 +1415,7 @@ function settingsSheet() {
     <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
     <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks as a .json file</small></span><span class="side">${I.chev}</span></button>
     <label class="list-btn" style="cursor:pointer"><span>Import backup<br><small>Replaces everything on this device</small></span><span class="side">${I.chev}</span><input type="file" id="sImp" accept="application/json,.json" hidden></label>
+    <button class="list-btn" id="sLog"><span>Activity log<br><small class="log-count">${logSummary()}</small></span><span class="side with-dot">${LOG.on ? '<span class="rec-dot"></span>' : ''}${I.chev}</span></button>
     <p class="muted" style="font-size:12.5px;margin:14px 2px 0">Decks are stored only in this browser. Pinyin lookup uses Google Input Tools, so typing pinyin needs internet.</p>`,
     sh => {
       const inst = sh.querySelector('#sInst');
@@ -1267,6 +1437,7 @@ function settingsSheet() {
           } else { sub.textContent = `Up to date · version ${APP_VERSION}`; side.className = 'side ok'; side.innerHTML = I.check; }
         } catch (_) { sub.textContent = 'Couldn’t check. Are you online?'; side.innerHTML = I.chev; }
       };
+      sh.querySelector('#sLog').onclick = () => logSheet();
       sh.querySelector('#sEn').onclick =e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
       sh.querySelector('#sExp').onclick = () => {
         const a = document.createElement('a');
@@ -1290,6 +1461,7 @@ const A = {
   'add-card': () => cardSheet(null),
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
+  'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
   'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
@@ -1321,13 +1493,16 @@ const A = {
   'clear': () => { const W = S.write; $$('#grid .tzg').forEach(b => { b._strokes = []; redraw(b); }); W.history = []; },
   'check': async () => {
     const W = S.write; if (!W.history.length) { toast('Write something first ✍️'); return; }
-    if (W.checking) return; W.checking = true;
+    if (W.checking) return; W.checking = true; const t0 = Date.now();
     $('#wdock').innerHTML = `<button class="btn btn-seal wide" disabled><span class="spin"></span>Checking…</button>`;
     const chars = hanChars(cardById(curDeck(), W.order[W.i]).hanzi), boxes = $$('#grid .tzg');
     const res = await rescueWithWord(null, chars, boxes, await Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))));
     if (S.write !== W || W.revealed) return;
     W.checking = false;
     W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
+    LOG.add('write-check', { hz: chars.join(''), ok: W.judge.ok, wrote_for: Math.round((t0 - W.shownAt) / 1000) + 's', check_took: (Date.now() - t0) + 'ms',
+      boxes: res.map((r, i) => ({ ok: r.ok, strokes: (boxes[i]._strokes || []).length, rank: r.rank, top: r.cands?.[0], fit: r.shape?.fit != null ? +r.shape.fit.toFixed(2) : undefined, missing: r.shape?.missing || undefined, stray: r.shape?.stray || undefined, part: r.shape?.badPart?.pos })),
+      said: judgeNote(chars).replace(/<[^>]+>/g, '') });
     revealFree();
   },
   'outline': t => {
@@ -1389,6 +1564,7 @@ document.addEventListener('click', e => {
     noClickUntil = performance.now() + 350;
     const to = G.x0 < 0 ? G.T.next : G.T.prev;
     const go = e.type === 'pointerup' && to && (Math.abs(G.x0) > G.w * 0.3 || (Math.abs(G.v) > 0.3 && Math.sign(G.v) === Math.sign(G.x0)));
+    LOG.add('swipe', { dir: G.x0 < 0 ? 'left' : 'right', switched: !!go, dragged: Math.round(Math.abs(G.x0) / G.w * 100) + '%', speed: +G.v.toFixed(2), page: !to ? 'none that way' : undefined });
     const final = go ? Math.sign(G.x0) * G.w : 0, dur = reduce.matches ? 0 : go ? 260 : 220;
     place(final, dur || 1);
     setTimeout(() => {
@@ -1423,7 +1599,7 @@ document.addEventListener('click', e => {
   // otherwise Chrome treats the next tap as "stop scrolling" and the tap is lost
   app.addEventListener('touchmove', e => { if (g?.on && e.cancelable) e.preventDefault(); }, { passive: false });
   // a drag that ends over a button must not also press it
-  document.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
+  document.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); LOG.blocked(); } }, true);
 })();
 
 /* keep sheets above the on-screen keyboard */
@@ -1436,6 +1612,7 @@ if (window.visualViewport) {
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === 'write' && !S.write?.done && !S.write?.revealed && !S.write?.history?.length) render(); }, 200); });
 
 history.replaceState({ d: 0 }, '', location.hash || '#/');
+LOG.add('open', deviceInfo()); paintRec();
 route();
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
