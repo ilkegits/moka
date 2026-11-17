@@ -343,6 +343,16 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .shelf-t{font-size:15px;font-weight:600;letter-spacing:-.01em}
 .shelf-s{font-size:12.5px;color:var(--muted)}
 .shelf-note{font-size:13px;color:var(--muted);margin:0 2px 28px}
+/* Shi Shi cheers when you add words from an HSK list: he springs up out of the bottom bar, hops, and drops back */
+#cheer{position:fixed;left:0;right:0;bottom:var(--cheer-b,90px);height:320px;max-width:480px;margin:0 auto;overflow:hidden;pointer-events:none;z-index:40}
+.cheer-lion{position:absolute;bottom:-4px;left:calc(50% - 152px);width:150px;height:150px;transform-origin:50% 100%;pointer-events:auto;will-change:transform;transform:translateY(105%)}
+.cheer-bubble{position:absolute;z-index:2;bottom:104px;left:calc(50% + 2px);max-width:166px;padding:10px 14px 11px;border-radius:16px;background:var(--card);
+  box-shadow:0 12px 28px -12px rgba(70,45,20,.4),0 0 0 1px rgba(120,95,60,.08);transform-origin:0 100%;opacity:0}
+.cheer-bubble::before{content:"";position:absolute;left:-5px;bottom:16px;width:14px;height:14px;border-radius:3px;background:var(--card);transform:rotate(45deg)}
+.cheer-zh{position:relative;font-family:var(--hanzi);font-size:25px;line-height:1.15;color:var(--seal)}
+.cheer-py{position:relative;font-size:12px;color:var(--seal);opacity:.8}
+.cheer-en{position:relative;font-size:13.5px;line-height:1.3;color:var(--ink-2);margin-top:4px}
+.cheer-bit{position:absolute;left:calc(50% - 81px);bottom:118px;width:8px;height:11px;border-radius:2px;opacity:0}
 .qa-seg{margin-bottom:14px}
 .qa-seg button{flex:1;height:36px}
 .qa-word{flex:1;min-width:0}
@@ -547,7 +557,7 @@ function parse() {
   return { view: 'home', deckId: null };
 }
 function route() {
-  closeSheet(true);
+  closeSheet(true); $('#cheer')?.remove();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
   S.hskLevel = r.lv || null;
@@ -1942,7 +1952,69 @@ function HskView() {
     <div class="dock hsk-dock"><button class="link-btn" id="hskAll">Select all</button><button class="btn btn-primary" id="hskAdd" disabled>Add to word bank</button></div>
   </div>`;
 }
+/* Shi Shi pops up to cheer: springs out of the bottom bar with a squash, two happy hops, a speech bubble and
+   paper confetti from behind his mane, then drops back after about 3 s. Tap him to send him away early. */
+let cheerImg = null;
+function cheer(n) {
+  $('#cheer')?.remove();
+  const dock = $('.dock'), b = dock ? Math.max(0, innerHeight - dock.getBoundingClientRect().top) : 90;
+  const [zh, py] = n >= 20 ? ['太棒了！', 'tài bàng le'] : n >= 5 ? ['真棒！', 'zhēn bàng'] : ['很好！', 'hěn hǎo'];
+  const el = document.createElement('div'); el.id = 'cheer'; el.style.setProperty('--cheer-b', b + 'px');
+  el.innerHTML = `<div class="cheer-bubble" role="status"><div class="cheer-zh">${zh}</div><div class="cheer-py">${py}</div>
+    <div class="cheer-en">+${plural(n, 'word')} in your word bank</div></div><img class="cheer-lion" src="mascots/shi-shi.svg" alt="Shi Shi the lion cheering">`;
+  document.body.appendChild(el);
+  const lion = el.querySelector('.cheer-lion'), bub = el.querySelector('.cheer-bubble');
+  let gone = false;
+  const leave = fast => { if (gone) return; gone = true; el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: fast ? 160 : 1, fill: 'forwards' }).onfinish = () => el.remove(); };
+  lion.onclick = () => leave(true);
+  try { navigator.vibrate?.([10, 70, 16]); } catch (_) {}
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    lion.style.transform = 'none'; bub.style.opacity = 1;
+    el.animate([{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .88 }, { opacity: 0 }], { duration: 2600, fill: 'both' }).onfinish = () => leave();
+    return;
+  }
+  // up out of the bar: stretch while rising, squash on landing, settle
+  lion.animate([
+    { transform: 'translateY(105%) scale(.82)' },
+    { transform: 'translateY(-12%) scale(.93,1.09)', offset: .48 },
+    { transform: 'translateY(0) scale(1.09,.9)', offset: .7 },
+    { transform: 'translateY(-3%) scale(.98,1.03)', offset: .86 },
+    { transform: 'none' }], { duration: 720, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' });
+  // two happy hops, leaning left then right
+  lion.animate([
+    { transform: 'none' },
+    { transform: 'translateY(-13%) rotate(-6deg) scale(.97,1.04)', offset: .22 },
+    { transform: 'translateY(0) scale(1.06,.94)', offset: .45 },
+    { transform: 'none', offset: .5 },
+    { transform: 'translateY(-13%) rotate(6deg) scale(.97,1.04)', offset: .72 },
+    { transform: 'translateY(0) scale(1.06,.94)', offset: .95 },
+    { transform: 'none' }], { duration: 820, delay: 900, easing: 'ease-in-out' });
+  // back down into the bar
+  lion.animate([
+    { transform: 'none' },
+    { transform: 'translateY(-7%) scale(.97,1.04)', offset: .3 },
+    { transform: 'translateY(108%) scale(.9)' }], { duration: 430, delay: 2900, easing: 'cubic-bezier(.45,0,.8,.45)', fill: 'forwards' }).onfinish = () => leave();
+  bub.animate([
+    { opacity: 0, transform: 'scale(.3) translateY(12px)' },
+    { opacity: 1, transform: 'scale(1.06)', offset: .6 },
+    { opacity: 1, transform: 'none' }], { duration: 440, delay: 360, easing: 'cubic-bezier(.2,.9,.3,1.15)', fill: 'forwards' });
+  bub.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.85) translateY(6px)' }], { duration: 220, delay: 2800, fill: 'forwards' });
+  // paper confetti from behind his mane, falling back down behind the bar
+  const colors = ['var(--seal)', '#E8B44A', 'var(--jade)', '#F6D682', '#E5483F'];
+  for (let i = 0; i < 18; i++) {
+    const bit = document.createElement('i'); bit.className = 'cheer-bit'; bit.style.background = colors[i % colors.length];
+    if (i % 3 === 0) bit.style.borderRadius = '50%';
+    el.insertBefore(bit, lion);
+    const a = -Math.PI / 2 + (Math.random() - .5) * 2.3, v = 95 + Math.random() * 95, dx = Math.cos(a) * v, dy = Math.sin(a) * v, r = (Math.random() < .5 ? -1 : 1) * (360 + Math.random() * 360);
+    bit.animate([
+      { transform: 'translate(0,0) rotate(0) scale(.4)', opacity: 0 },
+      { transform: `translate(${dx * .65}px,${dy * .65}px) rotate(${r / 3}deg) scale(1)`, opacity: 1, offset: .28 },
+      { transform: `translate(${dx}px,${dy + 230}px) rotate(${r}deg) scale(.8)`, opacity: 0 }],
+      { duration: 1300 + Math.random() * 450, delay: 300 + Math.random() * 90, easing: 'cubic-bezier(.2,.65,.45,1)', fill: 'forwards' });
+  }
+}
 function mountHsk() {
+  if (!cheerImg) { cheerImg = new Image(); cheerImg.src = 'mascots/shi-shi.svg'; }   // ready before the first cheer
   S.hskIO?.disconnect();
   const H = S.H, lv = S.hskLevel;
   if (!H) { loadHsk().then(() => { if (S.view === 'hsk') render(); }, () => { const p = $('#hskLoad'); if (p) p.textContent = 'Could not load the HSK lists. Check your connection and open this page again.'; }); return; }
@@ -1984,7 +2056,7 @@ function mountHsk() {
     $$('.row.on', list).forEach(b => { b.classList.remove('on'); b.classList.add('has'); });
     $('#hskHave').textContent = L.filter(r => inBank.has(r.h)).length;
     LOG.add('hsk-add', { level: HSK_NAME(lv), words: words.length });
-    toast(`Added ${plural(words.length, 'word')} to your word bank`); paint();
+    cheer(words.length); paint();
   };
   S.hskIO = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) more(); }, { rootMargin: '800px' });
   S.hskIO.observe($('#hskMore'));
@@ -1993,7 +2065,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.17';
+const APP_VERSION = '1.18';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
