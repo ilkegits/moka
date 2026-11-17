@@ -195,6 +195,15 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .tzg.revealed canvas{opacity:.35;transition:opacity .4s}
 .tzg.dim{opacity:.45;transform:scale(.96)}
 .tzg.done-ok{box-shadow:0 0 0 2px var(--jade), var(--shadow-sm)}
+.tzg.judged-ok{box-shadow:0 0 0 2.5px var(--jade), var(--shadow-sm)}
+.tzg.judged-no{box-shadow:0 0 0 2.5px var(--seal), var(--shadow-sm)}
+.tzg .mark{position:absolute;top:-9px;right:-7px;z-index:3;min-width:30px;height:24px;padding:0 8px;border-radius:12px;display:grid;place-items:center;
+  font:600 12.5px/1 var(--ui);color:#fff;background:var(--jade);box-shadow:0 3px 8px -3px rgba(0,0,0,.35);animation:pop .35s cubic-bezier(.2,.9,.3,1.4) both}
+.tzg .mark.no{background:var(--seal)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.verdict{font-weight:600;font-size:15px;color:var(--ink)}
+.verdict.ok{color:var(--jade)} .verdict.no{color:var(--seal)}
+.btn .spin{width:16px;height:16px;border-color:rgba(255,255,255,.35);border-top-color:#fff}
 .ans-fallback{display:grid;place-items:center;height:100%;font-family:var(--hanzi);font-size:calc(var(--s) * .72);color:var(--seal);opacity:.75}
 .tools{display:flex;justify-content:center;gap:10px;margin-top:22px;min-height:38px}
 .note{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;min-height:20px}
@@ -509,7 +518,7 @@ function startWrite(ids) {
     S.write = { deckId: d.id, order: ids || shuffle(d.cards.map(c => c.id)), i: 0, results: {}, done: false };
   resetCardState();
 }
-function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [] }); }
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false }); }
 function WriteView(d) {
   const W = S.write, n = W.order.length;
   if (W.done) return WriteSummary(d);
@@ -534,6 +543,10 @@ function WriteView(d) {
 const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(c.pinyin)}</span>`;
 function writeDock() {
   const W = S.write, guided = db.prefs.writeMode === 'guided';
+  if (W.revealed && W.judge && W.judge.ok !== null)
+    return W.judge.ok
+      ? `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Count as wrong</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Next</button></div>`
+      : `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="1">I was right</button><button class="btn btn-primary" data-act="grade" data-ok="0">Next</button></div>`;
   if (W.revealed || W.guidedDone)
     return `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Missed it</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Got it</button></div>`;
   if (guided) return `<button class="btn btn-quiet wide" data-act="skip">Skip card</button>`;
@@ -576,7 +589,7 @@ function initFreeBox(box, s) {
 }
 function redraw(box) {
   const ctx = box._ctx, s = box._s; ctx.clearRect(0, 0, s, s);
-  const color = css('--ink'), base = s / 15;
+  const color = css('--ink'), base = Math.max(2.4, Math.min(3.6, s / 32));
   for (const st of box._strokes) drawStroke(ctx, st, base, color);
 }
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -587,7 +600,7 @@ function drawStroke(ctx, pts, base, color) {
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i];
     const v = Math.hypot(b.x - a.x, b.y - a.y) / Math.max(1, b.t - a.t);
-    const target = base * Math.max(0.42, Math.min(1.2, 1.2 - v * 0.32));
+    const target = base * Math.max(0.6, Math.min(1.15, 1.15 - v * 0.25));
     w = w * 0.75 + target * 0.25;
     const m0 = i > 1 ? mid(pts[i - 2], a) : a, m1 = mid(a, b);
     ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(m0.x, m0.y); ctx.quadraticCurveTo(a.x, a.y, m1.x, m1.y); ctx.stroke();
@@ -595,8 +608,122 @@ function drawStroke(ctx, pts, base, color) {
   const l = pts[pts.length - 1], m = mid(pts[pts.length - 2], l);
   ctx.lineWidth = w * 0.85; ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(l.x, l.y); ctx.stroke();
 }
+/* ---------- handwriting check ----------
+   Two independent opinions, both ignoring stroke order:
+   1. Shape score (0-100): your ink vs. the reference skeleton of the character, both scaled to the same size.
+      How much of the reference you covered and how much of your ink lies on it, with stroke direction
+      taken into account, minus points for missing or extra strokes.
+   2. Recognition: Google's handwriting reader says which character your drawing looks like.
+   Tuned on 240 test drawings (neat, sloppy, look-alike characters, missing strokes). */
+const JUDGE = { tol: .05, dirW: .04, missPen: 25, extraPen: 15, pass: 65, passClean: 50, passRank2: 90, offlinePass: 78, wordRescue: 80 };
+function polyNorm(lines) {
+  const all = lines.flat(); if (!all.length) return [];
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of all) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+  const w = x1 - x0, h = y1 - y0, k = Math.max(w, h) || 1;
+  return lines.map(l => l.map(p => ({ x: (p.x - x0 - w / 2) / k + .5, y: (p.y - y0 - h / 2) / k + .5 })));
+}
+function resample(lines, step) {
+  const out = [];
+  for (const l of lines) {
+    if (!l.length) continue;
+    if (l.length === 1) { out.push({ x: l[0].x, y: l[0].y, a: null }); continue; }
+    out.push({ x: l[0].x, y: l[0].y, a: Math.atan2(l[1].y - l[0].y, l[1].x - l[0].x) }); let carry = 0;
+    for (let i = 1; i < l.length; i++) {
+      const a = l[i - 1], b = l[i], L = Math.hypot(b.x - a.x, b.y - a.y); if (!L) continue;
+      const ang = Math.atan2(b.y - a.y, b.x - a.x); let d = step - carry;
+      for (; d <= L; d += step) out.push({ x: a.x + (b.x - a.x) * d / L, y: a.y + (b.y - a.y) * d / L, a: ang });
+      carry = L - (d - step);
+    }
+  }
+  return out;
+}
+const JUDGE_STEP = .015;
+function coverage(from, to) {
+  const { tol, dirW } = JUDGE; let sum = 0;
+  for (const p of from) {
+    let best = Infinity;
+    for (const q of to) {
+      let d = Math.hypot(p.x - q.x, p.y - q.y); if (d > best) continue;
+      if (p.a !== null && q.a !== null) d += dirW * Math.abs(Math.sin(p.a - q.a));
+      if (d < best) best = d;
+    }
+    sum += best <= tol ? 1 : best >= 2.5 * tol ? 0 : 1 - (best - tol) / (1.5 * tol);
+  }
+  return from.length ? sum / from.length : 0;
+}
+function shapeScore(userStrokes, medians) {
+  const U = resample(polyNorm(userStrokes.map(s => s.map(p => ({ x: p.x, y: p.y })))), JUDGE_STEP);
+  const R = resample(polyNorm(medians.map(m => m.map(([x, y]) => ({ x, y: 900 - y })))), JUDGE_STEP);
+  if (!U.length || !R.length) return 0;
+  const P = coverage(U, R), Rc = coverage(R, U), diff = medians.length - userStrokes.length;
+  const raw = P + Rc ? 200 * P * Rc / (P + Rc) : 0;
+  return Math.max(0, Math.round(raw - (diff > 0 ? diff * JUDGE.missPen : -diff * JUDGE.extraPen)));
+}
+async function recognize(strokes, s, lang = 'zh_CN') {
+  const t0 = strokes[0]?.[0]?.t || 0;
+  const ink = strokes.map(st => [st.map(p => Math.round(p.x)), st.map(p => Math.round(p.y)), st.map(p => Math.round(p.t - t0))]);
+  const r = await fetch('https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ options: 'enable_pre_space', requests: [{ writing_guide: { writing_area_width: s, writing_area_height: s }, ink, language: lang }] }),
+  });
+  const j = await r.json();
+  return j[0] === 'SUCCESS' ? (j[1]?.[0]?.[1] || []) : [];
+}
+/* Whole-word reading: lay the boxes side by side and let the recognizer use word context.
+   Only used to rescue characters that already scored well on shape and were a close 2nd-5th choice. */
+async function rescueWithWord(word, chars, boxes, res) {
+  const weak = res.map((r, i) => !r.ok && r.score !== null && r.score >= JUDGE.wordRescue && r.rank >= 1 && r.rank <= 4 ? i : -1).filter(i => i >= 0);
+  if (chars.length < 2 || !weak.length) return res;
+  const s = boxes[0]._s; let t = 0;
+  const strokes = boxes.flatMap((b, i) => (b._strokes || []).map(st => st.map(p => ({ x: p.x + i * s, y: p.y, t: (t += 10) }))));
+  try {
+    const t0 = 0, ink = strokes.map(st => [st.map(p => Math.round(p.x)), st.map(p => Math.round(p.y)), st.map(p => p.t - t0)]);
+    const r = await fetch('https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ options: 'enable_pre_space', requests: [{ writing_guide: { writing_area_width: s * chars.length, writing_area_height: s }, ink, language: 'zh_CN' }] }),
+    });
+    const j = await r.json(), cands = j[0] === 'SUCCESS' ? (j[1]?.[0]?.[1] || []) : [];
+    if (cands.slice(0, 3).includes(chars.join(''))) weak.forEach(i => { res[i] = { ...res[i], ok: true, rescued: true }; });
+  } catch (_) {}
+  return res;
+}
+const refCache = new Map();
+const loadRef = ch => { if (!refCache.has(ch)) refCache.set(ch, HanziWriter.loadCharacterData(ch).catch(e => { refCache.delete(ch); throw e; })); return refCache.get(ch); };
+async function judgeChar(ch, strokes, s) {
+  if (!strokes.length) return { ok: false, score: 0, rank: -1, empty: true, diff: 0, cands: [] };
+  const [ref, cands] = await Promise.all([
+    window.HanziWriter ? loadRef(ch).catch(() => null) : null,
+    recognize(strokes, s).catch(() => null),
+  ]);
+  const score = ref ? shapeScore(strokes, ref.medians) : null;
+  const rank = cands ? cands.indexOf(ch) : null;
+  return { score, rank, cands: cands || [], diff: ref ? ref.medians.length - strokes.length : 0, ok: verdict(score, rank, ref ? ref.medians.length - strokes.length : 0) };
+}
+function verdict(score, rank, diff = 0) {
+  if (score === null && rank === null) return null;            // offline and no stroke data: the learner decides
+  if (score === null) return rank === 0;
+  if (rank === null) return score >= JUDGE.offlinePass;        // offline: shape only (less reliable)
+  return (rank === 0 && score >= (diff === 0 ? JUDGE.passClean : JUDGE.pass)) || (rank >= 1 && rank <= 2 && score >= JUDGE.passRank2);
+}
+const scoreWord = n => n >= 90 ? 'Beautiful' : n >= 80 ? 'Nice' : n >= 65 ? 'Okay' : 'Messy';
+
 function writerOpts(s, extra) {
   return Object.assign({ width: s, height: s, padding: Math.round(s * 0.09), showOutline: false, strokeAnimationSpeed: 1.3, delayBetweenStrokes: 140 }, extra);
+}
+function judgeNote(chars) {
+  const J = S.write.judge; if (!J) return '';
+  if (J.ok === null) return 'Couldn’t check your writing (offline). Grade yourself.';
+  const scored = J.chars.filter(j => j.score !== null), avg = scored.length ? Math.round(scored.reduce((a, j) => a + j.score, 0) / scored.length) : null;
+  if (J.ok) return `<span class="verdict ok">Correct ✓</span>${avg !== null ? ` · ${scoreWord(avg)} handwriting (${avg}/100)` : ''}`;
+  const i = J.chars.findIndex(j => !j.ok), j = J.chars[i], ch = chars[i], where = chars.length > 1 ? `Box ${i + 1}` : 'Your character';
+  const lookalike = j.rank !== 0 && j.cands[0] && HAN.test(j.cands[0]) && [...j.cands[0]].length === 1 && j.cands[0] !== ch;
+  const why = j.empty ? `${where} is empty`
+    : lookalike ? `${where} looks more like <span class="hz">${esc(j.cands[0])}</span>`
+    : j.diff > 0 ? `${where}: ${plural(j.diff, 'stroke')} missing`
+    : j.diff < 0 ? `${where}: ${plural(-j.diff, 'extra stroke')}`
+    : j.rank === 0 ? `${where}: the shape is too far off` : `${where} is hard to read`;
+  return `<span class="verdict no">Not quite</span> · ${why}`;
 }
 function revealFree() {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
@@ -610,9 +737,14 @@ function revealFree() {
       }));
     } else el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`;
     box.classList.add('revealed');
+    const j = W.judge?.chars?.[i];
+    if (j && j.ok !== null) {
+      box.classList.add(j.ok ? 'judged-ok' : 'judged-no');
+      if (j.score !== null) box.insertAdjacentHTML('beforeend', `<span class="mark ${j.ok ? '' : 'no'}">${j.score}</span>`);
+    }
   });
   $('#rline').innerHTML = revealLine(c);
-  $('#note').textContent = 'Tap a box to watch the stroke order.';
+  $('#note').innerHTML = (W.judge ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
   $('#tools').innerHTML = '';
   $('#wdock').innerHTML = writeDock();
 }
@@ -622,7 +754,7 @@ function initGuided(boxes, chars, s) {
   W.writers = boxes.map((box, i) => HanziWriter.create(box.querySelector('.quiz'), chars[i], writerOpts(s, {
     showCharacter: false, showOutline: db.prefs.outline,
     strokeColor: css('--ink'), outlineColor: css('--line-2'), drawingColor: css('--ink'), highlightColor: css('--seal'),
-    drawingWidth: Math.max(5, Math.round(s / 16)), showHintAfterMisses: 3, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+    drawingWidth: Math.max(2.4, Math.min(3.6, s / 32)), showHintAfterMisses: 3, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
     onLoadCharDataError: () => { box.querySelector('.quiz').innerHTML = `<span class="ans-fallback">${chars[i]}</span>`; },
   })));
   boxes.forEach((b, j) => b.classList.toggle('dim', j > 0));
@@ -814,7 +946,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
@@ -918,8 +1050,15 @@ const A = {
   'py-hint': t => { const W = S.write; W.pyShown = true; t.textContent = cardById(curDeck(), W.order[W.i]).pinyin; },
   'undo': () => { const W = S.write, box = W.history.pop(); if (box) { box._strokes.pop(); redraw(box); } },
   'clear': () => { const W = S.write; $$('#grid .tzg').forEach(b => { b._strokes = []; redraw(b); }); W.history = []; },
-  'check': () => {
+  'check': async () => {
     const W = S.write; if (!W.history.length) { toast('Write something first ✍️'); return; }
+    if (W.checking) return; W.checking = true;
+    $('#wdock').innerHTML = `<button class="btn btn-seal wide" disabled><span class="spin"></span>Checking…</button>`;
+    const chars = hanChars(cardById(curDeck(), W.order[W.i]).hanzi), boxes = $$('#grid .tzg');
+    const res = await rescueWithWord(null, chars, boxes, await Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))));
+    if (S.write !== W || W.revealed) return;
+    W.checking = false;
+    W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
     revealFree();
   },
   'outline': t => {
