@@ -185,7 +185,9 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .prompt-en{font-family:var(--display);font-weight:600;line-height:1.1;margin:10px 0 8px}
 .prompt .reveal-line{min-height:28px;display:flex;justify-content:center;align-items:center;gap:10px}
 .prompt .reveal-line .py{margin:0;font-size:16px}
-.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gap,12px)}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gap,12px);width:100%;margin:0 auto}
+.grid.rows .tzg::before{content:attr(data-n);position:absolute;top:6px;left:8px;z-index:2;pointer-events:none;
+  font:600 10.5px/1 var(--ui);letter-spacing:.02em;color:var(--grid);opacity:.75}
 .tzg{position:relative;width:var(--s,150px);height:var(--s,150px);background:var(--card);border-radius:6px;box-shadow:var(--shadow-sm);touch-action:none;color:var(--grid);transition:opacity .25s, transform .25s}
 .tzg *{touch-action:none}
 .tzg-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -208,6 +210,9 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .ans-fallback{display:grid;place-items:center;height:100%;font-family:var(--hanzi);font-size:calc(var(--s) * .72);color:var(--seal);opacity:.75}
 .tools{display:flex;justify-content:center;gap:10px;margin-top:22px;min-height:38px}
 .note{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;min-height:20px}
+@media (max-height:720px){ /* short phones: give the writing boxes the room */
+  .prompt{padding:6px 0 12px} .prompt-en{margin:6px 0 4px}
+  .note{margin-top:10px} .tools{margin-top:10px} }
 .summary{text-align:center;padding:30px 0 10px;flex:1}
 .ring{width:170px;height:170px;border-radius:50%;margin:10px auto 26px;display:grid;place-items:center;
   background:conic-gradient(var(--jade) calc(var(--p)*1%), var(--line) 0)}
@@ -617,7 +622,7 @@ function WriteView(d) {
       <div class="prompt-en" style="font-size:${Math.min(44, enSize(c.en))}px">${esc(c.en)}</div>
       <div class="reveal-line" id="rline">${W.revealed || W.guidedDone ? revealLine(c) : `<button class="link" data-act="py-hint">${W.pyShown ? esc(c.pinyin) : 'Show pinyin'}</button>`}</div>
     </section>
-    <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
+    <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}" data-n="${i + 1}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
     <div class="note" id="note">${guided ? 'Draw each stroke in order — wrong strokes bounce back.' : 'Write with your finger, then check.'}</div>
     <div class="tools" id="tools">${guided
       ? `<button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
@@ -636,16 +641,28 @@ function writeDock() {
   if (guided) return `<button class="btn btn-quiet wide" data-act="skip">Skip card</button>`;
   return `<button class="btn btn-seal wide" data-act="check">${I.check}Check</button>`;
 }
-function boxSize(n, avail) {
-  const k = Math.min(n, 4), gap = k >= 3 ? 10 : 14;
-  if (k === 1) return { s: Math.floor(Math.min(220, avail * 0.64)), gap };
-  return { s: Math.floor(Math.min(k === 2 ? 170 : 200, (avail - gap * (k - 1)) / k)), gap };
+/* Boxes never shrink below a comfortable writing size: 3–4 characters wrap into two rows (2 + 1, 2 + 2),
+   each as big as a two-character word, and the size also fits the screen height so nothing scrolls. */
+function boxSize(n, availW, availH = Infinity) {
+  const k = Math.min(n, 4), cols = Math.min(k, 2), rows = Math.ceil(k / cols), gap = 14;
+  if (k === 1) return { s: Math.floor(Math.max(150, Math.min(220, availW * 0.64, availH))), gap, cols, rows };
+  const byW = (availW - gap * (cols - 1)) / cols, byH = (availH - gap * (rows - 1)) / rows;
+  return { s: Math.floor(Math.max(120, Math.min(170, byW, byH))), gap, cols, rows };
+}
+function writeRoom(grid) {
+  // height left for the boxes: from the top of the grid down to the note, tools and buttons beneath it
+  const g = grid.getBoundingClientRect(), tools = $('#tools')?.getBoundingClientRect(), dock = $('#wdock')?.offsetHeight || 90;
+  const below = tools ? tools.bottom - g.bottom + 20 : 120;   // note (+ room for a second line after checking) and tools
+  const vh = Math.min(innerHeight, window.visualViewport?.height || Infinity, document.documentElement.clientHeight || Infinity);
+  return vh - (g.top + scrollY) - below - dock - 4;
 }
 function mountWrite() {
   const W = S.write; if (W.done) return;
   const d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
-  const grid = $('#grid'), { s, gap } = boxSize(chars.length, grid.clientWidth);
+  const grid = $('#grid'), { s, gap, cols, rows } = boxSize(chars.length, grid.clientWidth, writeRoom(grid));
   grid.style.setProperty('--s', s + 'px'); grid.style.setProperty('--gap', gap + 'px');
+  grid.style.maxWidth = cols * s + (cols - 1) * gap + 'px';
+  grid.classList.toggle('rows', rows > 1);
   const boxes = $$('.tzg', grid);
   if (db.prefs.writeMode === 'guided') initGuided(boxes, chars, s);
   else boxes.forEach(b => initFreeBox(b, s));
