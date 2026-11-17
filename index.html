@@ -121,8 +121,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* home bar: the Shi Shi lion head sits in the middle, the menu on the right */
 .bar-home{display:grid;grid-template-columns:42px 1fr 42px}
 /* Learn, Read and Profile: the page name as a headline in the top-left corner */
-.bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:26px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
-.bar-zh{font-family:var(--hanzi);font-weight:600;font-size:22px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
+.bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
 .logo-mid{justify-self:center;width:44px;height:44px;display:block}
 
 /* ---------- buttons ---------- */
@@ -174,6 +174,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .deck-stack span:nth-child(2){transform:rotate(5deg) translate(2px,1px)}
 .deck-face{display:grid;place-items:center;background:var(--card);font-family:var(--hanzi);font-size:22px;color:var(--ink);border-color:var(--line-2)}
 .deck-face::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:2px;background:var(--accent)}
+.deck-plus{color:var(--seal)}
+.deck-plus::after{display:none}
+.deck-plus svg.i{width:22px;height:22px}
 .deck-meta{flex:1;min-width:0}
 .deck-name{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .deck-count{font-size:13.5px;color:var(--muted);margin-top:1px}
@@ -774,6 +777,9 @@ function route() {
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = S.deckId === 'bank' ? 'bank' : 'deck';
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
+  // what you used last, for the slot under the word bank on the Decks page
+  if (d && S.deckId !== 'bank' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
+  if (S.view === 'read' && !S.readId && db.readCur?.opened) { db.last = { t: 'read' }; save(); }
   render();
   LOG.add('page', S.deckId ? { deck: d?.name } : undefined);
   if (S.toTop) { S.toTop = false; const top = () => { window.scrollTo(0, 0); $('#app').scrollTop = 0; }; top(); requestAnimationFrame(top); }
@@ -1628,8 +1634,10 @@ function Home() {
       <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
       <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
       ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
-    <div class="section-head"><h2>Word bank</h2></div>
+    <div class="section-head"><h2>My word bank</h2></div>
     ${BankTile()}
+    <div class="section-head"><h2>Pick up where you left off</h2></div>
+    <div class="decks">${LastTile()}</div>
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
     ${HskShelf()}
     <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
@@ -1645,6 +1653,21 @@ function BankTile() {
     <div class="bank-count"><div class="bank-num">${chars.length}</div>
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'}<br><b>${plural(db.bank.length, 'word')}</b></div></div>
     <div class="bank-chars">${latest.length ? latest.map(c => `<i>${esc(c)}</i>`).join('') : '<span class="msg">Tick the words you know in the HSK lists, or use Quick add</span>'}</div>
+    <span class="chev">${I.chev}</span></button>`;
+}
+/* the last thing you used: the story you are reading, or your last deck; with neither, a button to make a deck */
+function LastTile() {
+  const L = db.last || {}, s = db.readCur?.opened ? db.readCur : null;
+  const deck = (L.t === 'deck' && db.decks.find(d => d.id === L.id)) || null;
+  if (s && (L.t === 'read' || !deck)) return `<button class="deck" data-act="tab" data-h="#/read" style="--accent:var(--seal)">
+    <div class="deck-stack"><span></span><span></span><div class="deck-face">${esc(storyGlyph(s))}</div></div>
+    <div class="deck-meta"><div class="deck-name">Continue reading…</div><div class="deck-count">${esc(s.zh)} · ${esc(s.en)}</div></div>
+    <span class="chev">${I.chev}</span></button>`;
+  const d = deck || db.decks[0];
+  if (d) return DeckTile(d);
+  return `<button class="deck" data-act="new-deck" style="--accent:var(--seal)">
+    <div class="deck-stack"><span></span><span></span><div class="deck-face deck-plus">${I.plus}</div></div>
+    <div class="deck-meta"><div class="deck-name">Create a deck</div><div class="deck-count">Make your first deck of cards</div></div>
     <span class="chev">${I.chev}</span></button>`;
 }
 function DeckTile(d) {
@@ -2986,7 +3009,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.43';
+const APP_VERSION = '1.44';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -3098,7 +3121,7 @@ const A = {
   'rw': t => readPop(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
-  'read-start': () => { if (!db.readCur) return; db.readCur.opened = Date.now(); save(); LOG.add('read-start', db.readCur.zh); render(); },
+  'read-start': () => { if (!db.readCur) return; db.readCur.opened = Date.now(); db.last = { t: 'read' }; save(); LOG.add('read-start', db.readCur.zh); render(); },
   'read-finish': () => finishSheet(),
   'read-open': t => nav('#/read/' + t.dataset.id),
   'read-back': () => goBack('#/read'),
