@@ -738,13 +738,15 @@ function drawStroke(ctx, pts, base, color) {
    Tuned on 240 test drawings (neat, sloppy, look-alike characters, missing strokes). */
 const JUDGE = {
   step: .015,      // ink is sampled every 1.5% of the character size
-  tol: .09,        // how far ink may sit from the right spot and still count as "on" it
+  tol: .11,        // how far ink may sit from the right spot and still count as "on" it (lenient for handwriting)
   dirW: .04,       // ink going in a clearly different direction counts as further away
-  strokeCov: .7,   // every stroke of the character must be covered at least this much by your ink
-  inkOn: .65,      // every stroke you draw must lie at least this much on the character (short joins are fine)
-  inkTotal: .75,   // and all your ink together at least this much
-  maxRank: 2,      // the handwriting reader must list the character among its top 3 guesses
-};
+  strokeCov: .6,   // every stroke of the character must be covered at least this much by your ink
+  partCov: .7,     // each part (the radical, and the rest) must be covered at least this much as a whole
+  inkOn: .45,      // every stroke you draw must lie at least this much on the character (short joins are fine)
+  inkTotal: .7,    // and all your ink together at least this much
+  maxRank: 4,      // the handwriting reader should list the character among its top 5 guesses...
+  strong: { stroke: .7, part: .85, total: .85 },  // ...unless the strokes match this well on their own
+}
 function polyNorm(lines) {
   const all = lines.flat(); if (!all.length) return [];
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -797,18 +799,73 @@ function alignTo(U, R, rounds = 4) {
 /* Order-free stroke placement check.
    Both drawings are scaled to the same size and lined up; then every stroke of the real character must be covered
    by your ink, and every stroke you drew must lie on the character. Joining strokes in one movement is allowed. */
-function strokeCheck(userStrokes, medians) {
+/* Part coverage with the drawing placed by the writing box (HanziWriter draws its 1024 grid with 9% padding),
+   matched in overall size, then nudged into place using only ink that is already near the character. */
+function partsInBox(userStrokes, ref, s, parts) {
+  const pad = .09, R = resampleLines(ref.medians.map(m => m.map(([x, y]) => ({ x: x / 1024, y: (900 - y) / 1024 }))), JUDGE.step);
+  let U = resampleLines(userStrokes.map(st => st.map(p => ({ x: (p.x / s - pad) / (1 - 2 * pad), y: (p.y / s - pad) / (1 - 2 * pad) }))), JUDGE.step).filter(l => l.length);
+  const bb = A => { let x0 = 9, y0 = 9, x1 = -9, y1 = -9; for (const q of A) { x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); } return { k: Math.max(x1 - x0, y1 - y0), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 }; };
+  const bu = bb(U.flat()), br = bb(R.flat()), Ra = R.flat(), cut = .12 ** 2;
+  const closest = (p, pts) => { let b = pts[0], bd = Infinity; for (const q of pts) { const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2; if (d < bd) { bd = d; b = q; } } return [b, bd]; };
+  // written small, or a part left out? Try the drawing as written and scaled up to full size; keep whichever sits closer on the character
+  const tries = [...new Set([1, Math.max(.7, Math.min(1.5, br.k / (bu.k || 1)))])].map(k => refine(U.map(l => l.map(p => ({ ...p, x: bu.cx + (p.x - bu.cx) * k, y: bu.cy + (p.y - bu.cy) * k })))));
+  const onChar = V => { const A = V.flat(); return A.reduce((a, p) => a + Math.sqrt(closest(p, Ra)[1]), 0) / A.length; };
+  U = tries.sort((a, b) => onChar(a) - onChar(b))[0];
+  function refine(U) { for (let it = 0; it < 6; it++) {
+    const Ua = U.flat(), pairs = [];
+    for (const p of Ua) { const [q, d] = closest(p, Ra); if (d < cut) pairs.push([p, q]); }
+    for (const q of Ra) { const [p, d] = closest(q, Ua); if (d < cut) pairs.push([p, q]); }
+    if (pairs.length < 10) break;
+    const fit = key => {
+      let mu = 0, mr = 0; for (const [u, r] of pairs) { mu += u[key]; mr += r[key]; } mu /= pairs.length; mr /= pairs.length;
+      let sur = 0, suu = 0; for (const [u, r] of pairs) { sur += (u[key] - mu) * (r[key] - mr); suu += (u[key] - mu) ** 2; }
+      const sc = Math.max(.9, Math.min(1.12, suu ? sur / suu : 1)); return [sc, mr - sc * mu];
+    };
+    const [sx, tx] = fit('x'), [sy, ty] = fit('y');
+    U = U.map(l => l.map(p => ({ ...p, x: sx * p.x + tx, y: sy * p.y + ty })));
+  } return U; }
+  const Ua = U.flat(), cov = R.map(l => l.length ? l.filter(p => nearest(p, Ua) <= JUDGE.tol).length / l.length : 1);
+  return parts.map(pt => { const n = pt.ix.reduce((a, i) => a + R[i].length, 0) || 1; return pt.ix.reduce((a, i) => a + cov[i] * R[i].length, 0) / n; });
+}
+function strokeCheck(userStrokes, ref, s) {
   let U = resampleLines(polyNorm(userStrokes.map(st => st.map(p => ({ x: p.x, y: p.y })))), JUDGE.step).filter(l => l.length);
-  const R = resampleLines(polyNorm(medians.map(m => m.map(([x, y]) => ({ x, y: 900 - y })))), JUDGE.step);
+  const R = resampleLines(polyNorm(ref.medians.map(m => m.map(([x, y]) => ({ x, y: 900 - y })))), JUDGE.step);
   if (!U.length || !R.flat().length) return null;
   U = alignTo(U, R);
   const Ua = U.flat(), Ra = R.flat();
   const frac = (line, other) => line.length ? line.filter(p => nearest(p, other) <= JUDGE.tol).length / line.length : 1;
   const refCov = R.map(l => frac(l, Ua)), userOn = U.map(l => frac(l, Ra));
   const total = userOn.reduce((a, f, i) => a + f * U[i].length, 0) / Ua.length;
+  // parts: the radical and everything else, so a left-out or wrong component is caught even when single strokes look fine
+  const rad = (ref.radStrokes || []).filter(i => i < R.length), all = R.map((_, i) => i);
+  const parts = rad.length && rad.length < R.length ? [{ ix: rad, radical: true }, { ix: all.filter(i => !rad.includes(i)) }] : [{ ix: all }];
+  for (const pt of parts) {
+    const n = pt.ix.reduce((a, i) => a + R[i].length, 0) || 1;
+    pt.cov = pt.ix.reduce((a, i) => a + refCov[i] * R[i].length, 0) / n;
+    const P = pt.ix.flatMap(i => R[i]); let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+    for (const q of P) { x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }
+    Object.assign(pt, { x0, y0, x1, y1, cx: P.reduce((a, q) => a + q.x, 0) / P.length, cy: P.reduce((a, q) => a + q.y, 0) / P.length });
+  }
+  if (parts.length > 1) {  // where each part sits relative to the other one
+    const m = .04, encloses = (A, B) => B.x0 > A.x0 + m && B.x1 < A.x1 - m && B.y0 > A.y0 + m && A.y1 > B.cy;  // A wraps around B
+    parts.forEach((A, k) => {
+      const B = parts[1 - k], dx = A.cx - B.cx, dy = A.cy - B.cy;
+      A.pos = encloses(A, B) ? 'outside' : encloses(B, A) ? 'inside' : Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'top' : 'bottom');
+    });
+  }
   const missing = refCov.filter(c => c < JUDGE.strokeCov).length, stray = userOn.filter(c => c < JUDGE.inkOn).length;
+  let badPart = parts.length > 1 ? parts.find(pt => pt.cov < JUDGE.partCov) || null : null;
+  const ok = !missing && !stray && !badPart && total >= JUDGE.inkTotal;
+  // Which part is it? Scaling to the ink's outline stretches what's left when a whole part is missing,
+  // so to name the part, place the drawing by the writing box instead and see which part has no ink.
+  if (!ok && parts.length > 1 && s) {
+    const boxCov = partsInBox(userStrokes, ref, s, parts);
+    const worst = parts.map((pt, k) => [pt, boxCov[k]]).sort((a, b) => a[1] - b[1])[0];
+    if (worst[1] < JUDGE.partCov) badPart = worst[0];
+  }
+  const strong = ok && Math.min(...refCov) >= JUDGE.strong.stroke && Math.min(...parts.map(pt => pt.cov)) >= JUDGE.strong.part && total >= JUDGE.strong.total;
   const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
-  return { ok: !missing && !stray && total >= JUDGE.inkTotal, missing, stray, total, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
+  return { ok, strong, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -846,13 +903,13 @@ async function judgeChar(ch, strokes, s) {
     window.HanziWriter ? loadRef(ch).catch(() => null) : null,
     recognize(strokes, s).catch(() => null),
   ]);
-  const shape = ref ? strokeCheck(strokes, ref.medians) : null;
+  const shape = ref ? strokeCheck(strokes, ref, s) : null;
   const rank = cands ? cands.indexOf(ch) : null;
   let ok = verdict(shape, rank);
   // Look-alike guard: if the reader's first guess is another character, and your drawing fits that one better, it isn't green.
   const other = cands?.[0];
-  if (ok && shape && rank > 0 && other && [...other].length === 1 && HAN.test(other)) {
-    const oref = await loadRef(other).catch(() => null), o = oref && strokeCheck(strokes, oref.medians);
+  if (ok && shape && rank !== 0 && other && other !== ch && [...other].length === 1 && HAN.test(other)) {
+    const oref = await loadRef(other).catch(() => null), o = oref && strokeCheck(strokes, oref);
     if (o && o.fit < shape.fit) ok = false;
   }
   return { shape, rank, cands: cands || [], ok };
@@ -861,7 +918,7 @@ function verdict(shape, rank) {
   if (!shape && rank === null) return null;                    // offline and no stroke data: the learner decides
   if (!shape) return rank === 0;
   if (rank === null) return shape.ok;                          // offline: stroke placement only
-  return shape.ok && rank >= 0 && rank <= JUDGE.maxRank;
+  return shape.ok && ((rank >= 0 && rank <= JUDGE.maxRank) || shape.strong);   // a clean stroke match is enough on its own
 }
 
 function writerOpts(s, extra) {
@@ -874,6 +931,7 @@ function judgeNote(chars) {
   const i = J.chars.findIndex(j => !j.ok), j = J.chars[i], ch = chars[i], where = chars.length > 1 ? `Box ${i + 1}` : 'Your character';
   const sh = j.shape, lookalike = j.cands[0] && j.cands[0] !== ch && HAN.test(j.cands[0]) && [...j.cands[0]].length === 1;
   const why = j.empty ? `${where} is empty`
+    : sh && sh.badPart ? `${where}: the ${sh.badPart.pos === 'outside' ? 'outer frame' : sh.badPart.pos === 'inside' ? 'inner part' : sh.badPart.pos + ' part'}${sh.badPart.radical ? ' (radical)' : ''} is missing or wrong`
     : sh && sh.missing ? `${where}: ${sh.missing === 1 ? 'a stroke is' : sh.missing + ' strokes are'} missing or in the wrong place`
     : sh && sh.stray ? `${where}: ${sh.stray === 1 ? 'there’s an extra stroke' : sh.stray + ' extra strokes'}`
     : sh && !sh.ok ? `${where}: some ink is off the character`
@@ -1101,7 +1159,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.9';
+const APP_VERSION = '1.10';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
