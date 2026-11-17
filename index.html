@@ -544,7 +544,6 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* ---------- month calendar + streak (Profile) ---------- */
 .cal-head h2{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cal-zh{font-family:var(--hanzi);font-weight:600;font-size:21px;color:var(--seal);letter-spacing:.04em}
-.cal-py{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0}
 .cal{background:var(--card);border-radius:16px;box-shadow:var(--ring);padding:14px 12px 12px;margin-bottom:24px}
 .cal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px 12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
 .streak{display:flex;align-items:center;gap:8px;color:var(--muted)}
@@ -960,7 +959,6 @@ function LearnView() {
    Every day you finished a story gets a red tile with a character from that story (tap it to read the story again),
    like a diary of your reading. The flame counts the days in a row with at least one finished story. */
 const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-const ZH_MONTH_PY = ['yīyuè', 'èryuè', 'sānyuè', 'sìyuè', 'wǔyuè', 'liùyuè', 'qīyuè', 'bāyuè', 'jiǔyuè', 'shíyuè', 'shíyīyuè', 'shí’èryuè'];
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 function readStreak() {
   const days = new Set(db.readDone.map(s => dayKey(s.done))), d = new Date(), today = days.has(dayKey(d));
@@ -987,7 +985,7 @@ function MonthCal() {
       : `<span class="cal-d${cls}"><i>${d}</i></span>`);
   }
   const note = n ? (today ? 'Today’s story is done' : 'Finish a story today to keep it going') : 'Finish a story to start a streak';
-  return `<div class="section-head cal-head"><h2>${monthEn} <span class="cal-zh">${ZH_MONTH[m]}</span><span class="cal-py">${ZH_MONTH_PY[m]}</span></h2></div>
+  return `<div class="section-head cal-head"><h2>${monthEn} <span class="cal-zh">${ZH_MONTH[m]}</span></h2></div>
     <div class="cal">
       <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}</span></div>
       <div class="cal-wk">${[...'一二三四五六日'].map(c => `<span>${c}</span>`).join('')}</div>
@@ -2773,7 +2771,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.31';
+const APP_VERSION = '1.32';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
