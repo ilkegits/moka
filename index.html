@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#F4EEE3">
+<meta name="google" content="notranslate">
 <meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -35,7 +36,7 @@
   --ring:0 0 0 1px rgba(120,95,60,.07),0 1px 2px rgba(70,45,20,.05);   /* a group's quiet edge instead of a drop shadow */
   --kb:0px;
   --tabh:66px;
-  --tabw:80px;
+  --tabw:78px;
   color-scheme:light;
 }
 /* Dark mode is off for now (light only). To bring it back, change "not all" to "(prefers-color-scheme: dark)" here and below. */
@@ -53,6 +54,11 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
+/* feels like an app: no text marking on long press, no pinch or double-tap zoom, pictures can't be dragged, saved or copied */
+html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+img,svg{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none}
 body{
   background:var(--paper); color:var(--ink); font-family:var(--ui); font-size:15px; line-height:1.45;
   -webkit-font-smoothing:antialiased; overscroll-behavior-y:none;
@@ -68,7 +74,7 @@ input{font:inherit;color:inherit}
 svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 #frame{position:relative;z-index:1}
-#app{max-width:480px;margin:0 auto;padding:0 20px;position:relative;overflow-x:clip;touch-action:pan-y pinch-zoom}
+#app{max-width:480px;margin:0 auto;padding:0 20px;position:relative;overflow-x:clip;touch-action:pan-y}
 /* page swipe: the neighbouring page rides in beside the current one */
 .peek{position:absolute;left:20px;right:20px;overflow:hidden;pointer-events:none}
 .peek>.screen{min-height:100%}
@@ -98,6 +104,10 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
+/* home bar: the ShiCards wordmark sits in the middle, the menu on the right */
+.bar-home{display:grid;grid-template-columns:42px 1fr 42px}
+.wordmark{justify-self:center;font-family:"Baloo 2",var(--ui);font-weight:800;font-size:27px;line-height:1;letter-spacing:-.015em;padding-top:4px;color:var(--ink)}
+.wordmark b{font-weight:inherit;color:var(--seal)}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:14px;font-weight:600;font-size:16px;letter-spacing:-.01em;transition:opacity .2s, background .2s}
@@ -124,6 +134,8 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .hello-hz{font-family:var(--hanzi);font-size:46px;line-height:1.1;letter-spacing:.04em}
 .hello-py{font-size:14px;color:var(--seal);margin-top:6px;letter-spacing:.02em}
 .hello-en{font-size:15px;color:var(--muted);margin-top:4px}
+.hello-name{font-family:var(--display);font-weight:600;letter-spacing:0;font-size:.92em}
+.name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
 .section-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
 .decks{display:flex;flex-direction:column;margin-bottom:22px;background:var(--card);border-radius:14px;box-shadow:var(--ring);overflow:hidden}
@@ -410,7 +422,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 /* Modelled on Uber's bar: a dark floating capsule; the tapped icon fills instantly,
    the highlight follows after a short pause (about 0.12 s) and glides over in about 0.42 s. */
 #tabbar{position:fixed;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;margin:0 auto;display:none;
-  width:calc(var(--tabw) * 3 + 20px);height:var(--tabh);padding:0 9px;border-radius:999px;
+  width:calc(var(--tabw) * 4 + 20px);height:var(--tabh);padding:0 9px;border-radius:999px;
   background:var(--ink);border:1px solid rgba(255,248,240,.16);box-shadow:0 14px 30px -12px rgba(30,20,10,.55)}
 #frame.tabs #tabbar{display:flex}
 #frame.tabs .screen{padding-bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom))}
@@ -425,6 +437,36 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .tab.on{color:var(--seal-ink);font-weight:600}
 .tab:focus-visible{outline:2px solid var(--seal-ink);outline-offset:-3px}
 @media (prefers-reduced-motion:reduce){.tab-pill{transition:none}}
+
+/* ---------- read ---------- */
+.read-tools{display:flex;gap:8px;margin:-10px 0 12px}
+.py-glyph{font-family:var(--hanzi);font-weight:600;font-size:15px;line-height:1}
+.read-note{font-size:13.5px;color:var(--muted);margin:0 2px 14px}
+.read-note u{text-decoration:underline dotted var(--seal) 1.5px;text-underline-offset:4px}
+.read-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
+.story{position:relative;background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:15px 14px 12px 16px}
+.story-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.story-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:18px;letter-spacing:.02em}
+.story-en{font-size:13px;color:var(--muted)}
+.story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:22px;line-height:1.6;color:var(--ink)}
+.rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
+.rw{border-radius:6px;padding:0 1px;font:inherit;line-height:inherit;transition:background .2s}
+.rg{display:inline-flex;align-items:flex-start}
+.rw.mine{background:radial-gradient(circle,color-mix(in srgb,var(--seal) 80%,transparent) 0.8px,transparent 1.1px) left calc(100% - 2px)/4px 4px repeat-x}
+.rw.hl{background:rgba(255,209,92,.6);transition:none}
+.ry{display:none;font-family:var(--ui);font-size:11.5px;font-weight:500;color:var(--seal);line-height:1.1;margin:-3px 0 5px;white-space:nowrap}
+.read-list.py .ry{display:block}
+.rpop{position:absolute;z-index:6;min-width:128px;max-width:250px;background:var(--ink);color:var(--paper);border-radius:13px;padding:9px 14px 10px;
+  box-shadow:0 14px 28px -12px rgba(30,20,10,.6);animation:rpopIn .16s ease-out both}
+.rpop::after{content:"";position:absolute;left:calc(var(--ax) - 7px);border:7px solid transparent}
+.rpop.up::after{top:100%;border-top-color:var(--ink)}
+.rpop.down::after{bottom:100%;border-bottom-color:var(--ink)}
+.rpop.up{transform-origin:var(--ax) 100%}.rpop.down{transform-origin:var(--ax) 0}
+@keyframes rpopIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.rpop-hz{font-family:var(--hanzi);font-size:22px;line-height:1.25}
+.rpop-py{font-size:13px;color:#F4B5A6;margin-top:1px}
+.rpop-en{font-size:14.5px;line-height:1.35;margin-top:5px}
+.rpop-tag{font-size:11.5px;margin-top:7px;color:#FFD15C;font-weight:600}
 
 /* ---------- learn + profile ---------- */
 .learn-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
@@ -508,12 +550,14 @@ const I = {
   decks: ic('<rect x="8" y="3.5" width="11.5" height="14.5" rx="2"/><path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/>'),
   learn: ic('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/>'),
   profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
+  read: ic('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5"/>'),
 };
 /* filled versions, shown on the active tab */
 const icOn = p => `<svg class="i i-on" viewBox="0 0 24 24">${p}</svg>`;
 const IF = {
   decks: icOn('<path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/><rect x="8" y="3.5" width="11.5" height="14.5" rx="2" fill="currentColor"/>'),
   learn: icOn('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z" fill="currentColor"/><path d="M12 7.5v11" style="stroke:var(--seal)"/>'),
+  read: icOn('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5" style="stroke:var(--seal)"/>'),
   profile: icOn('<circle cx="12" cy="8.5" r="3.8" fill="currentColor"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5z" fill="currentColor"/>'),
 };
 const TZG = `<svg class="tzg-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -553,7 +597,7 @@ function parse() {
   if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
-  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
+  if (p[0] === 'learn' || p[0] === 'read' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
@@ -724,6 +768,7 @@ function render() {
   else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
+  else if (S.view === 'read') { app.innerHTML = ReadView(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
@@ -732,7 +777,7 @@ function render() {
 }
 
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
-const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['profile', 'Profile', '#/profile']];
+const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
   const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view;
@@ -775,6 +820,8 @@ function ProfileView() {
     <header class="bar"><div class="bar-title">Profile</div></header>
     <section class="hello"><div class="hello-hz">我的</div><div class="hello-py">wǒ de</div>
       <div class="hello-en">Your progress so far</div></section>
+    <label class="field"><span class="lbl">Your name<span>So ShiCards can greet you</span></span>
+      <input class="input" id="pName" placeholder="Type your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false"></label>
     <div class="stats">
       <div class="stat"><b>${db.decks.length}</b><span>${db.decks.length === 1 ? 'Deck' : 'Decks'}</span></div>
       <div class="stat"><b>${cards.length}</b><span>${cards.length === 1 ? 'Card' : 'Cards'}</span></div>
@@ -786,6 +833,161 @@ function ProfileView() {
   </div>`;
 }
 
+/* ---------- read: short stories from your word bank ----------
+   Each story is a hand-written frame with gaps; the gaps are filled with words from your word bank that fit
+   (a food where a food goes, a place where a place goes), so the Chinese stays correct. A gap no bank word fits
+   gets a common word instead. {any} takes any bank word, so every word you have can turn up.
+   Tap a word to see it highlighted with its pinyin and meaning; the 拼音 button puts pinyin under every word. */
+const RL = (() => {
+  const L = {
+    food: '米饭 rice|面条 noodles|饺子 dumplings|包子 steamed buns|面包 bread|鸡蛋 eggs|苹果 apples|香蕉 bananas|西瓜 watermelon|水果 fruit|蛋糕 cake|鱼 fish|肉 meat|牛肉 beef|羊肉 lamb|鸡肉 chicken|菜 vegetables; dishes|葡萄 grapes|草莓 strawberries|橙子 oranges|西红柿 tomatoes|土豆 potatoes|豆腐 tofu|饼干 biscuits|巧克力 chocolate|冰淇淋 ice cream|馒头 steamed bread|火锅 hotpot|烤鸭 roast duck|糖 sweets|米 rice|梨 pears|桃 peaches',
+    drink: '水 water|茶 tea|咖啡 coffee|牛奶 milk|果汁 juice|啤酒 beer|酒 wine; alcohol|可乐 cola|绿茶 green tea|红茶 black tea|奶茶 milk tea|豆浆 soy milk|汤 soup|热水 hot water|粥 rice porridge|矿泉水 mineral water',
+    place: '学校 school|商店 shop|医院 hospital|公园 park|饭店 restaurant|餐厅 restaurant|图书馆 library|机场 airport|火车站 train station|银行 bank|超市 supermarket|公司 company; office|书店 bookshop|咖啡馆 café|电影院 cinema|北京 Beijing|上海 Shanghai|中国 China|动物园 zoo|博物馆 museum|宾馆 hotel|酒店 hotel|教室 classroom|体育馆 gym|市场 market|大学 university|办公室 office|商场 shopping mall|海边 seaside|饭馆 restaurant|食堂 canteen',
+    person: '朋友 friend|同学 classmate|妈妈 mum|爸爸 dad|哥哥 older brother|姐姐 older sister|弟弟 younger brother|妹妹 younger sister|爷爷 grandpa|奶奶 grandma|老师 teacher|同事 colleague|邻居 neighbour|叔叔 uncle|阿姨 aunt|男朋友 boyfriend|女朋友 girlfriend|老朋友 old friend',
+    animal: '猫 cat|狗 dog|鸟 bird|马 horse|熊猫 panda|兔子 rabbit|老虎 tiger|猴子 monkey|小猫 kitten|小狗 puppy|鸭子 duck|大象 elephant|羊 sheep|牛 cow',
+    thing: '书 book|手机 mobile phone|电脑 computer|衣服 clothes|杯子 cup|本子 notebook|笔 pen|铅笔 pencil|报纸 newspaper|帽子 hat|鞋 shoes|包 bag|伞 umbrella|自行车 bicycle|礼物 present|词典 dictionary|手表 watch|地图 map|裙子 skirt|裤子 trousers|眼镜 glasses|椅子 chair|桌子 table|花 flowers|电视 TV|杂志 magazine|衬衫 shirt|大衣 coat|球 ball|电影票 cinema ticket|蛋糕 cake|画 painting',
+    act: '学习 to study|工作 to work|睡觉 to sleep|跑步 to go running|游泳 to swim|唱歌 to sing|跳舞 to dance|看书 to read|看电视 to watch TV|看电影 to watch a film|打篮球 to play basketball|踢足球 to play football|做饭 to cook|休息 to rest|写汉字 to write characters|说汉语 to speak Chinese|学汉语 to study Chinese|听音乐 to listen to music|玩 to play|旅游 to travel|散步 to go for a walk|买东西 to go shopping|打电话 to make a phone call|运动 to exercise|爬山 to climb mountains|画画 to draw|做作业 to do homework|聊天 to chat|上网 to go online|洗衣服 to do the laundry|骑自行车 to ride a bike|拍照 to take photos|玩游戏 to play games|弹钢琴 to play the piano|打扫 to clean|喝茶 to drink tea|写字 to write|看报纸 to read the paper',
+    skill: '游泳 to swim|唱歌 to sing|跳舞 to dance|做饭 to cook|开车 to drive|画画 to draw|打篮球 to play basketball|踢足球 to play football|弹钢琴 to play the piano|骑自行车 to ride a bike|写汉字 to write characters|说汉语 to speak Chinese|拍照 to take photos|打乒乓球 to play table tennis|包饺子 to make dumplings',
+    happy: '高兴 happy|快乐 happy|开心 happy; cheerful|激动 excited|满意 satisfied|放心 at ease|舒服 comfortable|幸福 happy; blessed',
+    low: '累 tired|饿 hungry|渴 thirsty|困 sleepy|紧张 nervous|难过 sad|生气 angry|着急 worried; in a hurry|无聊 bored',
+    time: '今天 today|早上 (in the) morning|上午 (in the) morning|中午 at noon|下午 (in the) afternoon|晚上 (in the) evening|周末 at the weekend|星期六 on Saturday|星期天 on Sunday|现在 now',
+    weather: '好 good|不错 nice; not bad|冷 cold|热 hot|暖和 warm|凉快 nice and cool',
+    taste: '好吃 tasty; delicious|香 fragrant; nice-smelling|甜 sweet|新鲜 fresh|辣 spicy|咸 salty|酸 sour|好喝 nice to drink',
+    look: '漂亮 pretty|好看 good-looking|可爱 cute|大 big|小 small|聪明 clever|胖 fat; chubby|安静 quiet',
+    cond: '贵 expensive|便宜 cheap|新 new|漂亮 pretty|好看 good-looking|干净 clean|大 big|小 small|可爱 cute|有意思 interesting',
+  };
+  const cat = {}, gloss = {}, home = {};
+  for (const [k, v] of Object.entries(L)) cat[k] = v.split('|').map(x => { const i = x.indexOf(' '), h = x.slice(0, i); gloss[h] ||= x.slice(i + 1); return h; });
+  cat.taste = cat.taste.filter(h => h !== '好喝');   // only said of drinks; frames use taste for food
+  // the fixed words in the frames, with what they mean there
+  const G = '狮狮 Shi Shi (the lion)|很 very|也 also|想 to want to|吃 to eat|喝 to drink|去 to go|买 to buy|和 and; with|一起 together|他们 they|他 he|在 at; in|了 (done; changed)|的 \'s; of|有 to have|家 home; family|每天 every day|天气 weather|今天 today|不 not|一点儿 a little|周末 weekend|上班 to go to work|早上 morning|下午 afternoon|晚上 evening|说 to say|我 I; me|你 you|真 really|明天 tomorrow|是 to be|生日 birthday|送 to give (as a present)|看了看 to have a look|但是 but|还是 still; anyway|等 to wait for|还 still; also|没 not (yet)|来 to come|有点儿 a bit|饭店 restaurant|服务员 waiter|问 to ask|什么 what|要 to want; would like|里 inside|没有 not have; there is no|所以 so|超市 supermarket|七点 seven o\'clock|起床 to get up|先 first|然后 then|八点 eight o\'clock|很早 very early|就 already; then|睡觉 to sleep|做 to make; to do|一边 while|聊天 to chat|教 to teach|学 to learn|开始 at first; to start|难 hard|后来 later|容易 easy|现在 now|都 all|下雨 to rain|伞 umbrella|给 to give|一把 one (umbrella)|一个 one; a|本子 notebook|上 on|写着 written|这些 these|认识 to know (a word)|词 word|看一看 to take a look|星期六 Saturday|动物园 zoo|看到 to see|觉得 to think; to feel|学习 to study|汉语 Chinese (language)|很多 a lot of|汉字 Chinese characters|比如 for example|好 good|公园 park|带 to bring|告诉 to tell|喜欢 to like|因为 because|今年 this year|第一次 the first time|太 too; so|啊 ah!|可以 can|一 one|下次 next time|再 again|一定 surely|东西 things|回家 to go home|已经 already|快 quickly; almost|做好 to finish making|朋友 friend|自己 oneself|叫 to be called|只 (for animals)|一只 one (animal)|小 little|每个 every|带着 carrying|还有 and also|在家 at home|休息 to rest|准备 to get ready|出门 to go out'.split('|');
+  for (const x of G) { const i = x.indexOf(' '); home[x.slice(0, i)] = x.slice(i + 1); }
+  // {slot} gaps; a trailing digit makes a second, different word of the same kind. Tokens are separated by spaces.
+  const T = [
+    ['狮狮的一天', "Shi Shi's day", ['{time} ， 狮狮 很 {happy} 。', '他 想 吃 {food} ， 也 想 喝 {drink} 。', '他 去 {place} 买 {food} 。', '{food} 很 {taste} ！']],
+    ['一起出去', 'Going out together', ['{time} ， 狮狮 和 {person} 一起 去 {place} 。', '他们 在 {place} {act} 。', '{person} 很 {happy} ， 狮狮 也 很 {happy} 。']],
+    ['新东西', 'Something new', ['狮狮 想 买 {thing} 。', '他 去 了 {place} 。', '{place} 的 {thing} 很 {cond} 。', '狮狮 买 了 {thing} ， 他 很 {happy} 。']],
+    ['狮狮的小动物', "Shi Shi's pet", ['狮狮 家 有 {animal} 。', '{animal} 很 {look} 。', '狮狮 每天 和 {animal} 一起 {act} 。', '{animal} 喜欢 吃 {food} 。']],
+    ['在家', 'At home', ['今天 天气 很 {weather} 。', '狮狮 不 想 {act} 。', '他 想 在家 {act2} 。', '他 喝 了 一点儿 {drink} 。']],
+    ['周末', 'The weekend', ['周末 ， 狮狮 不 上班 。', '他 早上 {act} ， 下午 {act2} 。', '晚上 ， 他 和 {person} 去 {place} 吃 {food} 。', '狮狮 说 ： “ 今天 我 很 {happy} ！ ”']],
+    ['生日礼物', 'A birthday present', ['明天 是 {person} 的 生日 。', '狮狮 想 送 {person} {thing} 。', '他 去 {place} 看了看 。', '{thing} 很 {cond} ， 狮狮 买 了 。', '{person} 很 {happy} 。']],
+    ['等朋友', 'Waiting', ['狮狮 在 {place} 等 {person} 。', '{person} 还 没 来 ， 狮狮 有点儿 {low} 。', '他 喝 了 一点儿 {drink} 。', '{person} 来 了 ， 狮狮 很 {happy} 。']],
+    ['学汉语', 'Learning Chinese', ['狮狮 每天 学习 汉语 。', '他 认识 很多 汉字 ， 比如 “ {any} ” 和 “ {any2} ” 。', '{person} 说 狮狮 的 汉语 很 好 。', '狮狮 很 {happy} 。']],
+    ['去公园', 'To the park', ['{time} 天气 很 {weather} 。', '狮狮 和 {person} 去 公园 。', '他们 带 了 {food} 和 {drink} 。', '{food} 真 {taste} ！']],
+    ['在饭店', 'At the restaurant', ['狮狮 {low} 了 。', '他 去 饭店 。', '服务员 问 ： “ 你 想 吃 什么 ？ ”', '狮狮 说 ： “ 我 要 {food} 和 {drink} 。 ”']],
+    ['去超市', 'To the supermarket', ['狮狮 家 里 没有 {food} 了 。', '他 也 没有 {drink} 了 。', '所以 他 去 超市 。', '他 还 买 了 {thing} 。']],
+    ['早上', 'Morning', ['狮狮 早上 七点 起床 。', '他 先 {act} ， 然后 吃 {food} 。', '八点 他 去 {place} 。', '晚上 他 很 {low} ， 很早 就 睡觉 了 。']],
+    ['朋友来了', 'A visitor', ['{person} 来 狮狮 家 。', '狮狮 做 了 {food} 。', '他们 一边 吃 ， 一边 聊天 。', '{person} 说 ： “ 你 做 的 {food} 很 {taste} ！ ”']],
+    ['学新东西', 'Learning something new', ['狮狮 想 学 {skill} 。', '{person} 教 他 。', '开始 很 难 ， 后来 很 容易 。', '现在 狮狮 每天 都 {skill} 。']],
+    ['下雨了', 'Rain', ['今天 下雨 了 。', '狮狮 没有 伞 ， 他 很 {low} 。', '{person} 给 了 他 一把 伞 。', '他们 一起 去 {place} 。']],
+    ['狮狮的本子', "Shi Shi's notebook", ['狮狮 有 一个 本子 。', '本子 上 写着 “ {any} ” 、 “ {any2} ” 和 “ {any3} ” 。', '这些 都 是 他 认识 的 词 。', '他 每天 都 看一看 。']],
+    ['动物园', 'At the zoo', ['星期六 ， 狮狮 去 动物园 。', '他 看到 了 {animal} 和 {animal2} 。', '{animal} 在 吃 {food} 。', '狮狮 觉得 {animal2} 很 {look} 。']],
+    ['第一次', 'The first time', ['今年 狮狮 第一次 去 {place} 。', '他 在 那儿 {act} 。', '他 觉得 很 {happy} 。', '下次 他 一定 再 去 。']],
+    ['准备出门', 'Getting ready', ['狮狮 准备 出门 。', '他 带着 {thing} ， 还有 {thing2} 。', '他 要 去 {place} 找 {person} 。', '{person} 喜欢 {act} ， 狮狮 也 喜欢 。']],
+  ];
+  Object.assign(home, { 那儿: 'there', 找: 'to look for; to visit', '，': '', '。': '' });
+  return { cat, gloss, home, T };
+})();
+
+const READ_PUNCT = /^[，。！？：、“”"'…（）]+$/;
+/* Make a set of stories: frames whose gaps your bank fills best come first, and each bank word is used at most once
+   per set where possible, so a new set brings different words. */
+function makeStories(n = 6) {
+  const bank = db.bank, inBank = new Map(bank.map(w => [w.hanzi, w]));
+  const used = new Set(), pick = (kind, taken) => {
+    const pool = kind === 'any' ? shuffle(bank.map(w => w.hanzi)) : shuffle(RL.cat[kind] || []);
+    const mine = pool.filter(h => (kind === 'any' || inBank.has(h)) && !taken.has(h));
+    const h = mine.find(h => !used.has(h)) || mine[0];
+    if (h) return { h, mine: true };
+    const fb = pool.filter(h => !taken.has(h))[0];
+    return fb ? { h: fb, mine: false } : null;
+  };
+  const tries = RL.T.map(tpl => {
+    const slots = new Set(), taken = new Set(), fill = {};
+    for (const line of tpl[2]) for (const m of line.matchAll(/\{(\w+)\}/g)) slots.add(m[1]);
+    let mine = 0, ok = true;
+    for (const s of slots) {
+      const kind = s.replace(/\d+$/, ''), r = pick(kind, taken);
+      if (!r) { ok = false; break; }
+      fill[s] = r.h; taken.add(r.h); if (r.mine) mine++;
+    }
+    return ok && { tpl, fill, mine, score: mine / Math.max(1, slots.size) + Math.random() * 0.35 };
+  }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, n);
+  return tries.map(({ tpl, fill }) => {
+    Object.values(fill).forEach(h => used.add(h));
+    const lines = tpl[2].map(line => line.split(' ').map(t => t.replace(/^\{(\w+)\}$/, (_, s) => fill[s])));
+    return { zh: tpl[0], en: tpl[1], lines: lines.map(toks => readTokens(toks)) };
+  });
+}
+/* per word: pinyin read in its sentence (so 一, 不 and other many-sound characters come out right) and its meaning */
+function readTokens(toks) {
+  let py = [];
+  try { py = pinyinPro.pinyin(toks.join(''), { type: 'array' }); } catch (_) {}
+  let i = 0;
+  return toks.map(h => {
+    const n = [...h].length, p = READ_PUNCT.test(h) ? '' : py.slice(i, i + n).join(' ').replace(/(?<=\S) ér$/, n > 1 && h.endsWith('儿') ? 'r' : ' ér');   // 一点儿 yì diǎnr
+    i += n; return { h, p };
+  });
+}
+function readMeaning(h) {
+  const b = bankHas(h);
+  if (b?.en) return b.en;
+  if (RL.home[h] != null) return RL.home[h];
+  if (RL.gloss[h]) return RL.gloss[h];
+  const r = S.H?.byHz.get(h); return r ? shortMeaning(r.e) : '';
+}
+function ReadView() {
+  const sig = db.bank.length + ':' + (db.bank[0]?.id || '');
+  if (!S.read || S.read.sig !== sig) S.read = { sig, stories: makeStories() };
+  const on = !!db.prefs.readPy, inBank = new Set(db.bank.map(w => w.hanzi));
+  const word = (t, si, li, wi) => READ_PUNCT.test(t.h) ? `<span class="rp">${esc(t.h)}</span>`
+    : `<button class="rw${inBank.has(t.h) ? ' mine' : ''}" data-act="rw" data-k="${si}.${li}.${wi}"><span class="rh">${esc(t.h)}</span><span class="ry">${esc(t.p)}</span></button>`;
+  return `<div class="screen fade-in">
+    <header class="bar"><div class="bar-title">Read</div></header>
+    <section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
+      <div class="hello-en">Short stories made from your word bank</div></section>
+    <div class="read-tools"><button class="pill${on ? ' on' : ''}" data-act="read-py" aria-pressed="${on}"><span class="py-glyph">拼</span>Pinyin</button>
+      <button class="pill" data-act="read-new">${I.shuffle}New stories</button></div>
+    ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
+      : '<p class="read-note">Your word bank is empty, so these use common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
+    <div class="read-list${on ? ' py' : ''}">${S.read.stories.map((s, si) => `<article class="story">
+      <div class="story-head"><h3 class="story-zh">${esc(s.zh)}</h3><span class="story-en">${esc(s.en)}</span></div>
+      ${s.lines.map((l, li) => `<p class="story-line">${readGroups(l).map(g => `<span class="rg">${g.map(wi => word(l[wi], si, li, wi)).join('')}</span>`).join('')}</p>`).join('')}
+    </article>`).join('')}</div>
+  </div>`;
+}
+/* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
+function readGroups(l) {
+  const out = []; let open = [];
+  l.forEach((t, i) => {
+    if (READ_PUNCT.test(t.h)) { if (/^[“（"]/.test(t.h) || !out.length) open.push(i); else out[out.length - 1].push(i); return; }
+    out.push([...open, i]); open = [];
+  });
+  if (open.length) out.push(open);
+  return out;
+}
+function readPop(t) {
+  const [si, li, wi] = t.dataset.k.split('.').map(Number), w = S.read?.stories[si]?.lines[li]?.[wi]; if (!w) return;
+  const was = t.classList.contains('hl');
+  closeReadPop();
+  if (was) return;   // tapping the same word again closes it
+  t.classList.add('hl');
+  const story = t.closest('.story'), b = bankHas(w.h);
+  const pop = document.createElement('div'); pop.className = 'rpop';
+  pop.innerHTML = `<div class="rpop-hz">${esc(w.h)}</div><div class="rpop-py">${esc(w.p)}</div><div class="rpop-en">${esc(readMeaning(w.h)) || '<span class="muted">No meaning found</span>'}</div>${b ? '<div class="rpop-tag">In your word bank</div>' : ''}`;
+  story.appendChild(pop);
+  const sr = story.getBoundingClientRect(), wr = t.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  const left = Math.max(8, Math.min(sr.width - pw - 8, wr.left - sr.left + wr.width / 2 - pw / 2));
+  const above = wr.top - sr.top - ph - 10, below = wr.bottom - sr.top + 10;
+  const up = wr.top - ph - 10 > Math.max(0, $('#app').getBoundingClientRect().top) + 64;
+  pop.style.left = left + 'px'; pop.style.top = (up ? above : below) + 'px';
+  pop.style.setProperty('--ax', (wr.left - sr.left + wr.width / 2 - left) + 'px');
+  pop.classList.add(up ? 'up' : 'down');
+  LOG.add('read-word', { hz: w.h, mine: !!b });
+}
+function closeReadPop() { $$('.rpop').forEach(p => p.remove()); $$('.rw.hl').forEach(x => x.classList.remove('hl')); }
+document.addEventListener('click', e => { if (S.view === 'read' && !e.target.closest?.('.rw,.rpop')) closeReadPop(); });
+
 function greeting() {
   const h = new Date().getHours();
   if (h >= 5 && h < 12) return ['早上好', 'zǎoshang hǎo', 'Good morning'];
@@ -795,13 +997,14 @@ function greeting() {
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
 function Home() {
-  const [hz, py, en] = greeting();
+  const [hz, py, en] = greeting(), name = (db.prefs.name || '').trim();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
-    <header class="bar"><div class="brand"><img class="logo" src="icons/logo.svg" alt="" width="36" height="36"><span class="brand-name">ShiCards</span></div>
+    <header class="bar bar-home"><span></span><div class="wordmark" role="img" aria-label="ShiCards"><b>Shi</b>Cards</div>
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
-    <section class="hello"><div class="hello-hz">${hz}</div><div class="hello-py">${py}</div>
-      <div class="hello-en">${en} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div></section>
+    <section class="hello"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div><div class="hello-py">${py}</div>
+      <div class="hello-en">${en}${name ? ', ' + esc(name) : ''} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
+      ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
     <div class="section-head"><h2>Word bank</h2></div>
     ${BankTile()}
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
@@ -2065,7 +2268,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.18';
+const APP_VERSION = '1.19';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2092,8 +2295,21 @@ function installHelp() {
     sh => { sh.querySelector('#cpy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (_) { toast(url); } }; });
 }
 
+function nameSheet() {
+  openSheet(`<h3>Your name</h3>
+    <p class="muted" style="margin:-6px 0 14px">ShiCards greets you with it, like 早上好，Ilkem.</p>
+    <input class="input" id="nmIn" placeholder="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done">
+    <button class="btn btn-primary wide" id="nmSave" style="margin-top:12px">Save</button>`,
+    sh => {
+      const inp = sh.querySelector('#nmIn'); setTimeout(() => inp.focus(), 250);
+      const go = () => { db.prefs.name = inp.value.trim().replace(/\s+/g, ' '); save(); closeSheet(); if (S.view === 'home') render(); toast(db.prefs.name ? `Hello, ${db.prefs.name}` : 'Name removed'); };
+      sh.querySelector('#nmSave').onclick = go;
+      inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+    });
+}
 function settingsSheet() {
   openSheet(`<h3>Menu</h3><div class="list-group">
+    <button class="list-btn" id="sName"><span>Your name<br><small>${db.prefs.name ? esc(db.prefs.name) + ' · shown after the greeting' : 'Shown after the greeting on the Decks page'}</small></span><span class="side">${I.chev}</span></button>
     ${isInstalled() ? '' : `<button class="list-btn" id="sInst"><span>Install app<br><small>Put ShiCards on your home screen</small></span><span class="side">${I.chev}</span></button>`}
     <button class="list-btn" id="sUpd"><span>Check for updates<br><small id="sUpdSub">You have version ${APP_VERSION}</small></span><span class="side" id="sUpdR">${I.chev}</span></button>
     <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
@@ -2122,6 +2338,7 @@ function settingsSheet() {
         } catch (_) { sub.textContent = 'Couldn’t check. Are you online?'; side.innerHTML = I.chev; }
       };
       sh.querySelector('#sLog').onclick = () => logSheet();
+      sh.querySelector('#sName').onclick = () => nameSheet();
       sh.querySelector('#sEn').onclick =e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
       sh.querySelector('#sExp').onclick = () => {
         const a = document.createElement('a');
@@ -2152,6 +2369,10 @@ const A = {
   'add-card': () => cardSheet(null),
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
+  'set-name': () => nameSheet(),
+  'rw': t => readPop(t),
+  'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.read-list')?.classList.toggle('py', db.prefs.readPy); },
+  'read-new': () => { S.read = null; render(); toast('New stories'); },
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
@@ -2219,19 +2440,19 @@ document.addEventListener('click', e => {
    Decks, Learn and Profile sit side by side: drag left or right and the next page follows your finger.
    Inside a deck, drag right to slide back to all decks. Let go past 30% of the width, or flick, to switch. */
 (function pageSwipe() {
-  const app = $('#app'), EASE = 'cubic-bezier(.2,.8,.2,1)';
+  const app = $('#app'), EASE = 'cubic-bezier(.2,.8,.2,1)', BOUNCE = 'cubic-bezier(.3,1.45,.5,1)';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let g = null, noClickUntil = 0;
   const targets = () => {
     if (S.view === 'deck' || S.view === 'bank') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
-    const order = ['home', 'learn', 'profile'], views = [Home, LearnView, ProfileView], i = order.indexOf(S.view);
+    const order = ['home', 'learn', 'read', 'profile'], views = [Home, LearnView, ReadView, ProfileView], i = order.indexOf(S.view);
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
     return { tab: i, prev: t(i - 1), next: t(i + 1) };
   };
   const pill = () => $('#tabbar .tab-pill');
-  const place = (x, dur) => {
-    const tr = dur ? `transform ${dur}ms ${EASE}` : 'none';
+  const place = (x, dur, ease = EASE) => {
+    const tr = dur ? `transform ${dur}ms ${ease}` : 'none';
     g.cur.style.transition = tr; g.cur.style.transform = `translateX(${x}px)`;
     for (const [p, side] of [[g.pp, -1], [g.np, 1]]) if (p) { p.style.transition = tr; p.style.transform = `translateX(${x + side * g.w}px)`; }
     const to = x < 0 ? g.T.next : g.T.prev, pos = to ? g.T.tab + (to.tab - g.T.tab) * Math.min(1, Math.abs(x) / g.w) : g.T.tab, pl = pill();
@@ -2256,8 +2477,8 @@ document.addEventListener('click', e => {
     const to = G.x0 < 0 ? G.T.next : G.T.prev;
     const go = e.type === 'pointerup' && to && (Math.abs(G.x0) > G.w * 0.3 || (Math.abs(G.v) > 0.3 && Math.sign(G.v) === Math.sign(G.x0)));
     LOG.add('swipe', { dir: G.x0 < 0 ? 'left' : 'right', switched: !!go, dragged: Math.round(Math.abs(G.x0) / G.w * 100) + '%', speed: +G.v.toFixed(2), page: !to ? 'none that way' : undefined });
-    const final = go ? Math.sign(G.x0) * G.w : 0, dur = reduce.matches ? 0 : go ? 260 : 220;
-    place(final, dur || 1);
+    const final = go ? Math.sign(G.x0) * G.w : 0, dur = reduce.matches ? 0 : go ? 260 : !to ? 520 : 220;
+    place(final, dur || 1, !go && !to ? BOUNCE : EASE);   // first or last page: spring back with a little bounce
     setTimeout(() => {
       g = null; app.classList.remove('swiping');
       const pl = pill(); if (pl) pl.style.transition = '';
@@ -2280,8 +2501,9 @@ document.addEventListener('click', e => {
       begin();
     }
     g.v = speed(g.hist, e.clientX, e.timeStamp);
-    const edge = (dx > 0 && !g.T.prev) || (dx < 0 && !g.T.next);   // nothing that way: stretch a little, then resist
-    g.x0 = edge ? dx / 3 / (1 + Math.abs(dx) / g.w) : Math.max(-g.w, Math.min(g.w, dx));
+    // first or last page, nothing that way: the page still follows your finger out to the far edge, then springs back on release
+    const edge = (dx > 0 && !g.T.prev) || (dx < 0 && !g.T.next);
+    g.x0 = edge ? Math.sign(dx) * Math.min(g.w, Math.abs(dx)) * 0.85 : Math.max(-g.w, Math.min(g.w, dx));
     place(g.x0, 0);
   });
   app.addEventListener('pointerup', end);
@@ -2292,6 +2514,17 @@ document.addEventListener('click', e => {
   // a drag that ends over a button must not also press it
   document.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); LOG.blocked(); } }, true);
 })();
+
+/* pictures can't be saved, copied or dragged out; no long-press menus outside typing fields; no zoom gestures (iOS ignores the viewport setting) */
+document.addEventListener('contextmenu', e => { if (!e.target.closest?.('input,textarea,[contenteditable]')) e.preventDefault(); });
+document.addEventListener('dragstart', e => { if (e.target.closest?.('img,svg')) e.preventDefault(); });
+for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); }, { passive: false });
+
+/* Profile: your name, used only for the greeting on the Decks page (stored on this phone) */
+document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); } });
+document.addEventListener('change', e => { if (e.target.id === 'pName' && db.prefs.name) toast(`Hello, ${db.prefs.name}`); });
+document.addEventListener('keydown', e => { if (e.target.id === 'pName' && e.key === 'Enter') e.target.blur(); });
 
 /* keep sheets above the on-screen keyboard */
 if (window.visualViewport) {
