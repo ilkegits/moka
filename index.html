@@ -32,7 +32,8 @@
   --ui:"Inter",system-ui,-apple-system,sans-serif;
   --r:22px;
   --kb:0px;
-  --tabh:64px;
+  --tabh:66px;
+  --tabw:80px;
   color-scheme:light;
 }
 /* Dark mode is off for now (light only). To bring it back, change "not all" to "(prefers-color-scheme: dark)" here and below. */
@@ -273,19 +274,24 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
   opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:60;white-space:nowrap;max-width:90%}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 /* ---------- bottom tab bar ---------- */
-#tabbar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;max-width:456px;margin:0 auto;display:none;
-  height:var(--tabh);padding:0 8px;border-radius:24px;
-  background:var(--card);border:1px solid var(--line);box-shadow:0 14px 30px -14px rgba(70,45,20,.4), 0 2px 6px -3px rgba(70,45,20,.15)}
+/* Modelled on Uber's bar: a dark floating capsule; the tapped icon fills instantly,
+   the highlight follows after a short pause (about 0.12 s) and glides over in about 0.42 s. */
+#tabbar{position:fixed;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;margin:0 auto;display:none;
+  width:calc(var(--tabw) * 3 + 20px);height:var(--tabh);padding:0 9px;border-radius:999px;
+  background:var(--ink);border:1px solid rgba(255,248,240,.16);box-shadow:0 14px 30px -12px rgba(30,20,10,.55)}
 #frame.tabs #tabbar{display:flex}
-#frame.tabs .screen{padding-bottom:calc(var(--tabh) + 14px + env(safe-area-inset-bottom))}
-#frame.tabs .dock{bottom:calc(var(--tabh) + 14px + env(safe-area-inset-bottom));padding-bottom:14px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:500;letter-spacing:.02em;color:#B3A896;border-radius:18px}
-.tab-ic{width:44px;height:30px;border-radius:11px;display:grid;place-items:center;transition:background .2s,color .2s,transform .25s cubic-bezier(.2,.9,.3,1.4)}
-.tab-ic svg.i{width:21px;height:21px;stroke-width:1.6}
-.tab:active .tab-ic{background:var(--seal-soft);color:var(--seal)}
-.tab.on{color:var(--seal);font-weight:600}
-.tab.on .tab-ic{background:var(--seal);color:var(--seal-ink);transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.55)}
-.tab:focus-visible{outline:2px solid var(--seal);outline-offset:-4px}
+#frame.tabs .screen{padding-bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom))}
+#frame.tabs .dock{bottom:calc(var(--tabh) + 12px + env(safe-area-inset-bottom));padding-bottom:14px}
+.tab-pill{position:absolute;top:7px;left:18px;width:calc(var(--tabw) - 18px);height:calc(var(--tabh) - 16px);border-radius:999px;background:var(--seal);
+  transition:transform .42s cubic-bezier(.65,0,.35,1) .12s}
+.tab{position:relative;z-index:1;flex:none;width:var(--tabw);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-size:11px;font-weight:500;letter-spacing:.01em;color:rgba(244,238,227,.6);border-radius:999px}
+.tab svg.i{width:22px;height:22px;stroke-width:1.6}
+.tab .i-on,.tab.on .i-off{display:none}
+.tab.on .i-on{display:block}
+.tab.on{color:var(--seal-ink);font-weight:600}
+.tab:focus-visible{outline:2px solid var(--seal-ink);outline-offset:-3px}
+@media (prefers-reduced-motion:reduce){.tab-pill{transition:none}}
 
 /* ---------- learn + profile ---------- */
 .learn-list{display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
@@ -350,6 +356,13 @@ const I = {
   learn: ic('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/>'),
   profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
 };
+/* filled versions, shown on the active tab */
+const icOn = p => `<svg class="i i-on" viewBox="0 0 24 24">${p}</svg>`;
+const IF = {
+  decks: icOn('<path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/><rect x="8" y="3.5" width="11.5" height="14.5" rx="2" fill="currentColor"/>'),
+  learn: icOn('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z" fill="currentColor"/><path d="M12 7.5v11" style="stroke:var(--seal)"/>'),
+  profile: icOn('<circle cx="12" cy="8.5" r="3.8" fill="currentColor"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5z" fill="currentColor"/>'),
+};
 const TZG = `<svg class="tzg-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
   <rect x=".8" y=".8" width="98.4" height="98.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
   <path d="M50 1V99M1 50H99" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5" vector-effect="non-scaling-stroke" opacity=".8"/></svg>`;
@@ -409,6 +422,7 @@ function render() {
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
+  if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
 }
 
@@ -416,10 +430,16 @@ function render() {
 const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   const cur = S.view === 'home' || S.view === 'deck' ? 'decks' : S.view;
-  const show = TABS.some(t => t[0] === cur);
-  $('#frame').classList.toggle('tabs', show);
-  $('#tabbar').innerHTML = show ? TABS.map(([k, label, h]) =>
-    `<button class="tab ${k === cur ? 'on' : ''}" data-act="tab" data-h="${h}" ${k === cur ? 'aria-current="page"' : ''}><span class="tab-ic">${I[k]}</span>${label}</button>`).join('') : '';
+  const i = TABS.findIndex(t => t[0] === cur), bar = $('#tabbar'), frame = $('#frame');
+  const wasShown = frame.classList.contains('tabs');
+  frame.classList.toggle('tabs', i >= 0);
+  if (i < 0) return;
+  if (!bar.children.length) bar.innerHTML = '<span class="tab-pill"></span>' + TABS.map(([k, label, h]) =>
+    `<button class="tab" data-act="tab" data-h="${h}">${I[k].replace('class="i"', 'class="i i-off"')}${IF[k]}${label}</button>`).join('');
+  $$('.tab', bar).forEach((b, j) => { b.classList.toggle('on', j === i); if (j === i) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const pill = $('.tab-pill', bar), x = `translateX(calc(${i} * var(--tabw)))`;
+  if (wasShown) { pill.style.transform = x; return; }
+  pill.style.transition = 'none'; pill.style.transform = x; pill.offsetWidth; pill.style.transition = '';  // bar just appeared: no slide
 }
 
 function LearnView() {
@@ -1081,7 +1101,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
@@ -1160,7 +1180,7 @@ const A = {
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
   'close-sheet': () => closeSheet(),
-  'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } nav(t.dataset.h); },
+  'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
   'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
   'learn-write': t => { S.write = null; nav(`#/deck/${t.dataset.id}/write`); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
