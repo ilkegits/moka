@@ -874,6 +874,73 @@ async function shareLog() {
   a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Log saved to Downloads');
 }
+/* Send to Claude automatically: with a GitHub key saved on this phone, the log is uploaded as plain text to a
+   private repo that Claude can read. The key can only write to that one repo. It is sent only to GitHub, and
+   never goes into the log. Uploads happen when the log has changed: on leaving the app and every few minutes. */
+const SYNC = (() => {
+  const KEYS = 'shicards.sync', REPO = 'ilkegits/shicards-log', EVERY = 3 * 60e3, API = `https://api.github.com/repos/${REPO}/contents/`;
+  let st = {}, busy = false;
+  try { st = JSON.parse(localStorage.getItem(KEYS)) || {}; } catch (_) {}
+  if (!st.id) st.id = Math.random().toString(36).slice(2, 8);
+  const keep = () => { try { localStorage.setItem(KEYS, JSON.stringify(st)); } catch (_) {} };
+  const path = () => `logs/${st.id}.txt`;
+  const head = () => ({ Authorization: `Bearer ${st.key}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+  const b64 = text => { const b = new TextEncoder().encode(text); let bin = ''; for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(bin); };
+  const sha = async () => { const r = await fetch(API + path(), { headers: head(), cache: 'no-store' }); if (r.status === 404) return undefined; if (!r.ok) throw r; return (await r.json()).sha; };
+  async function send(force) {
+    const last = LOG.ev[LOG.ev.length - 1]?.t || 0;
+    if (!st.key || busy || !navigator.onLine || (!force && (last === st.sentT || Date.now() - (st.sentAt || 0) < EVERY && document.visibilityState === 'visible'))) return st.err ? false : null;
+    busy = true;
+    try {
+      const body = t => JSON.stringify({ message: `log from ${deviceInfo().os} · ${LOG.ev.length} events`, content: b64(logText()), sha: t });
+      if (st.sha === undefined) st.sha = await sha();
+      let r = await fetch(API + path(), { method: 'PUT', headers: head(), body: body(st.sha) });
+      if (r.status === 409 || r.status === 422) { st.sha = await sha(); r = await fetch(API + path(), { method: 'PUT', headers: head(), body: body(st.sha) }); }
+      if (!r.ok) throw r;
+      st.sha = (await r.json()).content.sha; Object.assign(st, { sentAt: Date.now(), sentT: last, err: '' });
+      return true;
+    } catch (e) {
+      st.err = e?.status === 401 || e?.status === 403 || e?.status === 404 ? 'GitHub didn’t accept the key' : 'Couldn’t reach GitHub, will try again';
+      if (e?.status === 404) st.sha = undefined;
+      return false;
+    } finally { busy = false; keep(); paintSync(); }
+  }
+  document.addEventListener('visibilitychange', () => send());
+  setInterval(() => { if (document.visibilityState === 'visible') send(); }, EVERY);
+  addEventListener('online', () => send());
+  return {
+    get on() { return !!st.key; }, get err() { return st.err; }, get sentAt() { return st.sentAt; }, send,
+    async connect(key) { Object.assign(st, { key, sha: undefined, sentT: null, err: '' }); keep(); return send(true); },
+    off() { delete st.key; st.sha = undefined; st.err = ''; keep(); },
+  };
+})();
+function syncSummary() {
+  if (!SYNC.on) return 'Off · the log stays on this phone';
+  if (SYNC.err) return SYNC.err;
+  return SYNC.sentAt ? `On · last sent ${clock(SYNC.sentAt)}${new Date(SYNC.sentAt).toDateString() === new Date().toDateString() ? '' : ', ' + new Date(SYNC.sentAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : 'On · sending…';
+}
+function paintSync() { const e = $('#lSyncSub'); if (e) { e.textContent = syncSummary(); $('#lSync .switch')?.classList.toggle('on', SYNC.on); } }
+function syncSheet() {
+  const make = 'https://github.com/settings/personal-access-tokens/new?name=ShiCards%20log&description=Lets%20the%20ShiCards%20app%20upload%20its%20activity%20log&target_name=ilkegits&expires_in=366&contents=write';
+  openSheet(`<h3>Send to Claude automatically</h3>
+    <p class="muted" style="margin:-6px 0 12px">The log uploads to your private GitHub repo <b>shicards-log</b>, where Claude can read it. Set it up once:</p>
+    <ol class="steps"><li>Tap <b>Make a key</b>. GitHub opens with the details filled in.</li>
+      <li>Under <b>Repository access</b>, pick <b>Only select repositories</b> and choose <b>shicards-log</b>.</li>
+      <li>Tap <b>Generate token</b>, copy it, and paste it below.</li></ol>
+    <a class="btn btn-ghost wide" href="${make}" target="_blank" rel="noopener" style="text-decoration:none">Make a key</a>
+    <input class="input" id="syKey" type="password" aria-label="GitHub key" placeholder="Paste the key (github_pat_…)" autocomplete="off" autocapitalize="none" spellcheck="false" style="margin-top:12px">
+    <button class="btn btn-primary wide" id="sySave" style="margin-top:10px">Save and send</button>`,
+    sh => {
+      const inp = sh.querySelector('#syKey');
+      sh.querySelector('#sySave').onclick = async e => {
+        const key = inp.value.trim(); if (!/^(github_pat_|ghp_)\w{20,}$/.test(key)) { toast('That doesn’t look like a GitHub key'); inp.focus(); return; }
+        e.currentTarget.disabled = true; e.currentTarget.textContent = 'Sending…';
+        if (!LOG.on) LOG.set(true);
+        const ok = await SYNC.connect(key);
+        closeSheet(); toast(ok ? 'Connected. Claude can now read your log' : SYNC.err); paintSync();
+      };
+    });
+}
 function noteSheet() {
   const at = S.view;
   openSheet(`<h3>Add a note</h3>
@@ -890,9 +957,10 @@ function noteSheet() {
 }
 function logSheet() {
   openSheet(`<h3>Activity log</h3>
-    <p class="muted" style="margin:-6px 0 8px">While this is on, ShiCards writes down what you do: pages you open, what you tap, swipes, card flips and how your writing checks go. It stays on this phone until you share it. Send it to Claude with what you want improved.</p>
+    <p class="muted" style="margin:-6px 0 8px">While this is on, ShiCards writes down what you do: pages you open, what you tap, swipes, card flips and how your writing checks go. It stays on this phone unless you share it or turn on sending. Send it to Claude with what you want improved.</p>
     <div class="list-group"><button class="list-btn" id="lOn"><span>Record my activity<br><small class="log-count" id="lSub">${logSummary()}</small></span><span class="switch ${LOG.on ? 'on' : ''}"></span></button>
-    <button class="list-btn" id="lNote"><span>Add a note<br><small>Say what felt off, right where it happened</small></span><span class="side">${I.chev}</span></button></div>
+    <button class="list-btn" id="lNote"><span>Add a note<br><small>Say what felt off, right where it happened</small></span><span class="side">${I.chev}</span></button>
+    <button class="list-btn" id="lSync"><span>Send to Claude automatically<br><small id="lSyncSub">${syncSummary()}</small></span><span class="switch ${SYNC.on ? 'on' : ''}"></span></button></div>
     <div class="row-btns" style="margin-top:14px"><button class="btn btn-ghost" id="lCopy">Copy log</button><button class="btn btn-primary" id="lShare">Share log</button></div>
     <button class="btn btn-danger wide" id="lClear" style="margin-top:6px">${I.trash}Clear log</button>`,
     sh => {
@@ -900,6 +968,8 @@ function logSheet() {
       const paint = () => { sub.textContent = logSummary(); sw.classList.toggle('on', LOG.on); };
       sh.querySelector('#lOn').onclick = () => { LOG.set(!LOG.on); paint(); toast(LOG.on ? 'Recording your activity' : 'Recording stopped'); };
       sh.querySelector('#lNote').onclick = () => { if (!LOG.on) LOG.set(true); noteSheet(); };
+      sh.querySelector('#lSync').onclick = () => { if (!SYNC.on) { syncSheet(); return; }
+        confirmSheet('Stop sending the log?', 'The key is removed from this phone. What was already sent stays in your shicards-log repo.', 'Stop', () => { SYNC.off(); toast('Stopped sending the log'); }); };
       const empty = () => { if (LOG.ev.length) return false; toast('Nothing recorded yet'); return true; };
       sh.querySelector('#lCopy').onclick = () => { if (!empty()) copyLog(); };
       sh.querySelector('#lShare').onclick = () => { if (!empty()) shareLog(); };
@@ -2856,7 +2926,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.35';
+const APP_VERSION = '1.36';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
