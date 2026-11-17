@@ -234,7 +234,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .tzg-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .tzg canvas,.tzg .ans,.tzg .quiz{position:absolute;inset:0}
 .tzg .quiz:empty{display:none}
-.tzg .ans{pointer-events:none;opacity:0;transition:opacity .4s}
+.tzg .ans{pointer-events:none;opacity:0;transition:opacity .4s ease-out}
 .tzg.revealed .ans{opacity:1}
 .tzg.revealed canvas{opacity:0;transition:opacity .15s .4s}   /* the answer fades in on top first, so the ink never looks washed out */
 .tzg.morphing .ans{opacity:0}
@@ -1783,6 +1783,9 @@ const JUDGE = {
   inkTotal: .7,    // and all your ink together at least this much
   maxRank: 4,      // the handwriting reader should list the character among its top 5 guesses...
   strong: { stroke: .7, part: .85, total: .85 },  // ...unless the strokes match this well on their own
+  looseTol: .2,    // when the reader's first guess is exactly the right character, a stroke may sit this far off instead
+  looseTotal: .6,  // (a stroke drawn a bit off still counts; a stroke left out still fails)
+  looseInk: .85,   // and you must have drawn at least this much ink compared with the real character
 }
 function polyNorm(lines) {
   const all = lines.flat(); if (!all.length) return [];
@@ -1870,7 +1873,7 @@ function strokeCheck(userStrokes, ref, s) {
   if (!U.length || !R.flat().length) return null;
   U = alignTo(U, R);
   const Ua = U.flat(), Ra = R.flat();
-  const frac = (line, other) => line.length ? line.filter(p => nearest(p, other) <= JUDGE.tol).length / line.length : 1;
+  const frac = (line, other, tol = JUDGE.tol) => line.length ? line.filter(p => nearest(p, other) <= tol).length / line.length : 1;
   const refCov = R.map(l => frac(l, Ua)), userOn = U.map(l => frac(l, Ra));
   const total = userOn.reduce((a, f, i) => a + f * U[i].length, 0) / Ua.length;
   // parts: the radical and everything else, so a left-out or wrong component is caught even when single strokes look fine
@@ -1900,9 +1903,19 @@ function strokeCheck(userStrokes, ref, s) {
     const worst = parts.map((pt, k) => [pt, boxCov[k]]).sort((a, b) => a[1] - b[1])[0];
     if (worst[1] < JUDGE.partCov) badPart = worst[0];
   }
+  // the same test with more room for strokes drawn a bit off; only used when the reader is sure (see verdict)
+  // each bit of your ink counts only for the stroke it is closest to, so a neighbouring stroke can't stand in for a missing one
+  const owner = U.map(l => l.map(q => { let bj = 0, bd = Infinity; R.forEach((r, j) => { const d = r.length ? nearest(q, r) : Infinity; if (d < bd) { bd = d; bj = j; } }); return bj; }));
+  const coverWithout = skip => { const mine = R.map(() => []); U.forEach((l, i) => { if (i !== skip) l.forEach((q, k) => mine[owner[i][k]].push(q)); }); return R.map((l, j) => frac(l, mine[j], JUDGE.looseTol)); };
+  const refL = coverWithout(-1), onL = U.map(l => frac(l, Ra, JUDGE.looseTol));
+  // an extra stroke: you drew more strokes than the character has, and it is fully covered without one of the longer ones
+  const extra = U.length > R.length && U.some((l, i) => l.length * JUDGE.step >= .15 && coverWithout(i).every(c => c >= JUDGE.strokeCov));
+  const totalL = onL.reduce((a, f, i) => a + f * U[i].length, 0) / Ua.length;
+  const partL = parts.map(pt => pt.ix.reduce((a, i) => a + refL[i] * R[i].length, 0) / (pt.ix.reduce((a, i) => a + R[i].length, 0) || 1));
+  const looseOk = !extra && refL.every(c => c >= JUDGE.strokeCov) && onL.every(c => c >= JUDGE.inkOn) && partL.every(c => c >= JUDGE.partCov) && totalL >= JUDGE.looseTotal && Ua.length >= JUDGE.looseInk * Ra.length;
   const strong = ok && Math.min(...refCov) >= JUDGE.strong.stroke && Math.min(...parts.map(pt => pt.cov)) >= JUDGE.strong.part && total >= JUDGE.strong.total;
   const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
-  return { ok, strong, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
+  return { ok, strong, looseOk, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -1955,6 +1968,7 @@ function verdict(shape, rank) {
   if (!shape && rank === null) return null;                    // offline and no stroke data: the learner decides
   if (!shape) return rank === 0;
   if (rank === null) return shape.ok;                          // offline: stroke placement only
+  if (rank === 0 && shape.looseOk) return true;               // the reader is sure and every stroke is roughly in place
   return shape.ok && ((rank >= 0 && rank <= JUDGE.maxRank) || shape.strong);   // a clean stroke match is enough on its own
 }
 
@@ -1978,8 +1992,9 @@ function judgeNote(chars) {
 }
 /* After Check, your own ink turns into the real character: each stroke you drew slides onto the stroke it
    matches best (order and direction don't matter), extra ink shrinks away, missing strokes grow out of your
-   ink, and the lines thicken to brush width. Then the real character fades in over it, in ink. */
-const MORPH = { n: 32, ms: 800 };
+   ink, and the lines thicken to brush width. Strokes set off one after another in writing order, so the
+   motion flows; near the end the real brush character fades in on top, so there's no visible switch. */
+const MORPH = { n: 32, ms: 1100, stagger: .4, handoff: .72 };
 function alongLine(pts, n) {           // n points spread evenly along a line
   const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
   const L = d[d.length - 1], out = []; let j = 1;
@@ -2000,30 +2015,37 @@ function morphToChar(box, ref) {
   U.forEach((u, i) => R.forEach((r, j) => { const ur = [...u].reverse(), f = gap(u, r), b = gap(ur, r); pairs.push({ i, j, c: Math.min(f, b), u: b < f ? ur : u }); }));
   pairs.sort((a, b) => a.c - b.c);
   const usedU = new Set(), usedR = new Set(), tracks = [];
-  for (const q of pairs) if (!usedU.has(q.i) && !usedR.has(q.j)) { usedU.add(q.i); usedR.add(q.j); tracks.push({ from: q.u, to: R[q.j], a0: 1, a1: 1 }); }
+  for (const q of pairs) if (!usedU.has(q.i) && !usedR.has(q.j)) { usedU.add(q.i); usedR.add(q.j); tracks.push({ from: q.u, to: R[q.j], a0: 1, a1: 1, ord: q.j + 1 }); }
   const nearestPt = (q, A) => A.reduce((b, x) => Math.hypot(x.x - q.x, x.y - q.y) < Math.hypot(b.x - q.x, b.y - q.y) ? x : b);
   const Ua = U.flat(), Ra = R.flat();
   U.forEach((u, i) => { if (usedU.has(i)) return;                       // extra ink: shrink onto the character and fade
     const c = { x: u.reduce((a, q) => a + q.x, 0) / n, y: u.reduce((a, q) => a + q.y, 0) / n }, to = nearestPt(c, Ra);
-    tracks.push({ from: u, to: u.map(() => to), a0: 1, a1: 0 }); });
+    tracks.push({ from: u, to: u.map(() => to), a0: 1, a1: 0, ord: 0 }); });
   R.forEach((r, j) => { if (usedR.has(j)) return;                       // missing stroke: grow out of the nearest ink
     const from = Ua.length ? nearestPt(r[n >> 1], Ua) : r[0];
-    tracks.push({ from: r.map(() => from), to: r, a0: 0, a1: 1 }); });
+    tracks.push({ from: r.map(() => from), to: r, a0: 0, a1: 1, ord: j + 1 }); });
+  const last = Math.max(1, ...tracks.map(tr => tr.ord));               // extra ink leaves first, then strokes in writing order
+  tracks.forEach(tr => { tr.d = MORPH.stagger * tr.ord / last; });
   const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-  let raf, t0 = null;
-  const end = () => { cancelAnimationFrame(raf); box._endMorph = null; box.classList.remove('morphing'); };
+  const span = 1 - MORPH.stagger;
+  let raf, t0 = null, handed = false;
+  const handOff = () => { if (!handed) { handed = true; box.classList.remove('morphing'); } };   // brush character fades in on top
+  const end = () => { cancelAnimationFrame(raf); box._endMorph = null; handOff(); };
   const frame = now => {
     if (!box.isConnected) return;
-    t0 ??= now; const t = Math.min(1, (now - t0) / MORPH.ms), e = ease(t);
+    t0 ??= now; const t = Math.min(1, (now - t0) / MORPH.ms);
     ctx.clearRect(0, 0, s, s); ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.lineWidth = w0 + (w1 - w0) * e;
     for (const tr of tracks) {
+      const e = ease(Math.max(0, Math.min(1, (t - tr.d) / span)));
       ctx.globalAlpha = Math.max(0, Math.min(1, tr.a0 + (tr.a1 - tr.a0) * e)); if (ctx.globalAlpha < .01) continue;
-      ctx.beginPath();
-      tr.from.forEach((a, i) => { const b = tr.to[i], x = a.x + (b.x - a.x) * e, y = a.y + (b.y - a.y) * e; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-      ctx.stroke();
+      ctx.lineWidth = w0 + (w1 - w0) * e * e;                          // thickens mostly once the stroke has arrived
+      const P = tr.from.map((a, i) => { const b = tr.to[i]; return { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e }; });
+      ctx.beginPath(); ctx.moveTo(P[0].x, P[0].y);                     // rounded curve through the points
+      for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2);
+      ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); ctx.stroke();
     }
     ctx.globalAlpha = 1;
+    if (t >= MORPH.handoff) handOff();
     if (t < 1) raf = requestAnimationFrame(frame); else end();
   };
   box._endMorph = end;
@@ -2990,7 +3012,8 @@ const A = {
     W.checking = false;
     W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
     LOG.add('write-check', { hz: chars.join(''), ok: W.judge.ok, wrote_for: Math.round((t0 - W.shownAt) / 1000) + 's', check_took: (Date.now() - t0) + 'ms',
-      boxes: res.map((r, i) => ({ ok: r.ok, strokes: (boxes[i]._strokes || []).length, rank: r.rank, top: r.cands?.[0], fit: r.shape?.fit != null ? +r.shape.fit.toFixed(2) : undefined, missing: r.shape?.missing || undefined, stray: r.shape?.stray || undefined, part: r.shape?.badPart?.pos })),
+      boxes: res.map((r, i) => ({ ok: r.ok, strokes: (boxes[i]._strokes || []).length, rank: r.rank, top: r.cands?.[0], fit: r.shape?.fit != null ? +r.shape.fit.toFixed(2) : undefined, missing: r.shape?.missing || undefined, stray: r.shape?.stray || undefined, part: r.shape?.badPart?.pos,
+        ink: r.ok === false && !r.empty ? { s: boxes[i]._s, strokes: (boxes[i]._strokes || []).map(st => st.filter((_, k) => k % 2 === 0 || k === st.length - 1).map(p => [Math.round(p.x), Math.round(p.y)])) } : undefined })),   // a failed drawing, so a wrong "wrong" can be replayed and fixed
       said: judgeNote(chars).replace(/<[^>]+>/g, '') });
     revealFree();
   },
