@@ -639,6 +639,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .list-btn .side.with-dot{display:flex;align-items:center}
 .list-btn .rec-dot{width:9px;height:9px;border-radius:50%;background:var(--seal);margin-right:8px}
 .log-count{font-variant-numeric:tabular-nums}
+.pair-qr{display:grid;place-items:center;margin:0 auto;width:min(260px,70vw);aspect-ratio:1;background:#fff;border-radius:16px;padding:8px}.pair-qr svg{width:100%;height:100%}
 .note-input{width:100%;min-height:96px;border-radius:12px;border:0;box-shadow:var(--ring);background:var(--card);padding:12px 16px;font:inherit;font-size:16px;color:inherit;resize:vertical;outline:none}
 .note-input:focus{box-shadow:0 0 0 2px var(--seal)}
 
@@ -910,6 +911,7 @@ const SYNC = (() => {
   addEventListener('online', () => send());
   return {
     get on() { return !!st.key; }, get err() { return st.err; }, get sentAt() { return st.sentAt; }, send,
+    pairUrl: () => st.key && `https://ilkegits.github.io/moka/#pair=${encodeURIComponent(st.key)}`,
     async connect(key) { Object.assign(st, { key, sha: undefined, sentT: null, err: '' }); keep(); return send(true); },
     off() { delete st.key; st.sha = undefined; st.err = ''; keep(); },
   };
@@ -918,6 +920,30 @@ function syncSummary() {
   if (!SYNC.on) return 'Off · the log stays on this phone';
   if (SYNC.err) return SYNC.err;
   return SYNC.sentAt ? `On · last sent ${clock(SYNC.sentAt)}${new Date(SYNC.sentAt).toDateString() === new Date().toDateString() ? '' : ', ' + new Date(SYNC.sentAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : 'On · sending…';
+}
+/* Connect your phone: the computer shows a QR code holding the key; the phone's camera opens ShiCards with it,
+   and the app saves it and starts sending. The key is removed from the address straight away. */
+const KEY_RE = /^(github_pat_|ghp_)\w{20,}$/;
+function takePairLink() {   // runs once at start-up, before the first page is shown
+  if (!location.hash.startsWith('#pair=')) return;
+  const k = decodeURIComponent(location.hash.slice(6));
+  history.replaceState(null, '', location.pathname + location.search + '#/');
+  if (KEY_RE.test(k)) { if (!LOG.on) LOG.set(true); SYNC.connect(k).then(ok => setTimeout(() => toast(ok ? 'Connected. Claude can now read this phone’s log' : SYNC.err), 600)); }
+}
+function loadQr() {
+  return window.qrcode ? Promise.resolve() : new Promise((ok, no) => { const sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; sc.onload = ok; sc.onerror = no; document.head.append(sc); });
+}
+function pairSheet() {
+  openSheet(`<h3>Connect your phone</h3>
+    <p class="muted" style="margin:-6px 0 14px">Point your phone’s camera at this code and open the link. ShiCards opens and starts sending that phone’s log too.</p>
+    <div class="pair-qr" id="pairQr"><span class="spin"></span></div>
+    <p class="muted" style="font-size:13px;margin-top:12px;text-align:center">The code holds your key. Don’t share a photo of it.</p>`,
+    async sh => {
+      const box = sh.querySelector('#pairQr');
+      try { await loadQr(); const q = qrcode(0, 'M'); q.addData(SYNC.pairUrl()); q.make(); box.innerHTML = q.createSvgTag({ cellSize: 6, margin: 3, scalable: true }); }
+      catch (_) { box.textContent = 'Couldn’t make the code (offline?)'; }
+    });
 }
 function paintSync() { const e = $('#lSyncSub'); if (e) { e.textContent = syncSummary(); $('#lSync .switch')?.classList.toggle('on', SYNC.on); } }
 function syncSheet() {
@@ -933,7 +959,7 @@ function syncSheet() {
     sh => {
       const inp = sh.querySelector('#syKey');
       sh.querySelector('#sySave').onclick = async e => {
-        const key = inp.value.trim(); if (!/^(github_pat_|ghp_)\w{20,}$/.test(key)) { toast('That doesn’t look like a GitHub key'); inp.focus(); return; }
+        const key = inp.value.trim(); if (!KEY_RE.test(key)) { toast('That doesn’t look like a GitHub key'); inp.focus(); return; }
         e.currentTarget.disabled = true; e.currentTarget.textContent = 'Sending…';
         if (!LOG.on) LOG.set(true);
         const ok = await SYNC.connect(key);
@@ -960,7 +986,8 @@ function logSheet() {
     <p class="muted" style="margin:-6px 0 8px">While this is on, ShiCards writes down what you do: pages you open, what you tap, swipes, card flips and how your writing checks go. It stays on this phone unless you share it or turn on sending. Send it to Claude with what you want improved.</p>
     <div class="list-group"><button class="list-btn" id="lOn"><span>Record my activity<br><small class="log-count" id="lSub">${logSummary()}</small></span><span class="switch ${LOG.on ? 'on' : ''}"></span></button>
     <button class="list-btn" id="lNote"><span>Add a note<br><small>Say what felt off, right where it happened</small></span><span class="side">${I.chev}</span></button>
-    <button class="list-btn" id="lSync"><span>Send to Claude automatically<br><small id="lSyncSub">${syncSummary()}</small></span><span class="switch ${SYNC.on ? 'on' : ''}"></span></button></div>
+    <button class="list-btn" id="lSync"><span>Send to Claude automatically<br><small id="lSyncSub">${syncSummary()}</small></span><span class="switch ${SYNC.on ? 'on' : ''}"></span></button>
+    ${SYNC.on ? `<button class="list-btn" id="lPair"><span>Connect your phone<br><small>Show a code to scan, no copying</small></span><span class="side">${I.chev}</span></button>` : ''}</div>
     <div class="row-btns" style="margin-top:14px"><button class="btn btn-ghost" id="lCopy">Copy log</button><button class="btn btn-primary" id="lShare">Share log</button></div>
     <button class="btn btn-danger wide" id="lClear" style="margin-top:6px">${I.trash}Clear log</button>`,
     sh => {
@@ -968,6 +995,7 @@ function logSheet() {
       const paint = () => { sub.textContent = logSummary(); sw.classList.toggle('on', LOG.on); };
       sh.querySelector('#lOn').onclick = () => { LOG.set(!LOG.on); paint(); toast(LOG.on ? 'Recording your activity' : 'Recording stopped'); };
       sh.querySelector('#lNote').onclick = () => { if (!LOG.on) LOG.set(true); noteSheet(); };
+      sh.querySelector('#lPair')?.addEventListener('click', pairSheet);
       sh.querySelector('#lSync').onclick = () => { if (!SYNC.on) { syncSheet(); return; }
         confirmSheet('Stop sending the log?', 'The key is removed from this phone. What was already sent stays in your shicards-log repo.', 'Stop', () => { SYNC.off(); toast('Stopped sending the log'); }); };
       const empty = () => { if (LOG.ev.length) return false; toast('Nothing recorded yet'); return true; };
@@ -2926,7 +2954,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.37';
+const APP_VERSION = '1.38';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -3296,6 +3324,7 @@ let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() 
 
 history.replaceState({ d: 0 }, '', location.hash || '#/');
 LOG.add('open', deviceInfo()); paintRec();
+takePairLink();
 route();
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
