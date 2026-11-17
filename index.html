@@ -482,6 +482,35 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .rpop-en{font-size:14.5px;line-height:1.35;margin-top:5px}
 .rpop-tag{font-size:11.5px;margin-top:7px;color:#FFD15C;font-weight:600}
 
+/* ---------- small photo in the top bar + side menu ---------- */
+.av{justify-self:center;width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--card);color:var(--line-2);
+  box-shadow:0 0 0 1.5px var(--card),0 0 0 2.5px color-mix(in srgb,var(--seal) 35%,transparent);transition:transform .2s}
+.av:active{transform:scale(.9);transition:none}
+.av img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.av .me-ini{font-size:19px}
+.av svg.i{width:21px;height:21px;stroke-width:1.6}
+#drawer-root{position:fixed;inset:0;z-index:45;pointer-events:none}
+#drawer-root.open{pointer-events:auto}
+.dr-scrim{position:absolute;inset:0;background:rgba(30,20,10,.34);opacity:0;transition:opacity .3s}
+#drawer-root.open .dr-scrim{opacity:1}
+.drawer{position:absolute;top:0;bottom:0;left:0;width:min(80%,300px);background:var(--paper);border-radius:0 24px 24px 0;touch-action:pan-y;
+  box-shadow:18px 0 40px -18px rgba(30,20,10,.45);transform:translateX(-104%);transition:transform .34s cubic-bezier(.2,.85,.25,1);
+  display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 30px) 14px calc(env(safe-area-inset-bottom) + 18px)}
+#drawer-root.open .drawer{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer,.dr-scrim{transition:none}}
+.dr-head{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:4px 10px 18px;border-bottom:1px solid var(--line)}
+.dr-pic{width:68px;height:68px;border-radius:50%;overflow:hidden;background:var(--card);box-shadow:var(--ring);display:grid;place-items:center;color:var(--line-2)}
+.dr-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.dr-pic .me-ini{font-size:34px}
+.dr-pic svg.i{width:36px;height:36px;stroke-width:1.3}
+.dr-name{margin-top:12px;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.dr-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
+.dr-list{display:flex;flex-direction:column;gap:2px;margin-top:12px}
+.dr-item{display:flex;align-items:center;gap:14px;height:52px;padding:0 10px;border-radius:12px;font-size:16.5px;font-weight:500;text-align:left;transition:background .2s}
+.dr-item:active{background:var(--fill);transition:none}
+.dr-item svg.i{color:var(--seal)}
+.dr-foot{margin-top:auto;padding:0 10px;font-size:12px;color:var(--muted)}
+
 /* ---------- profile section ---------- */
 .me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
 .me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
@@ -540,6 +569,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 <div id="frame">
   <main id="app"></main>
   <nav id="tabbar" aria-label="Main"></nav>
+  <div id="drawer-root"></div>
   <div id="sheet-root"></div>
   <div id="toast"></div>
   <button id="rec" data-act="rec-note" hidden aria-label="Recording your activity. Tap to add a note"><i></i></button>
@@ -636,7 +666,7 @@ function parse() {
   return { view: 'home', deckId: null };
 }
 function route() {
-  closeSheet(true); $('#cheer')?.remove();
+  closeSheet(true); $('#cheer')?.remove(); closeDrawer();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
   S.hskLevel = r.lv || null; S.readId = r.readId || null;
@@ -834,7 +864,7 @@ function LearnView() {
       <div class="learn-head"><div class="deck-name">Word bank</div><span class="deck-count">${plural(db.bank.length, 'word')}</span></div>
       <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>` : '';
   return `<div class="screen fade-in">
-    <header class="bar"><div class="bar-title">Learn</div></header>
+    <header class="bar bar-home">${AvBtn()}<div class="bar-title">Learn</div><span></span></header>
     <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
       <div class="hello-en">Pick a deck and how you want to practise</div></section>
     ${ready.length || bankBlk ? `<div class="learn-list">${bankBlk}${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
@@ -873,11 +903,84 @@ function ProfileView() {
 /* ---------- profile photo ----------
    Picked from the gallery, cut to a centred square, shrunk to 320 px and kept with your decks on this phone.
    Tap the photo, or swipe up on it, to open its small menu. */
-function meAvatar() {
+function faceHtml() {   // your photo, else the first letter of your name, else a plain outline
   const ph = db.prefs.photo, name = (db.prefs.name || '').trim();
-  const face = ph ? `<img src="${ph}" alt="" draggable="false">` : name ? `<span class="me-ini">${esc([...name][0].toUpperCase())}</span>` : I.profile;
-  return face + `<span class="me-cam">${I.camera}</span>`;
+  return ph ? `<img src="${ph}" alt="" draggable="false">` : name ? `<span class="me-ini">${esc([...name][0].toUpperCase())}</span>` : I.profile;
 }
+const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a photo from your gallery">${I.camera}</span>`;
+/* the small photo in the top-left corner of Decks, Learn and Read; tap it for the side menu */
+const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
+/* open the phone's gallery straight away (must run inside a tap) */
+function pickPhoto() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = () => { if (inp.files[0]) usePhoto(inp.files[0]); };
+  LOG.add('photo-pick'); inp.click();
+}
+async function usePhoto(f) {
+  try {
+    const url = await squarePhoto(f, 320), before = db.prefs.photo;
+    db.prefs.photo = url; save();
+    const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
+    // phone storage full: keep the old photo
+    if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return; }
+    LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
+    closeSheet(); if (['home', 'learn', 'read', 'profile'].includes(S.view)) render(); toast('Photo updated');
+  } catch (_) { toast('Couldn’t open that picture'); }
+}
+
+/* ---------- side menu ----------
+   Slides in from the left when you tap your photo in the top-left corner.
+   Close it by tapping outside, swiping it back to the left, or picking an item. */
+function openDrawer() {
+  const root = $('#drawer-root'), name = (db.prefs.name || '').trim();
+  root.innerHTML = `<div class="dr-scrim"></div>
+    <aside class="drawer" role="dialog" aria-label="Menu">
+      <button class="dr-head" data-act="dr-profile"><span class="dr-pic">${faceHtml()}</span>
+        <span class="dr-name">${name ? esc(name) : 'Add your name'}</span>
+        <span class="dr-sub">${plural(db.bank.length, 'word')} in your word bank</span></button>
+      <nav class="dr-list">
+        <button class="dr-item" data-act="dr-profile">${I.profile}Profile</button>
+        <button class="dr-item" data-act="dr-photo">${I.camera}${db.prefs.photo ? 'Change photo' : 'Add a photo'}</button>
+        <button class="dr-item" data-act="dr-settings">${I.more}Settings and backup</button>
+      </nav>
+      <div class="dr-foot">ShiCards ${APP_VERSION}</div>
+    </aside>`;
+  root.offsetHeight; root.classList.add('open');
+  LOG.add('drawer', 'open');
+  const dr = root.querySelector('.drawer'), scrim = root.querySelector('.dr-scrim');
+  scrim.onclick = () => closeDrawer();
+  let g = null, noClickUntil = 0;
+  dr.addEventListener('pointerdown', e => { if (e.isPrimary) g = { id: e.pointerId, x: e.clientX, y: e.clientY, hist: [[e.clientX, e.timeStamp]], dx: 0, v: 0, on: false }; });
+  dr.addEventListener('pointermove', e => {
+    if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.on) {
+      if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { g = null; return; }
+      if (dx > -8) return;
+      g.on = true; g.w = dr.offsetWidth; dr.style.transition = scrim.style.transition = 'none';
+      try { dr.setPointerCapture(g.id); } catch (_) {}
+    }
+    g.v = speed(g.hist, e.clientX, e.timeStamp); g.dx = Math.min(0, dx);
+    dr.style.transform = `translateX(${g.dx}px)`; scrim.style.opacity = String(1 + g.dx / g.w);
+  });
+  const up = e => {
+    if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return;
+    noClickUntil = performance.now() + 300;
+    const close = -G.dx > G.w * 0.3 || G.v < -0.35;
+    dr.style.transition = scrim.style.transition = dr.style.transform = scrim.style.opacity = '';
+    LOG.add('drawer-drag', { closed: close });
+    if (close) closeDrawer();
+  };
+  dr.addEventListener('pointerup', up); dr.addEventListener('pointercancel', up);
+  dr.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
+}
+function closeDrawer() {
+  const root = $('#drawer-root'); if (!root.classList.contains('open')) return;
+  root.classList.remove('open'); LOG.add('drawer', 'close');
+  setTimeout(() => { if (!root.classList.contains('open')) root.innerHTML = ''; }, 360);
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 function photoSheet() {
   const ph = db.prefs.photo;
   openSheet(`<h3>Profile photo</h3>
@@ -887,20 +990,9 @@ function photoSheet() {
       ${ph ? `<button class="list-btn" id="phDel"><span style="color:var(--seal)">Remove photo</span><span class="side">${I.trash}</span></button>` : ''}
     </div>`,
     sh => {
-      sh.querySelector('#phIn').onchange = async e => {
-        const f = e.target.files[0]; if (!f) return;
-        try {
-          const url = await squarePhoto(f, 320), before = db.prefs.photo;
-          db.prefs.photo = url; save();
-          const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
-          // phone storage full: keep the old photo
-          if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return; }
-          LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
-          closeSheet(); if (S.view === 'profile') render(); toast('Photo updated');
-        } catch (_) { toast('Couldn’t open that picture'); }
-      };
+      sh.querySelector('#phIn').onchange = e => { const f = e.target.files[0]; if (f) usePhoto(f); };
       const del = sh.querySelector('#phDel');
-      if (del) del.onclick = () => { delete db.prefs.photo; save(); closeSheet(); if (S.view === 'profile') render(); toast('Photo removed'); };
+      if (del) del.onclick = () => { delete db.prefs.photo; save(); closeSheet(); if (['home', 'learn', 'read', 'profile'].includes(S.view)) render(); toast('Photo removed'); };
     });
 }
 function squarePhoto(file, size) {
@@ -925,6 +1017,7 @@ document.addEventListener('pointerup', e => {
   if (!d || d.id !== e.pointerId || !e.target.closest?.('.me-pic') || S.view !== 'profile') return;
   const dx = e.clientX - d.x, dy = e.clientY - d.y;
   if (Math.abs(dx) > 12 && Math.abs(dx) >= Math.abs(dy)) return;
+  if (Math.abs(dy) <= 24 && e.target.closest('.me-cam')) { pickPhoto(); return; }   // camera badge: straight to the gallery
   LOG.add('photo-menu', Math.abs(dy) > 24 ? 'swipe' : 'tap'); photoSheet();
 });
 document.addEventListener('click', e => { if (e.detail === 0 && e.target.closest?.('.me-pic')) photoSheet(); });   // keyboard
@@ -1095,7 +1188,7 @@ function ReadView() {
       : '<div class="empty"><p>This story is no longer saved.</p></div>'}
   </div>`;
   return `<div class="screen fade-in">
-    <header class="bar"><div class="bar-title">Read</div></header>
+    <header class="bar bar-home">${AvBtn()}<div class="bar-title">Read</div><span></span></header>
     <section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
       <div class="hello-en">One short story at a time, made from your word bank</div></section>
     <div class="read-tools">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
@@ -1200,7 +1293,7 @@ function Home() {
   const [hz, py, en] = greeting(), name = (db.prefs.name || '').trim();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
-    <header class="bar bar-home"><span></span><img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
+    <header class="bar bar-home">${AvBtn()}<img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
     <section class="hello"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div><div class="hello-py">${py}</div>
       <div class="hello-en">${en}${name ? ', ' + esc(name) : ''} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
@@ -2468,7 +2561,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.22';
+const APP_VERSION = '1.23';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2570,6 +2663,10 @@ const A = {
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
   'set-name': () => nameSheet(),
+  'drawer': () => openDrawer(),
+  'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
+  'dr-photo': () => { closeDrawer(); pickPhoto(); },
+  'dr-settings': () => { closeDrawer(); setTimeout(settingsSheet, 120); },
   'rw': t => readPop(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
