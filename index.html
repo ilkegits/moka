@@ -104,10 +104,9 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
-/* home bar: the ShiCards wordmark sits in the middle, the menu on the right */
+/* home bar: the Shi Shi lion head sits in the middle, the menu on the right */
 .bar-home{display:grid;grid-template-columns:42px 1fr 42px}
-.wordmark{justify-self:center;font-family:"Baloo 2",var(--ui);font-weight:800;font-size:27px;line-height:1;letter-spacing:-.015em;padding-top:4px;color:var(--ink)}
-.wordmark b{font-weight:inherit;color:var(--seal)}
+.logo-mid{justify-self:center;width:44px;height:44px;display:block}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:14px;font-weight:600;font-size:16px;letter-spacing:-.01em;transition:opacity .2s, background .2s}
@@ -1000,7 +999,7 @@ function Home() {
   const [hz, py, en] = greeting(), name = (db.prefs.name || '').trim();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   return `<div class="screen fade-in">
-    <header class="bar bar-home"><span></span><div class="wordmark" role="img" aria-label="ShiCards"><b>Shi</b>Cards</div>
+    <header class="bar bar-home"><span></span><img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
     <section class="hello"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div><div class="hello-py">${py}</div>
       <div class="hello-en">${en}${name ? ', ' + esc(name) : ''} — ${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
