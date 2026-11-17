@@ -1,1 +1,1 @@
-{"version": "1.39", "notes": "Greeting drops the pinyin and slowly fades to English and back; handwriting check: packed characters like 路 no longer fail for a stroke nudged toward its neighbour"}
+{"version": "1.40", "notes": "Greeting in Satoshi, bold and italic"}

@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@1,2&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
 <style>
@@ -149,12 +149,12 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hello-hz{font-family:var(--hanzi);font-size:46px;line-height:1.1;letter-spacing:.04em}
 .hello-py{font-size:14px;color:var(--seal);margin-top:6px;letter-spacing:.02em}
 .hello-en{font-size:15px;color:var(--muted);margin-top:4px}
-.hello-name{font-family:var(--display);font-weight:600;letter-spacing:0;font-size:.92em}
+.hello-name{font-family:var(--ui);font-weight:700;font-style:italic;letter-spacing:-.01em;font-size:.72em}
 /* home greeting: the Chinese slowly fades into its English meaning and back, on a loop */
 .hello-swap{display:grid}
 .hello-swap>*{grid-area:1/1;align-self:end}
 .hello-swap .hello-hz{animation:hello-a 12s ease-in-out infinite}
-.hello-swap .hello-tr{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.15;opacity:0;animation:hello-b 12s ease-in-out infinite}
+.hello-swap .hello-tr{font-family:var(--ui);font-weight:700;font-style:italic;font-size:32px;letter-spacing:-.01em;line-height:1.15;opacity:0;animation:hello-b 12s ease-in-out infinite}
 @keyframes hello-a{0%,38%{opacity:1}50%,88%{opacity:0}100%{opacity:1}}
 @keyframes hello-b{0%,38%{opacity:0}50%,88%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
@@ -2975,7 +2975,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.39';
+const APP_VERSION = '1.40';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
