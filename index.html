@@ -122,6 +122,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .bar-home{display:grid;grid-template-columns:42px 1fr 42px}
 /* Learn, Read and Profile: the page name as a headline in the top-left corner */
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:26px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.bar-zh{font-family:var(--hanzi);font-weight:600;font-size:22px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
 .logo-mid{justify-self:center;width:44px;height:44px;display:block}
 
 /* ---------- buttons ---------- */
@@ -153,10 +154,10 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* home greeting: the Chinese slowly fades into its English meaning and back, on a loop */
 .hello-swap{display:grid}
 .hello-swap>*{grid-area:1/1;align-self:end}
-.hello-swap .hello-hz{font-size:36px;animation:hello-a 12s ease-in-out infinite}
-.hello-swap .hello-tr{font-family:var(--ui);font-weight:700;font-style:italic;font-size:32px;letter-spacing:-.01em;line-height:1.15;opacity:0;animation:hello-b 12s ease-in-out infinite}
-@keyframes hello-a{0%,38%{opacity:1}50%,88%{opacity:0}100%{opacity:1}}
-@keyframes hello-b{0%,38%{opacity:0}50%,88%{opacity:1}100%{opacity:0}}
+.hello-swap .hello-hz{font-size:36px;font-weight:600;will-change:opacity;animation:hello-a 14s cubic-bezier(.37,0,.63,1) infinite}
+.hello-swap .hello-tr{font-family:var(--ui);font-weight:700;font-style:italic;font-size:32px;letter-spacing:-.01em;line-height:1.15;opacity:0;will-change:opacity;animation:hello-b 14s cubic-bezier(.37,0,.63,1) infinite}
+@keyframes hello-a{0%,31%{opacity:1}50%,81%{opacity:0}100%{opacity:1}}
+@keyframes hello-b{0%,31%{opacity:0}50%,81%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
 .name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
@@ -624,6 +625,12 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .learn-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 12px}
 .learn-head .deck-name{flex:1}
 .learn-head::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--accent);flex:none;align-self:center}
+/* Learn: lessons will come later; for now a quiet card says so */
+.lesson-soon{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:14px}
+.lesson-seal{width:40px;height:40px;font-size:22px;border-radius:9px;flex:none}
+.lesson-soon b{display:block;font-size:16px;font-weight:600}
+.lesson-soon small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.learn-none{margin:0 2px 22px;font-size:14.5px;color:var(--muted)}
 .learn-deck .btn{height:44px;font-size:15px;padding:0 12px;border-radius:11px}
 .learn-deck .btn svg.i{width:19px;height:19px}
 .stats{display:grid;grid-template-columns:1fr 1fr;margin-bottom:28px;background:var(--card);border-radius:14px;box-shadow:var(--ring);overflow:hidden}
@@ -1049,14 +1056,22 @@ function renderTabs() {
 
 function LearnView() {
   const ready = db.decks.filter(d => d.cards.length);
+  const head = (en, zh) => `<div class="section-head cal-head"><h2>${en} <span class="cal-zh">${zh}</span></h2></div>`;
   const bankBlk = db.bank.length ? `<div class="learn-deck" style="--accent:var(--seal)">
       <div class="learn-head"><div class="deck-name">Word bank</div><span class="deck-count">${plural(db.bank.length, 'word')}</span></div>
-      <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>` : '';
+      <button class="btn btn-primary wide" data-act="practise-bank">Choose levels and practise</button></div>`
+    : `<p class="learn-none">No words yet. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>`;
   return `<div class="screen fade-in">
-    <header class="bar"><h1 class="bar-head">Learn</h1></header>
+    <header class="bar"><h1 class="bar-head">Learn <span class="bar-zh">学习</span></h1></header>
     <section class="hello"><div class="hello-hz">学习</div><div class="hello-py">xuéxí</div>
       <div class="hello-en">Pick a deck and how you want to practise</div></section>
-    ${ready.length || bankBlk ? `<div class="learn-list">${bankBlk}${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
+    ${head('Lessons', '课程')}
+    <div class="learn-list"><div class="lesson-soon"><span class="seal lesson-seal">课</span>
+      <span><b>Lessons are on their way</b><small>Short guided lessons will live here</small></span></div></div>
+    ${head('My word bank', '生词本')}
+    <div class="learn-list">${bankBlk}</div>
+    ${head('My decks', '卡组')}
+    ${ready.length ? `<div class="learn-list">${ready.map(d => `<div class="learn-deck" style="--accent:${d.accent}">
         <div class="learn-head"><div class="deck-name">${esc(d.name)}</div><span class="deck-count">${plural(d.cards.length, 'card')}</span></div>
         <div class="row-btns"><button class="btn btn-ghost" data-act="learn-study" data-id="${d.id}">${I.flip}Flip cards</button>
           <button class="btn btn-seal" data-act="learn-write" data-id="${d.id}">${I.pen}Write</button></div></div>`).join('')}</div>`
@@ -1506,7 +1521,7 @@ function ReadView() {
       : '<div class="empty"><p>This story is no longer saved.</p></div>'}
   </div>`;
   return `<div class="screen fade-in">
-    <header class="bar"><h1 class="bar-head">Read</h1></header>
+    <header class="bar"><h1 class="bar-head">Read <span class="bar-zh">阅读</span></h1></header>
     ${s?.opened ? '' : `<section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
       <div class="hello-en">One short story at a time, made from your word bank</div></section>`}
     <div class="read-tools"${s?.opened ? ' style="margin-top:6px"' : ''}>${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
@@ -2975,7 +2990,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.41';
+const APP_VERSION = '1.42';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
