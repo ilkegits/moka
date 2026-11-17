@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#F4EEE3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14120F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4EEE3">
+<meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -34,7 +34,8 @@
   --kb:0px;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
+/* Dark mode is off for now (light only). To bring it back, change "not all" to "(prefers-color-scheme: dark)" here and below. */
+@media not all{
   :root{
     --paper:#14120F; --paper-deep:#0E0D0B; --card:#211E19; --card-2:#1B1915;
     --ink:#EFE8DA; --ink-2:#C9C0B0; --muted:#8A8071; --line:#2F2A23; --line-2:#3E372D;
@@ -56,7 +57,7 @@ body::before{ /* rice-paper grain */
   content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5; mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .25 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: dark){ body::before{mix-blend-mode:screen;opacity:.25} }
+@media not all{ body::before{mix-blend-mode:screen;opacity:.25} }
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:disabled{opacity:.4;cursor:default}
 input{font:inherit;color:inherit}
@@ -813,7 +814,7 @@ function cardSheet(cardId) {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('YuCards is on your home screen'); });
