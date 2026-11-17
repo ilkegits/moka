@@ -442,11 +442,22 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .py-glyph{font-family:var(--hanzi);font-weight:600;font-size:15px;line-height:1}
 .read-note{font-size:13.5px;color:var(--muted);margin:0 2px 14px}
 .read-note u{text-decoration:underline dotted var(--seal) 1.5px;text-underline-offset:4px}
-.read-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
-.story{position:relative;background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:15px 14px 12px 16px}
+.story{position:relative;background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:15px 14px 14px 16px;margin-bottom:26px}
 .story-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .story-zh{margin:0;font-family:var(--hanzi);font-weight:600;font-size:18px;letter-spacing:.02em}
 .story-en{font-size:13px;color:var(--muted)}
+.story-done{margin-top:14px}
+.sheet-go{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom));margin:0 -20px calc(-20px - env(safe-area-inset-bottom));padding:10px 20px calc(20px + env(safe-area-inset-bottom));background:var(--paper)}
+.story-meta{font-size:13px;color:var(--muted);margin:12px 0 0}
+/* finished stories carry a seal, like a chop stamped on a page you have read */
+.story-stamp{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;align-items:center;padding:4px 7px 5px;border:2px solid var(--seal);border-radius:7px;color:var(--seal);transform:rotate(-6deg);opacity:.88;pointer-events:none}
+.story-stamp b{font-family:var(--hanzi);font-size:17px;line-height:1.1;letter-spacing:.06em}
+.story-stamp span{font-size:10px;font-weight:700;letter-spacing:.02em}
+.story:has(.story-stamp) .story-head{padding-right:62px}
+.read-lv{display:flex;align-items:center;gap:8px;margin:0 2px 8px;font-size:15px;font-weight:600;color:var(--ink)}
+.read-lv>span:last-child{margin-left:auto;font-size:12.5px;font-weight:400;color:var(--muted)}
+.read-lv-seal{display:grid;place-items:center;min-width:24px;height:24px;padding:0 4px;border-radius:6px;background:var(--seal);color:var(--seal-ink);font-size:12px;font-weight:700}
+.read-row-zh{font-family:var(--hanzi);font-weight:600}
 .story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:22px;line-height:1.6;color:var(--ink)}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
 .rw{border-radius:6px;padding:0 1px;font:inherit;line-height:inherit;transition:background .2s}
@@ -454,7 +465,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .rw.mine{background:radial-gradient(circle,color-mix(in srgb,var(--seal) 80%,transparent) 0.8px,transparent 1.1px) left calc(100% - 2px)/4px 4px repeat-x}
 .rw.hl{background:rgba(255,209,92,.6);transition:none}
 .ry{display:none;font-family:var(--ui);font-size:11.5px;font-weight:500;color:var(--seal);line-height:1.1;margin:-3px 0 5px;white-space:nowrap}
-.read-list.py .ry{display:block}
+.story.py .ry{display:block}
 .rpop{position:absolute;z-index:6;min-width:128px;max-width:250px;background:var(--ink);color:var(--paper);border-radius:13px;padding:9px 14px 10px;
   box-shadow:0 14px 28px -12px rgba(30,20,10,.6);animation:rpopIn .16s ease-out both}
 .rpop::after{content:"";position:absolute;left:calc(var(--ax) - 7px);border:7px solid transparent}
@@ -602,6 +613,7 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (
 let db = load();
 db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs);
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
+db.readDone = Array.isArray(db.readDone) ? db.readDone : [];   // finished stories: [{ id, zh, en, lines, hsk, done, learned }], newest first
 save();
 
 const deckById = id => id === 'bank' ? bankDeck() : db.decks.find(d => d.id === id);
@@ -615,14 +627,15 @@ function parse() {
   if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
-  if (p[0] === 'learn' || p[0] === 'read' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
+  if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
+  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
   closeSheet(true); $('#cheer')?.remove();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
-  S.hskLevel = r.lv || null;
+  S.hskLevel = r.lv || null; S.readId = r.readId || null;
   const d = curDeck();
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = S.deckId === 'bank' ? 'bank' : 'deck';
   if (S.view === 'study') startStudy();
@@ -786,7 +799,7 @@ function render() {
   else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
-  else if (S.view === 'read') { app.innerHTML = ReadView(); }
+  else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
@@ -968,34 +981,34 @@ const RL = (() => {
 })();
 
 const READ_PUNCT = /^[，。！？：、“”"'…（）]+$/;
-/* Make a set of stories: frames whose gaps your bank fills best come first, and each bank word is used at most once
-   per set where possible, so a new set brings different words. */
-function makeStories(n = 6) {
-  const bank = db.bank, inBank = new Map(bank.map(w => [w.hanzi, w]));
-  const used = new Set(), pick = (kind, taken) => {
+/* One story at a time. The story you are reading stays (db.readCur) until you finish it. Finishing offers the
+   story's new words for your word bank, then files the story under its HSK level in db.readDone (newest first).
+   Stories keep only their words; pinyin is worked out when they are shown. */
+function makeStory(skip) {
+  const bank = db.bank, inBank = new Set(bank.map(w => w.hanzi)), done = {};
+  for (const s of db.readDone) done[s.zh] = (done[s.zh] || 0) + 1;
+  const pick = (kind, taken) => {
     const pool = kind === 'any' ? shuffle(bank.map(w => w.hanzi)) : shuffle(RL.cat[kind] || []);
-    const mine = pool.filter(h => (kind === 'any' || inBank.has(h)) && !taken.has(h));
-    const h = mine.find(h => !used.has(h)) || mine[0];
+    const h = pool.find(h => (kind === 'any' || inBank.has(h)) && !taken.has(h));
     if (h) return { h, mine: true };
-    const fb = pool.filter(h => !taken.has(h))[0];
+    const fb = pool.find(h => !taken.has(h));
     return fb ? { h: fb, mine: false } : null;
   };
-  const tries = RL.T.map(tpl => {
+  const best = RL.T.filter(t => t[0] !== skip).map(tpl => {
     const slots = new Set(), taken = new Set(), fill = {};
     for (const line of tpl[2]) for (const m of line.matchAll(/\{(\w+)\}/g)) slots.add(m[1]);
-    let mine = 0, ok = true;
+    let mine = 0;
     for (const s of slots) {
-      const kind = s.replace(/\d+$/, ''), r = pick(kind, taken);
-      if (!r) { ok = false; break; }
+      const r = pick(s.replace(/\d+$/, ''), taken); if (!r) return null;
       fill[s] = r.h; taken.add(r.h); if (r.mine) mine++;
     }
-    return ok && { tpl, fill, mine, score: mine / Math.max(1, slots.size) + Math.random() * 0.35 };
-  }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, n);
-  return tries.map(({ tpl, fill }) => {
-    Object.values(fill).forEach(h => used.add(h));
-    const lines = tpl[2].map(line => line.split(' ').map(t => t.replace(/^\{(\w+)\}$/, (_, s) => fill[s])));
-    return { zh: tpl[0], en: tpl[1], lines: lines.map(toks => readTokens(toks)) };
-  });
+    // stories you have not finished yet come first, then the ones your word bank fills best
+    return { tpl, fill, score: mine / Math.max(1, slots.size) + Math.random() * 0.35 - (done[tpl[0]] || 0) };
+  }).filter(Boolean).sort((a, b) => b.score - a.score)[0];
+  if (!best) return null;
+  const { tpl, fill } = best;
+  return { id: uid(), zh: tpl[0], en: tpl[1], started: Date.now(),
+    lines: tpl[2].map(line => line.split(' ').map(t => t.replace(/^\{(\w+)\}$/, (_, s) => fill[s]))) };
 }
 /* per word: pinyin read in its sentence (so 一, 不 and other many-sound characters come out right) and its meaning */
 function readTokens(toks) {
@@ -1007,6 +1020,31 @@ function readTokens(toks) {
     i += n; return { h, p };
   });
 }
+const readTok = new WeakMap();
+function storyTokens(s) {
+  let t = readTok.get(s); if (t) return t;
+  t = s.lines.map(l => readTokens(l)); if (window.pinyinPro) readTok.set(s, t);
+  return t;
+}
+/* a story's level is the highest HSK level among its words: the level you need to read all of it */
+function storyLevel(s) {
+  let lv = 0;
+  for (const l of s.lines) for (const h of l) { const r = S.H?.byHz.get(h); if (r && r.lv > lv) lv = r.lv; }
+  return lv;
+}
+/* words in the story that are not in your word bank yet; only real words (HSK or story word lists), so the
+   name 狮狮 and pieces like 看了看 are left out */
+function storyNewWords(s) {
+  const seen = new Set(), out = [];
+  for (const t of storyTokens(s).flat()) {
+    if (READ_PUNCT.test(t.h) || seen.has(t.h) || bankHas(t.h)) continue; seen.add(t.h);
+    const r = S.H?.byHz.get(t.h);
+    if (!r && !RL.gloss[t.h]) continue;
+    // the meaning it has in the story (包 bag, not "to wrap"), else the dictionary's
+    out.push({ h: t.h, p: r?.p || t.p, en: RL.home[t.h] || RL.gloss[t.h] || (r.s ??= shortMeaning(r.e)), lv: r?.lv || 0 });
+  }
+  return out;
+}
 function readMeaning(h) {
   const b = bankHas(h);
   if (b?.en) return b.en;
@@ -1014,25 +1052,96 @@ function readMeaning(h) {
   if (RL.gloss[h]) return RL.gloss[h];
   const r = S.H?.byHz.get(h); return r ? shortMeaning(r.e) : '';
 }
-function ReadView() {
-  const sig = db.bank.length + ':' + (db.bank[0]?.id || '');
-  if (!S.read || S.read.sig !== sig) S.read = { sig, stories: makeStories() };
+/* the story on screen: a finished one (#/read/<id>) or the one you are reading now */
+function readStory() {
+  if (S.readId) return db.readDone.find(s => s.id === S.readId) || null;
+  if (!db.readCur) { db.readCur = makeStory(); save(); }
+  return db.readCur;
+}
+const shortDate = t => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+function StoryCard(s, foot) {
   const on = !!db.prefs.readPy, inBank = new Set(db.bank.map(w => w.hanzi));
-  const word = (t, si, li, wi) => READ_PUNCT.test(t.h) ? `<span class="rp">${esc(t.h)}</span>`
-    : `<button class="rw${inBank.has(t.h) ? ' mine' : ''}" data-act="rw" data-k="${si}.${li}.${wi}"><span class="rh">${esc(t.h)}</span><span class="ry">${esc(t.p)}</span></button>`;
+  const word = (t, li, wi) => READ_PUNCT.test(t.h) ? `<span class="rp">${esc(t.h)}</span>`
+    : `<button class="rw${inBank.has(t.h) ? ' mine' : ''}" data-act="rw" data-k="${li}.${wi}"><span class="rh">${esc(t.h)}</span><span class="ry">${esc(t.p)}</span></button>`;
+  return `<article class="story${on ? ' py' : ''}">
+      <div class="story-head"><h3 class="story-zh">${esc(s.zh)}</h3><span class="story-en">${esc(s.en)}</span></div>
+      ${storyTokens(s).map((l, li) => `<p class="story-line">${readGroups(l).map(g => `<span class="rg">${g.map(wi => word(l[wi], li, wi)).join('')}</span>`).join('')}</p>`).join('')}
+      ${foot || ''}
+    </article>`;
+}
+function FinishedList() {
+  if (!db.readDone.length) return `<div class="section-head"><h2>Finished stories</h2></div>
+    <p class="read-note">Stories you finish are kept here, sorted by HSK level, so you can read them again.</p>`;
+  const by = {}; for (const s of db.readDone) (by[s.hsk || 0] ||= []).push(s);
+  const lvls = [1, 2, 3, 4, 5, 6, 7, 0].filter(l => by[l]);
+  return `<div class="section-head"><h2>Finished stories</h2><span class="muted" style="font-size:12.5px">${db.readDone.length}</span></div>
+    ${lvls.map(l => `<div class="read-lv"><span class="read-lv-seal">${l ? (l === 7 ? '7–9' : l) : '·'}</span>${l ? HSK_NAME(l) : 'Not on the HSK lists'}<span>${plural(by[l].length, 'story').replace('storys', 'stories')}</span></div>
+      <div class="group">${by[l].map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
+        <span class="row-main"><span class="row-t"><span class="read-row-zh">${esc(s.zh)}</span> ${esc(s.en)}</span>
+        <span class="row-s">${s.learned?.length ? `+${plural(s.learned.length, 'word')} · ` : ''}finished ${shortDate(s.done)}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`).join('')}`;
+}
+function ReadView() {
+  const s = readStory(), on = !!db.prefs.readPy;
+  const pyBtn = `<button class="pill${on ? ' on' : ''}" data-act="read-py" aria-pressed="${on}"><span class="py-glyph">拼</span>Pinyin</button>`;
+  if (S.readId) return `<div class="screen fade-in">
+    <header class="bar"><button class="icon-btn" data-act="read-back" aria-label="Back">${I.back}</button><div class="bar-title">Finished story</div><div style="width:42px"></div></header>
+    ${s ? `<div class="read-tools" style="margin-top:6px">${pyBtn}</div>
+      ${StoryCard(s, `<div class="story-stamp" aria-label="Finished, ${s.hsk ? HSK_NAME(s.hsk) : 'not on the HSK lists'}"><b>读完</b><span>${s.hsk ? HSK_NAME(s.hsk) : 'HSK —'}</span></div>
+        <p class="story-meta">Finished ${shortDate(s.done)}${s.learned?.length ? ` · added ${s.learned.map(esc).join('、')} to your word bank` : ''}</p>`)}`
+      : '<div class="empty"><p>This story is no longer saved.</p></div>'}
+  </div>`;
   return `<div class="screen fade-in">
     <header class="bar"><div class="bar-title">Read</div></header>
     <section class="hello"><div class="hello-hz">阅读</div><div class="hello-py">yuèdú</div>
-      <div class="hello-en">Short stories made from your word bank</div></section>
-    <div class="read-tools"><button class="pill${on ? ' on' : ''}" data-act="read-py" aria-pressed="${on}"><span class="py-glyph">拼</span>Pinyin</button>
-      <button class="pill" data-act="read-new">${I.shuffle}New stories</button></div>
+      <div class="hello-en">One short story at a time, made from your word bank</div></section>
+    <div class="read-tools">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
-      : '<p class="read-note">Your word bank is empty, so these use common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
-    <div class="read-list${on ? ' py' : ''}">${S.read.stories.map((s, si) => `<article class="story">
-      <div class="story-head"><h3 class="story-zh">${esc(s.zh)}</h3><span class="story-en">${esc(s.en)}</span></div>
-      ${s.lines.map((l, li) => `<p class="story-line">${readGroups(l).map(g => `<span class="rg">${g.map(wi => word(l[wi], si, li, wi)).join('')}</span>`).join('')}</p>`).join('')}
-    </article>`).join('')}</div>
+      : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
+    ${s ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : ''}
+    ${FinishedList()}
   </div>`;
+}
+function mountRead() {
+  if (S.H) return;
+  loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded
+    let ch = false; for (const s of db.readDone) if (!s.hsk) { const l = storyLevel(s); if (l) { s.hsk = l; ch = true; } }
+    if (ch) { save(); if (S.view === 'read') render(); }
+  }, () => {});
+}
+/* finishing: tick the new words you learned, they go into the word bank, the story is filed under its HSK level */
+function finishSheet() {
+  const s = db.readCur; if (!s) return;
+  const go = () => {
+    const words = storyNewWords(s), sel = new Set(words.map(w => w.h));
+    openSheet(`<h3>New words in this story</h3>
+      ${words.length ? `<p class="muted" style="margin:-8px 0 16px;text-align:center">Untick any you haven't learned yet. The rest go into your word bank.</p>
+        <div class="group" id="rnList" style="margin-bottom:18px">${words.map(w => `<button class="row word on" style="--sep:52px" data-h="${esc(w.h)}"><span class="sel">${I.check}</span><span class="hz">${esc(w.h)}</span>
+          <span class="row-main"><span class="wp">${esc(w.p)}</span><span class="we">${esc(w.en)}</span></span>${w.lv ? `<span class="row-val">${HSK_NAME(w.lv)}</span>` : ''}</button>`).join('')}</div>`
+      : '<p class="muted" style="margin:-8px 0 22px;text-align:center">Every word in this story is already in your word bank.</p>'}
+      <div class="sheet-go"><button class="btn btn-seal wide" id="rnGo"></button></div>`, sh => {
+      const btn = sh.querySelector('#rnGo');
+      const paint = () => { btn.textContent = sel.size ? `Add ${plural(sel.size, 'word')} and finish` : 'Finish story'; };
+      sh.querySelector('#rnList')?.addEventListener('click', e => {
+        const b = e.target.closest('.row[data-h]'); if (!b) return; const h = b.dataset.h;
+        sel.has(h) ? sel.delete(h) : sel.add(h); b.classList.toggle('on', sel.has(h)); paint();
+      });
+      btn.onclick = () => { closeSheet(true); finishStory(words.filter(w => sel.has(w.h)), words.length); };
+      paint();
+    });
+  };
+  loadHsk().then(go, go);
+}
+function finishStory(words, offered) {
+  const s = db.readCur; if (!s) return;
+  const now = Date.now(), add = words.filter(w => !bankHas(w.h)).map((w, i) => ({ id: uid(), hanzi: w.h, pinyin: w.p, en: w.en, added: now - i, hsk: w.lv }));
+  const lv = storyLevel(s);
+  db.bank = [...add, ...db.bank];
+  db.readDone.unshift({ id: s.id, zh: s.zh, en: s.en, lines: s.lines, hsk: lv, started: s.started, done: now, learned: add.map(w => w.hanzi) });
+  db.readCur = makeStory(s.zh); save();
+  LOG.add('read-finish', { story: s.zh, level: lv ? HSK_NAME(lv) : 'none', new_words: offered, added: add.length });
+  render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
+  toast(`Saved to Finished stories · ${lv ? HSK_NAME(lv) : 'not on the HSK lists'}`);
+  if (add.length) cheer(add.length);
 }
 /* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
 function readGroups(l) {
@@ -1045,7 +1154,7 @@ function readGroups(l) {
   return out;
 }
 function readPop(t) {
-  const [si, li, wi] = t.dataset.k.split('.').map(Number), w = S.read?.stories[si]?.lines[li]?.[wi]; if (!w) return;
+  const [li, wi] = t.dataset.k.split('.').map(Number), s = readStory(), w = s && storyTokens(s)[li]?.[wi]; if (!w) return;
   const was = t.classList.contains('hl');
   closeReadPop();
   if (was) return;   // tapping the same word again closes it
@@ -2346,7 +2455,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.20';
+const APP_VERSION = '1.21';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2425,7 +2534,7 @@ function settingsSheet() {
       };
       sh.querySelector('#sImp').onchange = async e => {
         const f = e.target.files[0]; if (!f) return;
-        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
         catch (_) { toast('That file isn’t a ShiCards backup'); }
       };
     });
@@ -2449,8 +2558,11 @@ const A = {
   'settings': () => settingsSheet(),
   'set-name': () => nameSheet(),
   'rw': t => readPop(t),
-  'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.read-list')?.classList.toggle('py', db.prefs.readPy); },
-  'read-new': () => { S.read = null; render(); toast('New stories'); },
+  'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
+  'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
+  'read-finish': () => finishSheet(),
+  'read-open': t => nav('#/read/' + t.dataset.id),
+  'read-back': () => goBack('#/read'),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
