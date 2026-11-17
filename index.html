@@ -90,6 +90,17 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
   .screen{min-height:100%}
 }
 
+/* ---------- pull to refresh: a red Chinese knot is lowered on its cord ---------- */
+html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this one replaces it */
+#ptr{position:fixed;top:0;left:50%;width:0;height:0;z-index:4;pointer-events:none;transform-origin:0 0}
+.ptr-charm{position:absolute;top:0;left:-26px;width:52px;opacity:0;transform:translate3d(0,-120%,0);will-change:transform,opacity}
+.ptr-charm::before{content:"";position:absolute;bottom:calc(100% - 1px);left:calc(50% - .9px);width:1.8px;height:100vh;background:#B5161E}
+.ptr-charm svg{display:block;width:100%;height:auto;transform-origin:50% 0;transition:transform .34s cubic-bezier(.3,1.7,.5,1)}
+#ptr.armed svg{transform:scale(1.08)}
+#ptr.swing{animation:ptrSwing .9s ease-in-out infinite alternate}
+@keyframes ptrSwing{from{rotate:-6deg}to{rotate:6deg}}
+@media (prefers-reduced-motion:reduce){#ptr.swing{animation:none}.ptr-charm svg{transition:none}}
+
 /* ---------- top bar ---------- */
 .bar{display:flex;align-items:center;gap:12px;height:60px;position:sticky;top:0;z-index:5;
   background:color-mix(in srgb,var(--paper) 80%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);margin:0 -20px;padding:0 10px}
@@ -567,6 +578,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 </head>
 <body>
 <div id="frame">
+  <div id="ptr" aria-hidden="true"></div>
   <main id="app"></main>
   <nav id="tabbar" aria-label="Main"></nav>
   <div id="drawer-root"></div>
@@ -2561,7 +2573,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.23';
+const APP_VERSION = '1.24';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -2814,6 +2826,92 @@ document.addEventListener('click', e => {
   app.addEventListener('touchmove', e => { if (g?.on && e.cancelable) e.preventDefault(); }, { passive: false });
   // a drag that ends over a button must not also press it
   document.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); LOG.blocked(); } }, true);
+})();
+
+/* ---------- pull to refresh ----------
+   At the very top of a page, pull down: the page slides down and a red Chinese knot is lowered on its cord into the gap.
+   Pull until the knot gives a little bounce, let go, and it swings while the app reloads (same as Chrome's refresh).
+   Let go earlier and everything slides back. */
+(() => {
+  const app = $('#app'), box = $('#ptr');
+  box.innerHTML = `<div class="ptr-charm"><svg viewBox="-6 0 76 132">
+    <defs>
+      <linearGradient id="ptrSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#3a0606" stop-opacity=".25"/></linearGradient>
+      <linearGradient id="ptrGold" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F2CF7A"/><stop offset="1" stop-color="#B9852C"/></linearGradient>
+    </defs>
+    <path d="M32 0V22" stroke="#B5161E" stroke-width="2.2"/>
+    <circle cx="32" cy="10" r="4.2" fill="#C8202A" stroke="#7E0D13" stroke-width="1"/>
+    <path d="M29.4 8.6l5.2 2.8M29.4 11.4l5.2-2.8" stroke="#7E0D13" stroke-width=".8"/>
+    <g transform="translate(32 50) rotate(45)">
+      <g fill="none" stroke="#C8202A" stroke-width="3.4">
+        <circle cx="-8.5" cy="-21.5" r="4.2"/><circle cx="8.5" cy="-21.5" r="4.2"/><circle cx="21.5" cy="-8.5" r="4.2"/><circle cx="21.5" cy="8.5" r="4.2"/>
+        <circle cx="8.5" cy="21.5" r="4.2"/><circle cx="-8.5" cy="21.5" r="4.2"/><circle cx="-21.5" cy="8.5" r="4.2"/><circle cx="-21.5" cy="-8.5" r="4.2"/>
+        <circle cx="-21" cy="21" r="5"/><circle cx="21" cy="-21" r="5"/>
+      </g>
+      <rect x="-17.5" y="-17.5" width="35" height="35" rx="3" fill="#C8202A"/>
+      <path d="M-17 -8.5H17M-17 0H17M-17 8.5H17M-8.5 -17V17M0 -17V17M8.5 -17V17" stroke="#7E0D13" stroke-width="1.1"/>
+      <path d="M-17 -10H17M-17 -1.5H17M-17 7H17M-10 -17V17M-1.5 -17V17M7 -17V17" stroke="#E8505A" stroke-width=".7" opacity=".9"/>
+      <rect x="-17.5" y="-17.5" width="35" height="35" rx="3" fill="url(#ptrSheen)" stroke="#7E0D13" stroke-width="1"/>
+    </g>
+    <path d="M32 74V84" stroke="#B5161E" stroke-width="2.2"/>
+    <circle cx="32" cy="84" r="4.6" fill="url(#ptrGold)" stroke="#8E6420" stroke-width=".8"/>
+    <path d="M27 91C26 104 21 116 19 128Q32 132 45 128C43 116 38 104 37 91Z" fill="#C8202A"/>
+    <path d="M30 93C29 106 26 118 25 129M34 93C35 106 38 118 39 129M32 93V130M28 94C27 108 23 119 22 128.5M36 94C37 108 41 119 42 128.5" stroke="#7E0D13" stroke-width=".7" fill="none"/>
+    <path d="M27 91C26 104 21 116 19 128Q32 132 45 128C43 116 38 104 37 91Z" fill="url(#ptrSheen)"/>
+    <rect x="26" y="89" width="12" height="6" rx="1.6" fill="url(#ptrGold)" stroke="#8E6420" stroke-width=".7"/>
+  </svg></div>`;
+  const charm = box.firstElementChild, EASE = 'cubic-bezier(.2,.8,.2,1)', reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const ARM = 100, HOLD = 104;   // how far the page has to come down (px) before letting go reloads; where it rests while reloading
+  let t = null, busy = false, inset = 0, kh = 90;   // kh: the knot's height, measured once per pull
+  const atTop = () => (document.scrollingElement?.scrollTop || 0) <= 0 && app.scrollTop <= 0;
+  const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root');
+  const topInset = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden'; document.body.append(d); const h = d.offsetHeight; d.remove(); return h; };
+  const pull = d => 200 * (1 - Math.exp(-Math.max(0, d) / 240));   // follows the finger at first, then gets heavier
+  const place = (p, dur, curve = EASE) => {
+    const tr = dur ? `transform ${dur}ms ${curve}, opacity ${dur}ms` : 'none';
+    app.style.transition = charm.style.transition = tr;
+    app.style.transform = p ? `translate3d(0,${p}px,0)` : '';
+    // the knot's bottom hangs just above the page, under the status bar area
+    charm.style.transform = `translate3d(0,${inset + p - 6 - kh}px,0)`;
+    charm.style.opacity = Math.min(1, p / 36);
+  };
+  const reset = () => { app.style.transition = app.style.transform = charm.style.transition = charm.style.transform = charm.style.opacity = box.style.rotate = ''; box.classList.remove('armed', 'swing'); };
+  const release = ok => {
+    const T = t; t = null; if (!T?.on) return;
+    if (ok && T.armed) {
+      busy = true; LOG.add('pull-refresh', {});
+      place(HOLD, 260);
+      box.style.transition = 'rotate .3s'; box.style.rotate = '';
+      if (!reduce.matches) setTimeout(() => box.classList.add('swing'), 200);
+      setTimeout(() => location.reload(), 750);
+      return;
+    }
+    place(0, reduce.matches ? 1 : 320);
+    box.style.transition = 'rotate .3s'; box.style.rotate = '';
+    setTimeout(() => { if (!t && !busy) reset(); }, 340);
+  };
+  document.addEventListener('touchstart', e => {
+    if (busy || t?.on || e.touches.length !== 1 || blocked(e.target) || !atTop()) { if (!t?.on) t = null; return; }
+    const q = e.touches[0]; t = { x: q.clientX, y: q.clientY, on: false, armed: false };
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!t) return;
+    if (e.touches.length !== 1) { release(false); return; }
+    const q = e.touches[0], dx = q.clientX - t.x, dy = q.clientY - t.y;
+    if (!t.on) {
+      if (dy < -6 || (Math.abs(dx) > 10 && Math.abs(dx) > dy)) { t = null; return; }   // scrolling the page, or a sideways page swipe
+      if (dy < 10 || !atTop()) return;
+      t.on = true; t.y = q.clientY; inset = topInset(); kh = charm.offsetHeight || kh; box.style.transition = 'none';
+    }
+    if (e.cancelable) e.preventDefault();
+    const p = pull(q.clientY - t.y);
+    place(p, 0);
+    box.style.rotate = reduce.matches ? '' : Math.max(-7, Math.min(7, (q.clientX - t.x) * 0.05)) + 'deg';   // it sways with your finger
+    const armed = p >= ARM;
+    if (armed !== t.armed) { t.armed = armed; box.classList.toggle('armed', armed); if (armed) navigator.vibrate?.(8); }
+  }, { passive: false });
+  document.addEventListener('touchend', () => release(true));
+  document.addEventListener('touchcancel', () => release(false));
 })();
 
 /* pictures can't be saved, copied or dragged out; no long-press menus outside typing fields; no zoom gestures (iOS ignores the viewport setting) */
