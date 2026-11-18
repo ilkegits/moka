@@ -170,7 +170,6 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes hello-b{0%,31%{opacity:0}50%,81%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
 .name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
-/* Today card: today's cards in one place, Shi Shi on the right shows his mood */
 /* Learn: your progress, Shi Shi's mane fills up as you learn each HSK level */
 .prog-card{display:flex;align-items:center;gap:16px;width:100%;padding:16px;margin-bottom:10px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
 .prog-card:active,.prog-lv:active{background:var(--paper-deep);transition:none}
@@ -201,35 +200,11 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes helpflash{0%,100%{transform:none}30%{transform:scale(1.03)}}
 .soon-line{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:4px 0 8px;border-radius:14px;background:var(--fill);font-size:13.5px;color:var(--ink-2)}
 .soon-line .lesson-seal{width:26px;height:26px;font-size:14px;flex:none}
-.today-card{position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 16px 18px;border-radius:22px;background:var(--seal);color:var(--seal-ink);
-  box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
-.today-card::before{content:"";position:absolute;right:-70px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.32),transparent 65%);pointer-events:none}
-.today-shi{position:absolute;right:8px;top:30px;width:112px;height:112px}
-.today-shi .shi-face{width:100%;height:100%;display:block}
-.today-card.cheer .today-shi{animation:shiHop 1.6s ease-in-out .4s 2}
-.today-card.sleep .today-shi .shi-face{animation:shiBreathe 3.2s ease-in-out infinite;transform-origin:50% 80%}
-.today-zz{position:absolute;right:-2px;top:-14px;font-family:"Baloo 2",var(--ui);font-weight:800;font-size:22px;line-height:.8;color:#FFE3A3}
-.today-zz small{display:block;font-size:14px;margin-left:12px}
-.today-lbl{position:relative;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.06em;opacity:.95}
-.today-fl{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px 0 4px;border-radius:999px;background:rgba(255,248,242,.16);font-size:12px;letter-spacing:0;font-weight:600}
-.today-fl .flame{width:15px;height:15px;fill:rgba(255,248,242,.55)}
-.today-fl .flame-in{fill:var(--seal)}
-.today-fl.on .flame{fill:#FFB347}
-.today-fl.on .flame-in{fill:#FFE08A}
-.today-big{position:relative;max-width:calc(100% - 120px);margin:10px 0 4px;font-size:29px;font-weight:800;line-height:1.05;letter-spacing:-.02em}
-.today-sub{position:relative;max-width:calc(100% - 118px);font-size:14px;line-height:1.35;opacity:.88}
-.today-mix{position:relative;display:flex;gap:6px;margin-top:12px;min-height:0}
-.today-mix:empty{display:none}
-.today-mix span{font-size:12.5px;font-weight:600;padding:5px 9px;border-radius:8px;background:rgba(255,248,242,.16)}
-.today-go{position:relative;width:100%;margin-top:16px;background:var(--seal-ink);color:var(--seal);font-weight:700}
-.today-go.ghost{background:rgba(255,248,242,.16);color:var(--seal-ink)}
 @keyframes shiHop{0%,100%{transform:none}20%{transform:translateY(-10px) rotate(-5deg)}40%{transform:translateY(0) scale(1.04,.96)}60%{transform:translateY(-10px) rotate(5deg)}80%{transform:translateY(0) scale(1.04,.96)}}
 @keyframes shiBreathe{0%,100%{transform:none}50%{transform:scale(1.03,.98)}}
-@media (prefers-reduced-motion:reduce){.today-shi,.today-shi .shi-face{animation:none!important}}
 /* Hanzi of the day: the second red card. Today's character hides under gold foil; rub it off, Shi Shi peeks at it */
 /* the two cards sit in a little stack: Hanzi of the day on top, the story card's edge peeking out under it */
 .hd-stack{position:relative;margin:-12px 0 28px}
-.today-card+.hd-stack{margin-top:-16px}
 .hd-stack.two{padding-bottom:12px;margin-bottom:20px}
 .hd-stack>.hd-card{margin:0}
 .hd-stack>#hotd{z-index:1;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
@@ -2160,7 +2135,6 @@ function Home() {
       <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
       <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
       ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
-    ${TodayCard()}
     ${HotdStack()}
     <div class="section-head"><h2>My word bank</h2></div>
     ${BankTile()}
@@ -2174,24 +2148,6 @@ function Home() {
     <div class="dock row-btns"><button class="btn btn-ghost" data-act="new-deck">${I.plus} New deck</button>
       <button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
   </div>`;
-}
-/* the top of Home: today's job in one card, with Shi Shi showing how you are doing */
-function TodayCard() {
-  const P = todayPile(), n = P.cards.length, { n: streak, today } = practiceStreak(), mood = shiMood(n);
-  const flame = `<span class="today-fl${streak ? ' on' : ''}">${FLAME}${streak ? `${streak} day streak` : 'No streak yet'}</span>`;
-  const say = { miss: 'Shi Shi is waiting for you', sleep: 'Shi Shi dozed off. One round wakes him up' }[mood];
-  let body;
-  if (!allItems().length) body = `<div class="today-big">Add your first words</div>
-      <div class="today-sub">Tick words you know, or make a deck</div>
-      <button class="btn today-go" data-act="open-hsk">Add words</button>`;
-  else if (!n) return '';   // nothing waiting: no card ("All done for today" was little use); Hanzi of the day leads instead
-  else body = `<div class="today-big">${n === 1 ? '1 card' : n + ' cards'} waiting</div>
-      <div class="today-sub">${say || `About ${Math.max(1, Math.round(n * 10 / 60))} min`}</div>
-      <div class="today-mix">${P.due.length ? `<span>${P.due.length} to review</span>` : ''}${P.fresh.length ? `<span>${P.fresh.length} new</span>` : ''}</div>
-      <button class="btn today-go" data-act="today-start">Start</button>`;
-  return `<section class="today-card ${mood}" aria-label="Today">
-    <div class="today-shi">${shiFace(mood)}${mood === 'sleep' ? '<span class="today-zz" aria-hidden="true">Z<small>z</small></span>' : ''}</div>
-    <div class="today-lbl">TODAY ${flame}</div>${body}</section>`;
 }
 /* ---------- Hanzi of the day ----------
    One single character a day from the HSK lists at your level, one you don't know yet. It hides under gold foil on
@@ -3953,7 +3909,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.59';
+const APP_VERSION = '1.60';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
