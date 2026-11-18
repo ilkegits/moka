@@ -191,12 +191,12 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* Hanzi of the day: the second red card. Today's character hides under gold foil; rub it off, Shi Shi peeks at it */
 /* the daily cards sit in a little deck: Hanzi of the day and the story card, with a third sheet under them.
    Swipe the top card away and it goes to the bottom; the card under it comes up (no × to close them) */
-.hd-stack{position:relative;margin:14px 0 14px;padding-bottom:24px;touch-action:pan-y}
-.hd-stack>.hd-card{margin:0}
+.hd-stack{position:relative;display:grid;margin:14px 0 14px;padding-bottom:24px;touch-action:pan-y}
+.hd-stack>.hd-card{grid-area:1/1;margin:0}   /* both cards share one spot, so they are always the same size */
 .hd-stack>.front{z-index:2;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
 .hd-stack::after{content:"";position:absolute;left:0;right:0;top:0;bottom:24px;border-radius:22px;background:#A45446;
   transform:translateY(24px) scale(.88) rotate(1.4deg);transform-origin:50% 100%;opacity:.55}   /* the third sheet, deep in the deck */
-.hd-card.back{position:absolute;left:0;right:0;top:0;bottom:24px;z-index:1;transform:translateY(12px) scale(.94) rotate(-1.2deg);transform-origin:50% 100%;
+.hd-card.back{z-index:1;transform:translateY(12px) scale(.94) rotate(-1.2deg);transform-origin:50% 100%;
   box-shadow:0 8px 14px -10px rgba(110,25,15,.6)}
 .hd-card.back>*{opacity:var(--show,0)}
 .hd-card.back.up>*{transition:opacity .25s}
@@ -226,7 +226,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* the card: Shi Shi holds up today's character on a little gold-foil tile; one Learn now bubble */
 .hd-day{min-height:176px}
 .hd-day .hd-txt{margin-top:12px;padding-right:132px}
-.hd-day .hd-big{max-width:200px}
+.hd-day .hd-big{font-size:22px}   /* "A new character is waiting" on two lines, so the card matches the story card */
 .hd-day .hd-meta{margin-top:10px}
 .hd-day .hd-py{font-size:28px}
 .hd-bub{position:relative;display:inline-flex;align-items:center;gap:4px;margin-top:16px;height:46px;padding:0 14px 0 22px;border-radius:23px 23px 6px 23px;
@@ -2447,14 +2447,11 @@ function hdRotate(dir = 1, x = 0) {   // the top card flies off to one side and 
   H.top = H.top === 'story' ? 'hotd' : 'story'; save();
   LOG.add('daily-card-swipe', { top: H.top === 'story' ? 'story' : 'hanzi' });
   if (!front || !back || stillMotion()) { st.outerHTML = HotdStack(); return; }
-  const w = st.offsetWidth, h0 = st.offsetHeight, hb = back.offsetHeight, pad = h0 - front.offsetHeight;
-  back.style.bottom = 'auto'; const nat = back.offsetHeight; back.style.bottom = '';   // its own height once on top
-  const p0 = Math.min(1, Math.abs(x) / (w * .5)), T = { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1.06)', fill: 'forwards' };
+  const w = st.offsetWidth, p0 = Math.min(1, Math.abs(x) / (w * .5)), T = { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1.06)', fill: 'forwards' };
   front.animate([{ transform: `translateX(${x}px) rotate(${x / w * 10}deg)` }, { transform: `translateX(${dir * w * 1.15}px) rotate(${dir * 16}deg)` }],
     { duration: 260, easing: 'cubic-bezier(.4,0,.9,.5)', fill: 'forwards' });
   back.classList.add('up'); back.style.setProperty('--show', 1);
-  back.animate([{ transform: HD_BACK(p0), height: hb + 'px' }, { transform: 'none', height: nat + 'px' }], T);
-  st.animate([{ height: h0 + 'px' }, { height: nat + pad + 'px' }], T).onfinish = () => {
+  back.animate([{ transform: HD_BACK(p0) }, { transform: 'none' }], T).onfinish = () => {
     if (!st.isConnected) return;
     st.outerHTML = HotdStack();
     $('#hdStack .back')?.animate([{ transform: `translateX(${dir * 30}px) translateY(18px) scale(.86) rotate(${dir * 6}deg)`, opacity: 0 }, { transform: HD_BACK(), opacity: 1 }],
@@ -4364,7 +4361,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.77';
+const APP_VERSION = '1.78';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
