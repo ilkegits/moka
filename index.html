@@ -1352,14 +1352,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 
 /* ---------- learn + profile ---------- */
 .learn-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
-.rv-tile{display:flex;align-items:center;gap:14px;width:100%;margin-bottom:26px;padding:12px 12px 12px 14px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
-.rv-tile:active{background:var(--paper-deep);transition:none}
-.rv-shi{flex:none;width:58px;height:58px}
-.rv-shi .shi-face{width:100%;height:100%;display:block}
-.rv-main{flex:1;min-width:0}
-.rv-main b{display:block;font-size:18px;font-weight:700;letter-spacing:-.01em}
-.rv-main small{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
-.rv-go{flex:none;height:42px;padding:0 18px;border-radius:12px;font-size:15px}
 .learn-deck{background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:14px}
 .learn-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 12px}
 .learn-head .deck-name{flex:1}
@@ -1576,8 +1568,6 @@ button.scene-tile:active svg{opacity:.92}
 .bdg.off b{color:var(--ink-2)}
 .bdg-bar{width:70%;height:5px;margin-top:6px;border-radius:3px;background:var(--fill);overflow:hidden}
 .bdg-bar i{display:block;height:100%;background:#E8A33C}
-/* nothing waiting on Learn */
-.rv-tile.calm{cursor:default}
 /* paywall (preview only) */
 .pw-top{display:flex;justify-content:space-between;align-items:center;height:56px;flex:none}
 .pw-tag{padding:5px 10px;border-radius:8px;background:var(--fill);font-size:12.5px;font-weight:700;color:var(--ink-2)}
@@ -2049,7 +2039,7 @@ function render() {
 }
 
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
-const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
+const TABS = [['decks', 'Decks', '#/'], ['learn', 'Lessons', '#/learn'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
   const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? 'learn' : S.view;
@@ -3118,19 +3108,6 @@ function strokeSheet(t) {
     };
   });
 }
-/* Learn: today's review round (every card due from all your decks, plus up to 5 new words a day); hidden when nothing waits */
-function ReviewTile(head) {
-  const P = todayPile(), n = P.cards.length;
-  if (!n) return allItems().length ? `${head('Today’s review', '今日复习', 1)}<div class="rv-tile calm"><span class="rv-shi">${shiFace('cheer')}</span>
-      <span class="rv-main"><b>All caught up</b><small>Nothing to review right now. Read a story or add new words.</small></span>
-      <button class="btn btn-ghost rv-go" data-act="tab" data-h="#/read">Read</button></div>` : '';
-  const mood = shiMood(n), say = { miss: 'Shi Shi is waiting for you', sleep: 'Shi Shi dozed off. One round wakes him up' }[mood];
-  const mix = [P.due.length && `${P.due.length} to review`, P.fresh.length && `${P.fresh.length} new`, `about ${Math.max(1, Math.round(n * 10 / 60))} min`].filter(Boolean).join(' · ');
-  return `${head('Today’s review', '今日复习', 1)}
-    <button class="rv-tile" data-act="today-start"><span class="rv-shi">${shiFace(mood)}</span>
-      <span class="rv-main"><b>${n === 1 ? '1 card' : n + ' cards'} waiting</b><small>${say || mix}</small></span>
-      <span class="btn btn-seal rv-go">Start</span></button>`;
-}
 function LearnView() {
   if (!S.H) loadHsk().then(() => { if (S.view === 'learn') { S.instant = true; render(); } }, () => {});
   const head = (en, zh, top) => `<div class="section-head cal-head"${top ? ' style="margin-top:18px"' : ''}><h2>${en} <span class="cal-zh">${zh}</span></h2></div>`;
@@ -3140,8 +3117,7 @@ function LearnView() {
     : `<p class="learn-none">No words yet. Finish an HSK 1 lesson and its words land here, or <button class="link-btn" data-act="open-hsk" style="padding:0">add words you know</button>.</p>`;
   return `<div class="screen fade-in">
     <div class="top-gap"></div>
-    ${ReviewTile(head)}
-    ${head('HSK course', '课程', !todayPile().cards.length)}
+    ${head('HSK course', '课程', 1)}
     ${CourseBlock()}
     ${head('My word bank', '生词本')}
     <div class="learn-list">${bankBlk}</div>
@@ -5895,7 +5871,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.07';
+const APP_VERSION = '2.08';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
