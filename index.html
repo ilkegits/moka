@@ -168,6 +168,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
 .crs-zh{font-family:var(--hanzi);font-weight:600;font-size:16px;color:var(--seal);margin-left:8px;letter-spacing:.04em}
 .crs-badge{flex:none;padding:5px 9px;border-radius:9px;background:var(--fill);font-size:13px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.crs-sub{display:block;margin-top:6px;font-size:14px;color:var(--muted);line-height:1.35}
 .crs-foot{display:flex;align-items:center;gap:10px;margin-top:12px;min-height:16px}
 .crs-bar{flex:1;height:14px;border-radius:8px;background:var(--fill);overflow:hidden}
 .crs-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#E8A33C,#FFD15C);box-shadow:inset 0 -3px 0 rgba(168,106,12,.25)}
@@ -1577,7 +1578,8 @@ function parse() {
   if (p[0] === 'deck' && p[1] === 'today') return p[2] === 'study' ? { view: 'study', deckId: 'today' } : { view: 'learn', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
-  if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far
+  if (p[0] === 'basics') return { view: 'course', deckId: null, basics: true, part: p[1] || null };
+  if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
@@ -1586,7 +1588,7 @@ function route() {
   closeSheet(true); $('#cheer')?.remove(); closeDrawer(); $('#crop')?.remove();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
-  S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null;
+  S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null; S.cBasics = !!r.basics;
   const d = curDeck();
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) {
     if (S.deckId === 'today') { history.replaceState(history.state, '', '#/learn'); S.view = 'learn'; S.deckId = null; }
@@ -2041,6 +2043,32 @@ const CRS = (() => {
   const bubble = (x, y, w, h, tx, ty, txt, size, col = red) => `<rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2.6}" fill="#fff" stroke="${ln}" stroke-width="3"/><path d="M${x - 8} ${y + h / 2 - 2}L${tx} ${ty}L${x + 8} ${y + h / 2 - 2}" fill="#fff" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><rect x="${x - 7}" y="${y + h / 2 - 5}" width="14" height="5" fill="#fff"/>${hz(x, y + 1, txt, size, 0, col)}`;
 
   const S = {
+    /* Basics: the classroom before HSK 1. Shi Shi points at the four tones chalked on the board; radicals are the toy blocks
+       characters are built from; the panda sits in the front row */
+    0: ['#DE9A30', () => { const chalk = ['', '#FF9A8E', '#FFD86B', '#9BE8BE', '#A6D2F5'];
+      const block = (x, y, ch, fill, r = 0) => `<g transform="rotate(${r} ${x + 17} ${y + 17})"><rect x="${x}" y="${y}" width="34" height="34" rx="5" fill="${fill}" stroke="${ln}" stroke-width="3"/><rect x="${x + 4}" y="${y + 4}" width="26" height="26" rx="3" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>${hz(x + 17, y + 18, ch, 20, 0, ln)}</g>`;
+      return bg('#FFD983', '#EFAA47')
+      + star(26, 92, 5, '#FFF3C4') + star(132, 24, 6, '#FFF3C4') + star(112, 70, 4, '#FFF3C4')
+      /* the 基础 sign on the wall */
+      + `<path d="M64 6V16M48 16L64 6L80 16" fill="none" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><rect x="26" y="16" width="76" height="34" rx="4" fill="${red}" stroke="${ln}" stroke-width="3"/><rect x="31" y="21" width="66" height="24" rx="2" fill="none" stroke="${gold}" stroke-width="2"/>${hz(64, 33.5, '基础', 17, 0, gold)}`
+      /* floor */
+      + `<rect x="-10" y="176" width="380" height="40" fill="#B8763A"/><path d="M-10 176H370" stroke="${ln}" stroke-width="3"/><path d="M40 176L24 210M130 176L126 210M230 176L236 210M320 176L338 210" stroke="#9A5E2A" stroke-width="2.5"/>`
+      /* the chalkboard with the four tones */
+      + `<rect x="152" y="16" width="196" height="122" rx="7" fill="${wood}" stroke="${ln}" stroke-width="3.5"/><rect x="162" y="26" width="176" height="102" rx="3" fill="#2F5D4E" stroke="${ln}" stroke-width="2.5"/>`
+      + `<path d="M172 40H328M172 55H328M172 70H328M172 85H328M172 100H328" stroke="#fff" stroke-opacity=".13" stroke-width="1.5"/>`
+      + [1, 2, 3, 4].map(t => `<path d="${TONE_D[t]}" transform="translate(178 34) scale(1.45 1.1)" fill="none" stroke="${chalk[t]}" stroke-width="4.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`).join('')
+      + ['mā', 'má', 'mǎ', 'mà'].map((s, i) => `<text x="${196 + i * 38}" y="117" font-size="14" font-weight="700" font-family="system-ui,sans-serif" text-anchor="middle" dominant-baseline="central" fill="${chalk[i + 1]}">${s}</text>`).join('')
+      + `<rect x="158" y="136" width="184" height="7" rx="2" fill="${woodD}" stroke="${ln}" stroke-width="2.5"/><rect x="292" y="131" width="16" height="5" rx="2" fill="#fff" stroke="${ln}" stroke-width="1.5"/><rect x="312" y="131" width="12" height="5" rx="2" fill="${chalk[1]}" stroke="${ln}" stroke-width="1.5"/>`
+      /* radical blocks */
+      + block(14, 142, '木', '#FF9A8A') + block(50, 142, '口', '#A6D2F5', 3) + block(31, 108, '氵', '#9BE8BE', -6)
+      /* the panda in the front row */
+      + friend('panda', 330, 168, .27, 4)
+      /* Shi Shi with the pointer */
+      + `<path d="M170 116L214 56" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M170 116L214 56" stroke="${wood}" stroke-width="3.5" stroke-linecap="round"/><circle cx="214" cy="56" r="4" fill="#fff" stroke="${ln}" stroke-width="2"/>`
+      + arm(146, 146, 168, 120) + arm(102, 146, 92, 160)
+      + lion(124, 132, .46, 'cheer')
+      + paw(168, 118, 30) + paw(90, 162, -30); }],
+
     /* HSK 1: first steps. Shi Shi is lost at the village gate (入门, "getting started"), map upside down, signposts every way; Yu Tu waves to help */
     1: ['#35A877', () => bg('#7FD3AE', '#3FAE7E')
       + xcloud(56, 30, .8, '#E6F8EF') + xcloud(300, 22, .6, '#E6F8EF')
@@ -2176,7 +2204,11 @@ function CourseBlock() {
   const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H?.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
   const cur = H ? (lv.find(x => x.n && x.k < x.n) || lv[6]).l : 1;
   const zh = ['', '一级', '二级', '三级', '四级', '五级', '六级', '七至九级'];
-  return `<div class="crs-list">${lv.map(x => {
+  const basics = `<button class="crs" data-act="basics-open" style="--crs:${CRS[0][0]}">
+      <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[0][1]()}</svg></span>
+      <span class="crs-cap"><span class="crs-top"><span class="crs-name">Basics<span class="crs-zh">基础</span></span><span class="crs-badge">4 topics</span></span>
+        <span class="crs-sub">Tones, pinyin, radicals and stroke order</span></span></button>`;
+  return `<div class="crs-list">${basics}${lv.map(x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, far = !x.k && x.l > cur + 2;
     const foot = !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
       : x.k || x.l === cur ? `<span class="crs-bar"><i style="width:${Math.max(4, Math.round(f * 100))}%"></i></span><span class="crs-pct">${Math.floor(f * 100)}%</span>`
@@ -2189,8 +2221,8 @@ function CourseBlock() {
   }).join('')}</div>`;
 }
 /* ---------- HSK 1 course: tap the HSK 1 picture on Learn ----------
-   A hub with the four foundations (tones, pinyin chart, radicals, stroke order) and the lessons path, which is
-   still locked. Routes: #/course/1, #/course/1/tones, /pinyin, /radicals, /strokes. Only HSK 1 has this for now. */
+   HSK levels are lessons only: the HSK 1 page holds the lessons path, still locked. The four foundation topics
+   (tones, pinyin chart, radicals, stroke order) live under Basics instead: #/basics, #/basics/tones, /pinyin, /radicals, /strokes. */
 const C1 = '#35A877';   // HSK 1's own green, the same as its picture card
 const TONE_C = ['var(--muted)', '#E5483F', '#E8A33C', '#2E9E6B', '#3E7FB1'];   // tone colours: 1 red, 2 gold, 3 green, 4 blue
 /* the pitch of each tone on a five-level scale (5 = high): 1 is 55, 2 is 35, 3 is 214, 4 is 51; the light tone is a short mid dot */
@@ -2355,7 +2387,7 @@ const C1_ART = {
 };
 
 const c1Head = title => `<header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">${title}</div><div style="width:42px"></div></header>`;
-const c1Hero = (en, zh, sub) => `<section class="c1-hero"><div class="eyebrow" style="--accent:${C1}">HSK 1 · Foundations</div>
+const c1Hero = (en, zh, sub) => `<section class="c1-hero"><div class="eyebrow" style="--accent:${C1}">Basics</div>
   <h1 class="deck-title">${en} <span class="c1-zh">${zh}</span></h1><p class="muted">${sub}</p></section>`;
 function CourseView() {
   const P = S.cPart;
@@ -2363,21 +2395,31 @@ function CourseView() {
   if (P === 'pinyin') return PinyinView();
   if (P === 'radicals') return RadicalsView();
   if (P === 'strokes') return StrokesView();
+  if (S.cBasics) return BasicsView();
   const L = S.H?.levels[1] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
   const lock = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
   return `<div class="screen fade-in c1">${c1Head('')}
     <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[1][1]()}</svg></div>
     <section class="c1-top"><h1 class="c1-title">HSK 1 <span class="c1-zh">入门</span></h1>
-      <p class="muted">${L.length ? `${L.length} words · ${n} you know. ` : ''}Start with how Chinese sounds and how characters are built.</p></section>
-    <div class="section-head"><h2>Foundations <span class="cal-zh">基础</span></h2></div>
-    <div class="c1-grid">${C1_PARTS.map(([p, en, zh, sub]) => `<button class="c1-tile" data-act="c1-part" data-p="${p}">
-      <span class="c1-art">${C1_ART[p]}</span><span class="c1-cap"><span class="c1-name">${en}<span class="c1-zh">${zh}</span></span><span class="c1-sub">${sub}</span></span></button>`).join('')}</div>
+      ${L.length ? `<p class="muted">${L.length} words · ${n} you know.</p>` : ''}</section>
     <div class="section-head"><h2>Lessons <span class="cal-zh">课</span></h2></div>
     <div class="c1-path" aria-label="Lessons, coming soon">
       ${[0, 1, 2, 3, 4].map(i => `<span class="c1-node" style="--x:${[0, 46, 64, 30, -26][i]}px">${lock}</span>`).join('')}
       <span class="c1-wait">${shiFace('happy')}</span>
-      <div class="c1-soon"><b>Lessons are on the way</b><span>Short lessons with listening, speaking and writing. Start with the foundations above.</span></div>
+      <div class="c1-soon"><b>Lessons are on the way</b><span>Short lessons with listening, speaking and writing. Until then, learn the sounds and strokes in Basics.</span>
+        <button class="link-btn" data-act="basics-open">Go to Basics</button></div>
     </div>
+  </div>`;
+}
+/* Basics: its own card on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
+function BasicsView() {
+  return `<div class="screen fade-in c1">${c1Head('')}
+    <div class="c1-scene" style="--c1:${CRS[0][0]}"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[0][1]()}</svg></div>
+    <section class="c1-top"><h1 class="c1-title">Basics <span class="c1-zh">基础</span></h1>
+      <p class="muted">How Chinese sounds and how characters are built. Good to know before HSK 1.</p></section>
+    <div class="section-head"><h2>Topics <span class="cal-zh">主题</span></h2></div>
+    <div class="c1-grid">${C1_PARTS.map(([p, en, zh, sub]) => `<button class="c1-tile" data-act="c1-part" data-p="${p}">
+      <span class="c1-art">${C1_ART[p]}</span><span class="c1-cap"><span class="c1-name">${en}<span class="c1-zh">${zh}</span></span><span class="c1-sub">${sub}</span></span></button>`).join('')}</div>
   </div>`;
 }
 
@@ -5377,7 +5419,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.93';
+const APP_VERSION = '1.94';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5916,8 +5958,9 @@ const A = {
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
   'c1-open': () => nav('#/course/1'),
-  'c1-part': t => nav('#/course/1/' + t.dataset.p),
-  'c1-back': () => goBack(S.cPart ? '#/course/1' : '#/learn'),
+  'basics-open': () => nav('#/basics'),
+  'c1-part': t => nav('#/basics/' + t.dataset.p),
+  'c1-back': () => goBack(S.cPart ? '#/basics' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
   'c1-rad': t => radSheet(t),
   'c1-char': t => strokeSheet(t),
