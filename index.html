@@ -161,6 +161,30 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
 .name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
 /* Today card: today's cards in one place, Shi Shi on the right shows his mood */
+/* Learn: your progress, Shi Shi's mane fills up as you learn each HSK level */
+.prog-card{display:flex;align-items:center;gap:16px;width:100%;padding:16px;margin-bottom:10px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
+.prog-card:active,.prog-lv:active{background:var(--paper-deep);transition:none}
+.prog-shi{flex:none;width:88px;height:88px}
+.prog-shi .shi-face,.prog-lv .shi-face{width:100%;height:100%;display:block}
+.prog-main{flex:1;min-width:0}
+.prog-main small{display:block;font-size:13px;color:var(--muted)}
+.prog-n{font-family:var(--display);font-size:44px;font-weight:600;line-height:1;margin:2px 0 4px}
+.prog-bar{height:8px;margin-top:9px;border-radius:9px;background:var(--fill);overflow:hidden}
+.prog-bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#E8A33C,#FFD15C)}
+.prog-lvls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:26px}
+.prog-lv{display:flex;flex-direction:column;align-items:center;padding:12px 6px 10px;border-radius:14px;background:var(--card);box-shadow:var(--ring);transition:background .25s}
+.prog-lv .shi-face{width:54px;height:54px;margin-bottom:5px}
+.prog-lv b{font-size:13.5px}
+.prog-lv small{font-size:11.5px;color:var(--muted)}
+.prog-lv.none .shi-face{opacity:.55;filter:grayscale(.6)}
+.group.remind-row{margin:-10px 0 24px}
+.remind-row .list-btn{gap:12px}
+.rem-ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
+.rem-ic svg.i{width:20px;height:20px}
+.rem-t{flex:1}
+.remind-warn{margin:14px 2px 0;padding:10px 12px;border-radius:12px;background:var(--seal-soft);color:var(--seal);font-size:13px;line-height:1.4}
+.soon-line{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:4px 0 8px;border-radius:14px;background:var(--fill);font-size:13.5px;color:var(--ink-2)}
+.soon-line .lesson-seal{width:26px;height:26px;font-size:14px;flex:none}
 .today-card{position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 16px 18px;border-radius:22px;background:var(--seal);color:var(--seal-ink);
   box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
 .today-card::before{content:"";position:absolute;right:-70px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.32),transparent 65%);pointer-events:none}
@@ -579,6 +603,14 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .rpop-py{font-size:13px;color:#F4B5A6;margin-top:1px}
 .rpop-en{font-size:14.5px;line-height:1.35;margin-top:5px}
 .rpop-tag{font-size:11.5px;margin-top:7px;color:#FFD15C;font-weight:600}
+.rpop-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.rpop-say{flex:none;width:34px;height:34px;margin:2px -6px 0 0;border-radius:50%;display:grid;place-items:center;background:rgba(244,238,227,.12);color:var(--paper)}
+.rpop-say svg.i{width:18px;height:18px}
+.rpop-say:active{opacity:.5}
+.rpop-parts{display:flex;flex-direction:column;gap:3px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(244,238,227,.14);font-size:12.5px;color:rgba(244,238,227,.75)}
+.rpop-parts b{font-family:var(--hanzi);font-weight:600;font-size:15px;color:var(--paper);margin-right:7px}
+.rpop-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:36px;margin-top:9px;border-radius:9px;background:var(--seal);color:var(--seal-ink);font-size:13.5px;font-weight:700}
+.rpop-add svg.i{width:15px;height:15px;stroke-width:2.4}
 
 /* ---------- small photo in the top bar + side menu ---------- */
 .av{justify-self:center;width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--card);color:var(--line-2);
@@ -810,6 +842,8 @@ const I = {
   profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
   camera: ic('<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.5"/>'),
   read: ic('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5"/>'),
+  sound: ic('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+  bell: ic('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
 };
 /* filled versions, shown on the active tab */
 const icOn = p => `<svg class="i i-on" viewBox="0 0 24 24">${p}</svg>`;
@@ -1031,8 +1065,21 @@ const SYNC = (() => {
   document.addEventListener('visibilitychange', () => send());
   setInterval(() => { if (document.visibilityState === 'visible') send(); }, EVERY);
   addEventListener('online', () => send());
+  // write any small file into the private repo (the reminder note); remembers each file's version so updates go through
+  async function put(p, text, msg) {
+    if (!st.key || !navigator.onLine) return false;
+    const shas = st.shas ||= {}, url = API + p, body = v => JSON.stringify({ message: msg, content: b64(text), sha: v });
+    const now = async () => { const r = await fetch(url, { headers: head(), cache: 'no-store' }); if (r.status === 404) return undefined; if (!r.ok) throw r; return (await r.json()).sha; };
+    try {
+      if (!(p in shas)) shas[p] = await now();
+      let r = await fetch(url, { method: 'PUT', headers: head(), body: body(shas[p]) });
+      if (r.status === 409 || r.status === 422) { shas[p] = await now(); r = await fetch(url, { method: 'PUT', headers: head(), body: body(shas[p]) }); }
+      if (!r.ok) throw r;
+      shas[p] = (await r.json()).content.sha; keep(); return true;
+    } catch (_) { delete shas[p]; keep(); return false; }
+  }
   return {
-    get on() { return !!st.key; }, get err() { return st.err; }, get sentAt() { return st.sentAt; }, send,
+    get on() { return !!st.key; }, get err() { return st.err; }, get sentAt() { return st.sentAt; }, get id() { return st.id; }, send, put,
     pairUrl: () => st.key && `https://ilkegits.github.io/moka/#pair=${encodeURIComponent(st.key)}`,
     async connect(key) { Object.assign(st, { key, sha: undefined, sentT: null, err: '' }); keep(); return send(true); },
     off() { delete st.key; st.sha = undefined; st.err = ''; keep(); },
@@ -1170,7 +1217,9 @@ const SCENE = {
 /* Shi Shi's head (icons/logo.svg) with a face for each mood: happy, cheer (just practised), miss (evening, not practised
    yet), sleep (two days or more away) */
 const MANE = [[100, 44], [124.3, 49.5], [143.8, 65.1], [154.6, 87.5], [154.6, 112.5], [143.8, 134.9], [124.3, 150.5], [100, 156], [75.7, 150.5], [56.2, 134.9], [45.4, 112.5], [45.4, 87.5], [56.2, 65.1], [75.7, 49.5]];
-function shiFace(mood) {
+function shiFace(mood, fill = 1) {
+  const lit = new Set([7, 8, 6, 9, 5, 10, 4, 11, 3, 12, 2, 13, 1, 0].slice(0, Math.round(Math.max(0, Math.min(1, fill)) * 14)));   // bottom first
+  const mf = i => lit.has(i) ? '#FFD15C' : '#EFE6D6', ms = i => lit.has(i) ? '#A86A0C' : '#CDBFA8';
   const brow = d => `<path d="${d}" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`;
   const eye = x => `<ellipse cx="${x}" cy="94" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="${x - 2.4}" cy="90.5" r="3.1" fill="#fff"/><circle cx="${x + 2.5}" cy="97" r="1.4" fill="#fff"/>`;
   const arc = (x, up) => `<path d="M${x - 9} ${up ? 96 : 92}Q${x} ${up ? 84 : 102} ${x + 9} ${up ? 96 : 92}" fill="none" stroke="#2A0E0C" stroke-width="5" stroke-linecap="round"/>`;
@@ -1182,8 +1231,8 @@ function shiFace(mood) {
     sleep: [brow('M63 78Q76 74 90 78') + brow('M137 78Q124 74 110 78'), arc(76, 0) + arc(124, 0), '<ellipse cx="100" cy="125" rx="5" ry="6" fill="#7E1D19"/>'],
   }[mood] || [];
   return `<svg class="shi-face" viewBox="21 21 158 158" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
-    + MANE.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/>`).join('')
-    + MANE.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="17" fill="#FFD15C"/>`).join('')
+    + MANE.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="17" fill="${mf(i)}" stroke="${ms(i)}" stroke-width="8"/>`).join('')
+    + MANE.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="17" fill="${mf(i)}"/>`).join('')
     + '<circle cx="100" cy="100" r="50" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><path d="M60 116Q56 130 66 138M140 116Q144 130 134 138" fill="none" stroke="#FFD15C" stroke-width="4" stroke-linecap="round"/>'
     + '<path d="M91 56Q100 22 109 56Z" fill="#F4C14E" stroke="#A86A0C" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="64" r="7" fill="#D8F2FF" stroke="#A86A0C" stroke-width="3.5"/>'
     + face[0] + '<ellipse cx="60" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/><ellipse cx="140" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/>'
@@ -1216,7 +1265,30 @@ function decksSheet() {
           : `<button class="btn btn-ghost wide" data-act="open-deck" data-id="${d.id}">${I.plus}Add cards</button>`}</div></div>`;
     }).join('')}</div>`);
 }
+/* what you know: the words in your word bank (you told the app you know them) and the cards you answered Knew it
+   enough times; per HSK level, how much of the level that covers */
+function knownWords() {
+  const k = new Set(db.bank.map(w => w.hanzi));
+  for (const d of db.decks) for (const c of d.cards) if (isKnown(c)) k.add(c.hanzi);
+  return k;
+}
+function ProgressBlock() {
+  const k = knownWords(), H = S.H;
+  if (!H) return `<div class="prog-card"><div class="prog-shi">${shiFace('happy', Math.min(1, k.size / 150))}</div>
+    <div class="prog-main"><small>Words you know</small><div class="prog-n">${k.size}</div><small>Loading HSK levels…</small></div></div>`;
+  const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
+  const cur = lv.find(x => x.n && x.k / x.n < 1) || lv[lv.length - 1], frac = cur.n ? cur.k / cur.n : 0;
+  const show = lv.slice(Math.max(0, Math.min(cur.l - 1, lv.length - 3)), Math.max(0, Math.min(cur.l - 1, lv.length - 3)) + 3);
+  return `<button class="prog-card" data-act="hsk-level" data-lv="${cur.l}"><div class="prog-shi">${shiFace(frac >= 1 ? 'cheer' : 'happy', frac)}</div>
+      <div class="prog-main"><small>Words you know</small><div class="prog-n">${k.size.toLocaleString('en')}</div>
+        <small>${HSK_NAME(cur.l)} · ${cur.k} of ${cur.n.toLocaleString('en')}</small>
+        <div class="prog-bar"><i style="width:${Math.max(frac ? 3 : 0, Math.round(frac * 100))}%"></i></div></div></button>
+    <div class="prog-lvls">${show.map(x => { const f = x.n ? x.k / x.n : 0;
+      return `<button class="prog-lv${f ? '' : ' none'}" data-act="hsk-level" data-lv="${x.l}">${shiFace(f >= 1 ? 'cheer' : f ? 'happy' : 'sleep', f)}
+        <b>${HSK_NAME(x.l)}</b><small>${f ? Math.max(1, Math.floor(f * 100)) + '%' : 'not started'}</small></button>`; }).join('')}</div>`;
+}
 function LearnView() {
+  if (!S.H) loadHsk().then(() => { if (S.view === 'learn') { S.instant = true; render(); } }, () => {});
   const head = (en, zh, top) => `<div class="section-head cal-head"${top ? ' style="margin-top:18px"' : ''}><h2>${en} <span class="cal-zh">${zh}</span></h2></div>`;
   const bankBlk = db.bank.length ? `<button class="scene-tile" data-act="practise-bank" style="--accent:var(--seal)">${SCENE.bank}
       <span class="scene-cap"><span class="deck-name">Word bank</span><span class="deck-count">${plural(db.bank.length, 'word')}</span>
@@ -1224,9 +1296,8 @@ function LearnView() {
     : `<p class="learn-none">No words yet. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>`;
   return `<div class="screen fade-in">
     <header class="bar"><h1 class="bar-head">Learn <span class="bar-zh">学习</span></h1></header>
-    ${head('Lessons', '课程', 1)}
-    <div class="learn-list"><div class="scene-tile">${SCENE.lessons}<div class="lesson-soon"><span class="seal lesson-seal">课</span>
-      <span><b>Lessons are on their way</b><small>Short guided lessons will live here</small></span></div></div></div>
+    ${head('Your progress', '进度', 1)}
+    ${ProgressBlock()}
     ${head('My word bank', '生词本')}
     <div class="learn-list">${bankBlk}</div>
     ${head('My decks', '卡组')}
@@ -1235,6 +1306,7 @@ function LearnView() {
           <span class="scene-go">Practise${I.chev}</span></span></button>`
       : `<button class="scene-tile" data-act="tab" data-h="#/" style="--accent:var(--seal)">${deckScene()}
           <span class="scene-cap"><span class="deck-count">Make a deck first</span><span class="scene-go">Go to decks${I.chev}</span></span></button>`}</div>
+    <div class="soon-line"><span class="seal lesson-seal">课</span>Guided lessons are coming soon</div>
   </div>`;
 }
 
@@ -1330,6 +1402,81 @@ function calDaySheet(d) {
         <span class="row-s">finished at ${clock(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>` : ''}
     ${words.length || decks.length || stories.length ? '' : '<p class="muted" style="text-align:center;margin:18px 0 8px">Nothing on this day yet.</p>'}`);
 }
+/* ---------- daily reminder ----------
+   One phone notification a day from Shi Shi, at the hour you pick, only on days you have not practised yet.
+   The phone signs up for notifications (Web Push) and keeps a small note in the private log repo, using the same GitHub
+   key as "Send to Claude automatically": the hour, your time zone, the last day you practised, your streak and today's
+   cards. A scheduled job in that repo (tools/reminder) reads the notes each evening and sends the notification. */
+const VAPID_PUBLIC = 'BJFtvhnmPjbmCKuNAWAeND3wSUP8eRUeAm1C-IeRYLCtXiXq0IU4_dnZJtV4k0Rv42RTRUuk_UF5YTOXMTCY7pk';
+const REMIND_HOURS = [17, 18, 19, 20, 21, 22];
+const isoDay = t => { const d = new Date(t); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
+function remindNote() {
+  const r = db.prefs.remind; if (!r?.sub) return null;
+  let last = 0;
+  for (const k of practiceDays()) { const [y, m, d] = k.split('-').map(Number), t = new Date(y, m, d).getTime(); if (t > last) last = t; }
+  return JSON.stringify({ on: !!r.on, hour: r.hour, tz: Intl.DateTimeFormat().resolvedOptions().timeZone, sub: r.sub,
+    done: last ? isoDay(last) : null, streak: practiceStreak().n, waiting: todayPile().cards.length, waitingDay: isoDay(Date.now()), app: APP_VERSION }, null, 1);
+}
+async function remindSync(force) {   // send the note when it changed (after practice, when you leave the app)
+  const note = remindNote(); if (!note || !SYNC.on) return false;
+  let lastNote = null; try { lastNote = localStorage.getItem('shicards.remindNote'); } catch (_) {}
+  if (!force && note === lastNote) return true;
+  const ok = await SYNC.put(`remind/${SYNC.id}.json`, note, `reminder note · ${db.prefs.remind.on ? db.prefs.remind.hour + ':00' : 'off'}`);
+  if (ok) try { localStorage.setItem('shicards.remindNote', note); } catch (_) {}
+  return ok;
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') remindSync(); });
+const b64uBytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function remindSet(on, hour) {
+  const r = db.prefs.remind || {};
+  hour = hour || r.hour || 19;
+  if (on && !r.sub) {
+    if (!('PushManager' in window) || !('Notification' in window)) { toast('This phone can’t show reminders from the app'); return false; }
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (!reg) { toast('Reminders work in the installed app'); return false; }
+    if (await Notification.requestPermission() !== 'granted') { toast('Notifications are off for ShiCards. Allow them in the phone settings'); return false; }
+    try {
+      const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(VAPID_PUBLIC) });
+      r.sub = sub.toJSON();
+    } catch (_) { toast('Couldn’t switch on notifications. Try again online'); return false; }
+  }
+  db.prefs.remind = Object.assign(r, { on, hour }); save();
+  LOG.add('reminder', { on, hour });
+  const ok = await remindSync(true);
+  toast(on ? (ok ? `Shi Shi will remind you at ${hour}:00` : 'Saved. It reaches Shi Shi once you’re online') : 'Reminder off');
+  return true;
+}
+function remindLine() {
+  const r = db.prefs.remind;
+  return r?.on ? `Every day at ${r.hour}:00 if you haven’t practised` : 'Off · Shi Shi can nudge you once a day';
+}
+function remindSheet() {
+  const r = db.prefs.remind || {}, hour = r.hour || 19;
+  openSheet(`<h3>Daily reminder</h3><p class="muted" style="margin:-6px 0 16px;text-align:center">One notification from Shi Shi at the time you pick. Skipped on days you already practised.</p>
+    <div class="group"><button class="list-btn" id="rOn"><span>Remind me<br><small id="rSub">${remindLine()}</small></span><span class="switch ${r.on ? 'on' : ''}"></span></button></div>
+    <div class="day-h" style="margin-top:18px">Time</div>
+    <div class="chips" id="rHr">${REMIND_HOURS.map(h => `<button class="chip${h === hour ? ' on' : ''}" data-h="${h}">${h}:00</button>`).join('')}</div>
+    ${SYNC.on ? '' : '<p class="remind-warn">First switch on “Send to Claude automatically” in Menu › Activity log. The reminder uses the same key to reach Shi Shi’s server.</p>'}
+    <p class="muted" style="font-size:12.5px;margin:16px 2px 0">It can arrive up to about half an hour late. Turn it off here any time.</p>`,
+  sh => {
+    const sw = sh.querySelector('#rOn .switch'), sub = sh.querySelector('#rSub'), hrs = sh.querySelector('#rHr');
+    let busy = false;
+    sh.querySelector('#rOn').onclick = async () => {
+      if (busy) return; busy = true;
+      const want = !db.prefs.remind?.on, sel = +hrs.querySelector('.on')?.dataset.h || 19;
+      if (want && !SYNC.on) { toast('Switch on “Send to Claude automatically” first'); busy = false; return; }
+      await remindSet(want, sel);
+      sw.classList.toggle('on', !!db.prefs.remind?.on); sub.textContent = remindLine(); busy = false;
+      const row = $('#remRow small'); if (row) row.textContent = remindLine();
+    };
+    hrs.onclick = async e => {
+      const b = e.target.closest('[data-h]'); if (!b) return;
+      hrs.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
+      if (db.prefs.remind?.on) { await remindSet(true, +b.dataset.h); sub.textContent = remindLine(); const row = $('#remRow small'); if (row) row.textContent = remindLine(); }
+      else if (db.prefs.remind) { db.prefs.remind.hour = +b.dataset.h; save(); }
+    };
+  });
+}
 function ProfileView() {
   const cards = db.decks.flatMap(d => d.cards);
   const hist = cards.flatMap(c => c.hist || []);
@@ -1344,6 +1491,7 @@ function ProfileView() {
       <div class="me-sub">So ShiCards can greet you · stays on this phone</div>
     </section>
     ${MonthCal()}
+    <div class="group remind-row"><button class="list-btn" id="remRow" data-act="remind"><span class="rem-ic">${I.bell}</span><span class="rem-t">Daily reminder<br><small>${remindLine()}</small></span><span class="side">${I.chev}</span></button></div>
     <div class="section-head"><h2>Your progress</h2></div>
     <div class="stats">
       <div class="stat"><b>${db.decks.length}</b><span>${db.decks.length === 1 ? 'Deck' : 'Decks'}</span></div>
@@ -1777,9 +1925,14 @@ function readPop(t) {
   closeReadPop();
   if (was) return;   // tapping the same word again closes it
   t.classList.add('hl');
-  const story = t.closest('.story'), b = bankHas(w.h);
+  const story = t.closest('.story'), b = bankHas(w.h), en = readMeaning(w.h);
+  const chars = [...new Set(hanChars(w.h))].map(c => [c, readMeaning(c)]).filter(x => x[1]);   // each character once, only the ones with a meaning
+  const parts = hanChars(w.h).length > 1 && chars.length ? `<div class="rpop-parts">${chars.map(([c, m]) => `<span><b>${esc(c)}</b>${esc(m)}</span>`).join('')}</div>` : '';
   const pop = document.createElement('div'); pop.className = 'rpop';
-  pop.innerHTML = `<div class="rpop-hz">${esc(w.h)}</div><div class="rpop-py">${esc(w.p)}</div><div class="rpop-en">${esc(readMeaning(w.h)) || '<span class="muted">No meaning found</span>'}</div>${b ? '<div class="rpop-tag">In your word bank</div>' : ''}`;
+  pop.innerHTML = `<div class="rpop-top"><div><div class="rpop-hz">${esc(w.h)}</div><div class="rpop-py">${esc(w.p)}</div></div>
+      ${'speechSynthesis' in window ? `<button class="rpop-say" data-act="say" data-h="${esc(w.h)}" aria-label="Say it">${I.sound}</button>` : ''}</div>
+    <div class="rpop-en">${esc(en) || '<span class="muted">No meaning found</span>'}</div>${parts}
+    ${b ? '<div class="rpop-tag">In your word bank</div>' : HAN.test(w.h) ? `<button class="rpop-add" data-act="rpop-add" data-k="${t.dataset.k}">${I.plus}Add to my words</button>` : ''}`;
   story.appendChild(pop);
   const sr = story.getBoundingClientRect(), wr = t.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
   const left = Math.max(8, Math.min(sr.width - pw - 8, wr.left - sr.left + wr.width / 2 - pw / 2));
@@ -1791,7 +1944,33 @@ function readPop(t) {
   LOG.add('read-word', { hz: w.h, mine: !!b });
 }
 function closeReadPop() { $$('.rpop').forEach(p => p.remove()); $$('.rw.hl').forEach(x => x.classList.remove('hl')); }
-document.addEventListener('click', e => { if (S.view === 'read' && !e.target.closest?.('.rw,.rpop')) closeReadPop(); });
+document.addEventListener('click', e => {
+  if (S.view !== 'read' || e.target.closest?.('.rw,.rpop')) return;
+  const line = e.target.closest?.('.story-line');   // a tap between words or after the last one opens the nearest word
+  if (line) {
+    let best = null, bd = Infinity;
+    for (const w of line.querySelectorAll('.rw')) {
+      const r = w.getBoundingClientRect(), dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right), dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom), d = dx + dy * 3;
+      if (d < bd) { bd = d; best = w; }
+    }
+    if (best && bd < 60) { readPop(best); return; }
+  }
+  closeReadPop();
+});
+function sayZh(text) {
+  try {
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'zh-CN'; u.rate = .85;
+    const v = speechSynthesis.getVoices().find(v => /^zh[-_](CN|Hans)/i.test(v.lang)); if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (_) {}
+}
+function addReadWord(t) {   // "Add to my words" in the word bubble
+  const [li, wi] = t.dataset.k.split('.').map(Number), s = readStory(), w = s && storyTokens(s)[li]?.[wi]; if (!w || bankHas(w.h)) return;
+  db.bank.unshift({ id: uid(), hanzi: w.h, pinyin: w.p, en: readMeaning(w.h), added: Date.now(), hsk: S.H ? S.H.byHz.get(w.h)?.lv || 0 : undefined }); save();
+  LOG.add('read-add', { hz: w.h });
+  t.outerHTML = '<div class="rpop-tag">Added to your word bank ✓</div>';
+  $$('.rw').forEach(x => { const [a, b] = x.dataset.k.split('.').map(Number); if (storyTokens(s)[a]?.[b]?.h === w.h) x.classList.add('mine'); });
+}
 
 function greeting() {
   const h = new Date().getHours();
@@ -2099,6 +2278,7 @@ function stepCard(dir) {
   showGrades(false);
   const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
   out.onfinish = () => {
+    if (!$("#card3d")) return;   // the round was closed while the card was flying out
     st.i = ni;
     $('#card3d').innerHTML = Faces(cardById(d, st.order[st.i]), d);
     st.angle = startAngle(); setAngle(false);
@@ -3343,7 +3523,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.50';
+const APP_VERSION = '1.51';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -3422,7 +3602,7 @@ function settingsSheet() {
       };
       sh.querySelector('#sImp').onchange = async e => {
         const f = e.target.files[0]; if (!f) return;
-        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze); save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
         catch (_) { toast('That file isn’t a ShiCards backup'); }
       };
     });
@@ -3454,6 +3634,9 @@ const A = {
   'dr-photo': () => { closeDrawer(); pickPhoto(); },
   'dr-settings': () => { closeDrawer(); setTimeout(settingsSheet, 120); },
   'rw': t => readPop(t),
+  'remind': () => remindSheet(),
+  'say': t => sayZh(t.dataset.h),
+  'rpop-add': t => addReadWord(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
   'read-start': () => { if (!db.readCur) return; db.readCur.opened = Date.now(); db.last = { t: 'read' }; save(); LOG.add('read-start', db.readCur.zh); render(); },
