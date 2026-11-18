@@ -2214,10 +2214,6 @@ const TONE_RULES = [
 
 /* pinyin: every syllable of Mandarin, by its first sound (initial) and its ending (final) */
 const PY_INI = ['', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'];
-const PY_FIN = ['a', 'o', 'e', '-i', 'er', 'ai', 'ei', 'ao', 'ou', 'an', 'en', 'ang', 'eng', 'ong',
-  'i', 'ia', 'iao', 'ie', 'iu', 'ian', 'in', 'iang', 'ing', 'iong',
-  'u', 'ua', 'uo', 'uai', 'ui', 'uan', 'un', 'uang', 'ueng', 'ü', 'üe', 'üan', 'ün'];
-const PY_FAM = f => f[0] === 'ü' ? 3 : f[0] === 'u' ? 2 : f[0] === 'i' ? 1 : 0;   // the a, i, u and ü families of finals
 const PY_SYL = {
   '': 'a o e er ai ei ao ou an en ang eng yi ya yao ye you yan yin yang ying yong wu wa wo wai wei wan wen wang weng yu yue yuan yun',
   b: 'ba bo bai bei bao ban ben bang beng bi biao bie bian bin bing bu',
@@ -5381,7 +5377,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.90';
+const APP_VERSION = '1.91';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
