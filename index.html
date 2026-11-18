@@ -18,9 +18,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@1,2&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=chillax@700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
 <style>
@@ -35,7 +35,7 @@
   --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 18px 36px -18px rgba(70,45,20,.35), 0 3px 8px -4px rgba(70,45,20,.18);
   --shadow-sm:0 1px 0 rgba(255,255,255,.7) inset, 0 6px 16px -10px rgba(70,45,20,.35);
   --hanzi:"Noto Serif SC","Songti SC","STSong",serif;
-  --display:"Cormorant Garamond",Georgia,serif;
+  --display:"Chillax",var(--ui);
   --ui:"PyMarks","Satoshi",system-ui,-apple-system,sans-serif;   /* PyMarks: only ǖ ǘ ǚ ǜ, which Satoshi lacks */
   --r:16px;
   --fill:rgba(120,95,60,.11);         /* grey fill for secondary buttons, search, segmented controls */
@@ -505,7 +505,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .done-py{color:var(--muted);font-size:14.5px}
 .done-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 14px}
 .done-stats div{background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:12px 6px;text-align:center}
-.done-stats b{display:block;font-family:"Chillax",var(--ui);font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.done-stats b{display:block;font-family:var(--display);font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .done-stats span{font-size:12px;color:var(--muted)}
 .done-stats .fl b{color:#E8742C}
 .done-words{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:14px}
@@ -1134,39 +1134,32 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ear-shi{width:84px;height:84px}
 .ear-shi .shi-face{width:100%;height:100%;display:block}
 
-/* pinyin chart: initials down the side, finals across the top; both stay put while you scroll */
-.py-key{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 2px 10px;font-size:12.5px;font-weight:600}
-.py-key span:not(.py-key-hint){padding:3px 8px;border-radius:7px}
-.py-key-hint{margin-left:auto;color:var(--muted);font-weight:500}
-.f1{background:color-mix(in srgb,#E8A33C 16%,var(--card))}
-.f2{background:color-mix(in srgb,#3E7FB1 13%,var(--card))}
-.f3{background:color-mix(in srgb,#E5483F 11%,var(--card))}
-.py-wrap{margin:0 -20px;max-height:min(64vh,560px);overflow:auto;overscroll-behavior:contain;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper)}
-.py-grid{display:grid;grid-template-columns:40px repeat(var(--cols),50px);width:max-content}
-.py-c{height:40px;display:grid;place-items:center;font-size:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-.py-c.f0{background:var(--card)}
-.py-c.py-x{background:var(--paper)}   /* no such syllable: an empty square, so the real ones stand out */
-.py-s{font-weight:600;color:var(--ink)}
-.py-s:active{background:var(--seal);color:var(--seal-ink)}
-.py-h,.py-ini,.py-corner{position:sticky;z-index:1;font-weight:800;font-size:13px;color:var(--ink-2)}
+/* pinyin chart: endings down the side, starting sounds across the top (both stay put while you scroll); white boxes on a grid */
+.py-search{margin-bottom:12px}
+.py-wrap{position:relative;margin:0 -20px;max-height:min(64vh,560px);overflow:auto;overscroll-behavior:contain;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}
+.py-grid{display:grid;grid-template-columns:48px repeat(var(--cols),54px);width:max-content}
+.py-c{height:38px;display:grid;place-items:center;font-size:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}
+.py-s{color:var(--ink);transition:background .15s}
+.py-s:active,.py-s.on{background:var(--c1);color:#fff;font-weight:700}
+.py-h,.py-ini,.py-corner{position:sticky;z-index:1;font-weight:700;font-size:13.5px;background:var(--c1);color:#fff;border-color:color-mix(in srgb,#fff 25%,var(--c1))}
 .py-h{top:0}
-.py-h.f0{background:var(--card-2)}
-.py-ini,.py-corner{left:0;background:var(--card-2);color:var(--seal)}
+.py-ini,.py-corner{left:0}
 .py-corner{top:0;z-index:2}
+.py-credit{margin:8px 2px 0;font-size:12px;color:var(--muted)}
+.py-pop{position:absolute;z-index:3;width:272px;padding:10px 10px 12px 14px;border-radius:14px;background:var(--card);
+  box-shadow:0 0 0 1px rgba(120,95,60,.14),0 12px 28px -10px rgba(70,45,20,.35)}
+.py-pop[hidden]{display:none}
+.pyp-top{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.pyp-top b{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.pyp-top span{flex:1;font-size:13px;color:var(--muted)}
+.pyp-x{align-self:center;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);background:var(--fill)}
+.pyp-x svg.i{width:15px;height:15px}
+.pyp-tones{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pyp-t{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;border-radius:11px;background:var(--fill);font-weight:800;font-size:17px;color:var(--tc)}
+.pyp-t svg.i{width:15px;height:15px}
+.pyp-t:active{background:var(--tc);color:#fff}
+.pyp-note{margin:10px 0 0;font-size:12.5px;line-height:1.4;color:var(--ink-2)}
 .py-tk{flex:none;width:34px;font-weight:800;font-size:18px;color:var(--seal)}
-.pys-top{text-align:center;margin-bottom:16px}
-.pys-big{font-weight:800;font-size:46px;letter-spacing:-.02em;line-height:1.05}
-.pys-top .muted{font-size:13.5px;margin-top:4px}
-.pys-note{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--seal-soft);font-size:13.5px;line-height:1.4}
-.pys-list{display:flex;flex-direction:column;gap:8px}
-.pys-row{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px 12px;border-radius:14px;background:var(--card);box-shadow:var(--ring);text-align:left}
-.pys-row:not(:disabled):active{box-shadow:0 0 0 2.5px var(--tc)}
-.pys-row:disabled{opacity:.6}
-.pys-row .tone-svg{flex:none;width:48px;height:29px}
-.pys-row .tone-line{stroke-width:7}
-.pys-py{flex:none;min-width:62px;font-weight:800;font-size:21px;color:var(--tc)}
-.pys-hz{flex:none;font-family:var(--hanzi);font-size:24px;font-weight:600}
-.pys-en{flex:1;min-width:0;font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* radicals: a dictionary page, grouped by stroke count like a paper radical index */
 .rad-sec{margin-bottom:18px}
@@ -2278,13 +2271,37 @@ function loadPy() {
     return PYM;
   }).catch(e => { pyP = null; throw e; });
 }
-const PY_TRICKY = [
-  ['q', '七', 'qī', 'like “ch” in cheese'], ['x', '西', 'xī', 'like “sh” in sheep'], ['j', '几', 'jǐ', 'like “j” in jeep'],
-  ['zh', '中', 'zhōng', 'like “j” in jump, tongue curled back'], ['ch', '吃', 'chī', 'like “ch” in church, tongue curled back'],
-  ['sh', '是', 'shì', 'like “sh” in shirt, tongue curled back'], ['r', '人', 'rén', 'between “r” in run and “s” in measure'],
-  ['z', '字', 'zì', 'like “ds” in kids'], ['c', '菜', 'cài', 'like “ts” in cats, with a puff of air'],
-  ['ü', '女', 'nǚ', 'say “ee”, then round your lips'], ['e', '饿', 'è', 'like “uh” in duh'],
-  ['-i', '四', 'sì', 'after z, c, s, zh, ch, sh, r: a buzz, not “ee”'],
+/* recorded syllables: every syllable in every tone, spoken by Chen Wang (audio-cmn, CC BY-SA), one small mp3 each from jsDelivr.
+   Played through Web Audio: a plain fetch, so the offline helper keeps each sound after its first play. */
+const PY_AUDIO = 'https://cdn.jsdelivr.net/gh/hugolpz/audio-cmn@f759a0f18f27690742957619e1248ed91e9b3f2c/64k/syllabs/cmn-';
+let AC = null, pySrc = null;
+const acx = () => { AC ||= new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); return AC; };
+const pyBuf = new Map();
+function playPy(s, t) {
+  let ctx; try { ctx = acx(); } catch (_) { return; }
+  let k = s.replace(/ü/g, 'v') + t; if (k === 'ju4') k = 'jv4';   // the set saves this one file under jv4
+  if (!pyBuf.has(k)) pyBuf.set(k, fetch(PY_AUDIO + k + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+    .then(b => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej))).catch(e => { pyBuf.delete(k); throw e; }));
+  pyBuf.get(k).then(buf => { try { pySrc?.stop(); } catch (_) {} pySrc = ctx.createBufferSource(); pySrc.buffer = buf; pySrc.connect(ctx.destination); pySrc.start(); },
+    () => toast('The sounds need the internet the first time'));
+}
+/* the right-answer chime: two quick bell notes going up (A5 then E6), each with a little shimmer on top */
+function chime() {
+  try { const c = acx(), t = c.currentTime + .01;
+    for (const [f, d] of [[880, 0], [1318.5, .1]]) for (const [m, g] of [[1, .24], [2, .06], [3, .025]]) {
+      const o = c.createOscillator(), v = c.createGain(); o.type = 'sine'; o.frequency.value = f * m;
+      v.gain.setValueAtTime(0, t + d); v.gain.linearRampToValueAtTime(g, t + d + .008); v.gain.exponentialRampToValueAtTime(.0001, t + d + .5);
+      o.connect(v).connect(c.destination); o.start(t + d); o.stop(t + d + .55);
+    }
+  } catch (_) {}
+}
+const PY_TRICKY = [   // [letter, syllable, tone, how to say it]
+  ['q', 'qi', 1, 'like “ch” in cheese'], ['x', 'xi', 1, 'like “sh” in sheep'], ['j', 'ji', 3, 'like “j” in jeep'],
+  ['zh', 'zhong', 1, 'like “j” in jump, tongue curled back'], ['ch', 'chi', 1, 'like “ch” in church, tongue curled back'],
+  ['sh', 'shi', 4, 'like “sh” in shirt, tongue curled back'], ['r', 'ren', 2, 'between “r” in run and “s” in measure'],
+  ['z', 'zi', 4, 'like “ds” in kids'], ['c', 'cai', 4, 'like “ts” in cats, with a puff of air'],
+  ['ü', 'nü', 3, 'say “ee”, then round your lips'], ['e', 'e', 4, 'like “uh” in duh'],
+  ['-i', 'si', 4, 'after z, c, s, zh, ch, sh, r: a buzz, not “ee”'],
 ];
 
 /* radicals: the building blocks inside characters, by stroke count, each with characters that contain it */
@@ -2415,7 +2432,7 @@ function mountTones() {
       }, () => toast('The ear test needs the internet the first time'));
     } else if (k === 'play') play();
     else if (k === 'next') { S.ear.i++; S.ear.ans = null; paint(); if (S.ear.i < S.ear.q.length) play(); else LOG.add('c1-ear', { right: S.ear.right }); }
-    else { const t = +k; S.ear.ans = t; if (t === S.ear.q[S.ear.i].t) S.ear.right++; paint(); }
+    else { const t = +k; S.ear.ans = t; if (t === S.ear.q[S.ear.i].t) { S.ear.right++; chime(); } paint(); }
   };
 }
 function playTone(t) {
@@ -2425,37 +2442,64 @@ function playTone(t) {
   $$('.tone-card').forEach(c => c.classList.toggle('on', +c.dataset.t === t));
 }
 
+/* the chart, laid out like Yoyo Chinese's: endings down the side, starting sounds across the top, a search box above.
+   Tap a box and a small card opens beside it with the four tones; each one plays a recording. */
+const PY_ROWS = ['-i', 'a', 'ai', 'an', 'ang', 'ao', 'e', 'ei', 'en', 'eng', 'er', 'i', 'ia', 'ian', 'iang', 'iao', 'ie', 'in', 'ing', 'iong', 'iu',
+  'o', 'ong', 'ou', 'u', 'ua', 'uai', 'uan', 'uang', 'ui', 'un', 'ueng', 'uo', 'ü', 'üan', 'üe', 'ün'];
+const PY_COLS = ['', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'z', 'c', 's', 'zh', 'ch', 'sh', 'r'];
+const PY_FULL = { iu: 'iou', ui: 'uei', un: 'uen' };   // the endings' full names, as charts list them
 function PinyinView() {
-  const fam = ['', 'i', 'u', 'ü'];
-  const head = `<div class="py-c py-corner"></div>` + PY_FIN.map(f => `<div class="py-c py-h f${PY_FAM(f)}">${f}</div>`).join('');
-  const rows = PY_INI.map(ini => `<div class="py-c py-ini">${ini || '–'}</div>` + PY_FIN.map(f => {
+  const head = `<div class="py-c py-corner"></div>` + PY_COLS.map(c => `<div class="py-c py-h">${c}</div>`).join('');
+  const rows = PY_ROWS.map(f => `<div class="py-c py-ini">${PY_FULL[f] || f}</div>` + PY_COLS.map(ini => {
     const s = PY_GRID.get(ini + '|' + f);
-    return s ? `<button class="py-c py-s f${PY_FAM(f)}" data-act="c1-py" data-s="${s}" data-i="${ini}" data-f="${f}">${s}</button>` : `<div class="py-c py-x f${PY_FAM(f)}"></div>`;
+    return s ? `<button class="py-c py-s" data-s="${s}" data-i="${ini}" data-f="${f}">${s}</button>` : `<div class="py-c py-x"></div>`;
   }).join('')).join('');
   return `<div class="screen fade-in c1">${c1Head('Pinyin')}
     ${c1Hero('Pinyin chart', '拼音', 'A syllable is a starting sound plus an ending: m + a is ma. Tap any box to hear it in all four tones.')}
-    <div class="py-key"><span class="f1">i endings</span><span class="f2">u endings</span><span class="f3">ü endings</span><span class="py-key-hint">Swipe the chart sideways</span></div>
-    <div class="py-wrap"><div class="py-grid" style="--cols:${PY_FIN.length}">${head}${rows}</div></div>
+    <label class="search py-search">${I.search}<input id="pyQ" type="search" placeholder="Search pinyin, use v for ü" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
+    <div class="py-wrap" id="pyWrap"><div class="py-grid" style="--cols:${PY_COLS.length}">${head}${rows}</div><div class="py-pop" id="pyPop" hidden></div></div>
+    <p class="py-credit">Recordings by Chen Wang, from audio-cmn (CC BY-SA).</p>
     <div class="section-head"><h2>Sounds to watch <span class="cal-zh">难发的音</span></h2></div>
-    <div class="group">${PY_TRICKY.map(([s, h, p, how]) => `<button class="row" data-act="say" data-h="${h}">
-      <span class="py-tk">${s}</span><span class="row-main"><span class="row-t">${how}</span><span class="row-s">${h} ${p}</span></span><span class="c1-snd">${I.sound}</span></button>`).join('')}</div>
+    <div class="group">${PY_TRICKY.map(([l, s, t, how]) => `<button class="row" data-act="c1-pyplay" data-s="${s}" data-t="${t}">
+      <span class="py-tk">${l}</span><span class="row-main"><span class="row-t">${how}</span><span class="row-s">${toneMark(s, t)}</span></span><span class="c1-snd">${I.sound}</span></button>`).join('')}</div>
   </div>`;
 }
-function pySheet(t) {
-  const s = t.dataset.s, ini = t.dataset.i, f = t.dataset.f;
-  const note = !ini && s !== f && f !== '-i' ? `With nothing in front, ${f} is written ${s}.`
-    : 'jqx'.includes(ini) && ini && f[0] === 'ü' ? `After ${ini}, the dots on ü are left off: ${s} still says ü.`
-    : f === '-i' ? `This i is not “ee”. It is a buzz that carries on the ${ini} sound.` : '';
-  openSheet(`<div class="pys-top"><div class="pys-big">${s}</div><div class="muted">${ini ? `${ini} + ${f === '-i' ? 'i' : f}` : 'No starting sound'} · tap a tone to hear it</div>
-      ${note ? `<p class="pys-note">${note}</p>` : ''}</div>
-    <div class="pys-list" id="pysList"><div class="hs-cap">Loading the sounds…</div></div>`, sh => {
-    const draw = () => { sh.querySelector('#pysList').innerHTML = [1, 2, 3, 4].map(n => {
-      const x = PYM?.get(s.replace('v', 'ü') + n);
-      return `<button class="pys-row" ${x ? `data-act="say" data-h="${x.h}"` : 'disabled'} style="--tc:${TONE_C[n]}">${toneSvg(n)}
-        <span class="pys-py">${toneMark(s, n)}</span>${x ? `<span class="pys-hz">${x.h}</span><span class="pys-en">${esc(x.e)}</span>` : '<span class="pys-en muted">no everyday word</span>'}
-        ${x ? `<span class="c1-snd">${I.sound}</span>` : ''}</button>`; }).join(''); };
-    loadPy().then(() => sh.isConnected && draw(), () => { sh.querySelector('#pysList').innerHTML = '<div class="hs-cap">The sounds need the internet the first time.</div>'; });
-  });
+function mountPinyin() {
+  const wrap = $('#pyWrap'), pop = $('#pyPop'), q = $('#pyQ'); if (!wrap) return;
+  let cur = null;
+  const close = () => { pop.hidden = true; cur?.classList.remove('on'); cur = null; };
+  const open = b => {
+    close(); cur = b; b.classList.add('on');
+    const s = b.dataset.s, ini = b.dataset.i, f = b.dataset.f;
+    const note = !ini && s !== f && f !== '-i' ? `With nothing in front, ${PY_FULL[f] || f} is written ${s}.`
+      : 'jqx'.includes(ini) && ini && f[0] === 'ü' ? `After ${ini}, ü is written u: ${s} still says ü.`
+      : f === '-i' ? `This i is not “ee”: it is a buzz that carries on the ${ini}.` : '';
+    pop.innerHTML = `<div class="pyp-top"><b>${s}</b><span>${ini ? `${ini} + ${f === '-i' ? 'i' : PY_FULL[f] || f}` : 'no starting sound'}</span>
+        <button class="pyp-x" data-x aria-label="Close">${I.close}</button></div>
+      <div class="pyp-tones">${[1, 2, 3, 4].map(t => `<button class="pyp-t" data-t="${t}" style="--tc:${TONE_C[t]}">${toneMark(s, t)}${I.play}</button>`).join('')}</div>
+      ${note ? `<p class="pyp-note">${note}</p>` : ''}`;
+    pop.hidden = false;
+    // under the box, kept inside the chart's visible area
+    const W = pop.offsetWidth, x = Math.min(Math.max(b.offsetLeft + b.offsetWidth / 2 - W / 2, wrap.scrollLeft + 6), wrap.scrollLeft + wrap.clientWidth - W - 6);
+    let y = b.offsetTop + b.offsetHeight + 4;
+    if (y + pop.offsetHeight > wrap.scrollTop + wrap.clientHeight - 4) y = b.offsetTop - pop.offsetHeight - 4;
+    pop.style.left = x + 'px'; pop.style.top = y + 'px';
+    LOG.add('c1-py', { s });
+  };
+  wrap.onclick = e => {
+    const t = e.target.closest('.pyp-t'); if (t) { playPy(cur.dataset.s, +t.dataset.t); return; }
+    if (e.target.closest('[data-x]')) { close(); return; }
+    if (e.target.closest('.py-pop')) return;
+    const b = e.target.closest('.py-s'); if (b && b !== cur) open(b); else close();
+  };
+  const find = () => {
+    const v = q.value.trim().toLowerCase().replace(/v/g, 'ü').replace(/[1-5]$/, ''); if (!v) { close(); return; }
+    const b = $$('.py-s', wrap).find(x => x.dataset.s === v) || $$('.py-s', wrap).find(x => x.dataset.s.startsWith(v)); if (!b) return;
+    wrap.scrollTo({ left: b.offsetLeft - wrap.clientWidth / 2 + b.offsetWidth / 2, top: b.offsetTop - 60, behavior: stillMotion() ? 'auto' : 'smooth' });
+    setTimeout(() => open(b), stillMotion() ? 0 : 320);
+  };
+  let tm; q.oninput = () => { clearTimeout(tm); tm = setTimeout(find, 350); };
+  q.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(tm); find(); q.blur(); } };
 }
 
 function RadicalsView() {
@@ -2517,7 +2561,7 @@ function mountCourse() {
   if (P === 'tones') mountTones();
   else if (P === 'radicals') mountRadicals();
   else if (P === 'strokes') mountStrokes();
-  else if (P === 'pinyin') loadPy().catch(() => {});
+  else if (P === 'pinyin') mountPinyin();
 }
 const ruleWriters = new Map();
 function mountStrokes() {
@@ -5337,7 +5381,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.89';
+const APP_VERSION = '1.90';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5879,7 +5923,7 @@ const A = {
   'c1-part': t => nav('#/course/1/' + t.dataset.p),
   'c1-back': () => goBack(S.cPart ? '#/course/1' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
-  'c1-py': t => pySheet(t),
+  'c1-pyplay': t => playPy(t.dataset.s, +t.dataset.t),
   'c1-rad': t => radSheet(t),
   'c1-char': t => strokeSheet(t),
   'c1-stroke': t => { t.classList.remove('draw'); void t.offsetWidth; t.classList.add('draw'); sayZh(t.dataset.h); },
