@@ -23,6 +23,8 @@
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
 <style>
+/* ǖ ǘ ǚ ǜ (lǜ, nǚ) from a system font: Satoshi has no ü with tone marks and would show the mark beside the letter */
+@font-face{font-family:"PyMarks";src:local("Segoe UI"),local("SegoeUI"),local("Helvetica Neue"),local("HelveticaNeue"),local("Roboto"),local("Arial");unicode-range:U+01D5-01DC}
 :root{
   --paper:#F4EEE3; --paper-deep:#EAE1D0; --card:#FCF9F3; --card-2:#F7F1E6;
   --ink:#1E1A15; --ink-2:#4A433A; --muted:#978C7C; --line:#E3D8C6; --line-2:#D2C4AD;
@@ -33,7 +35,7 @@
   --shadow-sm:0 1px 0 rgba(255,255,255,.7) inset, 0 6px 16px -10px rgba(70,45,20,.35);
   --hanzi:"Noto Serif SC","Songti SC","STSong",serif;
   --display:"Cormorant Garamond",Georgia,serif;
-  --ui:"Satoshi",system-ui,-apple-system,sans-serif;
+  --ui:"PyMarks","Satoshi",system-ui,-apple-system,sans-serif;   /* PyMarks: only ǖ ǘ ǚ ǜ, which Satoshi lacks */
   --r:16px;
   --fill:rgba(120,95,60,.11);         /* grey fill for secondary buttons, search, segmented controls */
   --ring:0 0 0 1px rgba(120,95,60,.07),0 1px 2px rgba(70,45,20,.05);   /* a group's quiet edge instead of a drop shadow */
@@ -1031,6 +1033,192 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ph-big img{width:100%;height:100%;object-fit:cover;display:block}
 .ph-big svg.i{width:80px;height:80px;stroke-width:1.1}
 
+/* ---------- HSK 1 course: hub, tones, pinyin chart, radicals, stroke order ---------- */
+:root{--c1:#35A877;--c1-soft:color-mix(in srgb,#35A877 13%,var(--card))}   /* HSK 1 green; also used in its pop-ups */
+.c1 .section-head{margin-top:26px}
+.c1-zh{font-family:var(--hanzi);font-weight:600;font-size:.62em;color:var(--seal);letter-spacing:.04em;margin-left:6px}
+.c1-scene{margin:0 0 4px;border-radius:20px;overflow:hidden;background:var(--c1);box-shadow:0 0 0 2.5px var(--c1),0 4px 0 var(--c1)}
+.c1-scene svg{display:block;width:100%;height:auto}
+.c1-top{padding:16px 4px 0}
+.c1-title{margin:0;font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.c1-top .muted{margin:6px 0 0;font-size:14.5px;line-height:1.4}
+.c1-hero{padding:4px 4px 18px}
+.c1-hero .deck-title{margin:2px 0 0}
+.c1-hero .muted{margin:8px 0 0;font-size:14.5px;line-height:1.45}
+.c1-note{margin:-2px 2px 12px;font-size:14px}
+.c1-snd{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
+.c1-snd svg.i{width:18px;height:18px}
+/* the four foundation tiles: chunky like the course cards on Learn */
+.c1-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.c1-tile{display:flex;flex-direction:column;padding:0;border-radius:18px;background:var(--card);overflow:hidden;text-align:left;
+  box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);transition:transform .2s}
+.c1-tile:active{transform:translateY(2px) scale(.98);transition:none}
+.c1-art{display:block;background:var(--c1-soft);padding:12px 14px 8px}
+.c1-art svg{display:block;width:100%;height:auto;overflow:visible}
+.c1-cap{display:flex;flex-direction:column;gap:3px;padding:10px 12px 13px 13px}
+.c1-name{font-weight:800;font-size:16.5px;letter-spacing:-.01em;line-height:1.15}
+.c1-name .c1-zh{font-size:12.5px}
+.c1-sub{font-size:12.5px;line-height:1.3;color:var(--muted)}
+.c1-art-box{fill:var(--card);stroke:rgba(120,95,60,.18);stroke-width:1}
+.c1-art-py{font:700 9.5px var(--ui);text-anchor:middle;dominant-baseline:central}
+.c1-art-hz{font-family:var(--hanzi);font-weight:700;font-size:40px;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+.c1-art-plus{font:700 18px var(--ui);text-anchor:middle;dominant-baseline:central;fill:var(--muted)}
+.c1-art-ghost{fill:var(--line-2);font-size:50px}
+.c1-art-stroke{fill:none;stroke:var(--seal);stroke-width:6;stroke-linecap:round}
+.c1-art-n{font:700 8px var(--ui);fill:#fff;text-anchor:middle;dominant-baseline:central}
+/* the lessons path, locked for now */
+.c1-path{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0 4px}
+.c1-node{width:62px;height:56px;border-radius:50%;display:grid;place-items:center;transform:translateX(var(--x));
+  background:var(--fill);color:var(--muted);box-shadow:inset 0 -5px 0 rgba(120,95,60,.12)}
+.c1-node svg.i{width:24px;height:24px}
+.c1-wait{position:absolute;left:calc(50% - 132px);top:46px;width:70px;height:70px}
+.c1-wait .shi-face{width:100%;height:100%;display:block}
+.c1-soon{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:8px;padding:14px 16px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:center}
+.c1-soon b{font-size:15.5px}
+.c1-soon span{font-size:13.5px;color:var(--muted);line-height:1.4}
+
+/* tones: the pitch staff (5 = high, 1 = low) with each tone's line on it */
+.tone-svg{display:block;overflow:visible}
+.tone-staff{fill:none;stroke:var(--line);stroke-width:1}
+.tone-line{fill:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;transition:opacity .25s}
+.tone-stage{padding:14px 16px 10px 10px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+.tone-big{display:block;width:100%;height:auto;overflow:visible}
+.tone-big .tone-line{stroke-width:4.5}
+.tone-lv{font:700 5.5px var(--ui);fill:var(--muted);text-anchor:middle;dominant-baseline:central}
+.tone-line.dim{opacity:.16}
+.tone-line.draw{stroke-dasharray:1 1;animation:toneDraw .75s cubic-bezier(.4,.1,.4,1) both}
+@keyframes toneDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.tone-hint{margin-top:6px;text-align:center;font-size:12.5px;color:var(--muted)}
+.tone-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.tone-card{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:box-shadow .2s,transform .2s}
+.tone-card:active{transform:scale(.985);transition:none}
+.tone-card.on{box-shadow:0 0 0 2.5px var(--tc)}
+.tone-mark{flex:none;width:46px;text-align:center;font:800 38px/1 var(--ui);color:var(--tc)}
+.tone-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tone-name{font-weight:700;font-size:15px}
+.tone-how{font-size:13px;line-height:1.35;color:var(--ink-2)}
+.tone-ex{flex:none;display:flex;flex-direction:column;align-items:center;min-width:56px}
+.tone-ex b{font-family:var(--hanzi);font-size:26px;font-weight:600;line-height:1.1}
+.tone-ex small{font-size:11.5px;color:var(--muted);line-height:1.25}
+.tone-ex small:first-of-type{color:var(--tc);font-weight:700;font-size:13px}
+.c1-rule-row{align-items:center}
+.c1-rule-hz{flex:none;width:52px;font-family:var(--hanzi);font-size:21px;font-weight:600}
+.c1-rule-row .row-s{white-space:normal;line-height:1.35}
+.c1-rule-row .row-t b{color:var(--seal)}
+/* the ear test */
+.ear{padding:16px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+.ear-intro{margin:0 0 14px;font-size:14px;text-align:center}
+.ear-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ear-n{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.ear-bar{flex:1;height:10px;border-radius:6px;background:var(--fill);overflow:hidden}
+.ear-bar i{display:block;height:100%;border-radius:6px;background:var(--c1);transition:width .3s}
+.ear-q{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.ear-play{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18)}
+.ear-play:active{transform:translateY(2px)}
+.ear-play svg.i{width:30px;height:30px}
+.ear-reveal{flex:1;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.ear-reveal b{font-family:var(--hanzi);font-size:36px;font-weight:600;line-height:1}
+.ear-reveal span{font-size:20px;font-weight:700}
+.ear-reveal small{flex-basis:100%;font-size:13px;color:var(--muted)}
+.ear-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ear-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 10px 10px;border-radius:14px;background:var(--fill);font-weight:700;font-size:14px;transition:background .2s,box-shadow .2s}
+.ear-opt .tone-svg{width:72%;height:auto}
+.ear-opt:not(:disabled):active{transform:scale(.97)}
+.ear-opt.ok{background:var(--jade-soft);box-shadow:0 0 0 2.5px var(--jade)}
+.ear-opt.no{background:var(--seal-soft);box-shadow:0 0 0 2.5px var(--seal)}
+.ear-opt:disabled:not(.ok):not(.no){opacity:.5}
+.ear-end{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.ear-end b{font-size:20px}
+.ear-end .muted{font-size:14px;margin-bottom:6px}
+.ear-shi{width:84px;height:84px}
+.ear-shi .shi-face{width:100%;height:100%;display:block}
+
+/* pinyin chart: initials down the side, finals across the top; both stay put while you scroll */
+.py-key{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 2px 10px;font-size:12.5px;font-weight:600}
+.py-key span:not(.py-key-hint){padding:3px 8px;border-radius:7px}
+.py-key-hint{margin-left:auto;color:var(--muted);font-weight:500}
+.f1{background:color-mix(in srgb,#E8A33C 16%,var(--card))}
+.f2{background:color-mix(in srgb,#3E7FB1 13%,var(--card))}
+.f3{background:color-mix(in srgb,#E5483F 11%,var(--card))}
+.py-wrap{margin:0 -20px;max-height:min(64vh,560px);overflow:auto;overscroll-behavior:contain;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper)}
+.py-grid{display:grid;grid-template-columns:40px repeat(var(--cols),50px);width:max-content}
+.py-c{height:40px;display:grid;place-items:center;font-size:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.py-c.f0{background:var(--card)}
+.py-c.py-x{background:var(--paper)}   /* no such syllable: an empty square, so the real ones stand out */
+.py-s{font-weight:600;color:var(--ink)}
+.py-s:active{background:var(--seal);color:var(--seal-ink)}
+.py-h,.py-ini,.py-corner{position:sticky;z-index:1;font-weight:800;font-size:13px;color:var(--ink-2)}
+.py-h{top:0}
+.py-h.f0{background:var(--card-2)}
+.py-ini,.py-corner{left:0;background:var(--card-2);color:var(--seal)}
+.py-corner{top:0;z-index:2}
+.py-tk{flex:none;width:34px;font-weight:800;font-size:18px;color:var(--seal)}
+.pys-top{text-align:center;margin-bottom:16px}
+.pys-big{font-weight:800;font-size:46px;letter-spacing:-.02em;line-height:1.05}
+.pys-top .muted{font-size:13.5px;margin-top:4px}
+.pys-note{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--seal-soft);font-size:13.5px;line-height:1.4}
+.pys-list{display:flex;flex-direction:column;gap:8px}
+.pys-row{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px 12px;border-radius:14px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.pys-row:not(:disabled):active{box-shadow:0 0 0 2.5px var(--tc)}
+.pys-row:disabled{opacity:.6}
+.pys-row .tone-svg{flex:none;width:48px;height:29px}
+.pys-row .tone-line{stroke-width:7}
+.pys-py{flex:none;min-width:62px;font-weight:800;font-size:21px;color:var(--tc)}
+.pys-hz{flex:none;font-family:var(--hanzi);font-size:24px;font-weight:600}
+.pys-en{flex:1;min-width:0;font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* radicals: a dictionary page, grouped by stroke count like a paper radical index */
+.rad-sec{margin-bottom:18px}
+.rad-sec[hidden],.rad[hidden]{display:none}
+.rad-h{margin:0 2px 8px;font-size:12.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.rad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.rad{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 9px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
+.rad:active{background:var(--c1-soft)}
+.rad-g{font-family:var(--hanzi);font-size:30px;font-weight:600;line-height:1.15;color:var(--ink)}
+.rad-g small{font-size:15px;color:var(--muted);margin-left:3px}
+.rad-en{font-size:12px;color:var(--ink-2);line-height:1.2;text-align:center}
+.rs-top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.rs-g{font-family:var(--hanzi);font-size:58px;font-weight:600;line-height:1;color:var(--c1)}
+.rs-v{font-family:var(--hanzi);font-size:30px;font-weight:600;color:var(--muted)}
+.rs-txt{flex:1;display:flex;flex-direction:column;gap:3px}
+.rs-txt b{font-size:20px}
+.rs-txt span{font-size:13.5px;color:var(--muted)}
+.rs-say{background:var(--seal-soft);color:var(--seal)}
+.rs-h{margin:0 2px 8px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.rs-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rs-ch{display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 4px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
+.rs-ch b{font-family:var(--hanzi);font-size:30px;font-weight:600;line-height:1.15}
+.rs-ch span{font-size:13px;font-weight:600;color:var(--seal)}
+.rs-ch small{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-foot{margin:14px 2px 0;font-size:13px;text-align:center}
+
+/* stroke order */
+.sk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sk{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 9px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
+.sk svg{width:56px;height:56px;margin-bottom:2px}
+.sk-guide{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 4}
+.sk-line{fill:none;stroke:var(--ink);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.sk.draw .sk-line{stroke:var(--seal);stroke-dasharray:1 1;animation:toneDraw .6s cubic-bezier(.4,.1,.4,1) both}
+.sk-zh{font-family:var(--hanzi);font-weight:600;font-size:17px}
+.sk-zh small{font-family:var(--ui);font-size:11.5px;color:var(--seal);font-weight:600}
+.sk-en{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.2}
+.sr-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sr{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px 11px;border-radius:14px;background:var(--card);box-shadow:var(--ring);text-align:center}
+.sr-box{flex:none;box-shadow:none;background:var(--card-2)}
+.sr-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sr-txt b{font-size:13.5px;line-height:1.25}
+.sr-txt span{font-size:12px;color:var(--muted)}
+.hz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.hz{height:52px;border-radius:12px;background:var(--card);box-shadow:var(--ring);font-family:var(--hanzi);font-size:25px;font-weight:600;color:var(--ink)}
+.hz:active{background:var(--c1-soft)}
+.ss-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ss-hz{font-family:var(--hanzi);font-size:44px;font-weight:600;line-height:1}
+.ss-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ss-txt b{font-size:19px}
+.ss-txt small{font-size:13.5px;color:var(--muted)}
+.ss-btns{margin-top:14px}
+@media (prefers-reduced-motion: reduce){.tone-line.draw,.sk.draw .sk-line{animation:none}}
+
 /* ---------- learn + profile ---------- */
 .learn-list{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
 .rv-tile{display:flex;align-items:center;gap:14px;width:100%;margin-bottom:26px;padding:12px 12px 12px 14px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
@@ -1396,6 +1584,7 @@ function parse() {
   if (p[0] === 'deck' && p[1] === 'today') return p[2] === 'study' ? { view: 'study', deckId: 'today' } : { view: 'learn', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
+  if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
@@ -1404,7 +1593,7 @@ function route() {
   closeSheet(true); $('#cheer')?.remove(); closeDrawer(); $('#crop')?.remove();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
-  S.hskLevel = r.lv || null; S.readId = r.readId || null;
+  S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null;
   const d = curDeck();
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) {
     if (S.deckId === 'today') { history.replaceState(history.state, '', '#/learn'); S.view = 'learn'; S.deckId = null; }
@@ -1691,6 +1880,7 @@ function render() {
   else if (S.view === 'streak') { app.innerHTML = StreakView(); }
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
+  else if (S.view === 'course') { app.innerHTML = CourseView(); mountCourse(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
   const main = () => ['home', 'learn', 'profile'].includes(S.view) || S.view === 'read' && !S.readId;
@@ -1702,7 +1892,7 @@ function render() {
 const TABS = [['decks', 'Decks', '#/'], ['learn', 'Learn', '#/learn'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
-  const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view;
+  const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? 'learn' : S.view;
   const i = TABS.findIndex(t => t[0] === cur), bar = $('#tabbar'), frame = $('#frame');
   const wasShown = frame.classList.contains('tabs');
   frame.classList.toggle('tabs', i >= 0);
@@ -1998,12 +2188,367 @@ function CourseBlock() {
     const foot = !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
       : x.k || x.l === cur ? `<span class="crs-bar"><i style="width:${Math.max(4, Math.round(f * 100))}%"></i></span><span class="crs-pct">${Math.floor(f * 100)}%</span>`
       : `<span class="crs-jump">Jump here</span>`;
-    return `<button class="crs${far ? ' far' : ''}${x.l === cur ? ' cur' : ''}" data-act="hsk-level" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}">
+    return `<button class="crs${far ? ' far' : ''}${x.l === cur ? ' cur' : ''}" data-act="${x.l === 1 ? 'c1-open' : 'hsk-level'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}">
       <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg></span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
         ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
   }).join('')}</div>`;
+}
+/* ---------- HSK 1 course: tap the HSK 1 picture on Learn ----------
+   A hub with the four foundations (tones, pinyin chart, radicals, stroke order) and the lessons path, which is
+   still locked. Routes: #/course/1, #/course/1/tones, /pinyin, /radicals, /strokes. Only HSK 1 has this for now. */
+const C1 = '#35A877';   // HSK 1's own green, the same as its picture card
+const TONE_C = ['var(--muted)', '#E5483F', '#E8A33C', '#2E9E6B', '#3E7FB1'];   // tone colours: 1 red, 2 gold, 3 green, 4 blue
+/* the pitch of each tone on a five-level scale (5 = high): 1 is 55, 2 is 35, 3 is 214, 4 is 51; the light tone is a short mid dot */
+const TONE_D = ['M44 30H56', 'M10 6H90', 'M10 30C40 28 70 22 90 6', 'M10 42C26 56 56 60 90 18', 'M10 6C40 14 70 34 90 54'];
+const toneSvg = (t, cls = '') => `<svg class="tone-svg ${cls}" viewBox="0 0 100 60" aria-hidden="true" focusable="false">
+  <path class="tone-staff" d="M4 6H96M4 18H96M4 30H96M4 42H96M4 54H96"/>
+  <path class="tone-line" pathLength="1" d="${TONE_D[t]}" style="stroke:${TONE_C[t]}"/></svg>`;
+const TONES = [
+  { n: 0, mark: 'a', name: 'Light tone', zh: '轻声', how: 'Short and soft, with no tone of its own. Endings like 吗 and the second 妈 in 妈妈 are light.', ex: ['妈妈', 'māma', 'mum'] },
+  { n: 1, mark: 'ā', name: 'High and level', zh: '一声', how: 'Start high and hold it flat, like singing one long note.', ex: ['妈', 'mā', 'mother'] },
+  { n: 2, mark: 'á', name: 'Rising', zh: '二声', how: 'Go from the middle up, like a surprised “what?”', ex: ['麻', 'má', 'hemp'] },
+  { n: 3, mark: 'ǎ', name: 'Dip and rise', zh: '三声', how: 'Dip low, then come back up. In fast speech it often just stays low.', ex: ['马', 'mǎ', 'horse'] },
+  { n: 4, mark: 'à', name: 'Falling', zh: '四声', how: 'Drop sharply from high to low, like a firm “no!”', ex: ['骂', 'mà', 'to scold'] },
+];
+const TONE_RULES = [
+  { say: '你好', top: 'nǐ hǎo', sounds: 'ní hǎo', how: 'Two third tones in a row: the first one rises instead.' },
+  { say: '不是', top: 'bù shì', sounds: 'bú shì', how: '不 rises before a falling (4th) tone. Before others it stays bù: 不好 bù hǎo.' },
+  { say: '一个', top: 'yī gè', sounds: 'yí gè', how: '一 rises before a 4th tone, and falls before the others: 一天 yì tiān. Counting, it stays yī.' },
+];
+
+/* pinyin: every syllable of Mandarin, by its first sound (initial) and its ending (final) */
+const PY_INI = ['', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'];
+const PY_FIN = ['a', 'o', 'e', '-i', 'er', 'ai', 'ei', 'ao', 'ou', 'an', 'en', 'ang', 'eng', 'ong',
+  'i', 'ia', 'iao', 'ie', 'iu', 'ian', 'in', 'iang', 'ing', 'iong',
+  'u', 'ua', 'uo', 'uai', 'ui', 'uan', 'un', 'uang', 'ueng', 'ü', 'üe', 'üan', 'ün'];
+const PY_FAM = f => f[0] === 'ü' ? 3 : f[0] === 'u' ? 2 : f[0] === 'i' ? 1 : 0;   // the a, i, u and ü families of finals
+const PY_SYL = {
+  '': 'a o e er ai ei ao ou an en ang eng yi ya yao ye you yan yin yang ying yong wu wa wo wai wei wan wen wang weng yu yue yuan yun',
+  b: 'ba bo bai bei bao ban ben bang beng bi biao bie bian bin bing bu',
+  p: 'pa po pai pei pao pou pan pen pang peng pi piao pie pian pin ping pu',
+  m: 'ma mo me mai mei mao mou man men mang meng mi miao mie miu mian min ming mu',
+  f: 'fa fo fei fou fan fen fang feng fu',
+  d: 'da de dai dei dao dou dan den dang deng dong di dia diao die diu dian ding du duo dui duan dun',
+  t: 'ta te tai tao tou tan tang teng tong ti tiao tie tian ting tu tuo tui tuan tun',
+  n: 'na ne nai nei nao nou nan nen nang neng nong ni niao nie niu nian nin niang ning nu nuo nuan nü nüe',
+  l: 'la lo le lai lei lao lou lan lang leng long li lia liao lie liu lian lin liang ling lu luo luan lun lü lüe',
+  g: 'ga ge gai gei gao gou gan gen gang geng gong gu gua guo guai gui guan gun guang',
+  k: 'ka ke kai kei kao kou kan ken kang keng kong ku kua kuo kuai kui kuan kun kuang',
+  h: 'ha he hai hei hao hou han hen hang heng hong hu hua huo huai hui huan hun huang',
+  j: 'ji jia jiao jie jiu jian jin jiang jing jiong ju jue juan jun',
+  q: 'qi qia qiao qie qiu qian qin qiang qing qiong qu que quan qun',
+  x: 'xi xia xiao xie xiu xian xin xiang xing xiong xu xue xuan xun',
+  zh: 'zha zhe zhi zhai zhei zhao zhou zhan zhen zhang zheng zhong zhu zhua zhuo zhuai zhui zhuan zhun zhuang',
+  ch: 'cha che chi chai chao chou chan chen chang cheng chong chu chua chuo chuai chui chuan chun chuang',
+  sh: 'sha she shi shai shei shao shou shan shen shang sheng shu shua shuo shuai shui shuan shun shuang',
+  r: 're ri rao rou ran ren rang reng rong ru rua ruo rui ruan run',
+  z: 'za ze zi zai zei zao zou zan zen zang zeng zong zu zuo zui zuan zun',
+  c: 'ca ce ci cai cao cou can cen cang ceng cong cu cuo cui cuan cun',
+  s: 'sa se si sai sao sou san sen sang seng song su suo sui suan sun',
+};
+const PY_YW = { yi: 'i', ya: 'ia', yao: 'iao', ye: 'ie', you: 'iu', yan: 'ian', yin: 'in', yang: 'iang', ying: 'ing', yong: 'iong',
+  wu: 'u', wa: 'ua', wo: 'uo', wai: 'uai', wei: 'ui', wan: 'uan', wen: 'un', wang: 'uang', weng: 'ueng', yu: 'ü', yue: 'üe', yuan: 'üan', yun: 'ün' };
+const PY_GRID = (() => {   // 'initial|final' -> the syllable as it is written
+  const g = new Map();
+  for (const ini of PY_INI) for (const s of PY_SYL[ini].split(' ')) {
+    let f = s.slice(ini.length);
+    if (!ini && PY_YW[s]) f = PY_YW[s];
+    else if ('jqx'.includes(ini) && ini && f[0] === 'u') f = 'ü' + f.slice(1);
+    else if (['z', 'c', 's', 'zh', 'ch', 'sh', 'r'].includes(ini) && f === 'i') f = '-i';
+    g.set(ini + '|' + f, s);
+  }
+  return g;
+})();
+const TM = { a: 'āáǎà', o: 'ōóǒò', e: 'ēéěè', i: 'īíǐì', u: 'ūúǔù', ü: 'ǖǘǚǜ' };
+function toneMark(s, t) {   // the mark goes on a or e, on the o of ou, otherwise on the last vowel
+  if (!t) return s;
+  let i = s.indexOf('a'); if (i < 0) i = s.indexOf('e'); if (i < 0 && s.includes('ou')) i = s.indexOf('o');
+  if (i < 0) for (let k = s.length - 1; k >= 0; k--) if ('iouü'.includes(s[k])) { i = k; break; }
+  return i < 0 ? s : s.slice(0, i) + TM[s[i]][t - 1] + s.slice(i + 1);
+}
+/* one common character per syllable and tone (dict/pinyin.tsv), so the phone's Chinese voice can say each sound */
+let pyP = null, PYM = null;
+function loadPy() {
+  return pyP ||= fetch('dict/pinyin.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    PYM = new Map();
+    for (const l of t.split('\n')) { if (!l || l[0] === '#') continue; const [k, h, e] = l.split('\t'); if (h) PYM.set(k, { h, e: e || '', s: k.slice(0, -1), t: +k.slice(-1) }); }
+    return PYM;
+  }).catch(e => { pyP = null; throw e; });
+}
+const PY_TRICKY = [
+  ['q', '七', 'qī', 'like “ch” in cheese'], ['x', '西', 'xī', 'like “sh” in sheep'], ['j', '几', 'jǐ', 'like “j” in jeep'],
+  ['zh', '中', 'zhōng', 'like “j” in jump, tongue curled back'], ['ch', '吃', 'chī', 'like “ch” in church, tongue curled back'],
+  ['sh', '是', 'shì', 'like “sh” in shirt, tongue curled back'], ['r', '人', 'rén', 'between “r” in run and “s” in measure'],
+  ['z', '字', 'zì', 'like “ds” in kids'], ['c', '菜', 'cài', 'like “ts” in cats, with a puff of air'],
+  ['ü', '女', 'nǚ', 'say “ee”, then round your lips'], ['e', '饿', 'è', 'like “uh” in duh'],
+  ['-i', '四', 'sì', 'after z, c, s, zh, ch, sh, r: a buzz, not “ee”'],
+];
+
+/* radicals: the building blocks inside characters, by stroke count, each with characters that contain it */
+const RADICALS = [
+  ['一', '', 'yī', 'one', 1, '三下不上'],
+  ['亻', '人', 'rén', 'person', 2, '你他们做住作'], ['冫', '', 'bīng', 'ice', 2, '冷冰准冻'], ['八', '', 'bā', 'eight; divide', 2, '公六共兴'],
+  ['十', '', 'shí', 'ten', 2, '午半南千'], ['厂', '', 'chǎng', 'cliff', 2, '历厅厕厨'], ['刂', '刀', 'dāo', 'knife', 2, '到别刻'],
+  ['力', '', 'lì', 'strength', 2, '动加办助'], ['讠', '言', 'yán', 'speech', 2, '说话请谢认语'],
+  ['口', '', 'kǒu', 'mouth', 3, '吃喝叫吗呢哪'], ['囗', '', 'wéi', 'enclosure', 3, '国四回园'], ['土', '', 'tǔ', 'earth', 3, '在地坐块'],
+  ['大', '', 'dà', 'big', 3, '太天奇'], ['女', '', 'nǚ', 'woman', 3, '妈好她姐妹'], ['子', '', 'zǐ', 'child', 3, '字学孩'],
+  ['宀', '', 'mián', 'roof', 3, '家安室'], ['小', '', 'xiǎo', 'small', 3, '少尖'], ['山', '', 'shān', 'mountain', 3, '岁岛岸'],
+  ['广', '', 'guǎng', 'shelter', 3, '店床座度'], ['彳', '', 'chì', 'step', 3, '很得往行'], ['忄', '心', 'xīn', 'heart', 3, '想您怎忙快'],
+  ['扌', '手', 'shǒu', 'hand', 3, '打找拿把'], ['氵', '水', 'shuǐ', 'water', 3, '没汉洗海'], ['犭', '', 'quǎn', 'dog; animal', 3, '狗猫猪狮'],
+  ['艹', '', 'cǎo', 'grass', 3, '茶菜花英'], ['辶', '', 'chuò', 'walk', 3, '这还进过远道'], ['门', '', 'mén', 'door', 3, '们问间'],
+  ['马', '', 'mǎ', 'horse', 3, '骑验驾'], ['纟', '糸', 'sī', 'silk', 3, '红给经绍'], ['饣', '食', 'shí', 'food', 3, '饭馆饿饺'],
+  ['日', '', 'rì', 'sun; day', 4, '时明是早昨晚'], ['月', '', 'yuè', 'moon; body', 4, '朋有服脑'], ['木', '', 'mù', 'tree; wood', 4, '林树本校机杯'],
+  ['火', '灬', 'huǒ', 'fire', 4, '灯烧点热'], ['王', '', 'wáng', 'king; jade', 4, '玩现球理'], ['贝', '', 'bèi', 'shell; money', 4, '贵货账'],
+  ['车', '', 'chē', 'vehicle', 4, '辆轻较'], ['攵', '', 'pū', 'tap; action', 4, '教数放故'], ['礻', '示', 'shì', 'spirit; ritual', 4, '视礼祝福'],
+  ['欠', '', 'qiàn', 'yawn; owe', 4, '欢歌次'], ['方', '', 'fāng', 'square; side', 4, '旅族旁'], ['戈', '', 'gē', 'spear', 4, '我或成战'],
+  ['目', '', 'mù', 'eye', 5, '看眼睡睛'], ['田', '', 'tián', 'field', 5, '男界留'], ['石', '', 'shí', 'stone', 5, '研破码础'],
+  ['钅', '金', 'jīn', 'metal; gold', 5, '钱钟银铁'], ['疒', '', 'nè', 'illness', 5, '病疼痛'], ['衤', '衣', 'yī', 'clothes', 5, '衬裤袜被'],
+  ['皿', '', 'mǐn', 'dish', 5, '盘盒盐'], ['穴', '', 'xué', 'cave; hole', 5, '空穿窗'], ['白', '', 'bái', 'white', 5, '的百'],
+  ['立', '', 'lì', 'stand', 5, '站位端'], ['鸟', '', 'niǎo', 'bird', 5, '鸡鸭'],
+  ['页', '', 'yè', 'page; head', 6, '题颜顾'], ['米', '', 'mǐ', 'rice', 6, '粉糖精类'], ['竹', '', 'zhú', 'bamboo', 6, '笔第等答'],
+  ['足', '', 'zú', 'foot', 7, '跑跳路踢'], ['走', '', 'zǒu', 'walk; run', 7, '起赶超'],
+  ['雨', '', 'yǔ', 'rain', 8, '雪零雷需'], ['鱼', '', 'yú', 'fish', 8, '鲜鲤'],
+];
+
+/* stroke order: the eight basic strokes and the rules for their order */
+const STROKES = [
+  ['横', 'héng', 'Across', 'M18 52C40 48 62 47 82 46', '一'], ['竖', 'shù', 'Down', 'M50 14V86', '十'],
+  ['撇', 'piě', 'Sweep left', 'M64 14C62 46 46 70 20 86', '人'], ['捺', 'nà', 'Sweep right', 'M26 16C40 50 58 74 84 82', '八'],
+  ['点', 'diǎn', 'Dot', 'M40 36C48 42 54 50 58 60', '六'], ['提', 'tí', 'Flick up', 'M22 74L80 38', '我'],
+  ['折', 'zhé', 'Turn', 'M20 26H74V84', '口'], ['钩', 'gōu', 'Hook', 'M56 14V78L38 64', '小'],
+];
+const STROKE_RULES = [
+  ['三', 'Top before bottom'], ['川', 'Left before right'], ['十', 'Across before down'], ['八', 'Sweep left before sweep right'],
+  ['月', 'Outside before inside'], ['回', 'Close the box last'], ['小', 'Middle before the sides'], ['我', 'Small dots come last'],
+];
+
+const C1_PARTS = [
+  ['tones', 'Tones', '声调', 'Four tones that change the meaning'],
+  ['pinyin', 'Pinyin chart', '拼音', 'Every sound, tap to hear it'],
+  ['radicals', 'Radicals', '部首', 'The parts characters are built from'],
+  ['strokes', 'Stroke order', '笔顺', 'Which stroke comes first'],
+];
+const C1_ART = {
+  tones: `<svg viewBox="0 0 100 60" aria-hidden="true" focusable="false"><path class="tone-staff" d="M4 6H96M4 18H96M4 30H96M4 42H96M4 54H96"/>${[1, 2, 3, 4].map(t => `<path class="tone-line" d="${TONE_D[t]}" style="stroke:${TONE_C[t]}"/>`).join('')}</svg>`,
+  pinyin: `<svg viewBox="0 0 100 60" aria-hidden="true" focusable="false">${['bā', 'má', 'nǐ', 'hǎo', 'shì', 'lǜ'].map((s, i) => `<rect x="${6 + (i % 3) * 31}" y="${6 + Math.floor(i / 3) * 26}" width="27" height="22" rx="5" class="c1-art-box"/><text x="${19.5 + (i % 3) * 31}" y="${17.5 + Math.floor(i / 3) * 26}" class="c1-art-py" style="fill:${TONE_C[[1, 2, 3, 3, 4, 4][i]]}">${s}</text>`).join('')}</svg>`,
+  radicals: `<svg viewBox="0 0 100 60" aria-hidden="true" focusable="false"><text x="17" y="30" class="c1-art-hz" style="fill:${C1};font-size:38px">氵</text><path d="M37 12V48" stroke="var(--line-2)" stroke-width="1.5"/>${['海', '河', '洗'].map((h, i) => `<text x="${52 + i * 19}" y="30" class="c1-art-hz" style="font-size:19px">${h}</text>`).join('')}</svg>`,
+  strokes: `<svg viewBox="0 0 100 60" aria-hidden="true" focusable="false"><text x="50" y="32" class="c1-art-hz c1-art-ghost">永</text><path d="M44 10C48 12 51 14 53 18" class="c1-art-stroke"/><circle cx="36" cy="10" r="6" fill="var(--seal)"/><text x="36" y="10.5" class="c1-art-n">1</text></svg>`,
+};
+
+const c1Head = title => `<header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">${title}</div><div style="width:42px"></div></header>`;
+const c1Hero = (en, zh, sub) => `<section class="c1-hero"><div class="eyebrow" style="--accent:${C1}">HSK 1 · Foundations</div>
+  <h1 class="deck-title">${en} <span class="c1-zh">${zh}</span></h1><p class="muted">${sub}</p></section>`;
+function CourseView() {
+  const P = S.cPart;
+  if (P === 'tones') return TonesView();
+  if (P === 'pinyin') return PinyinView();
+  if (P === 'radicals') return RadicalsView();
+  if (P === 'strokes') return StrokesView();
+  const L = S.H?.levels[1] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
+  const lock = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
+  return `<div class="screen fade-in c1">${c1Head('')}
+    <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[1][1]()}</svg></div>
+    <section class="c1-top"><h1 class="c1-title">HSK 1 <span class="c1-zh">入门</span></h1>
+      <p class="muted">${L.length ? `${L.length} words · ${n} you know. ` : ''}Start with how Chinese sounds and how characters are built.</p></section>
+    <div class="section-head"><h2>Foundations <span class="cal-zh">基础</span></h2></div>
+    <div class="c1-grid">${C1_PARTS.map(([p, en, zh, sub]) => `<button class="c1-tile" data-act="c1-part" data-p="${p}">
+      <span class="c1-art">${C1_ART[p]}</span><span class="c1-cap"><span class="c1-name">${en}<span class="c1-zh">${zh}</span></span><span class="c1-sub">${sub}</span></span></button>`).join('')}</div>
+    <div class="section-head"><h2>Lessons <span class="cal-zh">课</span></h2></div>
+    <div class="c1-path" aria-label="Lessons, coming soon">
+      ${[0, 1, 2, 3, 4].map(i => `<span class="c1-node" style="--x:${[0, 46, 64, 30, -26][i]}px">${lock}</span>`).join('')}
+      <span class="c1-wait">${shiFace('happy')}</span>
+      <div class="c1-soon"><b>Lessons are on the way</b><span>Short lessons with listening, speaking and writing. Start with the foundations above.</span></div>
+    </div>
+  </div>`;
+}
+
+function TonesView() {
+  const big = `<svg class="tone-big" viewBox="-14 0 114 60" aria-hidden="true" focusable="false">
+    ${[5, 4, 3, 2, 1].map((l, i) => `<text x="-7" y="${6 + i * 12}" class="tone-lv">${l}</text>`).join('')}
+    <path class="tone-staff" d="M4 6H96M4 18H96M4 30H96M4 42H96M4 54H96"/>
+    ${[1, 2, 3, 4].map(t => `<path class="tone-line" data-t="${t}" pathLength="1" d="${TONE_D[t]}" style="stroke:${TONE_C[t]}"/>`).join('')}</svg>`;
+  return `<div class="screen fade-in c1">${c1Head('Tones')}
+    ${c1Hero('Tones', '声调', 'Every syllable has a tone, a rise or fall in your voice. The same sound with another tone is another word: mā is mother, mǎ is horse.')}
+    <div class="tone-stage" id="toneStage">${big}<div class="tone-hint">Your voice from high (5) to low (1)</div></div>
+    <div class="tone-list">${[1, 2, 3, 4, 0].map(t => { const T = TONES[t];
+      return `<button class="tone-card" data-act="c1-tone" data-t="${t}" style="--tc:${TONE_C[t]}">
+        <span class="tone-mark">${T.mark}</span>
+        <span class="tone-main"><span class="tone-name">${t ? 'Tone ' + t : 'No tone'} · ${T.name}</span><span class="tone-how">${T.how}</span></span>
+        <span class="tone-ex"><b>${T.ex[0]}</b><small>${T.ex[1]}</small><small>${T.ex[2]}</small></span></button>`; }).join('')}</div>
+    <div class="section-head"><h2>Tones that change <span class="cal-zh">变调</span></h2></div>
+    <div class="group">${TONE_RULES.map(r => `<button class="row c1-rule-row" data-act="say" data-h="${r.say}">
+      <span class="c1-rule-hz">${r.say}</span><span class="row-main"><span class="row-t">${r.top} → sounds like <b>${r.sounds}</b></span><span class="row-s">${r.how}</span></span><span class="c1-snd">${I.sound}</span></button>`).join('')}</div>
+    <div class="section-head"><h2>Ear test <span class="cal-zh">听力</span></h2></div>
+    <div class="ear" id="ear"></div>
+  </div>`;
+}
+/* the ear test: ten HSK 1 characters, you hear one and pick its tone */
+function earHtml() {
+  const E = S.ear;
+  if (!E) return `<p class="muted ear-intro">Ten sounds from HSK 1. Listen, then pick the tone you heard.</p>
+    <button class="btn btn-seal wide" data-ear="go">${I.sound}Start the ear test</button>`;
+  if (E.i >= E.q.length) return `<div class="ear-end"><span class="ear-shi">${shiFace(E.right >= 8 ? 'cheer' : 'happy')}</span>
+    <b>${E.right} of ${E.q.length} right</b><span class="muted">${E.right >= 8 ? 'Great ears!' : E.right >= 5 ? 'Good. Tones 2 and 3 are the ones most people mix up.' : 'Tones take time. Tap the tone cards above to hear each one again.'}</span>
+    <button class="btn btn-seal wide" data-ear="go">Try again</button></div>`;
+  const Q = E.q[E.i], done = E.ans != null;
+  return `<div class="ear-top"><span class="ear-n">${E.i + 1} of ${E.q.length}</span><span class="ear-bar"><i style="width:${E.i / E.q.length * 100}%"></i></span></div>
+    <div class="ear-q"><button class="ear-play" data-ear="play" aria-label="Play the sound again">${I.sound}</button>
+      <div class="ear-reveal">${done ? `<b>${Q.h}</b><span style="color:${TONE_C[Q.t]}">${toneMark(Q.s, Q.t)}</span><small>${esc(Q.e)}</small>` : '<span class="muted">Which tone?</span>'}</div></div>
+    <div class="ear-opts">${[1, 2, 3, 4].map(t => `<button class="ear-opt${done ? t === Q.t ? ' ok' : t === E.ans ? ' no' : '' : ''}" data-ear="${t}" style="--tc:${TONE_C[t]}"${done ? ' disabled' : ''}>
+      ${toneSvg(t)}<span>Tone ${t}</span></button>`).join('')}</div>
+    ${done ? `<button class="btn btn-primary wide" data-ear="next">${E.i + 1 < E.q.length ? 'Next' : 'See result'}</button>` : ''}`;
+}
+function mountTones() {
+  const box = $('#ear'), paint = () => { box.innerHTML = earHtml(); };
+  const play = () => sayZh(S.ear.q[S.ear.i].h);
+  paint();
+  box.onclick = e => {
+    const b = e.target.closest('[data-ear]'); if (!b) return; const k = b.dataset.ear;
+    if (k === 'go') {
+      Promise.all([loadHsk(), loadPy()]).then(() => {
+        const one = new Set((S.H.levels[1] || []).map(r => r.h).filter(h => [...h].length === 1));
+        const pool = shuffle([...PYM.values()].filter(x => one.has(x.h)));
+        S.ear = { q: pool.slice(0, 10), i: 0, ans: null, right: 0 }; paint(); play();
+      }, () => toast('The ear test needs the internet the first time'));
+    } else if (k === 'play') play();
+    else if (k === 'next') { S.ear.i++; S.ear.ans = null; paint(); if (S.ear.i < S.ear.q.length) play(); else LOG.add('c1-ear', { right: S.ear.right }); }
+    else { const t = +k; S.ear.ans = t; if (t === S.ear.q[S.ear.i].t) S.ear.right++; paint(); }
+  };
+}
+function playTone(t) {
+  const T = TONES[t]; sayZh(T.ex[0]);
+  const st = $('#toneStage'); if (!st) return;
+  $$('.tone-line', st).forEach(p => { const on = +p.dataset.t === t; p.classList.toggle('dim', !!t && !on); p.classList.remove('draw'); if (on) { void p.getBoundingClientRect(); p.classList.add('draw'); } });
+  $$('.tone-card').forEach(c => c.classList.toggle('on', +c.dataset.t === t));
+}
+
+function PinyinView() {
+  const fam = ['', 'i', 'u', 'ü'];
+  const head = `<div class="py-c py-corner"></div>` + PY_FIN.map(f => `<div class="py-c py-h f${PY_FAM(f)}">${f}</div>`).join('');
+  const rows = PY_INI.map(ini => `<div class="py-c py-ini">${ini || '–'}</div>` + PY_FIN.map(f => {
+    const s = PY_GRID.get(ini + '|' + f);
+    return s ? `<button class="py-c py-s f${PY_FAM(f)}" data-act="c1-py" data-s="${s}" data-i="${ini}" data-f="${f}">${s}</button>` : `<div class="py-c py-x f${PY_FAM(f)}"></div>`;
+  }).join('')).join('');
+  return `<div class="screen fade-in c1">${c1Head('Pinyin')}
+    ${c1Hero('Pinyin chart', '拼音', 'A syllable is a starting sound plus an ending: m + a is ma. Tap any box to hear it in all four tones.')}
+    <div class="py-key"><span class="f1">i endings</span><span class="f2">u endings</span><span class="f3">ü endings</span><span class="py-key-hint">Swipe the chart sideways</span></div>
+    <div class="py-wrap"><div class="py-grid" style="--cols:${PY_FIN.length}">${head}${rows}</div></div>
+    <div class="section-head"><h2>Sounds to watch <span class="cal-zh">难发的音</span></h2></div>
+    <div class="group">${PY_TRICKY.map(([s, h, p, how]) => `<button class="row" data-act="say" data-h="${h}">
+      <span class="py-tk">${s}</span><span class="row-main"><span class="row-t">${how}</span><span class="row-s">${h} ${p}</span></span><span class="c1-snd">${I.sound}</span></button>`).join('')}</div>
+  </div>`;
+}
+function pySheet(t) {
+  const s = t.dataset.s, ini = t.dataset.i, f = t.dataset.f;
+  const note = !ini && s !== f && f !== '-i' ? `With nothing in front, ${f} is written ${s}.`
+    : 'jqx'.includes(ini) && ini && f[0] === 'ü' ? `After ${ini}, the dots on ü are left off: ${s} still says ü.`
+    : f === '-i' ? `This i is not “ee”. It is a buzz that carries on the ${ini} sound.` : '';
+  openSheet(`<div class="pys-top"><div class="pys-big">${s}</div><div class="muted">${ini ? `${ini} + ${f === '-i' ? 'i' : f}` : 'No starting sound'} · tap a tone to hear it</div>
+      ${note ? `<p class="pys-note">${note}</p>` : ''}</div>
+    <div class="pys-list" id="pysList"><div class="hs-cap">Loading the sounds…</div></div>`, sh => {
+    const draw = () => { sh.querySelector('#pysList').innerHTML = [1, 2, 3, 4].map(n => {
+      const x = PYM?.get(s.replace('v', 'ü') + n);
+      return `<button class="pys-row" ${x ? `data-act="say" data-h="${x.h}"` : 'disabled'} style="--tc:${TONE_C[n]}">${toneSvg(n)}
+        <span class="pys-py">${toneMark(s, n)}</span>${x ? `<span class="pys-hz">${x.h}</span><span class="pys-en">${esc(x.e)}</span>` : '<span class="pys-en muted">no everyday word</span>'}
+        ${x ? `<span class="c1-snd">${I.sound}</span>` : ''}</button>`; }).join(''); };
+    loadPy().then(() => sh.isConnected && draw(), () => { sh.querySelector('#pysList').innerHTML = '<div class="hs-cap">The sounds need the internet the first time.</div>'; });
+  });
+}
+
+function RadicalsView() {
+  const by = {}; RADICALS.forEach((r, i) => (by[r[4]] ||= []).push(i));
+  return `<div class="screen fade-in c1">${c1Head('Radicals')}
+    ${c1Hero('Radicals', '部首', 'Radicals are the building blocks inside characters, and they often hint at the meaning. 氵 is water: you find it in 河 river, 海 sea and 洗 to wash.')}
+    <label class="search">${I.search}<input id="radQ" type="search" placeholder="Search a meaning, like water" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search"></label>
+    <div id="radList">${Object.keys(by).map(n => `<div class="rad-sec" data-n="${n}"><div class="rad-h">${plural(+n, 'stroke')}</div>
+      <div class="rad-grid">${by[n].map(i => { const [g, v, p, en] = RADICALS[i];
+        return `<button class="rad" data-act="c1-rad" data-i="${i}" data-q="${esc((en + ' ' + p + ' ' + g + v).toLowerCase())}">
+          <span class="rad-g">${g}${v ? `<small>${v}</small>` : ''}</span><span class="rad-en">${en.split(';')[0]}</span></button>`; }).join('')}</div></div>`).join('')}</div>
+    <p class="rad-none muted" id="radNone" hidden>No radical with that meaning here yet.</p>
+  </div>`;
+}
+function mountRadicals() {
+  const q = $('#radQ'); if (!q) return;
+  q.oninput = () => { const v = q.value.trim().toLowerCase(); let any = false;
+    $$('.rad-sec').forEach(sec => { let n = 0; $$('.rad', sec).forEach(b => { const on = !v || b.dataset.q.includes(v); b.hidden = !on; n += on; }); sec.hidden = !n; any ||= !!n; });
+    $('#radNone').hidden = any; };
+}
+function c1Word(h) {   // pinyin and meaning; a character that is not a word on its own shows a word it is in (没 -> in 没有)
+  const r = S.H?.byHz.get(h); if (r) return { p: r.p, e: shortMeaning(r.e) };
+  for (let l = 1; l <= 7 && S.H; l++) { const w = (S.H.levels[l] || []).find(x => x.h.includes(h)); if (w) return { p: autoPinyin(h), e: `in ${w.h}: ${shortMeaning(w.e)}` }; }
+  return { p: autoPinyin(h), e: '' };
+}
+function radSheet(t) {
+  const [g, v, p, en, n, ex] = RADICALS[+t.dataset.i], full = v && !/[灬⺮]/.test(v) ? v : g;
+  openSheet(`<div class="rs-top"><span class="rs-g">${g}</span>${v ? `<span class="rs-v">${v}</span>` : ''}
+      <span class="rs-txt"><b>${en}</b><span>${p} · ${plural(n, 'stroke')}${v ? ` · the full form is ${v}` : ''}</span></span>
+      <button class="icon-btn rs-say" data-act="say" data-h="${full}" aria-label="Say it">${I.sound}</button></div>
+    <div class="rs-h">Characters with ${g}</div>
+    <div class="rs-list">${[...ex].map(h => { const w = c1Word(h);
+      return `<button class="rs-ch" data-act="c1-char" data-h="${h}" data-rad="1"><b>${h}</b><span>${esc(w.p)}</span><small>${esc(w.e)}</small></button>`; }).join('')}</div>
+    <p class="muted rs-foot">Tap a character to see how it is written. The radical is drawn in green.</p>`);
+}
+
+function StrokesView() {
+  const one = (S.H?.levels[1] || []).map(r => r.h).filter(h => [...h].length === 1);
+  return `<div class="screen fade-in c1">${c1Head('Stroke order')}
+    ${c1Hero('Stroke order', '笔顺', 'Every character is written in a fixed order. Learn the eight basic strokes and a few rules, and most characters follow.')}
+    <div class="section-head"><h2>The basic strokes <span class="cal-zh">笔画</span></h2></div>
+    <div class="sk-grid">${STROKES.map(([zh, p, en, d, ex], i) => `<button class="sk" data-act="c1-stroke" data-h="${zh}">
+      <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="sk-guide" d="M50 4V96M4 50H96"/><path class="sk-line" pathLength="1" d="${d}"/></svg>
+      <span class="sk-zh">${zh} <small>${p}</small></span><span class="sk-en">${en} · ${ex}</span></button>`).join('')}</div>
+    <div class="section-head"><h2>The rules <span class="cal-zh">规则</span></h2></div>
+    <div class="sr-list">${STROKE_RULES.map(([h, rule]) => `<button class="sr" data-act="c1-rule" data-h="${h}">
+      <span class="tzg sr-box" style="--s:84px">${TZG}<span class="quiz" data-ch="${h}"></span></span>
+      <span class="sr-txt"><b>${rule}</b><span>${h} · tap to watch</span></span></button>`).join('')}</div>
+    <div class="section-head"><h2>Every HSK 1 character <span class="cal-zh">汉字</span></h2></div>
+    ${one.length ? `<p class="muted c1-note">Tap one to watch it, then write it yourself.</p>
+      <div class="hz-grid">${one.map(h => `<button class="hz" data-act="c1-char" data-h="${h}">${h}</button>`).join('')}</div>`
+      : '<p class="muted c1-note">Loading the characters…</p>'}
+  </div>`;
+}
+function mountCourse() {
+  const P = S.cPart;
+  if (P !== 'tones') S.ear = null;   // the ear test starts over when you come back to it
+  if (!S.H) loadHsk().then(() => { if (S.view === 'course' && S.cPart === P && (!P || P === 'strokes')) { S.instant = true; render(); } }, () => {});
+  if (P === 'tones') mountTones();
+  else if (P === 'radicals') mountRadicals();
+  else if (P === 'strokes') mountStrokes();
+  else if (P === 'pinyin') loadPy().catch(() => {});
+}
+const ruleWriters = new Map();
+function mountStrokes() {
+  if (!window.HanziWriter) return;
+  $$('.sr-box .quiz').forEach(q => {
+    const w = HanziWriter.create(q, q.dataset.ch, writerOpts(84, { showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'), strokeAnimationSpeed: 1.6, delayBetweenStrokes: 220 }));
+    ruleWriters.set(q.dataset.ch, w);
+  });
+}
+function strokeSheet(t) {
+  const h = t.dataset.h, rad = t.dataset.rad === '1', w = c1Word(h);
+  openSheet(`<div class="ss-top"><span class="ss-hz">${h}</span><span class="ss-txt"><b>${esc(w.p)}</b><small>${esc(w.e)}</small></span>
+      <button class="icon-btn rs-say" data-act="say" data-h="${h}" aria-label="Say it">${I.sound}</button></div>
+    <div class="hs-stage"><div class="tzg" style="--s:220px">${TZG}<div class="quiz" id="ssQ"></div></div></div>
+    <div class="hs-cap" id="ssCap">Loading the strokes…</div>
+    <div class="row-btns ss-btns"><button class="btn btn-ghost" id="ssPlay">${I.play}Watch</button><button class="btn btn-seal" id="ssWrite">${I.pen}Write it</button></div>`, sh => {
+    const cap = sh.querySelector('#ssCap');
+    if (!window.HanziWriter) { cap.textContent = 'The strokes need the internet. Try again when you are online.'; return; }
+    const W = HanziWriter.create(sh.querySelector('#ssQ'), h, writerOpts(220, { showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'),
+      drawingColor: css('--ink'), highlightColor: css('--seal'), ...(rad ? { radicalColor: C1 } : {}) }));
+    let N = 0, run = 0;   // run: a newer Watch or Write wins, so a finished film doesn't overwrite the Write caption
+    loadRef(h).then(ref => { N = ref.strokes.length; if (sh.isConnected) watch(); }, () => { cap.textContent = 'The strokes need the internet. Try again when you are online.'; });
+    const watch = () => { const me = ++run; W.cancelQuiz(); W.showCharacter(); cap.textContent = `${plural(N, 'stroke')}${rad ? ' · the radical is green' : ''}`;
+      W.animateCharacter({ onComplete: () => { if (sh.isConnected && me === run) cap.textContent = `${plural(N, 'stroke')} · now write it yourself`; } }); };
+    sh.querySelector('#ssPlay').onclick = watch;
+    sh.querySelector('#ssWrite').onclick = () => {
+      run++; W.cancelQuiz(); W.hideCharacter(); let miss = 0; cap.textContent = 'Write the first stroke';
+      W.quiz({ onMistake: () => { miss++; },
+        onCorrectStroke: d => { cap.textContent = d.strokesRemaining ? `Stroke ${d.strokeNum + 1} of ${N} ✓` : 'Done ✓'; },
+        onComplete: () => { cap.textContent = miss ? `Done, ${plural(miss, 'slip')}. Once more?` : 'Every stroke right ✓'; LOG.add('c1-write', { hz: h, mistakes: miss }); } });
+    };
+  });
 }
 /* Learn: today's review round (every card due from all your decks, plus up to 5 new words a day); hidden when nothing waits */
 function ReviewTile(head) {
@@ -3374,7 +3919,7 @@ function startStudy() {
     S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false };
 }
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
-function hzSize(n) { return [0, 132, 104, 80, 64][n] || Math.max(34, Math.floor(250 / n)); }
+function hzSize(n) { return [0, 96, 92, 84, 68][n] || Math.max(34, Math.min(60, Math.floor(280 / n))); }   // close to one size; shrinks only where a long word wouldn't fit
 function enSize(s) { const l = s.length; return l < 9 ? 46 : l < 16 ? 38 : l < 28 ? 30 : l < 50 ? 24 : 20; }
 function Faces(c, d) {   // English on one side; the character and its pinyin (tap to hear) on the other
   const ch = [...c.hanzi], n = ch.length, enF = db.prefs.englishFirst;
@@ -3383,7 +3928,7 @@ function Faces(c, d) {   // English on one side; the character and its pinyin (t
   const q = enF ? `<div class="fc-q" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div>` : hz;
   const py = `<span class="fc-py">${esc(c.pinyin)}<button class="icon-btn" data-act="say" data-h="${esc(c.hanzi)}" aria-label="Hear it">${I.sound}</button></span>`, foot = `<span class="foot">${esc(d.name)}</span>`;
   const ans = enF ? `${hz}${py}${foot}`   // English first: the answer is the character and its pinyin
-    : `<div class="fc-ch" style="font-size:${n === 1 ? 76 : Math.min(64, Math.round(hzSize(n) * .62))}px">${esc(c.hanzi)}</div>${py}
+    : `<div class="fc-ch" style="font-size:${Math.round(hzSize(n) * .8)}px">${esc(c.hanzi)}</div>${py}
       <span class="fc-en" style="font-size:${Math.max(17, Math.min(22, Math.round(enSize(c.en) * .6)))}px">${esc(c.en)}</span>${foot}`;
   // English first starts turned round (startAngle 180), so the question goes on the back face
   return `<div class="face front"><div class="face-in">${enF ? ans : q}</div></div>
@@ -4791,7 +5336,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.87';
+const APP_VERSION = '1.88';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5329,6 +5874,15 @@ const A = {
   'open-bank': () => nav('#/bank'),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
+  'c1-open': () => nav('#/course/1'),
+  'c1-part': t => nav('#/course/1/' + t.dataset.p),
+  'c1-back': () => goBack(S.cPart ? '#/course/1' : '#/learn'),
+  'c1-tone': t => playTone(+t.dataset.t),
+  'c1-py': t => pySheet(t),
+  'c1-rad': t => radSheet(t),
+  'c1-char': t => strokeSheet(t),
+  'c1-stroke': t => { t.classList.remove('draw'); void t.offsetWidth; t.classList.add('draw'); sayZh(t.dataset.h); },
+  'c1-rule': t => { const w = ruleWriters.get(t.dataset.h); if (w) w.animateCharacter(); },
   'hsk-back': () => goBack(S.hskLevel ? '#/hsk' : '#/bank'),
   'practise-bank': () => practiseSheet(),
   'decks-sheet': () => decksSheet(),
