@@ -1461,10 +1461,10 @@ const b64uBytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '
 const notifBlocked = () => 'Notification' in window && Notification.permission === 'denied';
 function remindHelp() {   // the phone said no once, so the app can't ask again: show where to switch it back on
   return `<div class="remind-help" id="rHelp"${notifBlocked() ? '' : ' hidden'}><b>Notifications are blocked on this phone</b>
-    <ol><li>Press and hold the ShiCards icon on your home screen, then tap <b>App info</b>.</li>
-      <li>Tap <b>Notifications</b> and turn on <b>Show notifications</b>.</li>
+    <ol><li>Open the <b>Chrome</b> app, tap <b>⋮</b> at the top right, then <b>Settings › Site settings › Notifications</b>.</li>
+      <li>Check the switch at the top is on. Under <b>Blocked</b>, tap <b>ilkegits.github.io</b> and choose <b>Allow</b>.</li>
       <li>Come back here and tap <b>Remind me</b>.</li></ol>
-    <p class="muted">Using ShiCards in Chrome instead? Chrome ⋮ › Settings › Site settings › Notifications › ilkegits.github.io › Allow.</p></div>`;
+    <p class="muted">Still blocked? Press and hold the ShiCards icon › App info › Notifications, and switch them on there too.</p></div>`;
 }
 function showRemindHelp() {
   const h = $('#rHelp'); if (!h) return false;
@@ -1482,7 +1482,8 @@ async function remindSet(on, hour) {
     if (!('PushManager' in window) || !('Notification' in window)) { toast('This phone can’t show reminders from the app'); return false; }
     const reg = await navigator.serviceWorker?.getRegistration();
     if (!reg) { toast('Reminders work in the installed app'); return false; }
-    if (await Notification.requestPermission() !== 'granted') { if (!(notifBlocked() && showRemindHelp())) toast('Notifications are off for ShiCards. Allow them in the phone settings'); return false; }
+    const perm0 = Notification.permission, perm = await Notification.requestPermission();
+    if (perm !== 'granted') { LOG.add('reminder-refused', { before: perm0, after: perm }); if (!(notifBlocked() && showRemindHelp())) toast('Notifications are off for ShiCards. Allow them in the phone settings'); return false; }
     try {
       const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(VAPID_PUBLIC) });
       r.sub = sub.toJSON();
@@ -3576,7 +3577,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.53';
+const APP_VERSION = '1.54';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
