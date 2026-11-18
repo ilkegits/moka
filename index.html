@@ -262,6 +262,16 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-x:active{opacity:.5;transition:none}
 .hd-x svg.i{width:16px;height:16px;stroke-width:2.4}
 .hd-st{font-family:var(--hanzi);font-size:23px;font-weight:600;letter-spacing:.02em;line-height:1.2}
+/* story card: no tile; Shi Shi reads a big book in the bottom-right corner, the words sit to his left */
+.hd-story .hd-row{margin-top:14px}
+.hd-card.rev.hd-story .hd-txt{padding-right:128px}
+.hd-story .hd-st{font-size:30px;line-height:1.15;letter-spacing:.04em}
+.hd-story .hd-en{font-size:17px}
+.hd-story .hd-meta{margin-top:10px}
+.hd-story .hd-go{width:calc(100% - 150px);min-width:150px;display:flex;align-items:center;justify-content:center;gap:8px}
+.hd-story .hd-go svg.i{width:20px;height:20px;flex:none}
+.hd-card.rev.hd-story .hd-shi{right:-4px;bottom:-8px;width:170px;height:170px;pointer-events:auto;padding:0;background:none;border:0;cursor:pointer}
+.hd-story .shi-read{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 14px rgba(40,6,4,.45))}
 @media (prefers-reduced-motion:reduce){.hd-shi,.hd-sheen,.hd-card.just *,.hd-scratch.pop *,.hd-card.back.up *{animation:none!important;transition:none!important}}
 /* the Hanzi of the day pop-up: meaning, stroke order step by step, write it yourself, add to the word bank */
 .hs-top{display:flex;align-items:center;gap:16px;margin:-4px 2px 14px}
@@ -1358,6 +1368,7 @@ function shiFace(mood, fill = 1) {
     miss: [brow('M64 82Q76 72 89 72') + brow('M136 82Q124 72 111 72'), big(76) + big(124), '<path d="M88 128Q100 120 112 128" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],
     sleep: [brow('M63 78Q76 74 90 78') + brow('M137 78Q124 74 110 78'), arc(76, 0) + arc(124, 0), '<ellipse cx="100" cy="125" rx="5" ry="6" fill="#7E1D19"/>'],
     peek: [brow('M62 74Q75 58 89 68') + brow('M138 74Q125 58 111 68'), big(71) + big(119), '<ellipse cx="100" cy="127" rx="6.5" ry="7.5" fill="#7E1D19"/><ellipse cx="100" cy="130" rx="3.6" ry="2.6" fill="#FF8A96"/>'],   // curious, looking to the left
+    read: [brow('M62 76Q76 64 90 74') + brow('M138 76Q124 64 110 74'), [76, 124].map(x => `<ellipse cx="${x}" cy="99" rx="7.5" ry="7" fill="#2A0E0C"/><circle cx="${x - 2}" cy="96.5" r="2.6" fill="#fff"/>`).join(''), '<path d="M86 124Q100 136 114 124" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],   // eyes down on the page
   }[mood] || [];
   return `<svg class="shi-face" viewBox="21 21 158 158" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
     + MANE.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="17" fill="${mf(i)}" stroke="${ms(i)}" stroke-width="8"/>`).join('')
@@ -1366,6 +1377,19 @@ function shiFace(mood, fill = 1) {
     + '<path d="M91 56Q100 22 109 56Z" fill="#F4C14E" stroke="#A86A0C" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="64" r="7" fill="#D8F2FF" stroke="#A86A0C" stroke-width="3.5"/>'
     + face[0] + '<ellipse cx="60" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/><ellipse cx="140" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/>'
     + face[1] + face[2] + '<circle cx="100" cy="110" r="9" fill="#FF8A7E" stroke="#7E1D19" stroke-width="3"/><circle cx="97" cy="107" r="2.6" fill="#fff" opacity=".8"/></svg>';
+}
+/* Shi Shi peeking over an open thread-bound book; the story's first two characters are printed on its pages */
+function shiReads([a = '读', b = '书'] = []) {
+  const pg = (x, r, c) => `<text x="${x}" y="152" font-size="31" fill="#2A0E0C" transform="rotate(${r} ${x} 152)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`;
+  return '<svg class="shi-read" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+    + shiFace('read').replace('<svg class="shi-face"', '<svg x="22" y="2" width="156" height="156"')
+    + '<path d="M18 120Q60 108 100 124Q140 108 182 120L180 192Q140 182 100 198Q60 182 20 192Z" fill="#2E4A7D" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>'
+    + '<path d="M26 114Q64 102 100 118L100 188Q64 174 28 182Z" fill="#FFF8EE" stroke="#7E1D19" stroke-width="3.5" stroke-linejoin="round"/>'
+    + '<path d="M174 114Q136 102 100 118L100 188Q136 174 172 182Z" fill="#FFF8EE" stroke="#7E1D19" stroke-width="3.5" stroke-linejoin="round"/>'
+    + '<path d="M100 120V186" stroke="#E8D9C4" stroke-width="5"/><path d="M40 170Q64 164 88 172M112 172Q136 164 160 170" fill="none" stroke="#E8D9C4" stroke-width="3" stroke-linecap="round"/>'
+    + pg(62, -5, a) + pg(138, 5, b)
+    + [26, 174].map(x => `<ellipse cx="${x}" cy="142" rx="11" ry="14" fill="#E5483F" stroke="#7E1D19" stroke-width="4"/><path d="M${x - 4} 134v6M${x + 4} 134v6" stroke="#7E1D19" stroke-width="2.5" stroke-linecap="round"/>`).join('')
+    + '</svg>';
 }
 function shiMood(pileLeft) {
   const days = practiceDays(), now = new Date();
@@ -2212,15 +2236,15 @@ function HotdStack() {
   return `<div class="hd-stack${two ? ' two' : ''}" id="hdStack">${HotdStoryCard(two)}${two ? HotdCard() : ''}</div>`;
 }
 function HotdStoryCard(back) {
-  const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read a story';
-  return `<section class="hd-card rev hd-story${back ? ' back' : ''}" id="hdStory" aria-label="Read a story"${back ? ' inert aria-hidden="true"' : ''}>
+  const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read now';
+  const ch = s ? hanChars((s.zh || '').replace(/^狮狮的?/, '')).slice(0, 2) : [];
+  return `<section class="hd-card rev hd-story${back ? ' back' : ''}" id="hdStory" aria-label="Story time"${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
     ${back ? '' : `<button class="hd-x" data-act="story-close" aria-label="Close the story card">${I.close}</button>`}
-    <div class="hd-row"><button class="hd-pad" data-act="tab" data-h="#/read" aria-label="${go}"><div class="hd-tile">${TZG}<span class="hd-ch">${esc(s ? storyGlyph(s) : '读')}</span></div></button>
-      <div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
+    <div class="hd-row"><div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
         <div class="hd-meta">${H?.off === 'done' ? `<span>Today’s hanzi ${esc(H.h)} ✓</span>` : '<span>Tap any word for its meaning</span>'}</div></div></div>
-    <button class="btn hd-go" data-act="tab" data-h="#/read">${go}</button>
-    <div class="hd-shi">${shiFace('happy')}</div></section>`;
+    <button class="btn hd-go" data-act="tab" data-h="#/read">${I.read}${go}</button>
+    <button class="hd-shi" data-act="tab" data-h="#/read" tabindex="-1" aria-hidden="true">${shiReads(ch)}</button></section>`;
 }
 function hotdDismiss() {   // the top card flies off to the side, the story card under it rises and grows into place
   const st = $('#hdStack'), front = $('#hotd'), back = $('#hdStory');
@@ -3940,7 +3964,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.63';
+const APP_VERSION = '1.64';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
