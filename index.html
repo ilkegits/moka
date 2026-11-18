@@ -118,7 +118,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
-/* home bar: your photo (opens the side menu) on the left, the Shi Shi lion head in the middle, your streak flame on the right */
+/* home bar: your photo (opens the side menu) on the left, the ShiCards name in the middle, your streak flame on the right */
 .bar-home{display:grid;grid-template-columns:1fr auto 1fr}
 .bar-home .av{justify-self:start;margin-left:3px}
 .hm-streak{justify-self:end;display:flex;align-items:center;gap:1px;height:42px;padding:0 8px 0 4px;border-radius:21px;transition:opacity .2s}
@@ -133,7 +133,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* Learn, Read and Profile: the page name as a headline in the top-left corner */
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
-.logo-mid{justify-self:center;width:44px;height:44px;display:block}
+.logo-mid{justify-self:center;font-family:"Satoshi",system-ui,sans-serif;font-weight:700;font-size:17px;line-height:1;letter-spacing:-.01em;color:var(--ink)}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:14px;font-weight:600;font-size:16px;letter-spacing:-.01em;transition:opacity .2s, background .2s}
@@ -2148,7 +2148,7 @@ function Home() {
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
-    <header class="bar bar-home">${AvBtn()}<img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
+    <header class="bar bar-home">${AvBtn()}<span class="logo-mid">ShiCards</span>
       ${StreakBtn()}</header>
     <section class="hello"><div class="hello-swap"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div>
       <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
@@ -3940,7 +3940,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.62';
+const APP_VERSION = '1.63';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
