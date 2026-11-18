@@ -160,6 +160,32 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes hello-b{0%,31%{opacity:0}50%,81%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
 .name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
+/* Today card: today's cards in one place, Shi Shi on the right shows his mood */
+.today-card{position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 16px 18px;border-radius:22px;background:var(--seal);color:var(--seal-ink);
+  box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
+.today-card::before{content:"";position:absolute;right:-70px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.32),transparent 65%);pointer-events:none}
+.today-shi{position:absolute;right:8px;top:30px;width:112px;height:112px}
+.today-shi .shi-face{width:100%;height:100%;display:block}
+.today-card.cheer .today-shi{animation:shiHop 1.6s ease-in-out .4s 2}
+.today-card.sleep .today-shi .shi-face{animation:shiBreathe 3.2s ease-in-out infinite;transform-origin:50% 80%}
+.today-zz{position:absolute;right:-2px;top:-14px;font-family:"Baloo 2",var(--ui);font-weight:800;font-size:22px;line-height:.8;color:#FFE3A3}
+.today-zz small{display:block;font-size:14px;margin-left:12px}
+.today-lbl{position:relative;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.06em;opacity:.95}
+.today-fl{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px 0 4px;border-radius:999px;background:rgba(255,248,242,.16);font-size:12px;letter-spacing:0;font-weight:600}
+.today-fl .flame{width:15px;height:15px;fill:rgba(255,248,242,.55)}
+.today-fl .flame-in{fill:var(--seal)}
+.today-fl.on .flame{fill:#FFB347}
+.today-fl.on .flame-in{fill:#FFE08A}
+.today-big{position:relative;max-width:calc(100% - 120px);margin:10px 0 4px;font-size:29px;font-weight:800;line-height:1.05;letter-spacing:-.02em}
+.today-sub{position:relative;max-width:calc(100% - 118px);font-size:14px;line-height:1.35;opacity:.88}
+.today-mix{position:relative;display:flex;gap:6px;margin-top:12px;min-height:0}
+.today-mix:empty{display:none}
+.today-mix span{font-size:12.5px;font-weight:600;padding:5px 9px;border-radius:8px;background:rgba(255,248,242,.16)}
+.today-go{position:relative;width:100%;margin-top:16px;background:var(--seal-ink);color:var(--seal);font-weight:700}
+.today-go.ghost{background:rgba(255,248,242,.16);color:var(--seal-ink)}
+@keyframes shiHop{0%,100%{transform:none}20%{transform:translateY(-10px) rotate(-5deg)}40%{transform:translateY(0) scale(1.04,.96)}60%{transform:translateY(-10px) rotate(5deg)}80%{transform:translateY(0) scale(1.04,.96)}}
+@keyframes shiBreathe{0%,100%{transform:none}50%{transform:scale(1.03,.98)}}
+@media (prefers-reduced-motion:reduce){.today-shi,.today-shi .shi-face{animation:none!important}}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
 .section-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
 .decks{display:flex;flex-direction:column;margin-bottom:22px;background:var(--card);border-radius:14px;box-shadow:var(--ring);overflow:hidden}
@@ -229,6 +255,41 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hint{text-align:center;font-size:12.5px;color:var(--muted);margin:4px 0 0;transition:opacity .6s;height:18px}
 .controls{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 0 calc(22px + env(safe-area-inset-bottom))}
 .controls .mid{display:flex;gap:8px}
+.controls[hidden],.grades[hidden]{display:none}
+.hint.ask{font-size:14px;font-weight:600;color:var(--ink-2)}
+/* "Did you know it?" answers after a card is turned */
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 0 calc(20px + env(safe-area-inset-bottom));animation:gradesIn .28s cubic-bezier(.2,.85,.25,1) both}
+.gbtn{height:62px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:opacity .2s}
+.gbtn:active{opacity:.6;transition:none}
+.gbtn b{font-size:15.5px;font-weight:700}
+.gbtn small{font-size:12px;opacity:.75}
+.g-no{background:var(--seal-soft);color:var(--seal)}
+.g-mid{background:var(--fill);color:var(--ink)}
+.g-yes{background:var(--jade);color:#fff}
+@keyframes gradesIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* end of a flip round */
+.done-hero{position:relative;text-align:center;padding:8px 0 0}
+.done-shi{width:150px;height:150px;margin:0 auto;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.done-shi .shi-face{width:100%;height:100%;display:block;animation:shiHop 1.4s ease-in-out .8s 2}
+.done-burst{position:absolute;left:50%;top:78px;width:0;height:0}
+.done-burst i{position:absolute;width:7px;height:12px;border-radius:2px;opacity:0;animation:burst 1.5s cubic-bezier(.2,.65,.45,1) var(--d) both}
+.done-hero h2{font-family:var(--hanzi);font-weight:600;font-size:34px;margin:10px 0 2px}
+.done-py{color:var(--muted);font-size:14.5px}
+.done-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 14px}
+.done-stats div{background:var(--card);border-radius:14px;box-shadow:var(--ring);padding:12px 6px;text-align:center}
+.done-stats b{display:block;font-family:var(--display);font-size:32px;font-weight:600;line-height:1}
+.done-stats span{font-size:12px;color:var(--muted)}
+.done-stats .fl b{color:#E8742C}
+.done-words{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:14px}
+.done-words span{font-family:var(--hanzi);font-size:19px;padding:6px 11px;border-radius:10px;background:var(--jade-soft);color:var(--jade)}
+.done-next{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--card);box-shadow:var(--ring);font-size:14px}
+.done-next b{display:block}
+.done-next small{color:var(--muted);font-size:13px}
+.done-cal{flex:none;width:40px;height:42px;border-radius:9px;background:var(--seal-soft);color:var(--seal);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:17px;line-height:1}
+.done-cal small{font-size:9px;font-weight:700;letter-spacing:.04em;color:var(--seal);margin-bottom:2px}
+@keyframes donePop{from{transform:translateY(40px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes burst{0%{opacity:0;transform:translate(0,0) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 160px)) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.done-shi,.done-shi .shi-face,.done-burst i{animation:none!important}.done-burst{display:none}}
 
 /* ---------- write ---------- */
 .seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;gap:0}
@@ -595,6 +656,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 
 /* day sheet (tap a day in the calendar) */
 .cal-d.busy{background:var(--seal-soft);color:var(--seal);font-weight:600}
+.cal-d.ice{background:#E3EEF8;color:#3C6E9E;font-weight:600}
+.cal-d.ice::after{content:"❄";position:absolute;right:3px;top:1px;font-size:9px}
+.ice-chip{display:block;width:fit-content;margin:5px 0 0 auto;padding:3px 8px;border-radius:8px;background:#E3EEF8;color:#2F587E;font-size:11.5px;font-weight:700;white-space:nowrap}
 .cal-d.busy::after{content:"";position:absolute;bottom:5px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--seal)}
 .day-zh{font-family:var(--hanzi);font-size:15px;color:var(--seal);margin:-8px 0 14px;letter-spacing:.04em;text-align:center}
 .day-stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-radius:14px;box-shadow:var(--ring);margin-bottom:18px}
@@ -781,9 +845,11 @@ db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: fals
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
 db.readDone = Array.isArray(db.readDone) ? db.readDone : [];   // finished stories: [{ id, zh, en, lines, hsk, done, learned }], newest first
 db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("2026-10-17", month from 0): { decks: { deckId: { name, n, cards } } }: the different cards you practised
+// streak freezes: have = how many are saved up (at most 2), days = the days a freeze covered, run/given = the 7-day rewards of the current streak
+db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze);
 save();
 
-const deckById = id => id === 'bank' ? bankDeck() : db.decks.find(d => d.id === id);
+const deckById = id => id === 'bank' ? bankDeck() : id === 'today' ? (S.today || todayDeck()) : db.decks.find(d => d.id === id);
 const curDeck = () => deckById(S.deckId);
 const cardById = (d, id) => d.cards.find(c => c.id === id);
 
@@ -792,6 +858,7 @@ const S = { view: 'home', deckId: null, study: null, write: null };
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
   if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
+  if (p[0] === 'deck' && p[1] === 'today') return p[2] === 'study' ? { view: 'study', deckId: 'today' } : { view: 'home', deckId: null };
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
@@ -804,11 +871,14 @@ function route() {
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
   S.hskLevel = r.lv || null; S.readId = r.readId || null;
   const d = curDeck();
-  if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) S.view = S.deckId === 'bank' ? 'bank' : 'deck';
+  if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) {
+    if (S.deckId === 'today') { history.replaceState(history.state, '', '#/'); S.view = 'home'; S.deckId = null; }
+    else S.view = S.deckId === 'bank' ? 'bank' : 'deck';
+  }
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
   // what you used last, for the slot under the word bank on the Decks page
-  if (d && S.deckId !== 'bank' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
+  if (d && S.deckId !== 'bank' && S.deckId !== 'today' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
   if (S.view === 'read' && !S.readId && db.readCur?.opened) { db.last = { t: 'read' }; save(); }
   render();
   LOG.add('page', S.deckId ? { deck: d?.name } : undefined);
@@ -1063,7 +1133,7 @@ function render() {
   const app = $('#app'); const d = curDeck();
   if (S.view === 'home') { app.innerHTML = Home(); if (!S.H) loadHsk().then(() => { const sh = $('#hskShelf'); if (sh) sh.outerHTML = HskShelf(); }, () => {}); }
   else if (S.view === 'deck') { app.innerHTML = DeckView(d); }
-  else if (S.view === 'study') { app.innerHTML = StudyView(d); mountStudy(); }
+  else if (S.view === 'study') { app.innerHTML = StudyView(d); if (!S.study.done) mountStudy(); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
@@ -1097,6 +1167,35 @@ const SCENE = {
   decks: `<svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="360" height="200" fill="#FFF0D6"/><circle cx="180" cy="110" r="98" fill="#FFDDA0"/><g transform="translate(180 88) rotate(0) scale(0.76) translate(-100 -100)"><circle cx="100.0" cy="44.0" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="124.3" cy="49.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="143.8" cy="65.1" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="154.6" cy="87.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="154.6" cy="112.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="143.8" cy="134.9" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="124.3" cy="150.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="100.0" cy="156.0" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="75.7" cy="150.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="56.2" cy="134.9" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="45.4" cy="112.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="45.4" cy="87.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="56.2" cy="65.1" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="75.7" cy="49.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="100.0" cy="44.0" r="17" fill="#FFD15C"/><circle cx="124.3" cy="49.5" r="17" fill="#FFD15C"/><circle cx="143.8" cy="65.1" r="17" fill="#FFD15C"/><circle cx="154.6" cy="87.5" r="17" fill="#FFD15C"/><circle cx="154.6" cy="112.5" r="17" fill="#FFD15C"/><circle cx="143.8" cy="134.9" r="17" fill="#FFD15C"/><circle cx="124.3" cy="150.5" r="17" fill="#FFD15C"/><circle cx="100.0" cy="156.0" r="17" fill="#FFD15C"/><circle cx="75.7" cy="150.5" r="17" fill="#FFD15C"/><circle cx="56.2" cy="134.9" r="17" fill="#FFD15C"/><circle cx="45.4" cy="112.5" r="17" fill="#FFD15C"/><circle cx="45.4" cy="87.5" r="17" fill="#FFD15C"/><circle cx="56.2" cy="65.1" r="17" fill="#FFD15C"/><circle cx="75.7" cy="49.5" r="17" fill="#FFD15C"/><circle cx="100" cy="100" r="50" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><path d="M60 116Q56 130 66 138M140 116Q144 130 134 138" fill="none" stroke="#FFD15C" stroke-width="4" stroke-linecap="round"/><path d="M91 56Q100 22 109 56Z" fill="#F4C14E" stroke="#A86A0C" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="64" r="7" fill="#D8F2FF" stroke="#A86A0C" stroke-width="3.5"/><g transform="translate(0 0)"><path d="M62 80Q76 66 90 78" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="M62 80Q76 66 90 78" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/></g><g transform="translate(0 -7)"><path d="M138 80Q124 66 110 78" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="M138 80Q124 66 110 78" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/></g><ellipse cx="59.9" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity="0.72"/><ellipse cx="140.1" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity="0.72"/><path d="M67 97Q76 84 85 97" fill="none" stroke="#2A0E0C" stroke-width="5" stroke-linecap="round"/><path d="M115 97Q124 84 133 97" fill="none" stroke="#2A0E0C" stroke-width="5" stroke-linecap="round"/><path d="M82 118Q100 144 118 118Q100 124 82 118Z" fill="#7E1D19" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/><ellipse cx="100" cy="128" rx="7" ry="4.5" fill="#FF8A96"/><circle cx="100" cy="110" r="9" fill="#FF8A7E" stroke="#7E1D19" stroke-width="3"/><circle cx="97" cy="107" r="2.6" fill="#FFFFFF" opacity=".8"/></g><g transform="translate(124.72026556695762 156.1201778917679) rotate(-40)"><rect x="-23" y="-31" width="46" height="62" rx="5.98" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="-18.5" y="-26.5" width="37" height="53" rx="3.68" fill="none" stroke="#E5483F" stroke-width="1.3" opacity=".45"/><text x="-9.200000000000001" y="-16.740000000000002" font-size="17.48" fill="#3B1A12" opacity="1" transform="rotate(0 -9.200000000000001 -16.740000000000002)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">你</text></g><g transform="translate(150.5862676739925 141.18643461241186) rotate(-20)"><rect x="-23" y="-31" width="46" height="62" rx="5.98" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="-18.5" y="-26.5" width="37" height="53" rx="3.68" fill="none" stroke="#E5483F" stroke-width="1.3" opacity=".45"/><text x="-9.200000000000001" y="-16.740000000000002" font-size="17.48" fill="#3B1A12" opacity="1" transform="rotate(0 -9.200000000000001 -16.740000000000002)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">好</text></g><g transform="translate(180 136) rotate(0)"><rect x="-23" y="-31" width="46" height="62" rx="5.98" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="-18.5" y="-26.5" width="37" height="53" rx="3.68" fill="none" stroke="#E5483F" stroke-width="1.3" opacity=".45"/><text x="-9.200000000000001" y="-16.740000000000002" font-size="17.48" fill="#3B1A12" opacity="1" transform="rotate(0 -9.200000000000001 -16.740000000000002)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">学</text></g><g transform="translate(209.4137323260075 141.18643461241186) rotate(20)"><rect x="-23" y="-31" width="46" height="62" rx="5.98" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="-18.5" y="-26.5" width="37" height="53" rx="3.68" fill="none" stroke="#E5483F" stroke-width="1.3" opacity=".45"/><text x="-9.200000000000001" y="-16.740000000000002" font-size="17.48" fill="#3B1A12" opacity="1" transform="rotate(0 -9.200000000000001 -16.740000000000002)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">中</text></g><g transform="translate(235.2797344330424 156.1201778917679) rotate(40)"><rect x="-23" y="-31" width="46" height="62" rx="5.98" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="-18.5" y="-26.5" width="37" height="53" rx="3.68" fill="none" stroke="#E5483F" stroke-width="1.3" opacity=".45"/><text x="-9.200000000000001" y="-16.740000000000002" font-size="17.48" fill="#3B1A12" opacity="1" transform="rotate(0 -9.200000000000001 -16.740000000000002)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">文</text></g><g transform="translate(160 182) rotate(-12) scale(0.72)"><ellipse cx="0" cy="11" rx="15" ry="8" fill="#FFD15C" stroke="#A86A0C" stroke-width="3.5"/><ellipse cx="0" cy="-2" rx="13" ry="12.5" fill="#E5483F" stroke="#7E1D19" stroke-width="4"/><path d="M-5 -13v5M0 -14.5v5M5 -13v5" stroke="#7E1D19" stroke-width="2.6" stroke-linecap="round"/></g><g transform="translate(202 182) rotate(12) scale(0.72)"><ellipse cx="0" cy="11" rx="15" ry="8" fill="#FFD15C" stroke="#A86A0C" stroke-width="3.5"/><ellipse cx="0" cy="-2" rx="13" ry="12.5" fill="#E5483F" stroke="#7E1D19" stroke-width="4"/><path d="M-5 -13v5M0 -14.5v5M5 -13v5" stroke="#7E1D19" stroke-width="2.6" stroke-linecap="round"/></g><g transform="translate(52 64) rotate(-22)"><rect x="-15" y="-20" width="30" height="40" rx="3.9000000000000004" fill="#E5483F" stroke="#3B1A12" stroke-width="3"/><rect x="-10.5" y="-15.5" width="21" height="31" rx="2.4" fill="none" stroke="#FFD15C" stroke-width="2"/><circle r="5.1000000000000005" fill="#FFD15C" stroke="#5A3520" stroke-width="2"/></g><g transform="translate(312 74) rotate(20)"><rect x="-15" y="-20" width="30" height="40" rx="3.9000000000000004" fill="#E5483F" stroke="#3B1A12" stroke-width="3"/><rect x="-10.5" y="-15.5" width="21" height="31" rx="2.4" fill="none" stroke="#FFD15C" stroke-width="2"/><circle r="5.1000000000000005" fill="#FFD15C" stroke="#5A3520" stroke-width="2"/></g><path d="M86 120Q87.44 126.56 94 128Q87.44 129.44 86 136Q84.56 129.44 78 128Q84.56 126.56 86 120Z" fill="#F4C14E"/><path d="M282 19Q283.26 24.74 289 26Q283.26 27.26 282 33Q280.74 27.26 275 26Q280.74 24.74 282 19Z" fill="#F4C14E"/><path d="M330 144Q331.08 148.92 336 150Q331.08 151.08 330 156Q328.92 151.08 324 150Q328.92 148.92 330 144Z" fill="#F4C14E"/><path d="M36 162Q37.08 166.92 42 168Q37.08 169.08 36 174Q34.92 169.08 30 168Q34.92 166.92 36 162Z" fill="#F4C14E"/></svg>`,
   lessons: `<svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="360" height="200" fill="#F1F0E0"/><circle cx="280" cy="150" r="80" fill="#E4E3BE"/><g transform="rotate(-3 266 156)"><rect x="186" y="124" width="160" height="62" fill="#FFFFFF" stroke="#5A3520" stroke-width="3"/><rect x="178" y="118" width="12" height="74" rx="5" fill="#C98E55" stroke="#3B1A12" stroke-width="3"/><rect x="342" y="118" width="12" height="74" rx="5" fill="#C98E55" stroke="#3B1A12" stroke-width="3"/><text x="270" y="156" font-size="50" fill="#3B1A12" opacity="1" transform="rotate(0 270 156)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">永</text></g><path d="M146 104L190 96" stroke="#7E1D19" stroke-width="19" stroke-linecap="round"/><path d="M146 104L190 96" stroke="#E5483F" stroke-width="13" stroke-linecap="round"/><g transform="translate(108 104) rotate(10) scale(0.74) translate(-100 -100)"><ellipse cx="82" cy="178" rx="11" ry="13" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><ellipse cx="118" cy="178" rx="11" ry="13" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><ellipse cx="82" cy="188" rx="13" ry="5" fill="#FFFFFF" stroke="#3B1A12" stroke-width="3"/><ellipse cx="118" cy="188" rx="13" ry="5" fill="#FFFFFF" stroke="#7E1D19" stroke-width="3"/><circle cx="100.0" cy="44.0" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="124.3" cy="49.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="143.8" cy="65.1" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="154.6" cy="87.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="154.6" cy="112.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="143.8" cy="134.9" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="124.3" cy="150.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="100.0" cy="156.0" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="75.7" cy="150.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="56.2" cy="134.9" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="45.4" cy="112.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="45.4" cy="87.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="56.2" cy="65.1" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="75.7" cy="49.5" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/><circle cx="100.0" cy="44.0" r="17" fill="#FFD15C"/><circle cx="124.3" cy="49.5" r="17" fill="#FFD15C"/><circle cx="143.8" cy="65.1" r="17" fill="#FFD15C"/><circle cx="154.6" cy="87.5" r="17" fill="#FFD15C"/><circle cx="154.6" cy="112.5" r="17" fill="#FFD15C"/><circle cx="143.8" cy="134.9" r="17" fill="#FFD15C"/><circle cx="124.3" cy="150.5" r="17" fill="#FFD15C"/><circle cx="100.0" cy="156.0" r="17" fill="#FFD15C"/><circle cx="75.7" cy="150.5" r="17" fill="#FFD15C"/><circle cx="56.2" cy="134.9" r="17" fill="#FFD15C"/><circle cx="45.4" cy="112.5" r="17" fill="#FFD15C"/><circle cx="45.4" cy="87.5" r="17" fill="#FFD15C"/><circle cx="56.2" cy="65.1" r="17" fill="#FFD15C"/><circle cx="75.7" cy="49.5" r="17" fill="#FFD15C"/><circle cx="100" cy="100" r="50" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><path d="M60 116Q56 130 66 138M140 116Q144 130 134 138" fill="none" stroke="#FFD15C" stroke-width="4" stroke-linecap="round"/><path d="M91 56Q100 22 109 56Z" fill="#F4C14E" stroke="#A86A0C" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="64" r="7" fill="#D8F2FF" stroke="#A86A0C" stroke-width="3.5"/><g transform="translate(0 0)"><path d="M62 80Q76 66 90 78" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="M62 80Q76 66 90 78" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/></g><g transform="translate(0 0)"><path d="M138 80Q124 66 110 78" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="M138 80Q124 66 110 78" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/></g><ellipse cx="59.9" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity="0.72"/><ellipse cx="140.1" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity="0.72"/><ellipse cx="81" cy="98" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="78.6" cy="94.6" r="3.1" fill="#fff"/><circle cx="83.5" cy="101" r="1.4" fill="#fff"/><ellipse cx="129" cy="98" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="126.6" cy="94.6" r="3.1" fill="#fff"/><circle cx="131.5" cy="101" r="1.4" fill="#fff"/><path d="M86 120Q100 132 114 120" fill="none" stroke="#3B1A12" stroke-width="4" stroke-linecap="round"/><path d="M104 125Q106 137 113 135Q117 131 113 122" fill="#FF8A96" stroke="#3B1A12" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="110" r="9" fill="#FF8A7E" stroke="#7E1D19" stroke-width="3"/><circle cx="97" cy="107" r="2.6" fill="#FFFFFF" opacity=".8"/></g><path d="M196 70L232 132" stroke="#3B1A12" stroke-width="10" stroke-linecap="round"/><path d="M196 70L232 132" stroke="#C98E55" stroke-width="5.5" stroke-linecap="round"/><path d="M226 122L240 146L230 128Z" fill="#3B1A12" stroke="#3B1A12" stroke-width="7" stroke-linejoin="round"/><path d="M228 120L234 130" stroke="#F4C14E" stroke-width="9"/><g transform="translate(204 92) rotate(30) scale(0.72)"><ellipse cx="0" cy="11" rx="15" ry="8" fill="#FFD15C" stroke="#A86A0C" stroke-width="3.5"/><ellipse cx="0" cy="-2" rx="13" ry="12.5" fill="#E5483F" stroke="#7E1D19" stroke-width="4"/><path d="M-5 -13v5M0 -14.5v5M5 -13v5" stroke="#7E1D19" stroke-width="2.6" stroke-linecap="round"/></g><ellipse cx="44" cy="182" rx="20" ry="8" fill="#3A3530" stroke="#3B1A12" stroke-width="3"/><ellipse cx="44" cy="179" rx="12" ry="3.5" fill="#3B1A12"/><text x="330" y="40" font-size="28" fill="#E5483F" opacity="0.85" transform="rotate(10 330 40)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">写</text><text x="282" y="74" font-size="20" fill="#3B1A12" opacity="0.5" transform="rotate(-8 282 74)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">心</text><text x="244" y="30" font-size="18" fill="#3B1A12" opacity="0.45" transform="rotate(-12 244 30)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">字</text><circle cx="252" cy="160" r="3" fill="#3B1A12" opacity=".7"/><circle cx="246" cy="172" r="2" fill="#3B1A12" opacity=".5"/><path d="M30 33Q31.26 38.74 37 40Q31.26 41.26 30 47Q28.74 41.26 23 40Q28.74 38.74 30 33Z" fill="#F4C14E"/><path d="M176 20Q177.08 24.92 182 26Q177.08 27.08 176 32Q174.92 27.08 170 26Q174.92 24.92 176 20Z" fill="#F4C14E"/></svg>`,
 };
+/* Shi Shi's head (icons/logo.svg) with a face for each mood: happy, cheer (just practised), miss (evening, not practised
+   yet), sleep (two days or more away) */
+const MANE = [[100, 44], [124.3, 49.5], [143.8, 65.1], [154.6, 87.5], [154.6, 112.5], [143.8, 134.9], [124.3, 150.5], [100, 156], [75.7, 150.5], [56.2, 134.9], [45.4, 112.5], [45.4, 87.5], [56.2, 65.1], [75.7, 49.5]];
+function shiFace(mood) {
+  const brow = d => `<path d="${d}" fill="none" stroke="#7E1D19" stroke-width="11" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`;
+  const eye = x => `<ellipse cx="${x}" cy="94" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="${x - 2.4}" cy="90.5" r="3.1" fill="#fff"/><circle cx="${x + 2.5}" cy="97" r="1.4" fill="#fff"/>`;
+  const arc = (x, up) => `<path d="M${x - 9} ${up ? 96 : 92}Q${x} ${up ? 84 : 102} ${x + 9} ${up ? 96 : 92}" fill="none" stroke="#2A0E0C" stroke-width="5" stroke-linecap="round"/>`;
+  const big = x => `<ellipse cx="${x}" cy="95" rx="8" ry="9.5" fill="#2A0E0C"/><circle cx="${x - 3}" cy="91" r="3.8" fill="#fff"/><circle cx="${x + 3}" cy="98" r="1.8" fill="#fff"/>`;
+  const face = {
+    happy: [brow('M62 80Q76 66 90 78') + brow('M138 80Q124 66 110 78'), eye(76) + eye(124), '<path d="M82 118Q100 144 118 118Q100 124 82 118Z" fill="#7E1D19" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/><ellipse cx="100" cy="128" rx="7" ry="4.5" fill="#FF8A96"/>'],
+    cheer: [brow('M62 80Q76 66 90 78') + brow('M138 80Q124 66 110 78'), arc(76, 1) + arc(124, 1), '<path d="M78 116Q100 156 122 116Q100 123 78 116Z" fill="#7E1D19" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/><ellipse cx="100" cy="133" rx="9" ry="5.5" fill="#FF8A96"/>'],
+    miss: [brow('M64 82Q76 72 89 72') + brow('M136 82Q124 72 111 72'), big(76) + big(124), '<path d="M88 128Q100 120 112 128" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],
+    sleep: [brow('M63 78Q76 74 90 78') + brow('M137 78Q124 74 110 78'), arc(76, 0) + arc(124, 0), '<ellipse cx="100" cy="125" rx="5" ry="6" fill="#7E1D19"/>'],
+  }[mood] || [];
+  return `<svg class="shi-face" viewBox="21 21 158 158" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
+    + MANE.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="17" fill="#FFD15C" stroke="#A86A0C" stroke-width="8"/>`).join('')
+    + MANE.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="17" fill="#FFD15C"/>`).join('')
+    + '<circle cx="100" cy="100" r="50" fill="#E5483F" stroke="#7E1D19" stroke-width="5"/><path d="M60 116Q56 130 66 138M140 116Q144 130 134 138" fill="none" stroke="#FFD15C" stroke-width="4" stroke-linecap="round"/>'
+    + '<path d="M91 56Q100 22 109 56Z" fill="#F4C14E" stroke="#A86A0C" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="64" r="7" fill="#D8F2FF" stroke="#A86A0C" stroke-width="3.5"/>'
+    + face[0] + '<ellipse cx="60" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/><ellipse cx="140" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/>'
+    + face[1] + face[2] + '<circle cx="100" cy="110" r="9" fill="#FF8A7E" stroke="#7E1D19" stroke-width="3"/><circle cx="97" cy="107" r="2.6" fill="#fff" opacity=".8"/></svg>';
+}
+function shiMood(pileLeft) {
+  const days = practiceDays(), now = new Date();
+  if (days.has(dayKey(now))) return pileLeft ? 'happy' : 'cheer';
+  const y = new Date(now); y.setDate(y.getDate() - 1);
+  if (days.size && !days.has(dayKey(y)) && !db.freeze.days.includes(dayKey(y))) return 'sleep';
+  const h = now.getHours(); return h >= 17 || h < 5 ? 'miss' : 'happy';   // evening and late night: he misses you
+}
 /* the decks picture with characters from your own decks on the fan of cards Shi Shi is holding (no cards: the sample ones) */
 function deckScene(cards) {
   if (!cards?.length) return SCENE.decks;
@@ -1141,13 +1240,34 @@ function LearnView() {
 
 /* ---------- this month's calendar ----------
    Every day you finished a story gets a red tile with a character from that story (tap it to read the story again),
-   like a diary of your reading. The flame counts the days in a row with at least one finished story. */
+   like a diary of your reading. The flame counts the days in a row you practised: flip cards, writing or a story. */
 const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
-function readStreak() {
-  const days = new Set(db.readDone.map(s => dayKey(s.done))), d = new Date(), today = days.has(dayKey(d));
+function practiceDays() {   // the days you practised cards, wrote or finished a story
+  const days = new Set(db.readDone.map(s => dayKey(s.done)));
+  for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length) days.add(k);
+  return days;
+}
+/* A freeze covers a day you missed so the streak lives on. You start with one, get one more for every 7 days in a row
+   (keeping 2 at most), and they are used up by themselves the first time the app sees the gap. */
+function applyFreezes() {
+  const F = db.freeze, act = practiceDays(), d = new Date(), gap = [];
+  d.setDate(d.getDate() - 1);
+  while (!act.has(dayKey(d)) && !F.days.includes(dayKey(d))) { gap.push(dayKey(d)); d.setDate(d.getDate() - 1); if (gap.length > 3) return; }
+  if (gap.length && gap.length <= F.have) {
+    F.days.push(...gap); F.have -= gap.length; F.notice = gap.length === 1 ? 'Your streak freeze saved yesterday ❄️' : `${gap.length} streak freezes saved your streak ❄️`;
+    LOG.add('freeze-used', { days: gap.length, left: F.have }); save();
+  }
+}
+function practiceStreak() {
+  applyFreezes();
+  const F = db.freeze, act = practiceDays(), ice = new Set(F.days), d = new Date(), today = act.has(dayKey(d));
   if (!today) d.setDate(d.getDate() - 1);   // today is not over yet: a streak that ran until yesterday still counts
-  let n = 0; while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  let n = 0, start = null;
+  for (;;) { const k = dayKey(d); if (act.has(k)) { n++; start = k; } else if (!ice.has(k)) break; d.setDate(d.getDate() - 1); }
+  if (n && F.run !== start) { F.run = start; F.given = 0; save(); }
+  const m = Math.floor(n / 7);
+  if (n && m > F.given) { const before = F.have; F.have = Math.min(2, F.have + m - F.given); F.given = m; if (F.have > before && !F.notice) F.notice = `${n} days in a row! You earned a streak freeze ❄️`; save(); }
   return { n, today };
 }
 const storyGlyph = s => [...(s.zh || '').replace(/^狮狮的?/, '')].find(c => HAN.test(c)) || '读';
@@ -1159,25 +1279,28 @@ function MonthCal() {
   for (const s of db.readDone) { const d = new Date(s.done); if (d.getFullYear() === y && d.getMonth() === m) (by[d.getDate()] ||= []).unshift(s); }   // oldest first
   for (const w of db.bank) { const d = new Date(w.added); if (d.getFullYear() === y && d.getMonth() === m) busy.add(d.getDate()); }
   for (let d = 1; d <= len; d++) if (db.days[`${y}-${m}-${d}`]) busy.add(d);
-  const monthEn = now.toLocaleDateString('en-GB', { month: 'long' }), { n, today } = readStreak();
+  const monthEn = now.toLocaleDateString('en-GB', { month: 'long' }), { n, today } = practiceStreak(), ice = new Set(db.freeze.days);
   const cells = Array.from({ length: lead }, () => '<span class="cal-d pad"></span>');
   for (let d = 1; d <= len; d++) {
     const list = by[d], cls = `${d === td ? ' today' : ''}${d > td ? ' future' : ''}`;
     cells.push(list
       ? `<button class="cal-d done${cls}" data-act="cal-day" data-d="${d}" aria-label="${d} ${monthEn}: ${list.length === 1 ? '1 story' : list.length + ' stories'}"><b>${esc(storyGlyph(list[0]))}</b><i>${d}</i>${list.length > 1 ? `<em>${list.length}</em>` : ''}</button>`
       : busy.has(d) ? `<button class="cal-d busy${cls}" data-act="cal-day" data-d="${d}" aria-label="${d} ${monthEn}: words or decks"><i>${d}</i></button>`
+      : ice.has(`${y}-${m}-${d}`) ? `<span class="cal-d ice${cls}" aria-label="${d} ${monthEn}: saved by a streak freeze"><i>${d}</i></span>`
       : `<span class="cal-d${cls}"><i>${d}</i></span>`);
   }
-  const note = n ? (today ? 'Today’s story is done' : 'Finish a story today to keep it going') : 'Finish a story to start a streak';
+  const note = n ? (today ? 'You practised today' : 'Practise today to keep it going') : 'Practise to start a streak';
+  const fz = db.freeze.have;
   return `<div class="section-head cal-head"><h2>${monthEn} <span class="cal-zh">${ZH_MONTH[m]}</span></h2></div>
     <div class="cal">
-      <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}</span></div>
+      <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}${fz ? `<span class="ice-chip">❄️ ${fz} ${fz === 1 ? 'freeze' : 'freezes'}</span>` : ''}</span></div>
       <div class="cal-wk">${[...'一二三四五六日'].map(c => `<span>${c}</span>`).join('')}</div>
       <div class="cal-grid">${cells.join('')}</div>
     </div>`;
 }
 function noteDeck(d, cardId) {   // you practised this card of this deck today (each card counts once a day)
   if (!d || !cardId) return;
+  if (d.id === 'today') { const c = d.cards.find(x => x.id === cardId); d = db.decks.find(x => x.cards.includes(c)) || bankDeck(); }
   const k = dayKey(Date.now()), day = db.days[k] ||= { decks: {} }, e = day.decks[d.id] ||= { name: d.name, n: 0, cards: [] };
   e.name = d.name; e.cards ||= [];
   if (e.cards.includes(cardId)) return;
@@ -1681,6 +1804,7 @@ const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 function Home() {
   const [hz, en] = greeting(), name = (db.prefs.name || '').trim();
   const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
+  const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
     <header class="bar bar-home">${AvBtn()}<img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
       <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
@@ -1688,6 +1812,7 @@ function Home() {
       <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
       <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
       ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
+    ${TodayCard()}
     <div class="section-head"><h2>My word bank</h2></div>
     ${BankTile()}
     <div class="section-head"><h2>Pick up where you left off</h2></div>
@@ -1700,6 +1825,27 @@ function Home() {
     <div class="dock row-btns"><button class="btn btn-ghost" data-act="new-deck">${I.plus} New deck</button>
       <button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
   </div>`;
+}
+/* the top of Home: today's job in one card, with Shi Shi showing how you are doing */
+function TodayCard() {
+  const P = todayPile(), n = P.cards.length, { n: streak, today } = practiceStreak(), mood = shiMood(n);
+  const flame = `<span class="today-fl${streak ? ' on' : ''}">${FLAME}${streak ? `${streak} day streak` : 'No streak yet'}</span>`;
+  const say = { miss: 'Shi Shi is waiting for you', sleep: 'Shi Shi dozed off. One round wakes him up' }[mood];
+  let body;
+  if (!allItems().length) body = `<div class="today-big">Add your first words</div>
+      <div class="today-sub">Tick words you know, or make a deck</div>
+      <button class="btn today-go" data-act="open-hsk">Add words</button>`;
+  else if (!n) { const tmr = dueBy(dayStart(Date.now(), 2));
+    body = `<div class="today-big">${today ? 'All done for today' : 'Nothing waiting'}</div>
+      <div class="today-sub">${tmr ? `Tomorrow: ${plural(tmr, 'card')}` : 'Add new words to keep growing'}</div>
+      <button class="btn today-go ghost" data-act="tab" data-h="#/read">Read a story</button>`; }
+  else body = `<div class="today-big">${n === 1 ? '1 card' : n + ' cards'} waiting</div>
+      <div class="today-sub">${say || `About ${Math.max(1, Math.round(n * 10 / 60))} min`}</div>
+      <div class="today-mix">${P.due.length ? `<span>${P.due.length} to review</span>` : ''}${P.fresh.length ? `<span>${P.fresh.length} new</span>` : ''}</div>
+      <button class="btn today-go" data-act="today-start">Start</button>`;
+  return `<section class="today-card ${mood}" aria-label="Today">
+    <div class="today-shi">${shiFace(mood)}${mood === 'sleep' ? '<span class="today-zz" aria-hidden="true">Z<small>z</small></span>' : ''}</div>
+    <div class="today-lbl">TODAY ${flame}</div>${body}</section>`;
 }
 function BankTile() {
   const chars = bankCharList(), latest = chars.slice(-12).reverse();
@@ -1728,7 +1874,7 @@ function DeckTile(d) {
   const first = hanChars(d.cards[0]?.hanzi)[0] || '字';
   return `<button class="deck" data-act="open-deck" data-id="${d.id}" style="--accent:${d.accent}">
     <div class="deck-stack"><span></span><span></span><div class="deck-face">${esc(first)}</div></div>
-    <div class="deck-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${plural(d.cards.length, 'card')}</div></div>
+    <div class="deck-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${plural(d.cards.length, 'card')}${(k => k ? ` · ${k} known` : '')(d.cards.filter(isKnown).length)}</div></div>
     <span class="chev">${I.chev}</span></button>`;
 }
 function dots(c) {
@@ -1755,18 +1901,72 @@ function DeckView(d) {
   </div>`;
 }
 
+/* ---------- memory: when each card comes back ----------
+   Every card (and word bank word) keeps c.srs = { due, iv, n, miss, first, seen }: due = when to ask it again (ms),
+   iv = the gap in days it earned, n = times known in a row, miss = times forgotten, first = when it was first answered.
+   After you turn a card, Flip cards asks "Did you know it?": Forgot brings it back in 10 minutes, Almost soon,
+   Knew it later and later (3 days, then about 2.5 times the last gap). A card that is not due yet only changes when
+   you forgot it, so going through a deck again does not push words weeks away. */
+const DAY = 864e5, NEW_PER_DAY = 5, MAX_PILE = 30;
+const dayStart = (t = Date.now(), add = 0) => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + add); return d.getTime(); };
+const allItems = () => [...db.decks.flatMap(d => d.cards), ...db.bank];
+const isKnown = c => (c.srs?.iv || 0) >= 3;
+function srsPlan(c, g, now = Date.now()) {   // g: 0 forgot, 1 almost, 2 knew it; what the card would get (null = stays as it is)
+  const s = c.srs;
+  if (g === 0) return { due: now + 10 * 6e4, iv: 0, n: 0, miss: (s?.miss || 0) + 1 };
+  if (s && s.iv > 0 && s.due > now) return null;
+  const iv0 = s?.iv || 0;
+  const iv = g === 1 ? Math.max(1, Math.round(iv0 * 1.2)) : iv0 ? Math.max(iv0 + 1, Math.round(iv0 * 2.5)) : s ? 2 : 3;
+  return { due: dayStart(now, iv), iv, n: g === 2 ? (s?.n || 0) + 1 : 0, miss: s?.miss || 0 };
+}
+function whenLabel(due, now = Date.now()) {
+  const days = Math.round((dayStart(due) - dayStart(now)) / DAY);
+  if (days <= 0) return due - now < 36e5 ? 'again soon' : 'later today';
+  return days === 1 ? 'tomorrow' : days < 45 ? `in ${days} days` : days < 365 ? `in ${Math.round(days / 30)} months` : 'in a year';
+}
+const gradeLabel = (c, g) => { const p = srsPlan(c, g); return whenLabel(p ? p.due : c.srs.due); };
+function srsGrade(c, g) {
+  const now = Date.now();
+  c.srs = Object.assign(c.srs || { first: now }, srsPlan(c, g, now) || {}, { seen: now });
+  save();
+}
+/* today's pile: every card that is due, then up to 5 new ones a day (your own decks before the word bank); a word that is
+   in two places is asked once */
+function todayPile(now = Date.now()) {
+  const seen = new Set(), due = [], fresh = [], bank = new Set(db.bank), t0 = dayStart(now);
+  let started = 0;
+  for (const c of allItems()) {
+    if (c.srs?.first >= t0) started++;
+    if (!c.hanzi || seen.has(c.hanzi)) continue;
+    seen.add(c.hanzi);
+    if (!c.srs) fresh.push(c); else if (c.srs.due <= now) due.push(c);
+  }
+  due.sort((a, b) => a.srs.due - b.srs.due);
+  const d = due.slice(0, MAX_PILE);
+  const nNew = Math.max(0, Math.min(NEW_PER_DAY - started, MAX_PILE - d.length));
+  const nw = [...fresh.filter(c => !bank.has(c)), ...fresh.filter(c => bank.has(c))].slice(0, nNew);
+  return { due: d, fresh: nw, cards: [...d, ...nw] };
+}
+const todayDeck = () => ({ id: 'today', name: 'Today', accent: ACCENTS[0], cards: todayPile().cards });
+function dueBy(t) {   // how many different words are waiting by time t
+  const seen = new Set();
+  for (const c of allItems()) if (c.srs && c.srs.due < t && c.hanzi) seen.add(c.hanzi);
+  return seen.size;
+}
+
 /* ---------- study (flip) ---------- */
 function startStudy() {
   const d = curDeck();
-  const ids = d.cards.map(c => c.id);
-  if (!S.study || S.study.deckId !== d.id || S.study.order.length !== ids.length || !S.study.order.every(id => cardById(d, id)))
-    S.study = { deckId: d.id, order: ids, i: 0, shuffled: false, angle: 0, hinted: false };
+  const ids = d.cards.map(c => c.id), base = ids.join();
+  if (!S.study || S.study.deckId !== d.id || S.study.base !== base || S.study.done)
+    S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false };
 }
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
 function hzSize(n) { return [0, 132, 104, 80, 64][n] || Math.max(34, Math.floor(250 / n)); }
 function enSize(s) { const l = s.length; return l < 9 ? 46 : l < 16 ? 38 : l < 28 ? 30 : l < 50 ? 24 : 20; }
 function Faces(c, d) {
   const n = [...c.hanzi].length;
+  if (d.id === 'today') d = db.decks.find(x => x.cards.includes(c)) || { name: 'Word bank' };   // today's cards: the deck each one is from
   return `<div class="face front"><div class="face-in"><span class="corner">中文</span><span class="stamp">玉</span>
       <div class="hz" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div><div class="py">${esc(c.pinyin)}</div>
       <span class="foot">${esc(d.name)}</span></div></div>
@@ -1774,7 +1974,9 @@ function Faces(c, d) {
       <div class="en" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div><span class="foot">${esc(d.name)}</span></div></div>`;
 }
 function StudyView(d) {
-  const st = S.study, c = cardById(d, st.order[st.i]), n = st.order.length;
+  const st = S.study;
+  if (st.done) return StudySummary(d);
+  const c = cardById(d, st.order[st.i]), n = st.order.length;
   return `<div class="screen fade-in" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button>
       <div class="progress"><div class="progress-fill" id="pfill" style="width:${(st.i + 1) / n * 100}%"></div></div>
@@ -1782,14 +1984,65 @@ function StudyView(d) {
     <div class="stage" id="stage"><div class="stage-shadow" id="sshadow"></div>
       <div class="wrap" id="wrap"><div class="card3d" id="card3d">${Faces(c, d)}</div></div></div>
     <p class="hint" id="hint" style="opacity:${st.hinted ? 0 : 1}">Tap to flip · drag sideways to turn it</p>
-    <div class="controls">
+    <div class="controls" id="ctrls">
       <button class="icon-btn lg" data-act="prev" aria-label="Previous">${I.left}</button>
       <div class="mid">
         <button class="pill ${st.shuffled ? 'on' : ''}" data-act="shuffle">${I.shuffle}Shuffle</button>
         <button class="pill" data-act="side" id="sidebtn">${I.swap}${db.prefs.englishFirst ? 'EN first' : '中 first'}</button>
       </div>
       <button class="icon-btn lg" data-act="next" aria-label="Next">${I.right}</button>
-    </div></div>`;
+    </div>
+    <div class="grades" id="grades" hidden></div></div>`;
+}
+/* after you turn a card: "Did you know it?" with three answers, each saying when the card comes back */
+function showGrades(on) {
+  const st = S.study, g = $('#grades'), ctrls = $('#ctrls'), h = $('#hint'); if (!g) return;
+  st.flipped = on;
+  if (on) {
+    const c = cardById(curDeck(), st.order[st.i]);
+    g.innerHTML = [['Forgot', 'g-no'], ['Almost', 'g-mid'], ['Knew it', 'g-yes']].map(([t, cls], i) =>
+      `<button class="gbtn ${cls}" data-act="sgrade" data-g="${i}"><b>${t}</b><small>${gradeLabel(c, i)}</small></button>`).join('');
+    if (h) { h.textContent = 'Did you know it?'; h.classList.add('ask'); h.style.opacity = 1; }
+  } else if (h) { h.classList.remove('ask'); h.style.opacity = 0; }
+  g.hidden = !on; if (ctrls) ctrls.hidden = on;
+}
+function gradeFlip(g) {
+  const st = S.study, d = curDeck(), c = cardById(d, st.order[st.i]); if (!c) return;
+  if (!c.srs && !st.fresh.includes(c.id)) st.fresh.push(c.id);
+  srsGrade(c, g); st.graded[c.id] = g; noteDeck(d, c.id);
+  LOG.add('card-grade', { hz: c.hanzi, said: ['forgot', 'almost', 'knew it'][g], back: whenLabel(c.srs.due) });
+  if (g === 0 && st.order.filter(id => id === c.id).length < 2) st.order.push(c.id);   // forgotten: asked once more at the end
+  if (st.i + 1 >= st.order.length) return finishFlip();
+  stepCard(1);
+}
+function finishFlip() {
+  const st = S.study, ids = Object.keys(st.graded);
+  st.done = true;
+  LOG.add('flip-round', { remembered: ids.filter(id => st.graded[id] > 0).length, of: ids.length, new: st.fresh.length });
+  render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
+  try { navigator.vibrate?.([10, 70, 16]); } catch (_) {}
+}
+/* the end of a flip round: Shi Shi cheers, what you remembered, the new words and what is waiting tomorrow */
+function StudySummary(d) {
+  const st = S.study, ids = Object.keys(st.graded), n = ids.length, ok = ids.filter(id => st.graded[id] > 0).length;
+  const fresh = st.fresh.map(id => cardById(d, id)).filter(c => c && st.graded[c.id] > 0);
+  const pct = n ? ok / n : 0, { n: streak } = practiceStreak(), tmr = dueBy(dayStart(Date.now(), 2));
+  const [hz, py, en] = pct === 1 ? ['太棒了！', 'tài bàng le', 'Great job!'] : pct >= .7 ? ['很好！', 'hěn hǎo', 'Well done!'] : ['加油！', 'jiā yóu', 'Keep going!'];
+  const tm = new Date(dayStart(Date.now(), 1));
+  const bits = Array.from({ length: 22 }, (_, i) => `<i style="--x:${(i % 2 ? 1 : -1) * (40 + (i * 37) % 120)}px;--y:${-(60 + (i * 53) % 110)}px;--r:${(i * 97) % 360}deg;--d:${(i % 7) * 40}ms;background:${['#E5483F', '#FFD15C', '#3F7A5F', '#E8742C', '#B23A2C'][i % 5]}"></i>`).join('');
+  return `<div class="screen fade-in" style="--accent:${d.accent}">
+    <header class="bar"><button class="icon-btn" data-act="study-done" aria-label="Close">${I.close}</button><div class="bar-title"></div><span style="width:42px"></span></header>
+    <section class="done-hero"><div class="done-burst" aria-hidden="true">${bits}</div><div class="done-shi">${shiFace('cheer')}</div>
+      <h2>${hz}</h2><div class="done-py">${py} · ${en}</div></section>
+    <div class="done-stats">
+      <div><b>${ok}/${n}</b><span>remembered</span></div>
+      <div><b>${fresh.length}</b><span>${fresh.length === 1 ? 'new word' : 'new words'}</span></div>
+      <div class="fl"><b>${streak}</b><span>day streak</span></div></div>
+    ${fresh.length ? `<div class="done-words">${fresh.slice(0, 8).map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}
+    <div class="done-next"><span class="done-cal"><small>${tm.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()}</small>${tm.getDate()}</span>
+      <span><b>${tmr ? `Tomorrow: ${plural(tmr, 'card')}` : 'Nothing due tomorrow'}</b><small>${tmr ? 'Shi Shi will be waiting' : 'Add new words to keep growing'}</small></span></div>
+    <div class="dock row-btns"><button class="btn btn-ghost" data-act="study-again">Again</button><button class="btn btn-primary" data-act="study-done">Done</button></div>
+  </div>`;
 }
 function setAngle(anim, tilt = 0) {
   const st = S.study, el = $('#card3d'); if (!el) return;
@@ -1799,7 +2052,7 @@ function setAngle(anim, tilt = 0) {
   if (sh) { sh.style.transition = el.style.transition; sh.style.transform = `scaleX(${0.45 + 0.55 * Math.abs(Math.cos(st.angle * Math.PI / 180))})`; }
 }
 function mountStudy() {
-  const st = S.study; st.angle = startAngle(); setAngle(false);
+  const st = S.study; st.angle = startAngle(); setAngle(false); st.flipped = false;
   const stage = $('#stage');
   let down = null;
   stage.addEventListener('pointerdown', e => {
@@ -1828,6 +2081,7 @@ function mountStudy() {
     noteDeck(curDeck(), st.order[st.i]);
     LOG.add(down.moved ? 'card-turn' : 'card-flip', { shows: Math.abs(Math.round(st.angle / 180)) % 2 ? 'English' : 'Chinese', bounced: down.moved && st.angle === base ? true : undefined });
     down = null; setAngle(true); dismissHint();
+    if (!st.flipped && st.angle !== base) showGrades(true);
   };
   stage.addEventListener('pointerup', end);
   stage.addEventListener('pointercancel', end);
@@ -1839,8 +2093,10 @@ function stepCard(dir) {
   const st = S.study, d = curDeck(), n = st.order.length, wrap = $('#wrap');
   const ni = (st.i + dir + n) % n;
   if (dir > 0) noteDeck(d, st.order[st.i]);   // the card you are leaving
+  if (dir > 0 && ni === 0 && Object.keys(st.graded).length) return finishFlip();   // end of a round you answered: the cheer page
   LOG.add(dir > 0 ? 'card-next' : 'card-prev', { card: `${ni + 1}/${n}`, hz: cardById(d, st.order[ni])?.hanzi });
   if (dir > 0 && ni === 0 && n > 1) toast('Round complete — from the top 🎉');
+  showGrades(false);
   const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
   out.onfinish = () => {
     st.i = ni;
@@ -3087,7 +3343,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.49';
+const APP_VERSION = '1.50';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -3211,7 +3467,14 @@ const A = {
   'learn-write': t => { S.write = null; nav(`#/deck/${t.dataset.id}/write`); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
   'write': () => { S.write = null; nav(`#/deck/${S.deckId}/write`); },
-  'back-deck': () => goBack('#/deck/' + S.deckId),
+  'back-deck': () => goBack(S.deckId === 'today' ? '#/' : '#/deck/' + S.deckId),
+  'today-start': () => { const P = todayPile(); if (!P.cards.length) return render(); S.today = { id: 'today', name: 'Today', accent: ACCENTS[0], cards: P.cards }; S.study = null;
+    LOG.add('today-start', { review: P.due.length, new: P.fresh.length }); nav('#/deck/today/study'); },
+  'sgrade': t => gradeFlip(+t.dataset.g),
+  'study-done': () => { const today = S.deckId === 'today'; S.study = null; S.today = null; goBack(today ? '#/' : '#/deck/' + S.deckId); },
+  'study-again': () => {
+    if (S.deckId === 'today') { const P = todayPile(); if (!P.cards.length) { toast('All done for today 🎉'); return A['study-done'](); } S.today = { id: 'today', name: 'Today', accent: ACCENTS[0], cards: P.cards }; }
+    S.study = null; startStudy(); render(); },
   'next': () => stepCard(1),
   'prev': () => stepCard(-1),
   'shuffle': t => {
