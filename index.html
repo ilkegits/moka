@@ -465,11 +465,17 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .stage-shadow{position:absolute;bottom:4%;left:50%;width:70%;height:26px;margin-left:-35%;border-radius:50%;background:radial-gradient(closest-side,rgba(60,35,15,.22),transparent);filter:blur(4px)}
 .wrap{width:min(100%,340px);aspect-ratio:3/4;max-height:62dvh;position:relative}
 .card3d{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
-.face{position:absolute;inset:0;border-radius:28px;background:var(--card);box-shadow:var(--shadow);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
-.face.back{transform:rotateY(180deg);background:var(--card-2)}
-.face-in{position:absolute;inset:12px;border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
-.face .corner{position:absolute;top:14px;left:16px;font-size:12px;font-weight:600;color:var(--muted)}
-.face .stamp{position:absolute;top:12px;right:14px;width:22px;height:22px;border-radius:5px;background:var(--accent,var(--seal));color:var(--seal-ink);font-family:var(--hanzi);font-size:12px;display:grid;place-items:center;transform:rotate(-5deg);opacity:.9}
+.face{position:absolute;inset:0;border-radius:22px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 5px 0 rgba(120,95,60,.13);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.face.back{transform:rotateY(180deg)}
+.face-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px 18px 34px;text-align:center}
+.fc-tz{display:flex;gap:6px;justify-content:center}
+.fc-tz .tzg{box-shadow:none;background:var(--card-2)}
+.fc-tz .tzg b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:calc(var(--s) * .72);line-height:1;color:var(--ink)}
+.fc-ch{font-family:var(--hanzi);font-weight:600;line-height:1.05;word-break:break-all;color:var(--ink)}
+.fc-py{font-size:24px;font-weight:700;color:var(--seal);display:flex;align-items:center;gap:6px;letter-spacing:.01em}
+.fc-py .icon-btn{width:38px;height:38px;color:var(--seal);background:var(--seal-soft)}
+.fc-en{font-weight:800;letter-spacing:-.01em;line-height:1.2;color:var(--ink)}
+.fc-q{font-weight:800;letter-spacing:-.015em;line-height:1.15;color:var(--ink)}
 .face .foot{position:absolute;bottom:14px;left:0;right:0;font-size:12.5px;color:var(--muted)}
 .hz{font-family:var(--hanzi);line-height:1.12;letter-spacing:.02em;word-break:break-all}
 .py{font-size:17px;color:var(--seal);margin-top:14px;letter-spacing:.03em}
@@ -3372,14 +3378,20 @@ function startStudy() {
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
 function hzSize(n) { return [0, 132, 104, 80, 64][n] || Math.max(34, Math.floor(250 / n)); }
 function enSize(s) { const l = s.length; return l < 9 ? 46 : l < 16 ? 38 : l < 28 ? 30 : l < 50 ? 24 : 20; }
-function Faces(c, d) {
-  const n = [...c.hanzi].length;
+function Faces(c, d) {   // the same card as onboarding: the character in a writing grid; turned over, pinyin you can hear and the meaning
+  const ch = [...c.hanzi], n = ch.length, enF = db.prefs.englishFirst;
   if (d.id === 'today') d = db.decks.find(x => x.cards.includes(c)) || { name: 'Word bank' };   // today's cards: the deck each one is from
-  return `<div class="face front"><div class="face-in"><span class="corner">中文</span><span class="stamp">玉</span>
-      <div class="hz" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div><div class="py">${esc(c.pinyin)}</div>
-      <span class="foot">${esc(d.name)}</span></div></div>
-    <div class="face back"><div class="face-in"><span class="corner">English</span>
-      <div class="en" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div><span class="foot">${esc(d.name)}</span></div></div>`;
+  const grid = n <= 4 && ch.every(x => HAN.test(x));
+  const tz = grid ? `<div class="fc-tz">${ch.map(x => `<div class="tzg" style="--s:${['', 'min(210px,56vw)', 'min(132px,36vw)', 'min(92px,25vw)', 'min(70px,19vw)'][n]}">${TZG}<b>${esc(x)}</b></div>`).join('')}</div>`
+    : `<div class="fc-ch" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div>`;
+  const q = enF ? `<div class="fc-q" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div>` : tz;
+  const ans = `<div class="fc-ch" style="font-size:${n === 1 ? 76 : Math.min(64, Math.round(hzSize(n) * .62))}px">${esc(c.hanzi)}</div>
+      <span class="fc-py">${esc(c.pinyin)}<button class="icon-btn" data-act="say" data-h="${esc(c.hanzi)}" aria-label="Hear it">${I.sound}</button></span>
+      <span class="fc-en" style="font-size:${Math.max(17, Math.min(22, Math.round(enSize(c.en) * .6)))}px">${esc(c.en)}</span>
+      <span class="foot">${esc(d.name)}</span>`;
+  // English first starts turned round (startAngle 180), so the question goes on the back face
+  return `<div class="face front"><div class="face-in">${enF ? ans : q}</div></div>
+    <div class="face back"><div class="face-in">${enF ? q : ans}</div></div>`;
 }
 function StudyView(d) {
   const st = S.study;
@@ -3465,7 +3477,7 @@ function mountStudy() {
   const stage = $('#stage');
   let down = null;
   stage.addEventListener('pointerdown', e => {
-    if (!e.target.closest('#wrap')) return;
+    if (!e.target.closest('#wrap') || e.target.closest('button')) return;
     down = { x: e.clientX, y: e.clientY, a: st.angle, t: performance.now(), lx: e.clientX, lt: performance.now(), v: 0, moved: false, id: e.pointerId };
   });
   stage.addEventListener('pointermove', e => {
@@ -4783,7 +4795,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.84';
+const APP_VERSION = '1.85';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5380,9 +5392,8 @@ const A = {
   'side': t => {
     db.prefs.englishFirst = !db.prefs.englishFirst; save();
     t.innerHTML = `${I.swap}${db.prefs.englishFirst ? 'EN first' : '中 first'}`;
-    const st = S.study; st.angle = Math.round(st.angle / 180) * 180;
-    const showingEn = Math.abs(Math.round(st.angle / 180)) % 2 === 1;
-    if (showingEn !== db.prefs.englishFirst) { st.angle += 180; setAngle(true); }
+    const st = S.study, d = curDeck();   // the card's sides depend on the mode, so draw it again, question side up
+    $('#card3d').innerHTML = Faces(cardById(d, st.order[st.i]), d); st.angle = startAngle(); setAngle(false); showGrades(false);
   },
   'wmode': t => { if (db.prefs.writeMode === t.dataset.m) return; db.prefs.writeMode = t.dataset.m; save(); resetCardState(); render(); },
   'py-hint': t => { const W = S.write; W.pyShown = true; t.textContent = cardById(curDeck(), W.order[W.i]).pinyin; },
