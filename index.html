@@ -1140,19 +1140,6 @@ button.scene-tile:active svg{opacity:.92}
 .ob-hi h1{margin:14px 0 0;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.2;max-width:15em;text-wrap:balance}
 .ob-hi p{margin:8px 0 0;font-size:16px;color:var(--ink-2);max-width:20em}
 /* first lesson: a card you turn over */
-.ob-stage{perspective:1200px;margin:2px auto 0;width:min(300px,78vw)}
-.ob-card{position:relative;width:100%;aspect-ratio:4/5;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.25,.5,1);cursor:pointer}
-.ob-card.flip{transform:rotateY(180deg)}
-.ob-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;background:var(--card);
-  box-shadow:0 0 0 2px rgba(120,95,60,.12),0 5px 0 rgba(120,95,60,.13);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px}
-.ob-face.back{transform:rotateY(180deg)}
-.ob-face .tzg{--s:min(210px,56vw);box-shadow:none;background:var(--card-2)}
-.ob-face .tzg .ob-ch{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:calc(var(--s) * .72);line-height:1;color:var(--ink)}
-.ob-tap{font-size:14px;font-weight:600;color:var(--muted)}
-.ob-back-ch{font-family:var(--hanzi);font-weight:600;font-size:76px;line-height:1}
-.ob-py{font-size:24px;font-weight:700;color:var(--seal);display:flex;align-items:center;gap:6px}
-.ob-py .icon-btn{width:38px;height:38px;color:var(--seal);background:var(--seal-soft)}
-.ob-en{font-size:22px;font-weight:800;letter-spacing:-.01em}
 /* character check */
 .ob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .ob-ch-t{position:relative;aspect-ratio:1;border-radius:16px;background:var(--card);font-family:var(--hanzi);font-weight:600;font-size:clamp(30px,9vw,40px);line-height:1;color:var(--ink);
@@ -1185,14 +1172,6 @@ button.scene-tile:active svg{opacity:.92}
 .gopt-when small{display:block;font-size:12.5px;color:var(--muted)}
 .ob-opt[aria-pressed="true"] .gopt-when small{color:var(--seal);font-weight:700}
 .ob-note{margin:12px 2px 0;font-size:13px;color:var(--muted);text-align:center}
-.ob-dots{display:flex;justify-content:center;gap:7px;margin:18px 0 0}
-.ob-dots i{width:9px;height:9px;border-radius:50%;background:var(--line-2);transition:background .2s,transform .2s}
-.ob-dots i.on{background:var(--seal);transform:scale(1.25)}
-.ob-dots i.done{background:var(--jade)}
-.ob-write{display:flex;flex-direction:column;align-items:center}
-.ob-write .tzg{--s:min(270px,72vw)}
-.ob-write .quiz{position:absolute;inset:0}
-.ob-cap{margin:14px 0 0;font-size:15px;font-weight:600;color:var(--ink-2);min-height:22px;text-align:center}
 /* celebration (also used by milestones and streak moments) */
 .mo-hero{position:relative;text-align:center;padding:20px 0 0}
 .mo-hero .done-shi{width:170px;height:170px}
@@ -1219,12 +1198,6 @@ button.scene-tile:active svg{opacity:.92}
 .mo-pips{display:flex;gap:6px;margin-top:8px}
 .mo-pips i{width:26px;height:8px;border-radius:5px;background:var(--fill)}
 .mo-pips i.on{background:#E8742C}
-.ob-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 0}
-.ob-stats div{display:flex;flex-direction:column;align-items:center;padding:12px 4px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
-.ob-stats b{font-family:var(--display);font-weight:600;font-size:32px;line-height:1;font-variant-numeric:lining-nums}
-.ob-stats span{font-size:12.5px;color:var(--muted);margin-top:4px;text-align:center}
-.ob-words{display:flex;justify-content:center;gap:10px;margin:18px 0 0}
-.ob-words span{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:var(--card);box-shadow:var(--ring);font-family:var(--hanzi);font-weight:600;font-size:32px}
 .ob-hours{justify-content:center;margin:6px 0 0}
 .ob-art{width:min(190px,50vw);margin:20px auto 0}
 .ob-art .shi-face{width:100%;height:auto;display:block}
@@ -1294,7 +1267,7 @@ button.scene-tile:active svg{opacity:.92}
 .pw-save{position:absolute;top:-10px;right:14px;padding:3px 9px;border-radius:7px;background:var(--seal);color:var(--seal-ink);font-size:11.5px;font-weight:800;letter-spacing:.02em}
 .pw-fine{margin:2px 0 0;font-size:12.5px;line-height:1.4;color:var(--muted);text-align:center}
 #ob.mo .ob-top{height:9vh}
-@media (prefers-reduced-motion:reduce){#ob,#ob.out,.ob-hi .ob-big,.ob-hi .ob-big .shi-face{animation:none}.ob-card{transition:none}}
+@media (prefers-reduced-motion:reduce){#ob,#ob.out,.ob-hi .ob-big,.ob-hi .ob-big .shi-face{animation:none}}
 
 .fade-in{animation:fadeIn .35s ease both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -4810,7 +4783,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.83';
+const APP_VERSION = '1.84';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4987,7 +4960,7 @@ const GOALS = [[5, 'Casual'], [10, 'Regular'], [15, 'Serious'], [20, 'Intense']]
 const newPerDay = () => db.prefs.goalMin ? Math.max(2, Math.round(db.prefs.goalMin * .4)) : NEW_PER_DAY;
 let actT = 0;
 ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { actT = Date.now(); }, { capture: true, passive: true }));
-const practising = () => S.view === 'study' || S.view === 'write' || !!$('.story') || !!$('.hdx') || !!(S.ob && ['check', 'learn', 'write'].includes(OB_STEPS[S.ob.i]));
+const practising = () => S.view === 'study' || S.view === 'write' || !!$('.story') || !!$('.hdx') || !!(S.ob && OB_STEPS[S.ob.i] === 'check');
 setInterval(() => {
   if (document.hidden || Date.now() - actT > 6e4 || !practising()) return;
   const d = db.days[dayKey(Date.now())] ||= { decks: {} }; d.sec = (d.sec || 0) + 5;
@@ -5032,23 +5005,22 @@ function goalSheet() {
 }
 
 /* ---------- onboarding: shown once, on a phone that has never opened ShiCards ----------
-   why (pick any) → level → which characters can you read (up to 4 short rounds that move up or down) → your estimated
-   level → daily minutes, with how soon each gets you to the next level → three new characters from your level → write one */
+   It only finds where you start: why (pick any) → level → which characters can you read (up to 4 short rounds that move
+   up or down) → your estimated level → daily minutes, with how soon each finishes your level → reminder or home screen */
 const OB_WHY = [['travel', '旅', 'Travel'], ['family', '家', 'Family and heritage'], ['work', '工', 'Work or school'],
   ['exam', '考', 'The HSK exam'], ['culture', '文', 'Films, books and culture'], ['fun', '趣', 'Just for fun']];
 const OB_LEVEL = [[1, '初', 'Beginner'], [2, '中', 'Intermediate'], [4, '高', 'Advanced'], [5, '专', 'Pro']];   // value: the HSK level the character check starts at
-const OB_SPARE = [['人', 'rén', 'person'], ['大', 'dà', 'big'], ['口', 'kǒu', 'mouth']];   // only if the HSK lists can't load
-const OB_STEPS = ['hi', 'why', 'level', 'check', 'placed', 'goal', 'learn', 'write', 'yay', 'habit'];
-const OB_PROG = { why: .12, level: .24, check: .36, placed: .48, goal: .58, learn: .68, write: .8, yay: .92, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
+const OB_STEPS = ['hi', 'why', 'level', 'check', 'placed', 'goal', 'habit'];
+const OB_PROG = { why: .18, level: .34, check: .5, placed: .68, goal: .84, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
 const OB_ROUND = 12, OB_ROUNDS = 4;
 const canRemind = () => 'PushManager' in window && 'Notification' in window && SYNC.on && !(db.prefs.remind?.on);
 function obStart(replay) {
-  S.ob = { i: 0, why: [], level: null, goal: null, card: 0, flipped: false, replay: !!replay };
+  S.ob = { i: 0, why: [], level: null, goal: null, replay: !!replay };
   loadHsk().catch(() => {});
   LOG.add('onboarding', { step: 'hi', replay: !!replay });
   obShow();
 }
-function obGo(step) { S.ob.i = OB_STEPS.indexOf(step); S.ob.card = 0; S.ob.flipped = false; LOG.add('onboarding', { step }); obShow(); }
+function obGo(step) { S.ob.i = OB_STEPS.indexOf(step); LOG.add('onboarding', { step }); obShow(); }
 function obTop(back = true) {
   const p = OB_PROG[OB_STEPS[S.ob.i]] || 0;
   return `<div class="ob-top"><button class="icon-btn" data-ob="back" aria-label="Back"${back ? '' : ' hidden'}>${I.back}</button>
@@ -5085,14 +5057,6 @@ function obPlace() {   // after each round: go up, go down, or stop
   for (let l = 1; l <= 7; l++) chars += obCharsAt(l) * (res[l] !== undefined ? res[l] : l < low ? .9 : 0);
   C.est = { lv: cur, chars: Math.round(chars / 10) * 10 };
   return true;
-}
-function obNewWords() {   // three characters to learn: ones you didn't tap at your level, else any you don't know there
-  const C = S.ob.chk;
-  if (!S.H || !C?.est) return OB_SPARE;
-  const known = new Set([...C.rounds.flatMap(r => [...r.on]), ...knownWords()]);
-  const missed = C.rounds.filter(r => r.lv === C.est.lv).flatMap(r => r.chars);
-  const pick = [...missed, ...(S.H.levels[C.est.lv] || []).filter(obPoolOk)].filter((r, i, a) => !known.has(r.h) && a.findIndex(x => x.h === r.h) === i).slice(0, 3);
-  return (pick.length === 3 ? pick : OB_SPARE.map(([h, p, e]) => ({ h, p, e }))).map(r => Array.isArray(r) ? r : [r.h, r.p, shortMeaning(r.e)]);
 }
 function obCheckHTML() {
   const C = S.ob.chk;
@@ -5132,32 +5096,6 @@ function obShow() {
       <p class="ob-note">Estimates. One round a day keeps your streak; the goal is extra.</p>
       <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.goal ? '' : ' disabled'}>Commit to my goal</button></div>`;
   }
-  else if (step === 'learn') {
-    const W = O.words ||= obNewWords(), [h, p, e] = W[O.card];
-    html = obTop() + obSay(O.flipped ? 'cheer' : 'happy', O.card ? (O.flipped ? 'Got it?' : 'Next one. Tap to turn it over.') : 'Three new characters at your level', O.card ? '' : 'Tap the card to turn it over.')
-      + `<div class="ob-stage"><div class="ob-card${O.flipped ? ' flip' : ''}" id="obCard" role="button" tabindex="0" aria-label="Card ${O.card + 1} of 3. Tap to turn it over">
-        <div class="ob-face"><div class="tzg">${TZG}<span class="ob-ch">${h}</span></div><span class="ob-tap">Tap to turn over</span></div>
-        <div class="ob-face back"><span class="ob-back-ch">${h}</span><span class="ob-py">${esc(p)}<button class="icon-btn" data-ob="say" aria-label="Hear it">${I.sound}</button></span>
-          <span class="ob-en">${esc(e)}</span></div></div></div>
-      <div class="ob-dots">${W.map((_, i) => `<i class="${i < O.card ? 'done' : i === O.card ? 'on' : ''}"></i>`).join('')}</div>
-      <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.flipped ? '' : ' disabled'}>${O.card < 2 ? 'Next' : 'Continue'}</button></div>`;
-  }
-  else if (step === 'write') {
-    const [h] = (O.words ||= obNewWords())[0];
-    html = obTop() + obSay('focus', `Now write ${h}`, 'Trace the light lines, one stroke at a time.')
-      + `<div class="ob-write"><div class="tzg" id="obBox">${TZG}<div class="quiz"></div></div><p class="ob-cap" id="obCap">Start at the top</p></div>
-      <div class="ob-dock"><button class="btn btn-primary" data-ob="next" id="obWNext" disabled>Continue</button><button class="ob-link" data-ob="next">Skip writing</button></div>`;
-  }
-  else if (step === 'yay') {
-    const W = O.words || obNewWords(), { n } = practiceStreak(), { min } = goalToday(), nk = O.chk ? O.chk.rounds.reduce((a, r) => a + r.on.size, 0) : 0;
-    html = `<div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div><div class="done-shi">${shiFace('cheer')}</div>
-        <h2>太棒了！</h2><div class="mo-sub">tài bàng le · Great job!</div></div>
-      <div class="ob-words">${W.map(w => `<span>${w[0]}</span>`).join('')}</div>
-      <div class="ob-stats"><div><b>${nk + 3}</b><span>characters in your word bank</span></div><div><b>${n || 1}</b><span>day streak</span></div>
-        <div><b>${min}/${O.goal || 10}</b><span>minutes today</span></div></div>
-      <p class="mo-text" style="margin-top:18px">The new ones come back for a quick review tomorrow, just before you’d forget them.</p>
-      <div class="ob-dock"><button class="btn btn-seal" data-ob="next">Continue</button></div>`;
-  }
   else if (step === 'habit') {
     if (canRemind()) html = obTop(false) + `<div class="ob-art">${shiFace('up')}</div>
         <h2 class="mo-title">When should Shi Shi remind you?</h2><p class="mo-text">One message a day, only on days you haven’t practised yet. Turn it off any time.</p>
@@ -5170,15 +5108,6 @@ function obShow() {
   const el = layer(html, 'obs-' + step);
   el.querySelector('.ob-in').addEventListener('click', obClick);
   if (step === 'check' && !O.chk) obCheckStart();
-  if (step === 'learn') {
-    const card = el.querySelector('#obCard'), [h] = O.words[O.card];
-    const flip = () => { if (S.ob.flipped) { card.classList.toggle('flip'); return; } S.ob.flipped = true; card.classList.add('flip'); sayZh(h);
-      LOG.add('onboarding-flip', { card: S.ob.card, hz: h }); el.querySelector('[data-ob="next"]').disabled = false;
-      const b = el.querySelector('.ob-bub'); b.innerHTML = S.ob.card ? 'Got it?' : 'That’s how every card works. Ready for the next?'; el.querySelector('.ob-shi').innerHTML = shiFace('cheer'); };
-    card.addEventListener('click', e => { if (!e.target.closest('[data-ob]')) flip(); });
-    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
-  }
-  if (step === 'write') obWrite(el);
   if (step === 'habit' && canRemind()) el.querySelector('#obHr').onclick = e => { const b = e.target.closest('[data-h]'); if (b) el.querySelectorAll('#obHr .chip').forEach(c => c.classList.toggle('on', c === b)); };
 }
 async function obCheckStart() {   // the HSK lists may still be loading
@@ -5186,41 +5115,14 @@ async function obCheckStart() {   // the HSK lists may still be loading
   if (!S.ob || OB_STEPS[S.ob.i] !== 'check') return;
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
 }
-function obWrite(el) {
-  const [h] = S.ob.words[0], box = el.querySelector('#obBox'), q = box.querySelector('.quiz'), cap = el.querySelector('#obCap'), go = el.querySelector('#obWNext');
-  if (!window.HanziWriter) { cap.textContent = 'Writing needs the internet. You can try it later.'; go.disabled = false; return; }
-  const s = box.offsetWidth || 260; let miss = 0, loaded = false;
-  const noData = () => { if (loaded || !$('#obBox')) return; cap.textContent = 'The strokes didn’t load. You can write it later from your word bank.'; go.disabled = false; LOG.add('onboarding-write', { hz: h, error: 'no stroke data' }); };
-  setTimeout(noData, 9000);
-  const w = HanziWriter.create(q, h, writerOpts(s, { showCharacter: false, showOutline: true, outlineColor: css('--line-2'), drawingColor: css('--ink'), strokeColor: css('--ink'),
-    highlightColor: css('--seal'), drawingWidth: Math.max(4, Math.round(s / 50)), showHintAfterMisses: 1, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
-    charDataLoader: (ch, ok, err) => loadRef(ch).then(d => { loaded = true; ok(d); }, e => { noData(); err(e); }) }));
-  w.quiz({
-    onMistake: () => { miss++; cap.textContent = 'Almost. Follow the glowing line'; },
-    onCorrectStroke: d => { cap.textContent = d.strokesRemaining ? `Stroke ${d.strokeNum + 1} of ${d.strokeNum + 1 + d.strokesRemaining} ✓` : 'Done ✓'; },
-    onComplete: () => { LOG.add('onboarding-write', { hz: h, mistakes: miss }); cap.textContent = miss ? `You wrote ${h}!` : `Every stroke right. You wrote ${h}!`;
-      go.disabled = false; go.nextElementSibling?.remove(); el.querySelector('.ob-shi').innerHTML = shiFace('cheer'); el.querySelector('.ob-bub').innerHTML = '很好！ hěn hǎo. Nicely done.'; },
-  });
-}
-/* the characters you tapped go into the word bank as known (back for a light review over the next weeks); the three new
-   ones go in as seen once (back tomorrow) and count as today's practice, day 1 of the streak */
-function obLearned() {
-  const O = S.ob; if (O.replay) return;
-  const now = Date.now(), have = new Set(db.bank.map(w => w.hanzi));
-  const knew = O.chk ? O.chk.rounds.flatMap(r => r.chars.filter(c => r.on.has(c.h))) : [];
-  knew.forEach((r, i) => { if (have.has(r.h)) return; have.add(r.h);
-    db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 1000 - i, hsk: r.lv,
-      srs: { first: now, seen: now, iv: 7, n: 1, miss: 0, due: dayStart(now, 5 + i % 21) } }); });
-  for (const [h, p, e] of O.words.slice().reverse()) {
-    let w = bankHas(h);
-    if (!w) { w = { id: uid(), hanzi: h, pinyin: p, en: e, added: now, hsk: S.H ? S.H.byHz.get(h)?.lv || 0 : undefined }; db.bank.unshift(w); }
-    noteDeck({ id: 'bank', name: 'Word bank' }, w.id);
-    if (!w.srs) srsGrade(w, 1);   // seen once: back for a quick review tomorrow
-  }
-  save();
-}
 function obFinish(how) {
   const O = S.ob, lv = O.chk?.est?.lv || (O.level ? Math.min(O.level, 2) : null);
+  if (!O.replay && O.chk) {   // the characters you tapped go into the word bank as known (back for a light review over the next weeks)
+    const now = Date.now(), have = new Set(db.bank.map(w => w.hanzi));
+    O.chk.rounds.flatMap(r => r.chars.filter(c => r.on.has(c.h))).forEach((r, i) => { if (have.has(r.h)) return; have.add(r.h);
+      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 1000 - i, hsk: r.lv,
+        srs: { first: now, seen: now, iv: 7, n: 1, miss: 0, due: dayStart(now, 5 + i % 21) } }); });
+  }
   if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk?.est, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
     if (lv && db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }   // today's character was picked before your level was known
     save(); }
@@ -5242,16 +5144,14 @@ async function obClick(e) {
     $('#ob [data-ob="next"]').disabled = false; return;
   }
   const a = b.dataset.ob;
-  if (a === 'say') { sayZh(O.words[O.card][0]); return; }
   if (a === 'skip') { obFinish('skipped'); return; }
   if (a === 'done') { obFinish(step === 'habit' ? 'not-now' : 'done'); return; }
   if (a === 'back') {
-    if (step === 'learn' && O.card) { O.card--; O.flipped = true; obShow(); return; }
     if (step === 'check' && O.chk?.rounds.length > 1) { const R = O.chk.rounds.pop(); delete O.chk.res[O.chk.rounds.at(-1).lv]; delete O.chk.res[R.lv]; obShow(); return; }
     const to = OB_STEPS[Math.max(0, O.i - 1)];
     if (to === 'check' || step === 'check') O.chk = null;   // the check starts over
     if (to === 'placed' && !O.chk) { O.i = OB_STEPS.indexOf('level'); obShow(); return; }
-    O.i = OB_STEPS.indexOf(to); O.card = 0; O.flipped = false; obShow(); return;
+    O.i = OB_STEPS.indexOf(to); obShow(); return;
   }
   if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obFinish('reminder'); return; }
   if (a === 'install') {
@@ -5263,13 +5163,10 @@ async function obClick(e) {
   if (step === 'check') {
     if (!O.chk) return;
     const R = O.chk.rounds.at(-1); LOG.add('onboarding-check', { lv: R.lv, known: R.on.size, of: R.chars.length });
-    if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.words = null; obGo('placed'); } else obShow();
+    if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); obGo('placed'); } else obShow();
     return;
   }
-  if (step === 'learn' && O.card < 2) { O.card++; O.flipped = false; obShow(); return; }
-  if (step === 'learn') { obGo(window.HanziWriter ? 'write' : 'yay'); if (!window.HanziWriter) obLearned(); return; }
-  if (step === 'write') { obLearned(); obGo('yay'); return; }
-  if (step === 'yay') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
+  if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
   obGo(OB_STEPS[O.i + 1]);
 }
 
