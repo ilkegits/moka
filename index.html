@@ -118,8 +118,18 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
-/* home bar: the Shi Shi lion head sits in the middle, the menu on the right */
-.bar-home{display:grid;grid-template-columns:42px 1fr 42px}
+/* home bar: your photo (opens the side menu) on the left, the Shi Shi lion head in the middle, your streak flame on the right */
+.bar-home{display:grid;grid-template-columns:1fr auto 1fr}
+.bar-home .av{justify-self:start;margin-left:3px}
+.hm-streak{justify-self:end;display:flex;align-items:center;gap:1px;height:42px;padding:0 8px 0 4px;border-radius:21px;transition:opacity .2s}
+.hm-streak:active{opacity:.4;transition:none}
+.hm-streak .flame{width:27px;height:27px;fill:var(--line-2);flex:none}
+.hm-streak .flame-in{fill:var(--paper)}
+.hm-streak.on .flame{fill:#E8742C}
+.hm-streak.on .flame-in{fill:#FFD15C}
+.hm-streak.wait .flame{opacity:.55}
+.hm-streak b{font-family:var(--display);font-size:21px;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.hm-streak:not(.on) b{color:var(--muted)}
 /* Learn, Read and Profile: the page name as a headline in the top-left corner */
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
@@ -641,11 +651,21 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .dr-pic svg.i{width:36px;height:36px;stroke-width:1.3}
 .dr-name{margin-top:12px;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
 .dr-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
-.dr-list{display:flex;flex-direction:column;gap:2px;margin-top:12px}
-.dr-item{display:flex;align-items:center;gap:14px;height:52px;padding:0 10px;border-radius:12px;font-size:16.5px;font-weight:500;text-align:left;transition:background .2s}
+.dr-list{display:flex;flex-direction:column;gap:2px;margin:12px -4px 0;padding:0 4px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.dr-list::-webkit-scrollbar{display:none}
+.dr-item{display:flex;align-items:center;gap:14px;min-height:52px;padding:6px 10px;border-radius:12px;font-size:16.5px;font-weight:500;text-align:left;transition:background .2s;flex:none;cursor:pointer}
+.dr-item svg.i{flex:none}
+.dr-t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.dr-t small{font-size:12.5px;font-weight:400;color:var(--muted);margin-top:2px}
+.dr-t small.opt{display:none}   /* the side menu is narrow: it leaves out the hints that only explain the obvious */
+.dr-item .side{display:flex;align-items:center;flex:none;color:var(--muted)}
+.dr-item .side.ok{color:var(--jade)}
+.dr-item .rec-dot{width:9px;height:9px;border-radius:50%;background:var(--seal)}
+.dr-item .upd-badge{padding:6px 10px}
+.dr-sep{height:1px;background:var(--line);margin:8px 10px;flex:none}
 .dr-item:active{background:var(--fill);transition:none}
 .dr-item svg.i{color:var(--seal)}
-.dr-foot{margin-top:auto;padding:0 10px;font-size:12px;color:var(--muted)}
+.dr-foot{padding:12px 10px 0;font-size:12px;line-height:1.45;color:var(--muted)}
 
 /* ---------- Move and zoom (profile photo) ---------- */
 .crop{position:fixed;inset:0;z-index:55;background:#14110D;color:#F4EEE3;display:flex;flex-direction:column;align-items:center;
@@ -849,6 +869,11 @@ const I = {
   camera: ic('<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.5"/>'),
   read: ic('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5"/>'),
   sound: ic('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+  refresh: ic('<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v4.3h-4.3"/>'),
+  install: ic('<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7M9.2 11.2L12 14l2.8-2.8"/>'),
+  download: ic('<path d="M12 4v10.5M7.5 10L12 14.5 16.5 10"/><path d="M4.5 15.5v3A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-3"/>'),
+  upload: ic('<path d="M12 14.5V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4.5 15.5v3A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-3"/>'),
+  log: ic('<path d="M9 6.5h10.5M9 12h10.5M9 17.5h7"/><path d="M4.5 6.5h.5M4.5 12h.5M4.5 17.5h.5" stroke-width="2.6"/>'),
   bell: ic('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
 };
 /* filled versions, shown on the active tab */
@@ -929,7 +954,7 @@ function goBack(fallback) { if ((history.state?.d || 0) > 0) history.back(); els
 addEventListener('popstate', route);
 
 /* ---------- activity log ----------
-   Off unless switched on in the ⋮ menu. While on, it notes what you do (pages, taps, swipes, flips,
+   Off unless switched on in the side menu (tap your photo). While on, it notes what you do (pages, taps, swipes, flips,
    writing checks, errors, your own notes) and keeps it on this phone only. Share it with Claude to tune the app. */
 const LOG = (() => {
   const KEYL = 'shicards.log', MAX = 5000;
@@ -1536,6 +1561,8 @@ function faceHtml() {   // your photo, else the first letter of your name, else 
 const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a photo from your gallery">${I.camera}</span>`;
 /* the small photo in the top-left corner of Decks; tap it for the side menu */
 const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
+/* the flame in the top-right corner of the Decks page: your streak, tap it to see the calendar on Profile */
+const StreakBtn = () => { const { n, today } = practiceStreak(); return `<button class="hm-streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}" data-act="streak" aria-label="${n ? `${n} day streak` : 'No streak yet'}. Open your calendar">${FLAME}<b>${n}</b></button>`; };
 /* open the phone's gallery straight away (must run inside a tap) */
 function pickPhoto() {
   const inp = document.createElement('input');
@@ -1630,7 +1657,7 @@ function cropPhoto(file) {
 }
 
 /* ---------- side menu ----------
-   Slides in from the left when you tap your photo in the top-left corner.
+   Slides in from the left when you tap your photo in the top-left corner. Holds Profile, your photo and all the settings.
    Close it by tapping outside, swiping it back to the left, or picking an item. */
 function openDrawer() {
   const root = $('#drawer-root'), name = (db.prefs.name || '').trim();
@@ -1642,13 +1669,15 @@ function openDrawer() {
       <nav class="dr-list">
         <button class="dr-item" data-act="dr-profile">${I.profile}Profile</button>
         <button class="dr-item" data-act="dr-photo">${I.camera}${db.prefs.photo ? 'Change photo' : 'Add a photo'}</button>
-        <button class="dr-item" data-act="dr-settings">${I.more}Settings and backup</button>
+        <div class="dr-sep"></div>
+        ${settingsRows(true)}
       </nav>
-      <div class="dr-foot">ShiCards ${APP_VERSION}</div>
+      <div class="dr-foot">Decks are stored only in this browser. Typing pinyin needs internet.<br>ShiCards ${APP_VERSION}</div>
     </aside>`;
   root.offsetHeight; root.classList.add('open');
   LOG.add('drawer', 'open');
   const dr = root.querySelector('.drawer'), scrim = root.querySelector('.dr-scrim');
+  bindSettings(dr, true);
   scrim.onclick = () => closeDrawer();
   let g = null, noClickUntil = 0;
   dr.addEventListener('pointerdown', e => { if (e.isPrimary) g = { id: e.pointerId, x: e.clientX, y: e.clientY, hist: [[e.clientX, e.timeStamp]], dx: 0, v: 0, on: false }; });
@@ -2010,7 +2039,7 @@ function Home() {
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
     <header class="bar bar-home">${AvBtn()}<img class="logo-mid" src="icons/logo.svg" alt="ShiCards" width="44" height="44" draggable="false">
-      <button class="icon-btn" data-act="settings" aria-label="Settings">${I.more}</button></header>
+      ${StreakBtn()}</header>
     <section class="hello"><div class="hello-swap"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div>
       <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
       <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
@@ -3547,7 +3576,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.52';
+const APP_VERSION = '1.53';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -3586,50 +3615,63 @@ function nameSheet() {
       inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     });
 }
+/* ---------- settings ----------
+   The same rows sit in the side menu (tap your photo on the Decks page) and in the sheet behind Profile's menu button. */
+function settingsRows(dr) {
+  const chev = dr ? '' : I.chev;
+  const row = (id, icon, t, small, side = `<span class="side">${chev}</span>`, tag = 'button', extra = '') =>
+    `<${tag} class="${dr ? 'dr-item' : 'list-btn'}"${id ? ` id="${id}"` : ''}${tag === 'label' ? ' style="cursor:pointer"' : ''}>${dr ? icon : ''}<span${dr ? ' class="dr-t"' : ''}>${t}${dr ? '' : '<br>'}${small}</span>${side}${extra}</${tag}>`;
+  return [
+    row('sName', I.pen, 'Your name', db.prefs.name ? `<small>${esc(db.prefs.name)} · shown after the greeting</small>` : '<small class="opt">Shown after the greeting on the Decks page</small>'),
+    isInstalled() ? '' : row('sInst', I.install, 'Install app', '<small class="opt">Put ShiCards on your home screen</small>'),
+    row('sUpd', I.refresh, 'Check for updates', `<small id="sUpdSub">You have version ${APP_VERSION}</small>`, `<span class="side" id="sUpdR">${chev}</span>`),
+    row('sEn', I.swap, 'Flip cards start on English', '<small class="opt">Otherwise the Chinese side shows first</small>', `<span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span>`),
+    row('sExp', I.download, 'Export backup', '<small class="opt">Saves all decks and your word bank as a .json file</small>'),
+    row('', I.upload, 'Import backup', '<small>Replaces everything on this device</small>', undefined, 'label', '<input type="file" id="sImp" accept="application/json,.json" hidden>'),
+    row('sLog', I.log, 'Activity log', `<small class="log-count">${logSummary()}</small>`, `<span class="side with-dot">${LOG.on ? '<span class="rec-dot"></span>' : ''}${chev}</span>`),
+  ].join('');
+}
+function bindSettings(sh, dr) {
+  const chev = dr ? '' : I.chev;
+  const done = () => dr ? closeDrawer() : closeSheet();
+  const leave = fn => () => { if (dr) { closeDrawer(); setTimeout(fn, 120); } else fn(); };   // the side menu slides away before the next sheet comes up
+  const inst = sh.querySelector('#sInst');
+  if (inst) inst.onclick = async () => {
+    if (!installEvt) { leave(installHelp)(); return; }
+    installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null;
+    if (outcome === 'accepted') done();
+  };
+  let latest = null;
+  const sub = sh.querySelector('#sUpdSub'), side = sh.querySelector('#sUpdR');
+  sh.querySelector('#sUpd').onclick = async () => {
+    if (latest && isNewer(latest.version, APP_VERSION)) { applyUpdate(); return; }
+    sub.textContent = 'Checking…'; side.className = 'side'; side.innerHTML = '<span class="spin"></span>';
+    try {
+      latest = await fetchLatest();
+      if (isNewer(latest.version, APP_VERSION)) {
+        sub.textContent = `Version ${latest.version} is ready${latest.notes ? ' · ' + latest.notes : ''}`;
+        side.innerHTML = '<span class="upd-badge">Update</span>';
+      } else { sub.textContent = `Up to date · version ${APP_VERSION}`; side.className = 'side ok'; side.innerHTML = I.check; }
+    } catch (_) { sub.textContent = 'Couldn’t check. Are you online?'; side.innerHTML = chev; }
+  };
+  sh.querySelector('#sLog').onclick = leave(logSheet);
+  sh.querySelector('#sName').onclick = leave(nameSheet);
+  sh.querySelector('#sEn').onclick =e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
+  sh.querySelector('#sExp').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
+    a.download = `shicards-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  sh.querySelector('#sImp').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze); save(); done(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+    catch (_) { toast('That file isn’t a ShiCards backup'); }
+  };
+}
 function settingsSheet() {
-  openSheet(`<h3>Menu</h3><div class="list-group">
-    <button class="list-btn" id="sName"><span>Your name<br><small>${db.prefs.name ? esc(db.prefs.name) + ' · shown after the greeting' : 'Shown after the greeting on the Decks page'}</small></span><span class="side">${I.chev}</span></button>
-    ${isInstalled() ? '' : `<button class="list-btn" id="sInst"><span>Install app<br><small>Put ShiCards on your home screen</small></span><span class="side">${I.chev}</span></button>`}
-    <button class="list-btn" id="sUpd"><span>Check for updates<br><small id="sUpdSub">You have version ${APP_VERSION}</small></span><span class="side" id="sUpdR">${I.chev}</span></button>
-    <button class="list-btn" id="sEn"><span>Flip cards start on English<br><small>Otherwise the Chinese side shows first</small></span><span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span></button>
-    <button class="list-btn" id="sExp"><span>Export backup<br><small>Saves all decks and your word bank as a .json file</small></span><span class="side">${I.chev}</span></button>
-    <label class="list-btn" style="cursor:pointer"><span>Import backup<br><small>Replaces everything on this device</small></span><span class="side">${I.chev}</span><input type="file" id="sImp" accept="application/json,.json" hidden></label>
-    <button class="list-btn" id="sLog"><span>Activity log<br><small class="log-count">${logSummary()}</small></span><span class="side with-dot">${LOG.on ? '<span class="rec-dot"></span>' : ''}${I.chev}</span></button></div>
+  openSheet(`<h3>Menu</h3><div class="list-group">${settingsRows(false)}</div>
     <p class="muted" style="font-size:12.5px;margin:8px 16px 0">Decks are stored only in this browser. Pinyin lookup uses Google Input Tools, so typing pinyin needs internet.</p>`,
-    sh => {
-      const inst = sh.querySelector('#sInst');
-      if (inst) inst.onclick = async () => {
-        if (!installEvt) { installHelp(); return; }
-        installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null;
-        if (outcome === 'accepted') closeSheet();
-      };
-      let latest = null;
-      const sub = sh.querySelector('#sUpdSub'), side = sh.querySelector('#sUpdR');
-      sh.querySelector('#sUpd').onclick = async () => {
-        if (latest && isNewer(latest.version, APP_VERSION)) { applyUpdate(); return; }
-        sub.textContent = 'Checking…'; side.className = 'side'; side.innerHTML = '<span class="spin"></span>';
-        try {
-          latest = await fetchLatest();
-          if (isNewer(latest.version, APP_VERSION)) {
-            sub.textContent = `Version ${latest.version} is ready${latest.notes ? ' · ' + latest.notes : ''}`;
-            side.innerHTML = '<span class="upd-badge">Update</span>';
-          } else { sub.textContent = `Up to date · version ${APP_VERSION}`; side.className = 'side ok'; side.innerHTML = I.check; }
-        } catch (_) { sub.textContent = 'Couldn’t check. Are you online?'; side.innerHTML = I.chev; }
-      };
-      sh.querySelector('#sLog').onclick = () => logSheet();
-      sh.querySelector('#sName').onclick = () => nameSheet();
-      sh.querySelector('#sEn').onclick =e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
-      sh.querySelector('#sExp').onclick = () => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
-        a.download = `shicards-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      };
-      sh.querySelector('#sImp').onchange = async e => {
-        const f = e.target.files[0]; if (!f) return;
-        try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze); save(); closeSheet(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
-        catch (_) { toast('That file isn’t a ShiCards backup'); }
-      };
-    });
+    sh => bindSettings(sh, false));
 }
 
 /* ---------- actions ---------- */
@@ -3656,7 +3698,7 @@ const A = {
   'drawer': () => openDrawer(),
   'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
   'dr-photo': () => { closeDrawer(); pickPhoto(); },
-  'dr-settings': () => { closeDrawer(); setTimeout(settingsSheet, 120); },
+  'streak': () => { if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
   'rw': t => readPop(t),
   'remind': () => remindSheet(),
   'say': t => sayZh(t.dataset.h),
