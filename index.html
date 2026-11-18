@@ -156,22 +156,27 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
   background:linear-gradient(transparent, var(--paper) 32%);z-index:4}
 
 /* ---------- home ---------- */
-/* Learn: your progress, Shi Shi's mane fills up as you learn each HSK level */
-.prog-card{display:flex;align-items:center;gap:16px;width:100%;padding:16px;margin-bottom:10px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
-.prog-card:active,.prog-lv:active{background:var(--paper-deep);transition:none}
-.prog-shi{flex:none;width:88px;height:88px}
-.prog-shi .shi-face,.prog-lv .shi-face{width:100%;height:100%;display:block}
-.prog-main{flex:1;min-width:0}
-.prog-main small{display:block;font-size:13px;color:var(--muted)}
-.prog-n{font-family:var(--display);font-size:44px;font-weight:600;line-height:1;margin:2px 0 4px}
-.prog-bar{height:8px;margin-top:9px;border-radius:9px;background:var(--fill);overflow:hidden}
-.prog-bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#E8A33C,#FFD15C)}
-.prog-lvls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:26px}
-.prog-lv{display:flex;flex-direction:column;align-items:center;padding:12px 6px 10px;border-radius:14px;background:var(--card);box-shadow:var(--ring);transition:background .25s}
-.prog-lv .shi-face{width:54px;height:54px;margin-bottom:5px}
-.prog-lv b{font-size:13.5px}
-.prog-lv small{font-size:11.5px;color:var(--muted)}
-.prog-lv.none .shi-face{opacity:.55;filter:grayscale(.6)}
+/* Learn: the HSK course, one big picture card per level (scene on top, name, word count and progress underneath) */
+.crs-list{display:flex;flex-direction:column;gap:16px;margin-bottom:28px}
+.crs{display:block;width:100%;padding:0;border-radius:20px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);overflow:hidden;text-align:left;transition:transform .2s}
+.crs:active{transform:translateY(2px) scale(.985);transition:none}
+.crs.cur{box-shadow:0 0 0 2.5px var(--crs),0 4px 0 var(--crs)}
+.crs-art{display:block;background:var(--crs)}
+.crs-art svg{display:block;width:100%;height:auto}
+.crs.far .crs-art{filter:grayscale(1) contrast(.8);opacity:.45}
+.crs-cap{display:block;padding:14px 16px 16px 18px}
+.crs-top{display:flex;align-items:center;gap:10px}
+.crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
+.crs-zh{font-family:var(--hanzi);font-weight:600;font-size:16px;color:var(--seal);margin-left:8px;letter-spacing:.04em}
+.crs-badge{flex:none;padding:5px 9px;border-radius:9px;background:var(--fill);font-size:13px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.crs-foot{display:flex;align-items:center;gap:10px;margin-top:12px;min-height:16px}
+.crs-bar{flex:1;height:14px;border-radius:8px;background:var(--fill);overflow:hidden}
+.crs-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#E8A33C,#FFD15C);box-shadow:inset 0 -3px 0 rgba(168,106,12,.25)}
+.crs-pct{flex:none;font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.crs-jump{font-size:14.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--seal)}
+.crs-done{display:flex;align-items:center;gap:5px;font-size:14.5px;font-weight:700;color:var(--jade)}
+.crs-done svg.i{width:18px;height:18px}
+.crs.far .crs-name,.crs.far .crs-jump{opacity:.55}
 .group.remind-row{margin:-10px 0 24px}
 .remind-row .list-btn{gap:12px}
 .rem-ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
@@ -1577,20 +1582,104 @@ function knownWords() {
   for (const d of db.decks) for (const c of d.cards) if (isKnown(c)) k.add(c.hanzi);
   return k;
 }
-function ProgressBlock() {
+/* Learn: the HSK course as a stack of section cards, one per level, each with its own Shi Shi scene in its own colour.
+   The level you are on shows a progress bar; levels you haven't started say Jump here; far-off ones are greyed out */
+const CRS = (() => {
+  const red = '#E5483F', gold = '#FFD15C', gold2 = '#F4C14E', ln = '#3B1A12', fl = '#7E1D19', ml = '#A86A0C', wood = '#C98E55';
+  const hz = (x, y, ch, size, rot = 0, fill = ln, op = 1) => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" opacity="${op}" transform="rotate(${rot} ${x} ${y})" font-family="'Noto Serif SC',serif" font-weight="700" text-anchor="middle" dominant-baseline="central">${ch}</text>`;
+  const star = (x, y, r = 7, fill = gold2) => `<path d="M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="${fill}"/>`;
+  const paw = (x, y, rot = 0, s = .62) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><ellipse cx="0" cy="11" rx="15" ry="8" fill="${gold}" stroke="${ml}" stroke-width="3.5"/><ellipse cx="0" cy="-2" rx="13" ry="12.5" fill="${red}" stroke="${fl}" stroke-width="4"/><path d="M-5 -13v5M0 -14.5v5M5 -13v5" stroke="${fl}" stroke-width="2.6" stroke-linecap="round"/></g>`;
+  const arm = (x1, y1, x2, y2, w = 9) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${fl}" stroke-width="${w + 5}" stroke-linecap="round"/><path d="M${x1} ${y1}L${x2} ${y2}" stroke="${red}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const feet = `<ellipse cx="-18" cy="78" rx="11" ry="13" fill="${red}" stroke="${fl}" stroke-width="5"/><ellipse cx="18" cy="78" rx="11" ry="13" fill="${red}" stroke="${fl}" stroke-width="5"/><ellipse cx="-18" cy="88" rx="13" ry="5" fill="#fff" stroke="${ln}" stroke-width="3"/><ellipse cx="18" cy="88" rx="13" ry="5" fill="#fff" stroke="${ln}" stroke-width="3"/>`;
+  /* Shi Shi centred on x,y at size s (1 = the lion's own 158-unit head) */
+  const lion = (x, y, s, mood = 'happy', r = 0, legs = true) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})">${legs ? feet : ''}${shiFace(mood).replace('<svg class="shi-face"', '<svg x="-79" y="-79" width="158" height="158"')}</g>`;
+  const bg = (fill, blob, bx, by, br) => `<rect width="360" height="210" fill="${fill}"/><circle cx="${bx}" cy="${by}" r="${br}" fill="${blob}"/>`;
+  const flower = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${[0, 72, 144, 216, 288].map(a => `<circle cx="${(6 * Math.cos(a * Math.PI / 180)).toFixed(1)}" cy="${(6 * Math.sin(a * Math.PI / 180)).toFixed(1)}" r="5" fill="#fff"/>`).join('')}<circle r="3.4" fill="${gold}"/></g>`;
+  const cloud = (x, y, s = 1, op = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity="${op}"><circle cx="-18" cy="4" r="12" fill="#fff"/><circle cx="0" cy="-4" r="16" fill="#fff"/><circle cx="18" cy="4" r="12" fill="#fff"/><rect x="-30" y="4" width="60" height="12" rx="6" fill="#fff"/></g>`;
+  const lantern = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 -26V-16" stroke="${ln}" stroke-width="2.5"/><rect x="-8" y="-18" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><ellipse cx="0" cy="0" rx="17" ry="14" fill="${red}" stroke="${ln}" stroke-width="3"/><path d="M-7 -12Q-12 0 -7 12M7 -12Q12 0 7 12" fill="none" stroke="${fl}" stroke-width="2"/><rect x="-8" y="12" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><path d="M0 18V30" stroke="${gold2}" stroke-width="3" stroke-linecap="round"/></g>`;
+  const burst = (x, y, r, fill) => `<g transform="translate(${x} ${y})" stroke="${fill}" stroke-width="3.2" stroke-linecap="round">${Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<path d="M${(r * .45 * Math.cos(a)).toFixed(1)} ${(r * .45 * Math.sin(a)).toFixed(1)}L${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}"/>`; }).join('')}</g>`;
+  const S = {
+    /* HSK 1: first steps. Shi Shi waves hello on a spring meadow */
+    1: ['#35A877', () => bg('#35A877', '#4DBC8B', 170, 104, 96)
+      + '<ellipse cx="180" cy="236" rx="250" ry="60" fill="#2A9466"/>'
+      + flower(52, 168, 1.1) + flower(88, 192) + flower(300, 178, 1.2) + flower(332, 152, .8) + flower(36, 70, .7) + flower(250, 128, .7)
+      + arm(198, 112, 230, 78) + paw(234, 72, 22)
+      + lion(164, 104, .6, 'cheer')
+      + `<g transform="rotate(-6 282 52)"><rect x="246" y="28" width="76" height="44" rx="14" fill="#fff" stroke="${ln}" stroke-width="3.5"/><path d="M256 70L246 86L272 72" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><rect x="250" y="64" width="26" height="6" fill="#fff"/>${hz(284, 50, '你好', 22, 0, red)}</g>`
+      + star(82, 52, 8, '#FFE58A') + star(226, 150, 6, '#FFE58A')],
+    /* HSK 2: food words. Shi Shi lifts noodles out of a big bowl */
+    2: ['#EC6AA4', () => bg('#EC6AA4', '#F387B8', 150, 96, 92)
+      + `<rect x="0" y="168" width="360" height="42" fill="${wood}"/><rect x="0" y="164" width="360" height="8" fill="#B07541"/>`
+      + lion(142, 104, .58, 'cheer', -6, false)
+      + arm(176, 122, 236, 104) + `<path d="M216 162L276 46M228 164L290 52" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M216 162L276 46M228 164L290 52" stroke="#E7B77A" stroke-width="3.5" stroke-linecap="round"/>`
+      + `<path d="M262 76Q252 110 258 140M270 78Q266 112 272 142M278 82Q282 112 280 142" fill="none" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M262 76Q252 110 258 140M270 78Q266 112 272 142M278 82Q282 112 280 142" fill="none" stroke="#FFE08A" stroke-width="3.8" stroke-linecap="round"/>`
+      + paw(244, 100, 60)
+      + `<path d="M200 140H326Q322 196 263 198Q204 196 200 140Z" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M204 156H322" stroke="${red}" stroke-width="6"/>`
+      + `<ellipse cx="263" cy="140" rx="63" ry="11" fill="#FFE08A" stroke="${ln}" stroke-width="3.5"/>${hz(263, 178, '面', 20, 0, red)}`
+      + '<path d="M232 120Q224 108 232 98T232 76M300 120Q308 108 300 98T300 78" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>'
+      + star(40, 40, 8, '#FFD6E8') + star(330, 30, 6, '#FFD6E8') + star(46, 150, 5, '#FFD6E8')],
+    /* HSK 3: going places. Shi Shi paddles a little dragon boat */
+    3: ['#F2884A', () => bg('#F2884A', '#F7A16A', 196, 92, 86)
+      + `<circle cx="304" cy="48" r="22" fill="${gold}"/>` + cloud(74, 46, .8) + cloud(250, 30, .55, .8)
+      + '<rect x="0" y="166" width="360" height="44" fill="#3D8FD1"/><path d="M0 170Q30 162 60 170T120 170T180 170T240 170T300 170T360 170" fill="none" stroke="#fff" stroke-width="3.5" opacity=".7"/>'
+      + `<path d="M96 66L136 206" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M96 66L136 206" stroke="${wood}" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="136" cy="196" rx="9" ry="19" transform="rotate(-16 136 196)" fill="${wood}" stroke="${ln}" stroke-width="3"/>`
+      + arm(154, 112, 110, 114) + arm(160, 132, 118, 142)
+      + lion(184, 112, .54, 'happy', 4, false)
+      + paw(108, 114, -70) + paw(117, 143, -70)
+      + `<path d="M64 150Q184 182 300 146L318 120Q332 116 330 130L296 178Q184 204 80 176Z" fill="${red}" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M78 162Q184 190 302 156" fill="none" stroke="${gold}" stroke-width="5"/><circle cx="322" cy="124" r="3" fill="${ln}"/>`
+      + '<circle cx="152" cy="190" r="5" fill="#fff" opacity=".8"/><circle cx="162" cy="184" r="3.5" fill="#fff" opacity=".8"/><circle cx="146" cy="180" r="3" fill="#fff" opacity=".7"/>'],
+    /* HSK 4: everyday life. Shi Shi flies a kite on a windy hill */
+    4: ['#4A9DE2', () => bg('#4A9DE2', '#68B2EB', 140, 120, 94)
+      + cloud(60, 52, .9) + cloud(312, 130, .8, .9) + cloud(200, 24, .5, .8)
+      + '<ellipse cx="120" cy="238" rx="220" ry="62" fill="#6BC46A"/><ellipse cx="320" cy="250" rx="140" ry="60" fill="#58B259"/>'
+      + `<path d="M266 92Q230 92 214 112T168 126" fill="none" stroke="#fff" stroke-width="2.2"/>`
+      + `<path d="M266 92Q276 120 262 134T272 172" fill="none" stroke="${ln}" stroke-width="2"/>${[[264, 118], [264, 140], [270, 160]].map(([x, y]) => `<path d="M${x - 7} ${y - 4}L${x + 7} ${y + 4}M${x - 7} ${y + 4}L${x + 7} ${y - 4}" stroke="${red}" stroke-width="5" stroke-linecap="round"/>`).join('')}`
+      + `<g transform="rotate(14 266 56)"><path d="M266 18L298 56L266 94L234 56Z" fill="${red}" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M266 18V94M234 56H298" stroke="${gold}" stroke-width="2.5"/>${hz(266, 56, '风', 22, 0, '#fff')}</g>`
+      + arm(150, 122, 168, 124) + lion(124, 124, .56, 'happy') + paw(170, 124, 70)],
+    /* HSK 5: festivals. Shi Shi carries a lantern under the moon */
+    5: ['#7458C9', () => bg('#7458C9', '#8A70D6', 160, 120, 92)
+      + `<circle cx="300" cy="54" r="27" fill="#FFF1B8"/><circle cx="292" cy="48" r="5" fill="#F4E09A"/><circle cx="308" cy="62" r="3.5" fill="#F4E09A"/>`
+      + star(40, 40, 6, '#FFF1B8') + star(110, 26, 4, '#FFF1B8') + star(232, 30, 5, '#FFF1B8') + star(346, 120, 5, '#FFF1B8') + star(24, 130, 4, '#FFF1B8')
+      + '<path d="M0 30Q110 70 210 46" fill="none" stroke="#2D1E5E" stroke-width="2"/>' + lantern(38, 68, .8) + lantern(86, 72, .8)
+      + '<ellipse cx="180" cy="240" rx="250" ry="62" fill="#5A43A8"/>'
+      + `<path d="M196 116L230 64" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M196 116L230 64" stroke="${wood}" stroke-width="4" stroke-linecap="round"/>`
+      + lantern(240, 94, 1.05)
+      + arm(178, 124, 198, 116) + lion(152, 122, .58, 'cheer') + paw(200, 114, 40)],
+    /* HSK 6: big ideas. Shi Shi plants a flag on the mountain above the Great Wall */
+    6: ['#27998B', () => bg('#27998B', '#3DAE9F', 250, 96, 84)
+      + cloud(80, 40, .7, .9) + cloud(330, 50, .5, .8)
+      + `<path d="M-10 210L90 92L170 170L210 130L300 210Z" fill="#1E7D72"/><path d="M90 92L70 116L84 112L96 122L108 110Z" fill="#fff" opacity=".9"/>`
+      + `<path d="M140 214L252 108L372 214Z" fill="#5FC0A6" stroke="#1E6E64" stroke-width="3.5" stroke-linejoin="round"/><path d="M252 108L230 128L244 124L254 134L268 122Z" fill="#fff"/>`
+      + `<path d="M0 186Q90 150 170 176T360 170" fill="none" stroke="${ln}" stroke-width="16"/><path d="M0 186Q90 150 170 176T360 170" fill="none" stroke="#EBCB98" stroke-width="10"/><path d="M0 176Q90 140 170 166T360 160" fill="none" stroke="${ln}" stroke-width="9" stroke-dasharray="7 7"/><path d="M0 176Q90 140 170 166T360 160" fill="none" stroke="#EBCB98" stroke-width="4" stroke-dasharray="4 10" stroke-dashoffset="-1.5"/>`
+      + `<path d="M288 140V14" stroke="${ln}" stroke-width="5" stroke-linecap="round"/><path d="M290 16L326 26L290 38Z" fill="${red}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + arm(268, 72, 284, 62) + lion(250, 64, .44, 'cheer') + paw(288, 58, 80, .5)],
+    /* HSK 7–9: mastery. Shi Shi holds up a scroll while fireworks go off */
+    7: ['#B8332C', () => bg('#B8332C', '#CA4A3C', 180, 118, 96)
+      + burst(60, 56, 30, gold) + burst(300, 46, 34, '#FFB4A6') + burst(318, 150, 22, gold) + burst(40, 156, 20, '#FFB4A6')
+      + star(120, 24, 6, gold) + star(250, 110, 5, gold) + star(96, 120, 5, '#FFE58A')
+      + arm(150, 126, 130, 76) + arm(210, 126, 230, 76)
+      + `<rect x="134" y="40" width="92" height="40" fill="#FFF8EE" stroke="${ln}" stroke-width="3.5"/><rect x="124" y="34" width="12" height="52" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="224" y="34" width="12" height="52" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/>${hz(180, 60, '中文', 24, 0, red)}`
+      + paw(130, 70, -10) + paw(230, 70, 10)
+      + lion(180, 136, .5, 'cheer')],
+  };
+  return S;
+})();
+function CourseBlock() {
   const k = knownWords(), H = S.H;
-  if (!H) return `<div class="prog-card"><div class="prog-shi">${shiFace('happy', Math.min(1, k.size / 150))}</div>
-    <div class="prog-main"><small>Words you know</small><div class="prog-n">${k.size}</div><small>Loading HSK levels…</small></div></div>`;
-  const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
-  const cur = lv.find(x => x.n && x.k / x.n < 1) || lv[lv.length - 1], frac = cur.n ? cur.k / cur.n : 0;
-  const show = lv.slice(Math.max(0, Math.min(cur.l - 1, lv.length - 3)), Math.max(0, Math.min(cur.l - 1, lv.length - 3)) + 3);
-  return `<button class="prog-card" data-act="hsk-level" data-lv="${cur.l}"><div class="prog-shi">${shiFace(frac >= 1 ? 'cheer' : 'happy', frac)}</div>
-      <div class="prog-main"><small>Words you know</small><div class="prog-n">${k.size.toLocaleString('en')}</div>
-        <small>${HSK_NAME(cur.l)} · ${cur.k} of ${cur.n.toLocaleString('en')}</small>
-        <div class="prog-bar"><i style="width:${Math.max(frac ? 3 : 0, Math.round(frac * 100))}%"></i></div></div></button>
-    <div class="prog-lvls">${show.map(x => { const f = x.n ? x.k / x.n : 0;
-      return `<button class="prog-lv${f ? '' : ' none'}" data-act="hsk-level" data-lv="${x.l}">${shiFace(f >= 1 ? 'cheer' : f ? 'happy' : 'sleep', f)}
-        <b>${HSK_NAME(x.l)}</b><small>${f ? Math.max(1, Math.floor(f * 100)) + '%' : 'not started'}</small></button>`; }).join('')}</div>`;
+  const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H?.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
+  const cur = H ? (lv.find(x => x.n && x.k < x.n) || lv[6]).l : 1;
+  const zh = ['', '一级', '二级', '三级', '四级', '五级', '六级', '七至九级'];
+  return `<div class="crs-list">${lv.map(x => {
+    const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, far = !x.k && x.l > cur + 2;
+    const foot = !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
+      : x.k || x.l === cur ? `<span class="crs-bar"><i style="width:${Math.max(4, Math.round(f * 100))}%"></i></span><span class="crs-pct">${Math.floor(f * 100)}%</span>`
+      : `<span class="crs-jump">Jump here</span>`;
+    return `<button class="crs${far ? ' far' : ''}${x.l === cur ? ' cur' : ''}" data-act="hsk-level" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}">
+      <span class="crs-art">${CRS[x.l][1]().replace('<rect', '<svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect') + '</svg>'}</span>
+      <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
+        ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
+        ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
+  }).join('')}</div>`;
 }
 /* Learn: today's review round (every card due from all your decks, plus up to 5 new words a day); hidden when nothing waits */
 function ReviewTile(head) {
@@ -1612,8 +1701,8 @@ function LearnView() {
   return `<div class="screen fade-in">
     <header class="bar"><h1 class="bar-head">Learn <span class="bar-zh">学习</span></h1></header>
     ${ReviewTile(head)}
-    ${head('Your progress', '进度', !todayPile().cards.length)}
-    ${ProgressBlock()}
+    ${head('HSK course', '课程', !todayPile().cards.length)}
+    ${CourseBlock()}
     ${head('My word bank', '生词本')}
     <div class="learn-list">${bankBlk}</div>
     ${head('My decks', '卡组')}
@@ -4361,7 +4450,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.78';
+const APP_VERSION = '1.79';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
