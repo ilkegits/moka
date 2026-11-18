@@ -1526,6 +1526,11 @@ function shiFace(mood, fill = 1) {
     sleep: [brow('M63 78Q76 74 90 78') + brow('M137 78Q124 74 110 78'), arc(76, 0) + arc(124, 0), '<ellipse cx="100" cy="125" rx="5" ry="6" fill="#7E1D19"/>'],
     peek: [brow('M62 74Q75 58 89 68') + brow('M138 74Q125 58 111 68'), big(71) + big(119), '<ellipse cx="100" cy="127" rx="6.5" ry="7.5" fill="#7E1D19"/><ellipse cx="100" cy="130" rx="3.6" ry="2.6" fill="#FF8A96"/>'],   // curious, looking to the left
     read: [brow('M62 76Q76 64 90 74') + brow('M138 76Q124 64 110 74'), [76, 124].map(x => `<ellipse cx="${x}" cy="99" rx="7.5" ry="7" fill="#2A0E0C"/><circle cx="${x - 2}" cy="96.5" r="2.6" fill="#fff"/>`).join(''), '<path d="M86 124Q100 136 114 124" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],   // eyes down on the page
+    lost: [brow('M62 70Q76 56 90 68') + brow('M138 82Q124 78 110 82'), '<ellipse cx="80" cy="95" rx="8" ry="9.5" fill="#2A0E0C"/><circle cx="77" cy="91" r="3.6" fill="#fff"/><ellipse cx="126" cy="97" rx="6.5" ry="8" fill="#2A0E0C"/><circle cx="123.5" cy="93.5" r="3" fill="#fff"/>', '<path d="M86 127Q91 121 96 127T106 127T116 125" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'],   // which way now?
+    wow: [brow('M62 72Q76 58 90 70') + brow('M138 72Q124 58 110 70'), big(76) + big(124), '<ellipse cx="100" cy="129" rx="9" ry="10" fill="#7E1D19"/><ellipse cx="100" cy="134" rx="5.5" ry="3.6" fill="#FF8A96"/>'],   // amazed
+    focus: [brow('M62 76Q77 74 90 84') + brow('M138 76Q123 74 110 84'), eye(76) + eye(124), '<path d="M86 122Q100 132 114 122" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/><path d="M106 126Q109 134 114 131Q116 127 113 123" fill="#FF8A96" stroke="#7E1D19" stroke-width="2.5" stroke-linejoin="round"/>'],   // trying hard, tongue out
+    tired: [brow('M64 80Q76 72 89 70') + brow('M136 80Q124 72 111 70'), [76, 124].map(x => `<path d="M${x - 8} 96Q${x} 106 ${x + 8} 96Z" fill="#2A0E0C"/><path d="M${x - 9} 95.5Q${x} 98 ${x + 9} 95.5" fill="none" stroke="#2A0E0C" stroke-width="4.5" stroke-linecap="round"/>`).join(''), '<path d="M88 121Q100 117 112 121Q110 137 100 137Q90 137 88 121Z" fill="#7E1D19"/><ellipse cx="100" cy="132" rx="6" ry="3.5" fill="#FF8A96"/>'],   // out of breath
+    up: [brow('M62 76Q76 62 90 74') + brow('M138 76Q124 62 110 74'), [76, 124].map(x => `<ellipse cx="${x}" cy="93" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="${x + 1}" cy="87.5" r="3.4" fill="#fff"/><circle cx="${x - 2.5}" cy="96" r="1.4" fill="#fff"/>`).join(''), '<path d="M89 123Q100 131 111 123" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],   // dreamy, looking up
   }[mood] || [];
   return `<svg class="shi-face" viewBox="21 21 158 158" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
     + MANE.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="17" fill="${mf(i)}" stroke="${ms(i)}" stroke-width="8"/>`).join('')
@@ -1585,82 +1590,189 @@ function knownWords() {
 /* Learn: the HSK course as a stack of section cards, one per level, each with its own Shi Shi scene in its own colour.
    The level you are on shows a progress bar; levels you haven't started say Jump here; far-off ones are greyed out */
 const CRS = (() => {
-  const red = '#E5483F', gold = '#FFD15C', gold2 = '#F4C14E', ln = '#3B1A12', fl = '#7E1D19', ml = '#A86A0C', wood = '#C98E55';
-  const hz = (x, y, ch, size, rot = 0, fill = ln, op = 1) => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" opacity="${op}" transform="rotate(${rot} ${x} ${y})" font-family="'Noto Serif SC',serif" font-weight="700" text-anchor="middle" dominant-baseline="central">${ch}</text>`;
+  const red = '#E5483F', gold = '#FFD15C', gold2 = '#F4C14E', ln = '#3B1A12', fl = '#7E1D19', ml = '#A86A0C', wood = '#C98E55', woodD = '#8A5A2E';
+  const HZF = `font-family="'Noto Serif SC',serif" font-weight="700" text-anchor="middle" dominant-baseline="central"`;
+  const hz = (x, y, ch, size, rot = 0, fill = ln, op = 1) => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" opacity="${op}" transform="rotate(${rot} ${x} ${y})" ${HZF}>${ch}</text>`;
+  const hzO = (x, y, ch, size, rot = 0, fill = '#fff') => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" stroke="${ln}" stroke-width="${size / 6}" stroke-linejoin="round" paint-order="stroke" transform="rotate(${rot} ${x} ${y})" ${HZF}>${ch}</text>`;
   const star = (x, y, r = 7, fill = gold2) => `<path d="M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="${fill}"/>`;
   const paw = (x, y, rot = 0, s = .62) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><ellipse cx="0" cy="11" rx="15" ry="8" fill="${gold}" stroke="${ml}" stroke-width="3.5"/><ellipse cx="0" cy="-2" rx="13" ry="12.5" fill="${red}" stroke="${fl}" stroke-width="4"/><path d="M-5 -13v5M0 -14.5v5M5 -13v5" stroke="${fl}" stroke-width="2.6" stroke-linecap="round"/></g>`;
   const arm = (x1, y1, x2, y2, w = 9) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${fl}" stroke-width="${w + 5}" stroke-linecap="round"/><path d="M${x1} ${y1}L${x2} ${y2}" stroke="${red}" stroke-width="${w}" stroke-linecap="round"/>`;
   const feet = `<ellipse cx="-18" cy="78" rx="11" ry="13" fill="${red}" stroke="${fl}" stroke-width="5"/><ellipse cx="18" cy="78" rx="11" ry="13" fill="${red}" stroke="${fl}" stroke-width="5"/><ellipse cx="-18" cy="88" rx="13" ry="5" fill="#fff" stroke="${ln}" stroke-width="3"/><ellipse cx="18" cy="88" rx="13" ry="5" fill="#fff" stroke="${ln}" stroke-width="3"/>`;
-  /* Shi Shi centred on x,y at size s (1 = the lion's own 158-unit head) */
+  /* Shi Shi centred on x,y at size s (1 = the lion's own 158-unit head); his feet end 92*s below the centre */
   const lion = (x, y, s, mood = 'happy', r = 0, legs = true) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})">${legs ? feet : ''}${shiFace(mood).replace('<svg class="shi-face"', '<svg x="-79" y="-79" width="158" height="158"')}</g>`;
-  const bg = (fill, blob, bx, by, br) => `<rect width="360" height="210" fill="${fill}"/><circle cx="${bx}" cy="${by}" r="${br}" fill="${blob}"/>`;
-  const flower = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${[0, 72, 144, 216, 288].map(a => `<circle cx="${(6 * Math.cos(a * Math.PI / 180)).toFixed(1)}" cy="${(6 * Math.sin(a * Math.PI / 180)).toFixed(1)}" r="5" fill="#fff"/>`).join('')}<circle r="3.4" fill="${gold}"/></g>`;
-  const cloud = (x, y, s = 1, op = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity="${op}"><circle cx="-18" cy="4" r="12" fill="#fff"/><circle cx="0" cy="-4" r="16" fill="#fff"/><circle cx="18" cy="4" r="12" fill="#fff"/><rect x="-30" y="4" width="60" height="12" rx="6" fill="#fff"/></g>`;
-  const lantern = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 -26V-16" stroke="${ln}" stroke-width="2.5"/><rect x="-8" y="-18" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><ellipse cx="0" cy="0" rx="17" ry="14" fill="${red}" stroke="${ln}" stroke-width="3"/><path d="M-7 -12Q-12 0 -7 12M7 -12Q12 0 7 12" fill="none" stroke="${fl}" stroke-width="2"/><rect x="-8" y="12" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><path d="M0 18V30" stroke="${gold2}" stroke-width="3" stroke-linecap="round"/></g>`;
-  const burst = (x, y, r, fill) => `<g transform="translate(${x} ${y})" stroke="${fill}" stroke-width="3.2" stroke-linecap="round">${Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<path d="M${(r * .45 * Math.cos(a)).toFixed(1)} ${(r * .45 * Math.sin(a)).toFixed(1)}L${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}"/>`; }).join('')}</g>`;
+  const sweat = (x, y, s = 1) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 -9Q7 1 4.5 5A4.6 4.6 0 0 1 -4.5 5Q-7 1 0 -9Z" fill="#BDE9FF" stroke="#2F6E9A" stroke-width="2"/>`;
+
+  /* the side characters from mascot-samples.html, drawn in their own 200 x 200 space */
+  const cface = ({ x = 100, y = 100, gap = 22, s = 1, eye = '#1D3328', mouth = 'w', blush = true, inv = false, squint = false } = {}) => {
+    const eyes = [-1, 1].map(k => { const ex = x + k * gap;
+      return squint ? `<path d="M${ex - 7 * k} ${y - 6}L${ex + 5 * k} ${y}L${ex - 7 * k} ${y + 6}" fill="none" stroke="${eye}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>`
+        : inv ? `<ellipse cx="${ex}" cy="${y}" rx="${7 * s}" ry="${8.4 * s}" fill="#fff"/><circle cx="${ex + .6 * s}" cy="${y + 1.6 * s}" r="${4 * s}" fill="${eye}"/><circle cx="${ex - .8 * s}" cy="${y - .2 * s}" r="${1.5 * s}" fill="#fff"/>`
+        : `<ellipse cx="${ex}" cy="${y}" rx="${6.5 * s}" ry="${7.8 * s}" fill="${eye}"/><circle cx="${ex - 2.1 * s}" cy="${y - 3 * s}" r="${2.7 * s}" fill="#fff"/><circle cx="${ex + 2.2 * s}" cy="${y + 2.6 * s}" r="${1.2 * s}" fill="#fff"/>`; }).join('');
+    const my = y + 12 * s;
+    const m = mouth === 'w' ? `<path d="M${x - 6 * s} ${my}Q${x - 3 * s} ${my + 5 * s} ${x} ${my + .5 * s}Q${x + 3 * s} ${my + 5 * s} ${x + 6 * s} ${my}" fill="none" stroke="${eye}" stroke-width="${2.8 * s}" stroke-linecap="round" stroke-linejoin="round"/>`
+      : mouth === 'smile' ? `<path d="M${x - 6 * s} ${my}Q${x} ${my + 7 * s} ${x + 6 * s} ${my}" fill="none" stroke="${eye}" stroke-width="${2.8 * s}" stroke-linecap="round"/>`
+      : mouth === 'o' ? `<ellipse cx="${x}" cy="${my + 2}" rx="${4.5 * s}" ry="${5.5 * s}" fill="${eye}"/>`
+      : mouth === 'wobble' ? `<path d="M${x - 8} ${my + 1}Q${x - 4} ${my - 3} ${x} ${my + 1}T${x + 8} ${my + 1}" fill="none" stroke="${eye}" stroke-width="2.6" stroke-linecap="round"/>` : '';
+    const b = blush ? [-1, 1].map(k => `<ellipse cx="${x + k * (gap + 14 * s)}" cy="${y + 10 * s}" rx="${8 * s}" ry="${4.8 * s}" fill="#FF9AA6" opacity=".72"/>`).join('') : '';
+    return b + eyes + m;
+  };
+  const tube = (d, line, fill, w = 14) => `<path d="${d}" fill="none" stroke="${line}" stroke-width="${w + 9}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${fill}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const FRIEND = {
+    dragon: () => { const L = '#1F5A41', J = '#5CC898'; return `${tube('M124 166C152 174 174 160 170 134C168 122 160 118 155 124', L, J, 13)}<path d="M156 130C146 124 147 110 156 102C156 110 161 113 166 109C171 117 167 128 156 130Z" fill="${red}" stroke="${fl}" stroke-width="4" stroke-linejoin="round"/><ellipse cx="80" cy="182" rx="13" ry="9" fill="${J}" stroke="${L}" stroke-width="5"/><ellipse cx="120" cy="182" rx="13" ry="9" fill="${J}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="150" rx="38" ry="32" fill="${J}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="158" rx="22" ry="19" fill="#FFF1C9"/>${tube('M78 50C74 36 66 28 60 15M69 31C63 31 57 29 52 24', L, gold2, 7)}${tube('M122 50C126 36 134 28 140 15M131 31C137 31 143 29 148 24', L, gold2, 7)}<path d="M88 44C85 30 93 22 100 15C100 23 106 25 111 21C115 30 113 39 109 44Z" fill="${red}" stroke="${fl}" stroke-width="4" stroke-linejoin="round"/><ellipse cx="100" cy="86" rx="56" ry="48" fill="${J}" stroke="${L}" stroke-width="5"/><ellipse cx="72" cy="58" rx="12" ry="6" transform="rotate(-28 72 58)" fill="#B6F0D2" opacity=".8"/><path d="M72 106C54 112 38 106 32 94C28 86 36 80 41 87" fill="none" stroke="${red}" stroke-width="4.5" stroke-linecap="round"/><path d="M128 106C146 112 162 106 168 94C172 86 164 80 159 87" fill="none" stroke="${red}" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="100" cy="106" rx="30" ry="19" fill="#8FDDB6" stroke="${L}" stroke-width="4"/><ellipse cx="92" cy="101" rx="2.6" ry="3.4" fill="${L}"/><ellipse cx="108" cy="101" rx="2.6" ry="3.4" fill="${L}"/><path d="M90 111Q100 122 110 111" fill="${fl}" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>${cface({ x: 100, y: 78, gap: 25, mouth: 'none', blush: false })}<ellipse cx="58" cy="92" rx="8" ry="4.8" fill="#FF9AA6" opacity=".75"/><ellipse cx="142" cy="92" rx="8" ry="4.8" fill="#FF9AA6" opacity=".75"/><circle cx="100" cy="152" r="12" fill="#FFE7A8" stroke="#9A6A10" stroke-width="4"/><circle cx="96" cy="148" r="3.6" fill="#fff"/><ellipse cx="85" cy="150" rx="9" ry="7" transform="rotate(-20 85 150)" fill="${J}" stroke="${L}" stroke-width="4.5"/><ellipse cx="115" cy="150" rx="9" ry="7" transform="rotate(20 115 150)" fill="${J}" stroke="${L}" stroke-width="4.5"/>`; },
+    tiger: (ears) => { const L = '#8A4410', O = '#F7A03C', S = '#6B3410', W = '#FFF6E8'; const wedge = (x, y, d) => `<path d="M${x} ${y - 4}L${x + d * 15} ${y}L${x} ${y + 4}Z" fill="${S}"/>`;
+      return `${tube('M126 168C158 172 172 150 164 128', L, O, 12)}<circle cx="164" cy="128" r="8" fill="${S}"/><ellipse cx="80" cy="182" rx="13" ry="9" fill="${O}" stroke="${L}" stroke-width="5"/><ellipse cx="120" cy="182" rx="13" ry="9" fill="${O}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="152" rx="36" ry="30" fill="${O}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="158" rx="20" ry="18" fill="${W}"/>${wedge(66, 148, 1)}${wedge(134, 148, -1)}<circle cx="56" cy="50" r="18" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="57" cy="52" r="9" fill="#FF9AA6"/><circle cx="144" cy="50" r="18" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="143" cy="52" r="9" fill="#FF9AA6"/><ellipse cx="100" cy="90" rx="62" ry="50" fill="${O}" stroke="${L}" stroke-width="5"/><path d="M87 52H113M89 61H111M85 70H115M100 52V70" stroke="${S}" stroke-width="5" stroke-linecap="round"/>${wedge(41, 80, 1)}${wedge(41, 96, 1)}${wedge(159, 80, -1)}${wedge(159, 96, -1)}<circle cx="89" cy="108" r="14" fill="${W}"/><circle cx="111" cy="108" r="14" fill="${W}"/><path d="M93 98Q100 94 107 98Q104 105 100 106Q96 105 93 98Z" fill="#F27A8A" stroke="${L}" stroke-width="2.5" stroke-linejoin="round"/>${ears ? `<path d="M90 113Q95 108 100 113T110 113" fill="none" stroke="${L}" stroke-width="2.8" stroke-linecap="round"/>` : `<path d="M100 106V109M92 110Q96 116 100 109Q104 116 108 110" fill="none" stroke="${L}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>`}${cface({ x: 100, y: 84, gap: 27, mouth: 'none', blush: false, eye: '#2A1A0E', squint: ears })}<ellipse cx="62" cy="100" rx="8" ry="4.8" fill="#FF9AA6" opacity=".8"/><ellipse cx="138" cy="100" rx="8" ry="4.8" fill="#FF9AA6" opacity=".8"/>${ears ? `<ellipse cx="50" cy="56" rx="17" ry="14" transform="rotate(-30 50 56)" fill="${O}" stroke="${L}" stroke-width="4.5"/><ellipse cx="150" cy="56" rx="17" ry="14" transform="rotate(30 150 56)" fill="${O}" stroke="${L}" stroke-width="4.5"/><path d="M76 132Q60 100 52 74M124 132Q140 100 148 74" fill="none" stroke="${L}" stroke-width="15" stroke-linecap="round"/><path d="M76 132Q60 100 52 74M124 132Q140 100 148 74" fill="none" stroke="${O}" stroke-width="9" stroke-linecap="round"/>` : `<ellipse cx="80" cy="146" rx="9" ry="7" fill="${O}" stroke="${L}" stroke-width="4.5"/><ellipse cx="120" cy="146" rx="9" ry="7" fill="${O}" stroke="${L}" stroke-width="4.5"/>`}`; },
+    rabbit: (wave) => { const L = '#2F7A5A', B = '#F4FBF7';
+      return `<ellipse cx="82" cy="44" rx="14" ry="34" transform="rotate(-12 82 44)" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="82" cy="47" rx="6.5" ry="23" transform="rotate(-12 82 47)" fill="#9BE3BF"/><ellipse cx="122" cy="48" rx="14" ry="32" transform="rotate(24 122 48)" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="121" cy="51" rx="6.5" ry="21" transform="rotate(24 121 51)" fill="#9BE3BF"/><circle cx="136" cy="168" r="11" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="82" cy="182" rx="14" ry="8" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="118" cy="182" rx="14" ry="8" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="156" rx="36" ry="28" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="100" rx="50" ry="42" fill="${B}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="109" rx="3.6" ry="2.6" fill="#F27A8A"/>${cface({ x: 100, y: 99, gap: 21, mouth: 'w' })}${wave ? `<ellipse cx="84" cy="150" rx="9" ry="7" transform="rotate(-20 84 150)" fill="${B}" stroke="${L}" stroke-width="4.5"/><path d="M134 138Q150 120 154 100" fill="none" stroke="${L}" stroke-width="16" stroke-linecap="round"/><path d="M134 138Q150 120 154 100" fill="none" stroke="${B}" stroke-width="10" stroke-linecap="round"/>` : `<circle cx="100" cy="153" r="15" fill="#5CC898" stroke="#1F5A41" stroke-width="3.5"/><circle cx="100" cy="153" r="5.5" fill="${B}" stroke="#1F5A41" stroke-width="3"/><ellipse cx="84" cy="150" rx="9" ry="7" transform="rotate(-20 84 150)" fill="${B}" stroke="${L}" stroke-width="4.5"/><ellipse cx="116" cy="150" rx="9" ry="7" transform="rotate(20 116 150)" fill="${B}" stroke="${L}" stroke-width="4.5"/>`}`; },
+    panda: (cheer) => { const K = '#2B2B33', W = '#FFFFFF';
+      return `<ellipse cx="80" cy="182" rx="14" ry="10" fill="${K}"/><ellipse cx="120" cy="182" rx="14" ry="10" fill="${K}"/><ellipse cx="100" cy="152" rx="38" ry="30" fill="${W}" stroke="${K}" stroke-width="5"/><circle cx="60" cy="52" r="17" fill="${K}"/><circle cx="140" cy="52" r="17" fill="${K}"/><ellipse cx="100" cy="92" rx="58" ry="48" fill="${W}" stroke="${K}" stroke-width="5"/><ellipse cx="76" cy="92" rx="14" ry="17" transform="rotate(28 76 92)" fill="${K}"/><ellipse cx="124" cy="92" rx="14" ry="17" transform="rotate(-28 124 92)" fill="${K}"/>${cface({ x: 100, y: 90, gap: 23, inv: true, eye: K, mouth: 'none', blush: false })}<path d="M94 106Q100 103 106 106Q104 111 100 112Q96 111 94 106Z" fill="${K}"/>${cheer ? `<path d="M91 115Q100 128 109 115Z" fill="${fl}" stroke="${K}" stroke-width="2.6" stroke-linejoin="round"/><path d="M62 140Q40 112 38 84" fill="none" stroke="${K}" stroke-width="20" stroke-linecap="round"/><path d="M138 140Q160 112 162 84" fill="none" stroke="${K}" stroke-width="20" stroke-linecap="round"/>` : `<path d="M100 112V114M94 115Q97 120 100 114Q103 120 106 115" fill="none" stroke="${K}" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="78" cy="150" rx="12" ry="10" fill="${K}"/><ellipse cx="124" cy="154" rx="12" ry="10" fill="${K}"/>`}<ellipse cx="60" cy="112" rx="8" ry="4.8" fill="#FF9AA6" opacity=".8"/><ellipse cx="140" cy="112" rx="8" ry="4.8" fill="#FF9AA6" opacity=".8"/>`; },
+    bao: () => { const L = '#B08A5A', B = '#FFF6E6', T = '#E8BC72', TL = '#8A5A1E';
+      return `<ellipse cx="100" cy="130" rx="60" ry="14" fill="#C8954A" stroke="${TL}" stroke-width="5"/><ellipse cx="100" cy="116" rx="52" ry="40" fill="${B}" stroke="${L}" stroke-width="5"/><path d="M83 92Q90 82 97 79M90 94Q95 84 99 79M110 94Q105 84 101 79M117 92Q110 82 103 79" fill="none" stroke="#D8BB92" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="80" r="5" fill="${red}"/><ellipse cx="76" cy="92" rx="10" ry="5" transform="rotate(-25 76 92)" fill="#fff"/>${cface({ x: 100, y: 110, gap: 20, mouth: 'wobble', eye: '#3A2A18', inv: true })}<path d="M40 130V170Q100 190 160 170V130Q100 146 40 130Z" fill="${T}" stroke="${TL}" stroke-width="5" stroke-linejoin="round"/><path d="M42 150Q100 166 158 150M42 162Q100 178 158 162" fill="none" stroke="${TL}" stroke-width="2.5" opacity=".55"/><path d="M40 130Q100 146 160 130" fill="none" stroke="${TL}" stroke-width="5" stroke-linecap="round"/>`; },
+  };
+  /* a friend centred on x,y (their own 100,100) at size s; flip mirrors them */
+  const friend = (name, x, y, s, r = 0, flip = false, opt) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${flip ? -s : s} ${s}) translate(-100 -100)">${FRIEND[name](opt)}</g>`;
+
+  /* scenery */
+  const bg = (sky, low) => `<defs><linearGradient id="crsg${sky.slice(1)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky}"/><stop offset="1" stop-color="${low}"/></linearGradient></defs><rect width="360" height="210" fill="url(#crsg${sky.slice(1)})"/>`;
+  const karst = (base, fill, peaks) => `<path d="${peaks.map(([x, h, w]) => `M${x - w} ${base}C${x - w * .9} ${base - h * 1.33} ${x + w * .9} ${base - h * 1.33} ${x + w} ${base}Z`).join('')}" fill="${fill}"/>`;
+  const roofD = (x, y, w, h) => `M${x - w / 2 - 14} ${y - 9}Q${x - w / 2 - 6} ${y + 5} ${x - w / 2 + 4} ${y + 5}H${x + w / 2 - 4}Q${x + w / 2 + 6} ${y + 5} ${x + w / 2 + 14} ${y - 9}Q${x + w / 2 + 2} ${y - 3} ${x + w / 2 - 14} ${y - h}H${x - w / 2 + 14}Q${x - w / 2 - 2} ${y - 3} ${x - w / 2 - 14} ${y - 9}Z`;
+  const roof = (x, y, w, h, fill, line = ln, ridge = fill) => `<path d="${roofD(x, y, w, h)}" fill="${fill}" stroke="${line}" stroke-width="3" stroke-linejoin="round"/><rect x="${x - w / 2 + 8}" y="${y - h - 4}" width="${w - 16}" height="6" rx="2" fill="${ridge}" stroke="${line}" stroke-width="2.5"/>`;
+  const pagoda = (x, base, s, fill, win) => { let y = base, out = ''; for (let i = 0; i < 5; i++) { const tw = (58 - i * 8) * s, th = 13 * s, rh = 7 * s;
+      out += `<rect x="${x - tw * .32}" y="${y - th}" width="${tw * .64}" height="${th + 1}" fill="${fill}"/>${win ? `<rect x="${x - 2 * s}" y="${y - th * .75}" width="${4 * s}" height="${th * .5}" fill="${win}"/>` : ''}<path d="${roofD(x, y - th, tw * .82, rh)}" fill="${fill}"/>`; y -= th + rh; }
+    return out + `<path d="M${x} ${y + 2}V${y - 14 * s}" stroke="${fill}" stroke-width="${2.6 * s}"/><circle cx="${x}" cy="${y - 6 * s}" r="${2.6 * s}" fill="${fill}"/>`; };
+  const xcloud = (x, y, s, fill = '#fff', curl = 'rgba(0,0,0,.12)') => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-34 8H34a10 10 0 0 0-6-17a12 12 0 0 0-22-6a14 14 0 0 0-25 5a10 10 0 0 0-15 18Z" fill="${fill}"/><path d="M-12 1a6 6 0 1 1 7 6M14 2a5 5 0 1 0-5-6" fill="none" stroke="${curl}" stroke-width="2.6" stroke-linecap="round"/></g>`;
+  const pine = (x, y, s, fill, trunk = '#6B4428') => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0Q-6 -30 4 -60Q10 -76 2 -92" fill="none" stroke="${trunk}" stroke-width="7" stroke-linecap="round"/><path d="M4 -60Q20 -66 30 -60" stroke="${trunk}" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="-14" cy="-50" rx="24" ry="8" fill="${fill}"/><ellipse cx="26" cy="-64" rx="20" ry="7" fill="${fill}"/><ellipse cx="2" cy="-84" rx="26" ry="9" fill="${fill}"/><ellipse cx="0" cy="-100" rx="14" ry="6" fill="${fill}"/></g>`;
+  const lantern = (x, y, s = 1, glow) => `<g transform="translate(${x} ${y}) scale(${s})">${glow ? `<circle r="30" fill="${glow}" opacity=".35"/>` : ''}<path d="M0 -26V-16" stroke="${ln}" stroke-width="2.5"/><rect x="-8" y="-18" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><ellipse cx="0" cy="0" rx="17" ry="14" fill="${red}" stroke="${ln}" stroke-width="3"/><path d="M-7 -12Q-12 0 -7 12M7 -12Q12 0 7 12" fill="none" stroke="${fl}" stroke-width="2"/><rect x="-8" y="12" width="16" height="6" rx="2" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/><path d="M0 18V30" stroke="${gold2}" stroke-width="3" stroke-linecap="round"/></g>`;
+  const burst = (x, y, r, fill) => `<g transform="translate(${x} ${y})" stroke="${fill}" stroke-width="3.2" stroke-linecap="round">${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M${(r * .4 * Math.cos(a)).toFixed(1)} ${(r * .4 * Math.sin(a)).toFixed(1)}L${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}"/>`; }).join('')}<circle r="${r * .14}" fill="${fill}" stroke="none"/></g>`;
+  const bubble = (x, y, w, h, tx, ty, txt, size, col = red) => `<rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2.6}" fill="#fff" stroke="${ln}" stroke-width="3"/><path d="M${x - 8} ${y + h / 2 - 2}L${tx} ${ty}L${x + 8} ${y + h / 2 - 2}" fill="#fff" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><rect x="${x - 7}" y="${y + h / 2 - 5}" width="14" height="5" fill="#fff"/>${hz(x, y + 1, txt, size, 0, col)}`;
+
   const S = {
-    /* HSK 1: first steps. Shi Shi waves hello on a spring meadow */
-    1: ['#35A877', () => bg('#35A877', '#4DBC8B', 170, 104, 96)
-      + '<ellipse cx="180" cy="236" rx="250" ry="60" fill="#2A9466"/>'
-      + flower(52, 168, 1.1) + flower(88, 192) + flower(300, 178, 1.2) + flower(332, 152, .8) + flower(36, 70, .7) + flower(250, 128, .7)
-      + arm(198, 112, 230, 78) + paw(234, 72, 22)
-      + lion(164, 104, .6, 'cheer')
-      + `<g transform="rotate(-6 282 52)"><rect x="246" y="28" width="76" height="44" rx="14" fill="#fff" stroke="${ln}" stroke-width="3.5"/><path d="M256 70L246 86L272 72" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><rect x="250" y="64" width="26" height="6" fill="#fff"/>${hz(284, 50, '你好', 22, 0, red)}</g>`
-      + star(82, 52, 8, '#FFE58A') + star(226, 150, 6, '#FFE58A')],
-    /* HSK 2: food words. Shi Shi lifts noodles out of a big bowl */
-    2: ['#EC6AA4', () => bg('#EC6AA4', '#F387B8', 150, 96, 92)
-      + `<rect x="0" y="168" width="360" height="42" fill="${wood}"/><rect x="0" y="164" width="360" height="8" fill="#B07541"/>`
-      + lion(142, 104, .58, 'cheer', -6, false)
-      + arm(176, 122, 236, 104) + `<path d="M216 162L276 46M228 164L290 52" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M216 162L276 46M228 164L290 52" stroke="#E7B77A" stroke-width="3.5" stroke-linecap="round"/>`
-      + `<path d="M262 76Q252 110 258 140M270 78Q266 112 272 142M278 82Q282 112 280 142" fill="none" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M262 76Q252 110 258 140M270 78Q266 112 272 142M278 82Q282 112 280 142" fill="none" stroke="#FFE08A" stroke-width="3.8" stroke-linecap="round"/>`
-      + paw(244, 100, 60)
-      + `<path d="M200 140H326Q322 196 263 198Q204 196 200 140Z" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M204 156H322" stroke="${red}" stroke-width="6"/>`
-      + `<ellipse cx="263" cy="140" rx="63" ry="11" fill="#FFE08A" stroke="${ln}" stroke-width="3.5"/>${hz(263, 178, '面', 20, 0, red)}`
-      + '<path d="M232 120Q224 108 232 98T232 76M300 120Q308 108 300 98T300 78" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/>'
-      + star(40, 40, 8, '#FFD6E8') + star(330, 30, 6, '#FFD6E8') + star(46, 150, 5, '#FFD6E8')],
-    /* HSK 3: going places. Shi Shi paddles a little dragon boat */
-    3: ['#F2884A', () => bg('#F2884A', '#F7A16A', 196, 92, 86)
-      + `<circle cx="304" cy="48" r="22" fill="${gold}"/>` + cloud(74, 46, .8) + cloud(250, 30, .55, .8)
-      + '<rect x="0" y="166" width="360" height="44" fill="#3D8FD1"/><path d="M0 170Q30 162 60 170T120 170T180 170T240 170T300 170T360 170" fill="none" stroke="#fff" stroke-width="3.5" opacity=".7"/>'
-      + `<path d="M96 66L136 206" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M96 66L136 206" stroke="${wood}" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="136" cy="196" rx="9" ry="19" transform="rotate(-16 136 196)" fill="${wood}" stroke="${ln}" stroke-width="3"/>`
-      + arm(154, 112, 110, 114) + arm(160, 132, 118, 142)
-      + lion(184, 112, .54, 'happy', 4, false)
-      + paw(108, 114, -70) + paw(117, 143, -70)
-      + `<path d="M64 150Q184 182 300 146L318 120Q332 116 330 130L296 178Q184 204 80 176Z" fill="${red}" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M78 162Q184 190 302 156" fill="none" stroke="${gold}" stroke-width="5"/><circle cx="322" cy="124" r="3" fill="${ln}"/>`
-      + '<circle cx="152" cy="190" r="5" fill="#fff" opacity=".8"/><circle cx="162" cy="184" r="3.5" fill="#fff" opacity=".8"/><circle cx="146" cy="180" r="3" fill="#fff" opacity=".7"/>'],
-    /* HSK 4: everyday life. Shi Shi flies a kite on a windy hill */
-    4: ['#4A9DE2', () => bg('#4A9DE2', '#68B2EB', 140, 120, 94)
-      + cloud(60, 52, .9) + cloud(312, 130, .8, .9) + cloud(200, 24, .5, .8)
-      + '<ellipse cx="120" cy="238" rx="220" ry="62" fill="#6BC46A"/><ellipse cx="320" cy="250" rx="140" ry="60" fill="#58B259"/>'
-      + `<path d="M266 92Q230 92 214 112T168 126" fill="none" stroke="#fff" stroke-width="2.2"/>`
-      + `<path d="M266 92Q276 120 262 134T272 172" fill="none" stroke="${ln}" stroke-width="2"/>${[[264, 118], [264, 140], [270, 160]].map(([x, y]) => `<path d="M${x - 7} ${y - 4}L${x + 7} ${y + 4}M${x - 7} ${y + 4}L${x + 7} ${y - 4}" stroke="${red}" stroke-width="5" stroke-linecap="round"/>`).join('')}`
-      + `<g transform="rotate(14 266 56)"><path d="M266 18L298 56L266 94L234 56Z" fill="${red}" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M266 18V94M234 56H298" stroke="${gold}" stroke-width="2.5"/>${hz(266, 56, '风', 22, 0, '#fff')}</g>`
-      + arm(150, 122, 168, 124) + lion(124, 124, .56, 'happy') + paw(170, 124, 70)],
-    /* HSK 5: festivals. Shi Shi carries a lantern under the moon */
-    5: ['#7458C9', () => bg('#7458C9', '#8A70D6', 160, 120, 92)
-      + `<circle cx="300" cy="54" r="27" fill="#FFF1B8"/><circle cx="292" cy="48" r="5" fill="#F4E09A"/><circle cx="308" cy="62" r="3.5" fill="#F4E09A"/>`
-      + star(40, 40, 6, '#FFF1B8') + star(110, 26, 4, '#FFF1B8') + star(232, 30, 5, '#FFF1B8') + star(346, 120, 5, '#FFF1B8') + star(24, 130, 4, '#FFF1B8')
-      + '<path d="M0 30Q110 70 210 46" fill="none" stroke="#2D1E5E" stroke-width="2"/>' + lantern(38, 68, .8) + lantern(86, 72, .8)
-      + '<ellipse cx="180" cy="240" rx="250" ry="62" fill="#5A43A8"/>'
-      + `<path d="M196 116L230 64" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M196 116L230 64" stroke="${wood}" stroke-width="4" stroke-linecap="round"/>`
-      + lantern(240, 94, 1.05)
-      + arm(178, 124, 198, 116) + lion(152, 122, .58, 'cheer') + paw(200, 114, 40)],
-    /* HSK 6: big ideas. Shi Shi plants a flag on the mountain above the Great Wall */
-    6: ['#27998B', () => bg('#27998B', '#3DAE9F', 250, 96, 84)
-      + cloud(80, 40, .7, .9) + cloud(330, 50, .5, .8)
-      + `<path d="M-10 210L90 92L170 170L210 130L300 210Z" fill="#1E7D72"/><path d="M90 92L70 116L84 112L96 122L108 110Z" fill="#fff" opacity=".9"/>`
-      + `<path d="M140 214L252 108L372 214Z" fill="#5FC0A6" stroke="#1E6E64" stroke-width="3.5" stroke-linejoin="round"/><path d="M252 108L230 128L244 124L254 134L268 122Z" fill="#fff"/>`
-      + `<path d="M0 186Q90 150 170 176T360 170" fill="none" stroke="${ln}" stroke-width="16"/><path d="M0 186Q90 150 170 176T360 170" fill="none" stroke="#EBCB98" stroke-width="10"/><path d="M0 176Q90 140 170 166T360 160" fill="none" stroke="${ln}" stroke-width="9" stroke-dasharray="7 7"/><path d="M0 176Q90 140 170 166T360 160" fill="none" stroke="#EBCB98" stroke-width="4" stroke-dasharray="4 10" stroke-dashoffset="-1.5"/>`
-      + `<path d="M288 140V14" stroke="${ln}" stroke-width="5" stroke-linecap="round"/><path d="M290 16L326 26L290 38Z" fill="${red}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
-      + arm(268, 72, 284, 62) + lion(250, 64, .44, 'cheer') + paw(288, 58, 80, .5)],
-    /* HSK 7–9: mastery. Shi Shi holds up a scroll while fireworks go off */
-    7: ['#B8332C', () => bg('#B8332C', '#CA4A3C', 180, 118, 96)
-      + burst(60, 56, 30, gold) + burst(300, 46, 34, '#FFB4A6') + burst(318, 150, 22, gold) + burst(40, 156, 20, '#FFB4A6')
-      + star(120, 24, 6, gold) + star(250, 110, 5, gold) + star(96, 120, 5, '#FFE58A')
-      + arm(150, 126, 130, 76) + arm(210, 126, 230, 76)
-      + `<rect x="134" y="40" width="92" height="40" fill="#FFF8EE" stroke="${ln}" stroke-width="3.5"/><rect x="124" y="34" width="12" height="52" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="224" y="34" width="12" height="52" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/>${hz(180, 60, '中文', 24, 0, red)}`
-      + paw(130, 70, -10) + paw(230, 70, 10)
-      + lion(180, 136, .5, 'cheer')],
+    /* HSK 1: first steps. Shi Shi is lost at the village gate (入门, "getting started"), map upside down, signposts every way; Yu Tu waves to help */
+    1: ['#35A877', () => bg('#7FD3AE', '#3FAE7E')
+      + xcloud(56, 30, .8, '#E6F8EF') + xcloud(300, 22, .6, '#E6F8EF')
+      + karst(150, '#5DBE93', [[20, 52, 34], [64, 78, 30], [300, 70, 30], [344, 48, 30]]) + pagoda(300, 84, .55, '#5DBE93')
+      + karst(168, '#43A77B', [[-6, 50, 40], [96, 40, 40], [270, 44, 46], [372, 56, 36]])
+      + '<path d="M-10 172Q180 150 370 172V220H-10Z" fill="#2E9466"/>'
+      + '<path d="M156 176H204L262 214H98Z" fill="#E6CF98"/><path d="M150 196l10 -3M210 196l10 3M178 204h8" stroke="#C9AF73" stroke-width="3" stroke-linecap="round"/>'
+      + pine(30, 190, .9, '#1F7A50')
+      /* the gate */
+      + `<rect x="104" y="40" width="12" height="142" fill="#D9443A" stroke="${ln}" stroke-width="3"/><rect x="244" y="40" width="12" height="142" fill="#D9443A" stroke="${ln}" stroke-width="3"/><rect x="99" y="176" width="22" height="9" rx="2" fill="#9C8F80" stroke="${ln}" stroke-width="2.5"/><rect x="239" y="176" width="22" height="9" rx="2" fill="#9C8F80" stroke="${ln}" stroke-width="2.5"/>`
+      + `<rect x="92" y="44" width="176" height="13" fill="#3E7FB1" stroke="${ln}" stroke-width="3"/>${[110, 140, 170, 200, 230, 252].map(x => `<circle cx="${x}" cy="50.5" r="2.6" fill="${gold}"/>`).join('')}<rect x="98" y="84" width="164" height="8" fill="#D9443A" stroke="${ln}" stroke-width="2.5"/>`
+      + roof(180, 40, 196, 14, '#2C5A4F', ln, '#2C5A4F')
+      + `<rect x="152" y="57" width="56" height="27" rx="3" fill="${gold2}" stroke="${ln}" stroke-width="3"/>${hz(180, 70.5, '入门', 17, 0, '#7E1D19')}`
+      /* signpost */
+      + `<rect x="301" y="96" width="8" height="90" fill="${wood}" stroke="${ln}" stroke-width="2.5"/>`
+      + `<path d="M284 104H322L332 112L322 120H284Z" fill="#FFF3D6" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round" transform="rotate(-8 305 112)"/>${hz(303, 111, '东', 13, -8, red)}`
+      + `<path d="M328 128H290L280 136L290 144H328Z" fill="#FFF3D6" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round" transform="rotate(10 305 136)"/>${hz(306, 136, '西', 13, 10, red)}`
+      + friend('rabbit', 336, 168, .26, 6, false, true)
+      /* Shi Shi, lost */
+      + lion(180, 128, .48, 'lost', -4)
+      + `<g transform="rotate(8 180 160)"><rect x="152" y="146" width="56" height="34" rx="3" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/><path d="M170 146V180M190 146V180" stroke="#E2CFA6" stroke-width="2"/><path d="M158 172Q170 156 182 166T202 154" fill="none" stroke="${red}" stroke-width="2.4" stroke-dasharray="4 3"/>${hz(196, 168, '北', 9, 180, ln)}</g>`
+      + paw(152, 162, -40) + paw(209, 168, 40)
+      + hzO(230, 112, '?', 32, 14) + hzO(134, 106, '?', 22, -18)],
+
+    /* HSK 2: food and shopping. A night-market stall: Shi Shi can't take his eyes off Bao Bao in the steamer; Bao Bao is nervous */
+    2: ['#EC6AA4', () => bg('#F58BBB', '#D9518F')
+      + `<path d="M0 96H40V70H90V96H130V60H210V96H240V74H300V96H360V210H0Z" fill="#C9497F"/>` + roof(65, 70, 60, 10, '#B23C70', '#B23C70') + roof(170, 60, 90, 12, '#B23C70', '#B23C70') + roof(270, 74, 70, 10, '#B23C70', '#B23C70')
+      + [[60, 84], [170, 76], [270, 86]].map(([x, y]) => `<rect x="${x - 10}" y="${y}" width="20" height="14" fill="#FFD98A" opacity=".85"/>`).join('')
+      + '<path d="M-4 18Q90 40 180 22T364 18" fill="none" stroke="#5A1E3C" stroke-width="2"/>' + lantern(40, 54, .62, gold) + lantern(130, 52, .62, gold) + lantern(230, 50, .62, gold) + lantern(326, 46, .62, gold)
+      /* menu tags on the back of the stall */
+      + `${[['面', 30], ['饺', 56], ['包', 82]].map(([c, x], i) => `<g transform="rotate(${i - 1} ${x} 110)"><rect x="${x - 10}" y="94" width="20" height="34" rx="2" fill="#FFF3D6" stroke="${ln}" stroke-width="2.5"/>${hz(x, 111, c, 14, 0, red)}</g>`).join('')}`
+      /* Shi Shi behind the counter */
+      + lion(150, 128, .5, 'wow', 6, false)
+      + `<path d="M196 122L246 104M200 128L250 114" stroke="${ln}" stroke-width="6" stroke-linecap="round"/><path d="M196 122L246 104M200 128L250 114" stroke="#E7B77A" stroke-width="3" stroke-linecap="round"/>` + arm(180, 140, 196, 128) + paw(196, 126, 70)
+      /* steamers and Bao Bao */
+      + `<g>${[0, 1].map(i => `<path d="M236 ${176 - i * 18}H332V${194 - i * 18}H236Z" fill="#E8BC72" stroke="#8A5A1E" stroke-width="3"/><path d="M242 ${176 - i * 18}V${194 - i * 18}M326 ${176 - i * 18}V${194 - i * 18}" stroke="#8A5A1E" stroke-width="2" opacity=".5"/>`).join('')}</g>`
+      + friend('bao', 284, 112, .5) + sweat(316, 92, 1.1) + sweat(326, 104, .7)
+      + '<path d="M268 70Q262 60 268 50M300 66Q306 56 300 46" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".6"/>'
+      /* the counter */
+      + `<rect x="0" y="160" width="360" height="12" fill="#B5713A" stroke="${ln}" stroke-width="3"/><rect x="0" y="171" width="360" height="40" fill="#C93A33"/><path d="M0 171H360" stroke="${ln}" stroke-width="3"/>`
+      + `<rect x="18" y="178" width="78" height="26" rx="3" fill="${gold2}" stroke="${ln}" stroke-width="2.5"/>${hz(57, 191, '小吃街', 15, 0, '#7E1D19')}`
+      + paw(110, 158, 0, .58)],
+
+    /* HSK 3: going places. A dragon boat through Guilin's karst hills; Shi Shi paddles hard, Long Long rides at the front */
+    3: ['#F2884A', () => bg('#FFB070', '#F07A43')
+      + '<circle cx="246" cy="98" r="34" fill="#FFD9A0"/>'
+      + karst(140, '#F6A36E', [[30, 70, 26], [80, 92, 26], [132, 60, 24], [222, 74, 26], [288, 104, 28], [340, 66, 26]]) + pagoda(80, 50, .4, '#F6A36E')
+      + karst(150, '#DE7442', [[0, 50, 34], [60, 44, 30], [176, 56, 30], [330, 52, 36]])
+      + '<path d="M232 34l6 4l6 -4M254 46l5 3l5 -3M218 52l4 3l4 -3" fill="none" stroke="#7A3216" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+      + '<rect x="0" y="148" width="360" height="62" fill="#3A9BC0"/><path d="M0 148H360" stroke="#7FD0E8" stroke-width="3"/>'
+      + '<path d="M20 160h40M120 158h30M200 162h50M290 158h40M40 196h40M300 200h40" stroke="#7FD0E8" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M226 152h40M232 160h28" stroke="#FFD9A0" stroke-width="3" stroke-linecap="round" opacity=".7"/>'
+      + `<path d="M84 72L130 206" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M84 72L130 206" stroke="${wood}" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="130" cy="196" rx="9" ry="19" transform="rotate(-18 130 196)" fill="${wood}" stroke="${ln}" stroke-width="3"/>`
+      + arm(150, 112, 100, 116) + arm(156, 132, 110, 142)
+      + lion(176, 110, .5, 'focus', 4, false)
+      + paw(98, 116, -70) + paw(109, 143, -70) + sweat(206, 82, .9)
+      /* drum at the back */
+      + `<ellipse cx="62" cy="146" rx="14" ry="6" fill="#F5E2C0" stroke="${ln}" stroke-width="3"/><path d="M48 146V160Q62 168 76 160V146" fill="${red}" stroke="${ln}" stroke-width="3"/>`
+      + friend('dragon', 286, 108, .34, 10)
+      + `<path d="M40 150Q176 182 312 146L326 132Q338 128 336 140L304 180Q176 204 56 176Z" fill="${red}" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/><path d="M54 162Q176 192 310 158" fill="none" stroke="${gold}" stroke-width="5"/>${[90, 130, 170, 210, 250].map(x => `<path d="M${x} ${164 + (x - 170) * (x - 170) / 2000 + 6}l6 -6l6 6" fill="none" stroke="${gold}" stroke-width="2.5" stroke-linejoin="round"/>`).join('')}`
+      + '<circle cx="146" cy="188" r="5" fill="#fff" opacity=".85"/><circle cx="156" cy="182" r="3.5" fill="#fff" opacity=".85"/><circle cx="138" cy="178" r="3" fill="#fff" opacity=".7"/>'],
+
+    /* HSK 4: everyday life. In the temple courtyard Shi Shi bangs the big gong (咚!) and Hu Hu covers his ears */
+    4: ['#4A9DE2', () => bg('#7CC0F0', '#4A95D8')
+      + xcloud(140, 26, .9) + xcloud(330, 120, .55, '#E3F2FD')
+      + karst(120, '#6AAEE6', [[30, 40, 40], [110, 56, 40], [200, 34, 40]]) + pagoda(110, 66, .44, '#6AAEE6')
+      /* temple hall */
+      + `<rect x="-10" y="92" width="210" height="80" fill="#C6402F" stroke="${ln}" stroke-width="3"/>${[18, 74, 130, 186].map(x => `<rect x="${x - 6}" y="92" width="12" height="80" fill="#A8301F" stroke="${ln}" stroke-width="2.5"/>`).join('')}`
+      + `<rect x="30" y="104" width="34" height="56" fill="#7A2418"/><rect x="86" y="104" width="34" height="56" fill="#7A2418"/><path d="M30 118H64M30 132H64M30 146H64M47 104V160M86 118H120M86 132H120M86 146H120M103 104V160" stroke="${gold2}" stroke-width="2" opacity=".75"/>`
+      + `<rect x="-10" y="86" width="214" height="8" fill="#3E7FB1" stroke="${ln}" stroke-width="2.5"/>` + roof(96, 86, 220, 26, '#2D3F5E', ln, gold2)
+      + `<path d="M-10 172H370V210H-10Z" fill="#B9AE9C"/><path d="M0 186H360M60 172V210M140 172V210M220 172V210M300 172V210" stroke="#A2967F" stroke-width="2"/>`
+      /* gong in its frame */
+      + `<rect x="238" y="36" width="10" height="144" fill="#9C3A20" stroke="${ln}" stroke-width="3"/><rect x="330" y="36" width="10" height="144" fill="#9C3A20" stroke="${ln}" stroke-width="3"/><path d="M224 40Q232 30 244 36H334Q346 30 354 40" fill="none" stroke="${ln}" stroke-width="13" stroke-linecap="round"/><path d="M224 40Q232 30 244 36H334Q346 30 354 40" fill="none" stroke="#9C3A20" stroke-width="7" stroke-linecap="round"/>`
+      + `<path d="M272 40L280 70M306 40L298 70" stroke="${ln}" stroke-width="2.5"/>`
+      + `<path d="M246 64Q240 108 254 128M332 64Q338 108 324 128M236 58Q226 108 244 140M342 58Q352 108 334 140" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".8"/>`
+      + `<circle cx="289" cy="106" r="40" fill="#E3A93A" stroke="#7A4A0E" stroke-width="4"/><circle cx="289" cy="106" r="31" fill="none" stroke="#B87C1E" stroke-width="3"/><circle cx="289" cy="106" r="14" fill="#F2C35C" stroke="#7A4A0E" stroke-width="3"/><path d="M266 86A30 30 0 0 1 282 78" fill="none" stroke="#FFE7A0" stroke-width="4" stroke-linecap="round"/>${hz(289, 106, '福', 15, 0, '#7A4A0E')}`
+      + hzO(296, 168, '咚!', 26, -8, gold)
+      /* Hu Hu hates the noise */
+      + friend('tiger', 56, 150, .3, -6, false, true)
+      /* Shi Shi with the mallet */
+      + `<path d="M196 138L250 112" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M196 138L250 112" stroke="${wood}" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="252" cy="110" rx="10" ry="12" transform="rotate(-26 252 110)" fill="${red}" stroke="${ln}" stroke-width="3"/>`
+      + lion(162, 128, .46, 'cheer', -6) + arm(186, 144, 196, 140) + paw(198, 138, 64)],
+
+    /* HSK 5: festivals. Mid-Autumn night by the river: a pagoda with lit windows, a big moon, a mooncake to share with Yu Tu */
+    5: ['#7458C9', () => bg('#4E3A9E', '#8B6FDA')
+      + '<circle cx="290" cy="52" r="46" fill="#FFF1B8" opacity=".18"/><circle cx="290" cy="52" r="32" fill="#FFF1B8"/><circle cx="280" cy="44" r="6" fill="#F4E09A"/><circle cx="300" cy="60" r="4" fill="#F4E09A"/><circle cx="296" cy="40" r="3" fill="#F4E09A"/>'
+      + star(30, 30, 5, '#FFF1B8') + star(110, 18, 4, '#FFF1B8') + star(200, 40, 5, '#FFF1B8') + star(346, 108, 4, '#FFF1B8') + star(160, 64, 3, '#FFF1B8')
+      + karst(142, '#6650BA', [[20, 30, 50], [170, 26, 50], [330, 34, 50]])
+      + pagoda(70, 140, .8, '#3A2A80', '#FFD15C')
+      + '<rect x="0" y="140" width="360" height="70" fill="#3A2A80"/><path d="M268 150h44M276 160h28M284 170h14" stroke="#FFF1B8" stroke-width="3" stroke-linecap="round" opacity=".7"/>'
+      + [[30, 176], [118, 190], [330, 186]].map(([x, y]) => `<path d="M${x - 12} ${y}Q${x} ${y + 8} ${x + 12} ${y}Z" fill="#FF9AA6" stroke="${ln}" stroke-width="2"/><path d="M${x} ${y - 10}V${y}" stroke="${gold}" stroke-width="5" stroke-linecap="round"/><circle cx="${x}" cy="${y - 12}" r="6" fill="${gold}" opacity=".35"/>`).join('')
+      + '<path d="M-4 22Q60 44 130 28" fill="none" stroke="#24185A" stroke-width="2"/>' + lantern(40, 54, .6, gold) + lantern(98, 48, .6, gold)
+      + `<path d="M140 162H260L266 172H134Z" fill="#8E6A3E" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + lion(170, 120, .46, 'up', 0, false) + `<circle cx="174" cy="152" r="13" fill="#E8A33C" stroke="#7A4A0E" stroke-width="3"/><circle cx="174" cy="152" r="7.5" fill="none" stroke="#B87C1E" stroke-width="2"/>${hz(174, 152, '月', 8, 0, '#7A4A0E')}` + paw(160, 154, -30) + paw(188, 154, 30)
+      + friend('rabbit', 232, 132, .3, 4)],
+
+    /* HSK 6: the hard climb. Shi Shi is out of breath on the Great Wall; Gun Gun shouts 加油 (keep going!) from the watchtower */
+    6: ['#27998B', () => bg('#6CC8B8', '#2E9C8E')
+      + xcloud(70, 28, .7, '#E5F7F3') + xcloud(200, 48, .5, '#E5F7F3')
+      + karst(140, '#4FB3A3', [[10, 60, 40], [90, 84, 36], [180, 50, 36], [250, 70, 40]])
+      + karst(176, '#2C8A7E', [[40, 60, 50], [150, 46, 44], [230, 56, 40], [350, 80, 46]])
+      + pine(18, 196, .7, '#1D6B5F') + pine(340, 206, .6, '#1D6B5F')
+      /* the wall climbing to the tower */
+      + `<path d="M-10 212L262 108L268 132L-10 238Z" fill="#E6C690" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + Array.from({ length: 15 }, (_, i) => { const x = -6 + i * 18, y = 212 - (x + 10) * 104 / 272; return `<rect x="${x}" y="${y - 9}" width="9" height="11" fill="#E6C690" stroke="${ln}" stroke-width="2.5" transform="rotate(-21 ${x + 4.5} ${y - 3})"/>`; }).join('')
+      + `<path d="M-10 225L265 120" stroke="#C9A468" stroke-width="2" stroke-dasharray="8 6"/>`
+      + `<rect x="256" y="62" width="80" height="88" fill="#E6C690" stroke="${ln}" stroke-width="3"/>${[256, 274, 292, 310, 326].map(x => `<rect x="${x}" y="52" width="10" height="11" fill="#E6C690" stroke="${ln}" stroke-width="2.5"/>`).join('')}<path d="M284 150V122A12 12 0 0 1 308 122V150Z" fill="#5A3B1E"/><rect x="268" y="86" width="10" height="14" rx="5" fill="#5A3B1E"/><rect x="314" y="86" width="10" height="14" rx="5" fill="#5A3B1E"/>`
+      + friend('panda', 296, 26, .28, 0, false, true)
+      + bubble(226, 26, 52, 26, 262, 34, '加油!', 15)
+      /* Shi Shi, tired */
+      + lion(132, 118, .44, 'tired', -12) + sweat(162, 88, 1) + sweat(100, 92, .8) + sweat(170, 104, .6)
+      + arm(114, 132, 100, 152) + paw(98, 154, 200)],
+
+    /* HSK 7–9: mastery. On the palace roof with fireworks; every friend cheers as Shi Shi holds up 中文 */
+    7: ['#B8332C', () => bg('#7E1F1B', '#C43A2F')
+      + burst(56, 46, 30, gold) + burst(306, 40, 34, '#FFB4A6') + burst(330, 128, 20, gold) + burst(30, 128, 18, '#FFB4A6') + burst(126, 22, 16, '#FFE58A')
+      + star(250, 96, 5, gold) + star(100, 96, 5, '#FFE58A') + star(220, 20, 4, gold)
+      /* palace: red wall, two golden roofs */
+      + `<rect x="-10" y="176" width="380" height="40" fill="#A42A22" stroke="${ln}" stroke-width="3"/>${[30, 90, 270, 330].map(x => `<rect x="${x - 4}" y="176" width="8" height="40" fill="#8A2019"/>`).join('')}<path d="M150 210V190A30 30 0 0 1 210 190V210Z" fill="#7A1C16" stroke="${ln}" stroke-width="3"/>${[164, 180, 196].map(x => `<circle cx="${x}" cy="200" r="2.4" fill="${gold}"/>`).join('')}`
+      + roof(180, 176, 340, 22, '#E8A33C', ln, '#E8A33C') + `<rect x="-10" y="148" width="380" height="8" fill="#3E7FB1" stroke="${ln}" stroke-width="2.5"/>` + roof(180, 150, 250, 22, '#F2B648', ln, '#E8A33C')
+      + `<path d="${[60, 100, 140, 220, 260, 300].map(x => `M${x} 158V174`).join('')}" stroke="#B87C1E" stroke-width="2"/>`
+      /* friends on the lower roof */
+      + friend('dragon', 46, 132, .26, -8) + friend('tiger', 104, 138, .22, -4) + friend('panda', 258, 138, .22, 4) + friend('rabbit', 316, 130, .25, 8, false, true)
+      /* Shi Shi on the ridge with the scroll */
+      + arm(160, 98, 142, 58) + arm(200, 98, 218, 58)
+      + `<rect x="138" y="26" width="84" height="36" fill="#FFF8EE" stroke="${ln}" stroke-width="3.5"/><rect x="128" y="20" width="12" height="48" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="220" y="20" width="12" height="48" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/>${hz(180, 44, '中文', 22, 0, red)}`
+      + paw(140, 54, -10) + paw(220, 54, 10)
+      + lion(180, 104, .44, 'cheer')],
   };
   return S;
 })();
@@ -1675,7 +1787,7 @@ function CourseBlock() {
       : x.k || x.l === cur ? `<span class="crs-bar"><i style="width:${Math.max(4, Math.round(f * 100))}%"></i></span><span class="crs-pct">${Math.floor(f * 100)}%</span>`
       : `<span class="crs-jump">Jump here</span>`;
     return `<button class="crs${far ? ' far' : ''}${x.l === cur ? ' cur' : ''}" data-act="hsk-level" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}">
-      <span class="crs-art">${CRS[x.l][1]().replace('<rect', '<svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect') + '</svg>'}</span>
+      <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg></span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
         ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
@@ -4450,7 +4562,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.79';
+const APP_VERSION = '1.80';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
