@@ -597,8 +597,15 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .qa-seg button{flex:1;height:36px}
 .qa-word{flex:1;min-width:0}
 .compose-py{font-size:14px;color:var(--seal);margin-top:1px;min-height:18px}
-.qa-pad{display:flex;gap:12px;align-items:flex-end}
-.qa-tools{display:flex;flex-direction:column;gap:10px}
+.qa-pad{display:flex;gap:10px;align-items:flex-end}
+.qa-tools{display:flex;flex-direction:column;gap:8px}
+.qa-tool{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--fill);color:var(--ink)}
+.qa-tool:active{opacity:.6}
+.qa-tool svg.i{width:17px;height:17px}
+.compose.qa-compose{min-height:52px;padding:4px 4px 4px 14px;border-radius:12px}
+.qa-compose .compose-hz{font-size:28px}
+.qa-compose .compose-hz.ph{font-size:13.5px}
+.qa-compose .compose-py{min-height:0;font-size:13px}
 .en-res{display:flex;flex-direction:column;gap:8px;padding:10px 0 10px;min-height:58px}
 .en-res .msg{font-size:13px;color:var(--muted);padding:8px 4px}
 .en-row{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px;border-radius:12px;background:var(--card);box-shadow:var(--ring);text-align:left}
@@ -3493,7 +3500,7 @@ function quickAddSheet() {
   const sel = new Set();   // decks to also add to; kept while the pop-up stays open
   openSheet(`<h3>Quick add</h3>
     <div class="seg qa-seg" id="qaSeg">${[['write', 'Write'], ['pinyin', 'Pinyin'], ['english', 'English']].map(([k, l]) => `<button data-m="${k}" class="${Q.mode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
-    <div class="compose"><div class="qa-word"><div class="compose-hz" id="qaHz"></div><div class="compose-py" id="qaPy"></div></div>
+    <div class="compose qa-compose"><div class="qa-word"><div class="compose-hz" id="qaHz"></div><div class="compose-py" id="qaPy"></div></div>
       <button class="icon-btn" id="qaBk" aria-label="Delete last character">${I.bksp}</button></div>
     <div id="qaMode"></div>
     <div class="qa-not" id="qaNot" hidden></div>
@@ -3570,9 +3577,9 @@ function quickAddSheet() {
     /* --- the three ways in --- */
     const modes = {
       write() {
-        const s = Math.min(210, Math.max(150, sh.clientWidth - 48 - 116));
-        modeEl.innerHTML = `<div class="qa-pad"><div class="tzg no-drag" id="qaBox" style="--s:${s}px">${TZG}<canvas></canvas></div>
-          <div class="qa-tools"><button class="pill" id="qaUndo">${I.undo}Undo</button><button class="pill" id="qaClr">${I.trash}Clear</button></div></div>
+        const s = Math.min(300, Math.max(180, sh.clientWidth - 40 - 46));
+        modeEl.innerHTML = `<div class="qa-pad"><div class="qa-tools"><button class="qa-tool" id="qaUndo" aria-label="Undo last stroke">${I.undo}</button><button class="qa-tool" id="qaClr" aria-label="Clear">${I.trash}</button></div>
+          <div class="tzg no-drag" id="qaBox" style="--s:${s}px">${TZG}<canvas></canvas></div></div>
           <div class="cands" id="qaC" style="margin-bottom:8px"><span class="msg">Write one character — matches appear here.</span></div>`;
         const box = $q('#qaBox'), cv = box.querySelector('canvas'), dpr = Math.min(3, devicePixelRatio || 1), cands = $q('#qaC');
         cv.width = cv.height = s * dpr; cv.style.width = cv.style.height = s + 'px';
@@ -3965,7 +3972,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.65';
+const APP_VERSION = '1.66';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
