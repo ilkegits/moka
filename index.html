@@ -123,11 +123,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .bar-home .av{justify-self:start;margin-left:3px}
 .hm-streak{justify-self:end;display:flex;align-items:center;gap:1px;height:42px;padding:0 8px 0 4px;border-radius:21px;transition:opacity .2s}
 .hm-streak:active{opacity:.4;transition:none}
-.hm-streak .flame{width:27px;height:27px;fill:var(--line-2);flex:none}
-.hm-streak .flame-in{fill:var(--paper)}
-.hm-streak.on .flame{fill:#E8742C}
-.hm-streak.on .flame-in{fill:#FFD15C}
-.hm-streak.wait .flame{opacity:.55}
+.hm-streak .flame{width:30px;height:30px;flex:none;margin-right:1px}
 .hm-streak b{font-family:var(--display);font-size:21px;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .hm-streak:not(.on) b{color:var(--muted)}
 /* Learn, Read and Profile: the page name as a headline in the top-left corner */
@@ -895,11 +891,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .cal{background:var(--card);border-radius:16px;box-shadow:var(--ring);padding:14px 12px 12px;margin-bottom:24px}
 .cal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px 12px;margin-bottom:8px;border-bottom:1px solid var(--line)}
 .streak{display:flex;align-items:center;gap:8px;color:var(--muted)}
-.streak .flame{width:30px;height:30px;fill:var(--line-2);flex:none}
-.streak .flame-in{fill:var(--card)}
-.streak.on .flame{fill:#E8742C}
-.streak.on .flame-in{fill:#FFD15C}
-.streak.wait .flame{opacity:.55}
+.streak .flame{width:34px;height:34px;flex:none}
 .streak b{font-family:var(--display);font-size:34px;font-weight:600;line-height:1;color:var(--ink)}
 .streak>span{font-size:13px;line-height:1.2;color:var(--ink-2)}
 .streak small{font-family:var(--hanzi);font-size:12px;color:var(--seal)}
@@ -929,14 +921,25 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .st-hero.on .st-count b{color:#E8742C}
 .st-hero.on .st-count span{color:var(--ink)}
 .st-hero.on .st-count small{color:var(--seal)}
-.st-flame{width:150px;height:150px;margin-right:-8px;fill:var(--line-2)}
-.st-flame .flame-in{fill:var(--card-2)}
-.st-hero.on .st-flame{fill:#E8742C;filter:drop-shadow(0 10px 18px rgba(232,116,44,.35))}
-.st-hero.on .st-flame .flame-in{fill:#FFD15C}
-.st-hero.wait .st-flame{opacity:.55;filter:none}
+.st-flame{width:150px;height:150px;margin-right:-8px;overflow:visible}
+.st-hero.on .st-flame{filter:drop-shadow(0 12px 20px rgba(242,68,43,.32))}
+.st-hero.wait .st-flame{filter:none}
+/* sparks float up off the big flame */
+.st-hero.on:not(.wait) .st-flame .f-em{display:block;fill:#FFB422;transform-box:fill-box;transform-origin:center;animation:ember 2.4s ease-out infinite}
+.st-hero.on:not(.wait) .st-flame .f-em:nth-of-type(2){animation-delay:-.8s;animation-duration:2.1s}
+.st-hero.on:not(.wait) .st-flame .f-em:nth-of-type(3){animation-delay:-1.6s;animation-duration:2.7s}
+@keyframes ember{0%{transform:translate(0,4px) scale(.5);opacity:0}20%{opacity:1}100%{transform:translate(2px,-12px) scale(1);opacity:0}}
+/* the big flame flickers: the orange and yellow tongues stretch and lean from the base, a little out of step */
+.st-hero.on:not(.wait) .st-flame .f-mid{transform-box:fill-box;transform-origin:50% 100%;animation:flick 1.7s ease-in-out infinite}
+.st-hero.on:not(.wait) .st-flame .f-core{transform-box:fill-box;transform-origin:50% 100%;animation:flick 1.3s ease-in-out -.4s infinite}
+.st-hero.on:not(.wait) .st-flame .f-out{transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.2s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:none}30%{transform:scale(.94,1.08) skewX(-3deg)}65%{transform:scale(1.04,.95) skewX(2deg)}}
+@keyframes sway{0%,100%{transform:none}50%{transform:scale(1.015,1.03) skewX(1.5deg)}}
+@media (prefers-reduced-motion:reduce){.st-flame *{animation:none!important}}
 .st-note{grid-column:1/-1;margin:10px 6px 16px;font-size:14px;color:var(--ink-2)}
 .st-fz{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
-.st-ice{width:46px;height:52px;flex:none}
+.st-ice{width:56px;height:56px;flex:none;overflow:visible;filter:drop-shadow(0 6px 10px rgba(42,111,168,.28))}
+.st-fz.none .st-ice{filter:grayscale(1);opacity:.55}
 .st-fz p{margin:0;font-size:16px;line-height:1.3;color:var(--ink)}
 .st-fz span{display:block;margin-top:4px;font-size:13px;line-height:1.35;color:#3C78AE}
 .st-h{margin:26px 4px 12px;font-size:24px;font-weight:700;letter-spacing:-.02em}
@@ -965,8 +968,32 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* day sheet (tap a day in the calendar) */
 .cal-d.busy{background:var(--seal-soft);color:var(--seal);font-weight:600}
 .cal-d.ice{background:#E3EEF8;color:#3C6E9E;font-weight:600}
-.cal-d.ice::after{content:"❄";position:absolute;right:3px;top:1px;font-size:9px}
-.ice-chip{display:block;width:fit-content;margin:5px 0 0 auto;padding:3px 8px;border-radius:8px;background:#E3EEF8;color:#2F587E;font-size:11.5px;font-weight:700;white-space:nowrap}
+.cal-d.ice::after{content:"";position:absolute;right:2px;top:2px;width:11px;height:11px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 23 42 14v19L24 43z' fill='%236CBDF0'/%3E%3Cpath d='M24 23 6 14v19l18 10z' fill='%239ED8FA'/%3E%3Cpath d='M24 5 42 14 24 23 6 14z' fill='%23E6F6FF'/%3E%3Cpath d='M24 5 42 14v19L24 43 6 33V14z' fill='none' stroke='%232A6FA8' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.ice-chip{display:flex;align-items:center;gap:4px;width:fit-content;margin:5px 0 0 auto;padding:3px 9px 3px 5px;border-radius:9px;background:#E3F2FC;color:#2A5E8C;font-size:11.5px;font-weight:700;white-space:nowrap}
+.ice-chip .ice{width:16px;height:16px;flex:none}
+
+/* ---------- streak flame and freeze ice cube ----------
+   Cartoon pieces drawn like the Shi Shi logo: bright fills inside a darker outline of the same colour, plus a white shine.
+   The colours come from the gradients in the hidden <svg> at the top of <body>. With no streak the flame turns grey;
+   on a day you haven't practised yet it fades to a washed-out orange. */
+.flame .f-out{fill:url(#flOut);stroke:#A8301A;stroke-width:2.6;stroke-linejoin:round}
+.flame .f-mid{fill:url(#flMid)}
+.flame .f-core{fill:url(#flCore)}
+.flame .f-gl{fill:none;stroke:#fff;stroke-width:2.8;stroke-linecap:round;opacity:.85}
+:not(.on)>.flame .f-out{fill:var(--line-2);stroke:#B5A68D}
+:not(.on)>.flame .f-mid{fill:var(--line)}
+:not(.on)>.flame .f-core{fill:var(--card)}
+:not(.on)>.flame .f-gl{display:none}
+.wait>.flame{opacity:.45}
+.flame .f-em{display:none}
+.ice .i-top{fill:#E6F6FF}
+.ice .i-l{fill:#9ED8FA}
+.ice .i-r{fill:#6CBDF0}
+.ice .i-edge{fill:none;stroke:#4E9BD6;stroke-width:1.8;stroke-linecap:round}
+.ice .i-ink{fill:none;stroke:#2A6FA8;stroke-width:2.6;stroke-linejoin:round}
+.ice .i-gl{fill:none;stroke:#fff;stroke-width:2.8;stroke-linecap:round}
+.ice .i-flake{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.ice .i-spark{fill:#fff;stroke:#2A6FA8;stroke-width:1.6;stroke-linejoin:round}
 .cal-d.busy::after{content:"";position:absolute;bottom:5px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--seal)}
 .day-zh{font-family:var(--hanzi);font-size:15px;color:var(--seal);margin:-8px 0 14px;letter-spacing:.04em;text-align:center}
 .day-stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-radius:14px;box-shadow:var(--ring);margin-bottom:18px}
@@ -1077,6 +1104,12 @@ button.scene-tile:active svg{opacity:.92}
 </style>
 </head>
 <body>
+<!-- colours for the streak flame (see .flame in the styles); kept out of view but not display:none, which would break the gradients -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="flOut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2442B"/><stop offset=".55" stop-color="#FF6A1F"/><stop offset="1" stop-color="#FF8A1A"/></linearGradient>
+  <linearGradient id="flMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A1F"/><stop offset="1" stop-color="#FFC233"/></linearGradient>
+  <linearGradient id="flCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6C4"/><stop offset="1" stop-color="#FFE066"/></linearGradient>
+</defs></svg>
 <div id="frame">
   <div id="ptr" aria-hidden="true"></div>
   <main id="app"></main>
@@ -1860,7 +1893,9 @@ function practiceStreak() {
   return { n, today };
 }
 const storyGlyph = s => [...(s.zh || '').replace(/^狮狮的?/, '')].find(c => HAN.test(c)) || '读';
-const FLAME = `<svg class="flame" viewBox="0 0 24 24"><path d="M12 2.5c.6 3.2-1.3 5-2.9 6.8C7.6 11 6.5 12.6 6.5 15a5.5 5.5 0 0 0 11 0c0-2.4-1-4.4-2.3-5.8.1 1.4-.4 2.6-1.4 3.2.3-3.6-.8-7.1-1.8-9.9z"/><path class="flame-in" d="M12 21a2.6 2.6 0 0 1-2.6-2.6c0-1.5 1.2-2.4 2-3.4.3 1 .9 1.5 1.6 1.8.9.4 1.6 1.1 1.6 1.9A2.6 2.6 0 0 1 12 21z"/></svg>`;
+const FLAME = `<svg class="flame" viewBox="0 0 48 48"><path class="f-out" d="M26 3C27.5 8.5 31.5 12 34.5 16.5 35.5 14.5 36.5 12.5 37.5 10 41 14.5 42 20 42 26 42 36.5 34 45 24 45 14 45 6.5 37 6.5 28 6.5 23 8.5 18.5 11.5 15 12 18 13.5 20.5 16 21.5 16 14 20 8 26 3Z"/><path class="f-mid" d="M24 15C27 20 33 23 33 32 33 38 29 42 24 42 19 42 15 38 15 32.5 15 28.5 17.5 26 19.5 24.5 19.8 27 21 28.5 22.5 29 21.5 24 22 19 24 15Z"/><path class="f-core" d="M24.5 27C26.5 30 29 32 29 35.5 29 38.8 26.8 41 24 41 21.2 41 19 38.8 19 35.8 19 33.5 20.5 32 21.8 31 22 32.5 22.8 33.3 23.6 33.6 23.2 31 23.5 29 24.5 27Z"/><path class="f-gl" d="M12 24.5C11.2 29.5 12.6 33.8 15.6 36.8"/><circle class="f-em" cx="17" cy="5" r="1.7"/><circle class="f-em" cx="31" cy="2" r="1.3"/><circle class="f-em" cx="40.5" cy="3" r="1.5"/></svg>`;
+/* a freeze: a cartoon ice cube with a shine, a snowflake and a sparkle */
+const ICE_SVG = `<svg class="ice" viewBox="0 0 48 48" aria-hidden="true"><path class="i-r" d="M24 23 42 14v19L24 43z"/><path class="i-l" d="M24 23 6 14v19l18 10z"/><path class="i-top" d="M24 5 42 14 24 23 6 14z"/><path class="i-edge" d="M7.5 14.8 24 23l16.5-8.2M24 23v18.5"/><path class="i-gl" d="M10.5 20.5v7M12.5 18.6l4.5 2.3"/><path class="i-flake" d="M33 23.5v10M28.7 26l8.6 5M28.7 31l8.6-5"/><path class="i-ink" d="M24 5 42 14v19L24 43 6 33V14z"/><path class="i-spark" d="M41 1.5 42.3 5.2 46 6.5 42.3 7.8 41 11.5 39.7 7.8 36 6.5 39.7 5.2z"/></svg>`;
 function MonthCal() {
   const now = new Date(), y = now.getFullYear(), m = now.getMonth(), td = now.getDate();
   const len = new Date(y, m + 1, 0).getDate(), lead = (new Date(y, m, 1).getDay() + 6) % 7;   // weeks start on Monday, as in China
@@ -1882,7 +1917,7 @@ function MonthCal() {
   const fz = db.freeze.have;
   return `<div class="section-head cal-head"><h2>${monthEn} <span class="cal-zh">${ZH_MONTH[m]}</span></h2></div>
     <div class="cal">
-      <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}${fz ? `<span class="ice-chip">❄️ ${fz} ${fz === 1 ? 'freeze' : 'freezes'}</span>` : ''}</span></div>
+      <div class="cal-top"><span class="streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}">${FLAME}<b>${n}</b><span>day streak<br><small>连续${n}天</small></span></span><span class="cal-note">${note}${fz ? `<span class="ice-chip">${ICE_SVG}${fz} ${fz === 1 ? 'freeze' : 'freezes'}</span>` : ''}</span></div>
       <div class="cal-wk">${[...'一二三四五六日'].map(c => `<span>${c}</span>`).join('')}</div>
       <div class="cal-grid">${cells.join('')}</div>
     </div>`;
@@ -1922,7 +1957,6 @@ function calDaySheet(d, y = new Date().getFullYear(), m = new Date().getMonth())
 /* ---------- Streak page (tap the flame on Decks) ----------
    Big day count and flame on top, your streak freezes under it, then a month calendar you can page back through.
    Practised days are orange circles, days a freeze saved are blue, and days in a row join up into one band. */
-const ICE = `<svg class="st-ice" viewBox="0 0 64 72" aria-hidden="true"><path d="M32 4 56 18v30L32 66 8 48V18z" fill="#9FD3F5"/><path d="M32 4 56 18 32 30 8 18z" fill="#D4EEFC"/><path d="M32 30v36L8 48V18z" fill="#7DBEEA"/><path d="M15 22l9 5M14 30v8" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><path d="M32 40c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z" fill="#3D8FD1"/></svg>`;
 function StreakView() {
   const { n, today } = practiceStreak(), fz = db.freeze.have;
   const note = n ? (today ? `Done for today. Come back tomorrow for day ${n + 1}` : 'Practise today to keep it going') : 'Flip cards, write or read a story to start one';
@@ -1937,7 +1971,7 @@ function StreakView() {
       <div class="st-count"><b>${n}</b><span>day streak!</span><small>连续${n}天</small></div>
       ${FLAME.replace('class="flame"', 'class="flame st-flame" aria-hidden="true"')}
       <p class="st-note">${note}</p>
-      <div class="st-fz">${ICE}<div><p>${fzT}</p><span>${fzS}</span></div></div>
+      <div class="st-fz${fz ? '' : ' none'}">${ICE_SVG.replace('class="ice"', 'class="ice st-ice"')}<div><p>${fzT}</p><span>${fzS}</span></div></div>
     </section>
     <h2 class="st-h">Streak calendar</h2>
     ${StreakCal()}
@@ -4562,7 +4596,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.80';
+const APP_VERSION = '1.81';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
