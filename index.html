@@ -129,7 +129,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hm-streak .flame{width:30px;height:30px;flex:none;margin-right:1px}
 .hm-streak b{font-family:var(--display);font-size:21px;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .hm-streak:not(.on) b{color:var(--muted)}
-/* Learn, Read and Profile: the page name as a headline in the top-left corner */
+/* Learn and Read have no headline, just a little room at the top; Profile keeps only its settings button, on the right */
+.top-gap{height:18px;flex:none}
+.bar-end{justify-content:flex-end}
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
 .logo-mid{justify-self:center;font-family:"Satoshi",system-ui,sans-serif;font-weight:700;font-size:17px;line-height:1;letter-spacing:-.01em;color:var(--ink)}
@@ -171,17 +173,15 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .crs.locked .crs-name,.crs.locked .crs-badge{opacity:.5}
 .crs-locked{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--muted)}
 .crs-locked svg.i{width:17px;height:17px}
-/* Basics, folded away once you are past HSK 1 */
-.crs-fold{border-radius:18px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13)}
-.crs-fold summary{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none}
-.crs-fold summary::-webkit-details-marker{display:none}
+/* Basics as a slim row once you are past HSK 1 */
+.crs-fold{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px 10px 10px;border-radius:18px;background:var(--card);text-align:left;
+  box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);transition:transform .2s}
+.crs-fold:active{transform:translateY(2px) scale(.985);transition:none}
 .crs-fold-seal{flex:none;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:var(--crs);color:#fff;font-family:var(--hanzi);font-weight:700;font-size:22px}
 .crs-fold-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .crs-fold-main b{font-weight:800;font-size:17px}
-.crs-fold-main small{font-size:13.5px;color:var(--muted)}
-.crs-fold-chev{flex:none;color:var(--muted);transition:transform .2s}
-.crs-fold[open] .crs-fold-chev{transform:rotate(90deg)}
-.crs-fold .crs{box-shadow:none;border-radius:0 0 18px 18px;border-top:1.5px solid var(--line-2)}
+.crs-fold-main small{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crs-fold-chev{flex:none;color:var(--muted)}
 .crs-cap{display:block;padding:14px 16px 16px 18px}
 .crs-top{display:flex;align-items:center;gap:10px}
 .crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
@@ -2228,10 +2228,9 @@ function CourseBlock() {
       <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[0][1]()}</svg></span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">Basics<span class="crs-zh">基础</span></span><span class="crs-badge">4 topics</span></span>
         <span class="crs-sub">Tones, pinyin, radicals and stroke order</span></span></button>`;
-  /* past HSK 1, Basics folds away into one row you can open */
-  const basics = top < 2 ? basicsCard : `<details class="crs-fold"><summary><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
-      <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals and stroke order</small></span><span class="crs-fold-chev">${I.chev}</span></summary>
-      ${basicsCard}</details>`;
+  /* past HSK 1, Basics is just a slim row that opens it, no picture */
+  const basics = top < 2 ? basicsCard : `<button class="crs-fold" data-act="basics-open"><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
+      <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span><span class="crs-fold-chev">${I.chev}</span></button>`;
   return `<div class="crs-list">${basics}${lv.map(x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
     const foot = locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
@@ -2678,7 +2677,7 @@ function LearnView() {
         <span class="scene-go">Practise${I.chev}</span></span></button>`
     : `<p class="learn-none">No words yet. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>`;
   return `<div class="screen fade-in">
-    <header class="bar"><h1 class="bar-head">Learn <span class="bar-zh">学习</span></h1></header>
+    <div class="top-gap"></div>
     ${ReviewTile(head)}
     ${head('HSK course', '课程', !todayPile().cards.length)}
     ${CourseBlock()}
@@ -2947,7 +2946,7 @@ function ProfileView() {
   const written = cards.filter(c => (c.hist || []).length).length;
   const pct = hist.length ? Math.round(hist.filter(Boolean).length / hist.length * 100) + '%' : '–';
   return `<div class="screen fade-in">
-    <header class="bar"><h1 class="bar-head">Profile</h1>
+    <header class="bar bar-end">
       <button class="icon-btn" data-act="settings" aria-label="App settings">${I.menu}</button></header>
     <section class="me">
       <button class="me-pic" aria-label="Profile photo. Tap or swipe up to change it">${meAvatar()}</button>
@@ -3322,7 +3321,7 @@ function ReadView() {
       : '<div class="empty"><p>This story is no longer saved.</p></div>'}
   </div>`;
   return `<div class="screen fade-in">
-    <header class="bar"><h1 class="bar-head">Read <span class="bar-zh">阅读</span></h1></header>
+    <div class="top-gap"></div>
     <div class="read-tools" style="margin-top:6px">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
       : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
@@ -5443,7 +5442,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.95';
+const APP_VERSION = '1.96';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
