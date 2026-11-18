@@ -227,8 +227,17 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes shiBreathe{0%,100%{transform:none}50%{transform:scale(1.03,.98)}}
 @media (prefers-reduced-motion:reduce){.today-shi,.today-shi .shi-face{animation:none!important}}
 /* Hanzi of the day: the second red card. Today's character hides under gold foil; rub it off, Shi Shi peeks at it */
-.today-card+.hd-card{margin-top:-16px}
-.hd-card{position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 18px 18px;border-radius:22px;background:var(--seal);color:var(--seal-ink);
+/* the two cards sit in a little stack: Hanzi of the day on top, the story card's edge peeking out under it */
+.hd-stack{position:relative;margin:-12px 0 28px}
+.today-card+.hd-stack{margin-top:-16px}
+.hd-stack.two{padding-bottom:12px;margin-bottom:20px}
+.hd-stack>.hd-card{margin:0}
+.hd-stack>#hotd{z-index:1;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
+.hd-card.back{position:absolute;left:0;right:0;top:0;bottom:12px;transform:translateY(12px) scale(.94);transform-origin:50% 100%;box-shadow:none}
+.hd-card.back>*{opacity:0}
+.hd-card.back.up>*{opacity:1;transition:opacity .3s .18s}
+.hd-card.back.up .hd-shi{animation:hdUp .6s cubic-bezier(.3,1.5,.5,1) .28s both}
+.hd-card{--hd:#C4432E;position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 18px 18px;border-radius:22px;background:var(--hd);color:var(--seal-ink);
   box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
 .hd-card::before{content:"";position:absolute;left:-60px;top:-30px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.34),transparent 62%);pointer-events:none}
 .hd-lbl{position:relative;display:flex;align-items:baseline;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;opacity:.95}
@@ -259,7 +268,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-en{margin-top:4px;font-size:15.5px;font-weight:600;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .hd-meta{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
 .hd-meta span{font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px;background:rgba(255,248,242,.16)}
-.hd-go{position:relative;width:calc(100% - 92px);margin-top:16px;background:var(--seal-ink);color:var(--seal);font-weight:700}
+.hd-go{position:relative;width:calc(100% - 92px);margin-top:16px;background:var(--seal-ink);color:var(--hd);font-weight:700}
+.hd-story{--hd:#8E2A24}   /* each card its own red: vermilion on top, deep lacquer under it */
 .hd-shi{position:absolute;right:-8px;bottom:-30px;width:88px;height:88px;transform-origin:50% 100%;animation:hdPeek 4.5s ease-in-out infinite;pointer-events:none}
 .hd-shi .shi-face{width:100%;height:100%;display:block}
 @keyframes hdPeek{0%,100%{transform:translateY(8px) rotate(4deg)}45%,70%{transform:translateY(-6px) rotate(-7deg)}}
@@ -276,14 +286,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-x{position:absolute;top:9px;right:9px;z-index:2;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(255,248,242,.16);color:var(--seal-ink);transition:opacity .2s}
 .hd-x:active{opacity:.5;transition:none}
 .hd-x svg.i{width:16px;height:16px;stroke-width:2.4}
-/* finished or closed: the card flips over and the story card is on its back */
-.hd-card.flipout{animation:hdFlipOut .22s cubic-bezier(.5,0,.75,0) forwards}
-@keyframes hdFlipOut{to{transform:perspective(900px) rotateY(90deg)}}
-.hd-card.flipin{animation:hdFlipIn .42s cubic-bezier(.2,.85,.35,1.15) both}
-@keyframes hdFlipIn{from{transform:perspective(900px) rotateY(-90deg)}to{transform:none}}
-.hd-card.flipin .hd-shi{animation:hdUp .6s cubic-bezier(.3,1.5,.5,1) .3s both}
 .hd-st{font-family:var(--hanzi);font-size:23px;font-weight:600;letter-spacing:.02em;line-height:1.2}
-@media (prefers-reduced-motion:reduce){.hd-shi,.hd-sheen,.hd-card.just *,.hd-scratch.pop *,.hd-card.flipin,.hd-card.flipin *{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){.hd-shi,.hd-sheen,.hd-card.just *,.hd-scratch.pop *,.hd-card.back.up *{animation:none!important;transition:none!important}}
 /* the Hanzi of the day pop-up: meaning, stroke order step by step, write it yourself, add to the word bank */
 .hs-top{display:flex;align-items:center;gap:16px;margin:-4px 2px 14px}
 .hs-hz{font-family:var(--hanzi);font-weight:600;font-size:74px;line-height:1;color:var(--ink)}
@@ -2157,7 +2161,7 @@ function Home() {
       <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
       ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
     ${TodayCard()}
-    ${HotdCard()}
+    ${HotdStack()}
     <div class="section-head"><h2>My word bank</h2></div>
     ${BankTile()}
     <div class="section-head"><h2>Pick up where you left off</h2></div>
@@ -2214,7 +2218,6 @@ function hotdPick() {
 }
 function HotdCard(just) {
   const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h);
-  if (H?.off) return HotdStoryCard(just);
   const tile = `<div class="hd-tile">${TZG}<span class="hd-ch">${H && rev ? esc(H.h) : ''}</span></div>`;
   const pad = rev ? `<button class="hd-pad" data-act="hotd-open" aria-label="Open ${esc(H.h)}">${tile}</button>`
     : `<div class="hd-pad hd-scratch" id="hdScratch" role="button" tabindex="0" aria-label="Scratch the gold to see today's character">${tile}
@@ -2229,10 +2232,15 @@ function HotdCard(just) {
     ${rev ? '<button class="btn hd-go" data-act="hotd-open">Learn to write it</button>' : ''}
     <div class="hd-shi">${shiFace(rev ? 'cheer' : 'peek')}</div><div class="hd-fx" aria-hidden="true"></div></section>`;
 }
-/* once today's character is done (in your word bank) or closed with ×, the card's back: a story to read */
-function HotdStoryCard(flip) {
+/* Hanzi of the day lies on top of the story card. Once today's character is done (in your word bank) or closed
+   with ×, the top card is tossed away and the story card rises into its place. */
+function HotdStack() {
+  const H = hotdPick(), two = !H?.off;
+  return `<div class="hd-stack${two ? ' two' : ''}" id="hdStack">${HotdStoryCard(two)}${two ? HotdCard() : ''}</div>`;
+}
+function HotdStoryCard(back) {
   const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read a story';
-  return `<section class="hd-card rev hd-story${flip ? ' flipin' : ''}" id="hotd" aria-label="Read a story">
+  return `<section class="hd-card rev hd-story${back ? ' back' : ''}" id="hdStory" aria-label="Read a story"${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
     <div class="hd-row"><button class="hd-pad" data-act="tab" data-h="#/read" aria-label="${go}"><div class="hd-tile">${TZG}<span class="hd-ch">${esc(s ? storyGlyph(s) : '读')}</span></div></button>
       <div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
@@ -2240,16 +2248,22 @@ function HotdStoryCard(flip) {
     <button class="btn hd-go" data-act="tab" data-h="#/read">${go}</button>
     <div class="hd-shi">${shiFace('happy')}</div></section>`;
 }
-function hotdFlip() {
-  const c = $('#hotd'); if (!c) return;
-  if (stillMotion()) { c.outerHTML = HotdCard(); return; }
-  c.classList.add('flipout');
-  setTimeout(() => { if (c.isConnected) c.outerHTML = HotdCard(true); }, 220);
+function hotdDismiss() {   // the top card flies off to the side, the story card under it rises and grows into place
+  const st = $('#hdStack'), front = $('#hotd'), back = $('#hdStory');
+  if (!st || !front || !back || stillMotion()) { if (st) st.outerHTML = HotdStack(); return; }
+  const h0 = st.offsetHeight, hb = back.offsetHeight;
+  back.style.bottom = 'auto'; const nat = back.offsetHeight; back.style.bottom = '';   // its own height once on top
+  const T = { duration: 480, delay: 80, easing: 'cubic-bezier(.2,.8,.3,1.08)', fill: 'forwards' };
+  front.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(108%,-14px) rotate(13deg)', opacity: .2 }],
+    { duration: 380, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' });
+  back.classList.add('up');
+  back.animate([{ transform: 'translateY(12px) scale(.94)', height: hb + 'px' }, { transform: 'none', height: nat + 'px' }], T);
+  st.animate([{ height: h0 + 'px', marginBottom: '20px' }, { height: nat + 'px', marginBottom: '28px' }], T).onfinish = () => { if (st.isConnected) st.outerHTML = HotdStack(); };
 }
 function hotdClose() {
   const H = db.hotd; if (!H || H.off) return;
   H.off = 'x'; save(); LOG.add('hotd-close', { hz: H.h, revealed: !!H.rev });
-  hotdFlip();
+  hotdDismiss();
 }
 const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 function hdFlake(card, x, y, burst) {   // a fleck of gold foil flying off where you rub
@@ -2358,7 +2372,7 @@ function hotdSheet() {
     <div class="hs-btns"><button class="btn btn-ghost wide" id="hsTry">${I.pen}Write it yourself</button>
       <button class="btn ${mine ? 'hs-add done' : 'btn-seal hs-add'} wide" id="hsAdd"${mine ? ' disabled' : ''}>${mine ? 'In your word bank ✓' : `${I.plus}Add to my word bank`}</button></div>`,
     sh => mountHotdSheet(sh, H));
-  S.onSheetClose = () => { if (db.hotd === H && !H.off && bankHas(H.h)) { H.off = 'done'; save(); LOG.add('hotd-done', { hz: H.h }); hotdFlip(); } };
+  S.onSheetClose = () => { if (db.hotd === H && !H.off && bankHas(H.h)) { H.off = 'done'; save(); LOG.add('hotd-done', { hz: H.h }); hotdDismiss(); } };
 }
 function mountHotdSheet(sh, H) {
   const box = sh.querySelector('#hsBox'), svg = box.querySelector('.hs-svg'), cap = sh.querySelector('#hsCap'), strip = sh.querySelector('#hsStrip');
@@ -3942,7 +3956,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.57';
+const APP_VERSION = '1.58';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
