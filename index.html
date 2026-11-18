@@ -817,6 +817,50 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .cal-d i{font-style:normal}
 .cal-d.done em{position:absolute;right:-3px;top:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#FFD15C;color:var(--ink);font-style:normal;font-size:10px;font-weight:700;display:grid;place-items:center;box-shadow:0 0 0 2px var(--card)}
 
+/* ---------- Streak page ---------- */
+.st-page .bar{background:color-mix(in srgb,var(--card-2) 85%,transparent)}
+.st-hero{margin:0 -20px;padding:14px 20px 22px;background:var(--card-2);border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px}
+.st-count{display:flex;flex-direction:column;padding-left:6px}
+.st-count b{font-family:var(--display);font-weight:700;font-size:112px;line-height:.82;letter-spacing:-.03em;color:var(--line-2);font-variant-numeric:lining-nums tabular-nums}
+.st-count span{font-weight:700;font-size:26px;letter-spacing:-.01em;color:var(--muted);margin-top:6px}
+.st-count small{font-family:var(--hanzi);font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.04em}
+.st-hero.on .st-count b{color:#E8742C}
+.st-hero.on .st-count span{color:var(--ink)}
+.st-hero.on .st-count small{color:var(--seal)}
+.st-flame{width:150px;height:150px;margin-right:-8px;fill:var(--line-2)}
+.st-flame .flame-in{fill:var(--card-2)}
+.st-hero.on .st-flame{fill:#E8742C;filter:drop-shadow(0 10px 18px rgba(232,116,44,.35))}
+.st-hero.on .st-flame .flame-in{fill:#FFD15C}
+.st-hero.wait .st-flame{opacity:.55;filter:none}
+.st-note{grid-column:1/-1;margin:10px 6px 16px;font-size:14px;color:var(--ink-2)}
+.st-fz{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+.st-ice{width:46px;height:52px;flex:none}
+.st-fz p{margin:0;font-size:16px;line-height:1.3;color:var(--ink)}
+.st-fz span{display:block;margin-top:4px;font-size:13px;line-height:1.35;color:#3C78AE}
+.st-h{margin:26px 4px 12px;font-size:24px;font-weight:700;letter-spacing:-.02em}
+.st-cal{border:1.5px solid var(--line);border-radius:20px;padding:10px 10px 14px;margin-bottom:28px}
+.st-mon{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;margin-bottom:8px}
+.st-mon b{display:block;font-size:17px;font-weight:700}
+.st-mon small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.st-mon .icon-btn{color:var(--ink-2)}
+.st-mon .icon-btn:disabled{opacity:.25}
+.st-wk,.st-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.st-grid{row-gap:6px}
+.st-wk span{text-align:center;font-size:13px;font-weight:700;color:var(--muted);padding:4px 0 8px}
+.st-d{position:relative;height:42px;display:grid;place-items:center;font-size:15px;font-weight:600;color:var(--ink-2)}
+.st-d i{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-variant-numeric:tabular-nums}
+.st-d.later{color:var(--line-2)}
+.st-d.today i{box-shadow:inset 0 0 0 2px var(--ink-2);color:var(--ink)}
+.st-d.fire i{background:#E8742C;color:#fff}
+.st-d.frz i{background:#8EC7EF;color:#173E61}
+.st-d.today.fire i,.st-d.today.frz i{box-shadow:0 0 0 2px var(--paper),0 0 0 4px #E8742C}
+.st-d.jl::before,.st-d.jr::before{content:"";position:absolute;top:2px;bottom:2px;left:50%;right:50%;background:rgba(232,116,44,.28)}
+.st-d.jl::before{left:0}
+.st-d.jr::before{right:0}
+button.st-d{transition:transform .2s}
+button.st-d:active{transform:scale(.9);transition:none}
+
 /* day sheet (tap a day in the calendar) */
 .cal-d.busy{background:var(--seal-soft);color:var(--seal);font-weight:600}
 .cal-d.ice{background:#E3EEF8;color:#3C6E9E;font-weight:600}
@@ -959,6 +1003,7 @@ const ic = p => `<svg class="i" viewBox="0 0 24 24">${p}</svg>`;
 const I = {
   back: ic('<path d="M15 5l-7 7 7 7"/>'),
   close: ic('<path d="M6 6l12 12M18 6L6 18"/>'),
+  share: ic('<path d="M12 3.5v11M7.5 8L12 3.5 16.5 8"/><path d="M5.5 12.5v6a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-6"/>'),
   more: ic('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
   plus: ic('<path d="M12 5v14M5 12h14"/>'),
   menu: ic('<path d="M4 7h16M4 12h16M4 17h16"/>'),
@@ -1032,7 +1077,7 @@ const curDeck = () => deckById(S.deckId);
 const cardById = (d, id) => d.cards.find(c => c.id === id);
 
 /* ---------- routing ---------- */
-const S = { view: 'home', deckId: null, study: null, write: null };
+const S = { view: 'home', deckId: null, study: null, write: null, smo: 0 };   // smo: which month the Streak calendar shows (0 = this month)
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
   if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
@@ -1040,7 +1085,7 @@ function parse() {
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
-  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank') return { view: p[0], deckId: null };
+  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
@@ -1331,6 +1376,7 @@ function render() {
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
+  else if (S.view === 'streak') { app.innerHTML = StreakView(); }
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
@@ -1551,8 +1597,8 @@ function noteDeck(d, cardId) {   // you practised this card of this deck today (
   e.cards.push(cardId); e.n = e.cards.length; save();
 }
 /* one day of the calendar: the words you added, the decks you practised and the stories you finished */
-function calDaySheet(d) {
-  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), same = t => { const x = new Date(t); return x.getFullYear() === y && x.getMonth() === m && x.getDate() === d; };
+function calDaySheet(d, y = new Date().getFullYear(), m = new Date().getMonth()) {
+  const same = t => { const x = new Date(t); return x.getFullYear() === y && x.getMonth() === m && x.getDate() === d; };
   const stories = db.readDone.filter(s => same(s.done)).reverse();
   const words = db.bank.filter(w => same(w.added)).reverse();
   const decks = Object.entries(db.days[`${y}-${m}-${d}`]?.decks || {});
@@ -1574,6 +1620,62 @@ function calDaySheet(d) {
         <span class="row-s">finished at ${clock(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>` : ''}
     ${words.length || decks.length || stories.length ? '' : '<p class="muted" style="text-align:center;margin:18px 0 8px">Nothing on this day yet.</p>'}`);
 }
+/* ---------- Streak page (tap the flame on Decks) ----------
+   Big day count and flame on top, your streak freezes under it, then a month calendar you can page back through.
+   Practised days are orange circles, days a freeze saved are blue, and days in a row join up into one band. */
+const ICE = `<svg class="st-ice" viewBox="0 0 64 72" aria-hidden="true"><path d="M32 4 56 18v30L32 66 8 48V18z" fill="#9FD3F5"/><path d="M32 4 56 18 32 30 8 18z" fill="#D4EEFC"/><path d="M32 30v36L8 48V18z" fill="#7DBEEA"/><path d="M15 22l9 5M14 30v8" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><path d="M32 40c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z" fill="#3D8FD1"/></svg>`;
+function StreakView() {
+  const { n, today } = practiceStreak(), fz = db.freeze.have;
+  const note = n ? (today ? `Done for today. Come back tomorrow for day ${n + 1}` : 'Practise today to keep it going') : 'Flip cards, write or read a story to start one';
+  const next = 7 - n % 7;
+  const fzT = fz ? `You have <b>${fz} streak ${fz === 1 ? 'freeze' : 'freezes'}</b>` : 'You’re out of <b>streak freezes</b>';
+  const fzS = fz >= 2 ? 'Each one saves your streak on a day you miss. You can hold 2.'
+    : `Practise ${next === 1 ? (today ? 'tomorrow' : 'today') : `${next} more days in a row`} to earn ${fz ? 'another' : 'one'}.`;
+  return `<div class="screen fade-in st-page">
+    <header class="bar"><button class="icon-btn" data-act="st-close" aria-label="Close">${I.close}</button><div class="bar-title">Streak</div>
+      <button class="icon-btn" data-act="st-share" aria-label="Share your streak">${I.share}</button></header>
+    <section class="st-hero${n ? ' on' : ''}${n && !today ? ' wait' : ''}">
+      <div class="st-count"><b>${n}</b><span>day streak!</span><small>连续${n}天</small></div>
+      ${FLAME.replace('class="flame"', 'class="flame st-flame" aria-hidden="true"')}
+      <p class="st-note">${note}</p>
+      <div class="st-fz">${ICE}<div><p>${fzT}</p><span>${fzS}</span></div></div>
+    </section>
+    <h2 class="st-h">Streak calendar</h2>
+    ${StreakCal()}
+  </div>`;
+}
+function StreakCal() {
+  const now = new Date(), base = new Date(now.getFullYear(), now.getMonth() + (S.smo || 0), 1), y = base.getFullYear(), m = base.getMonth();
+  const act = practiceDays(), ice = new Set(db.freeze.days), len = new Date(y, m + 1, 0).getDate(), lead = (base.getDay() + 6) % 7;
+  const first = [...act, ...ice].map(k => k.split('-').map(Number)).reduce((a, [ky, km]) => Math.min(a, ky * 12 + km), now.getFullYear() * 12 + now.getMonth());
+  const lit = d => d >= 1 && d <= len && (act.has(`${y}-${m}-${d}`) || ice.has(`${y}-${m}-${d}`));
+  const isNow = y === now.getFullYear() && m === now.getMonth(), td = isNow ? now.getDate() : 0, future = y * 12 + m > now.getFullYear() * 12 + now.getMonth();
+  const monthEn = base.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const cells = Array.from({ length: lead }, () => '<span class="st-d"></span>');
+  for (let d = 1; d <= len; d++) {
+    const col = (lead + d - 1) % 7, k = `${y}-${m}-${d}`, on = act.has(k), fr = !on && ice.has(k);
+    const jl = (on || fr) && col > 0 && lit(d - 1), jr = (on || fr) && col < 6 && lit(d + 1);
+    const cls = `st-d${on ? ' fire' : fr ? ' frz' : ''}${jl ? ' jl' : ''}${jr ? ' jr' : ''}${d === td ? ' today' : ''}${future || d > td && isNow ? ' later' : ''}`;
+    const lbl = `${d} ${monthEn}${on ? ': practised' : fr ? ': saved by a streak freeze' : ''}`;
+    cells.push(on || fr || d === td ? `<button class="${cls}" data-act="cal-day" data-d="${d}" data-y="${y}" data-m="${m}" aria-label="${lbl}"><i>${d}</i></button>` : `<span class="${cls}" aria-label="${lbl}"><i>${d}</i></span>`);
+  }
+  const days = [...act].filter(k => k.startsWith(`${y}-${m}-`)).length;
+  return `<div class="st-cal" id="stCal">
+      <div class="st-mon"><button class="icon-btn" data-act="st-month" data-step="-1" aria-label="Previous month"${y * 12 + m <= first ? ' disabled' : ''}>${I.back}</button>
+        <div><b>${monthEn}</b><small>${y}年${ZH_MONTH[m]}${days ? ` · ${plural(days, 'day')} practised` : ''}</small></div>
+        <button class="icon-btn" data-act="st-month" data-step="1" aria-label="Next month"${isNow ? ' disabled' : ''}>${I.chev}</button></div>
+      <div class="st-wk">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(c => `<span>${c}</span>`).join('')}</div>
+      <div class="st-grid">${cells.join('')}</div>
+    </div>`;
+}
+async function shareStreak() {
+  const { n } = practiceStreak(), url = 'https://ilkegits.github.io/moka/';
+  const text = n ? `I’m on a ${n} day streak learning Chinese with ShiCards 🔥` : 'I’m learning Chinese with ShiCards';
+  LOG.add('streak-share', { n });
+  if (navigator.share) { try { await navigator.share({ text, url }); } catch (_) {} return; }
+  try { await navigator.clipboard.writeText(`${text} ${url}`); toast('Copied. Paste it anywhere to share'); } catch (_) { toast('Couldn’t share from this browser'); }
+}
+
 /* ---------- daily reminder ----------
    One phone notification a day from Shi Shi, at the hour you pick, only on days you have not practised yet.
    The phone signs up for notifications (Web Push) and keeps a small note in the private log repo, using the same GitHub
@@ -1703,7 +1805,7 @@ function faceHtml() {   // your photo, else the first letter of your name, else 
 const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a photo from your gallery">${I.camera}</span>`;
 /* the small photo in the top-left corner of Decks; tap it for the side menu */
 const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
-/* the flame in the top-right corner of the Decks page: your streak, tap it to see the calendar on Profile */
+/* the flame in the top-right corner of the Decks page: your streak, tap it to open the Streak page */
 const StreakBtn = () => { const { n, today } = practiceStreak(); return `<button class="hm-streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}" data-act="streak" aria-label="${n ? `${n} day streak` : 'No streak yet'}. Open your calendar">${FLAME}<b>${n}</b></button>`; };
 /* open the phone's gallery straight away (must run inside a tap) */
 function pickPhoto() {
@@ -3989,7 +4091,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.69';
+const APP_VERSION = '1.70';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4105,13 +4207,16 @@ const A = {
   'edit-card': t => cardSheet(t.dataset.id),
   'settings': () => settingsSheet(),
   'set-name': () => nameSheet(),
-  'cal-day': t => calDaySheet(+t.dataset.d),
+  'cal-day': t => calDaySheet(+t.dataset.d, t.dataset.y && +t.dataset.y, t.dataset.m && +t.dataset.m),
   'day-word': t => wordSheet(t.dataset.id),
   'day-deck': t => { closeSheet(true); nav('#/deck/' + t.dataset.id); },
   'drawer': () => openDrawer(),
   'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
   'dr-photo': () => { closeDrawer(); pickPhoto(); },
-  'streak': () => { if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
+  'streak': () => { S.smo = 0; nav('#/streak'); },
+  'st-close': () => goBack('#/'),
+  'st-month': t => { S.smo += +t.dataset.step; const c = $('#stCal'); if (c) c.outerHTML = StreakCal(); },
+  'st-share': () => shareStreak(),
   'rw': t => readPop(t),
   'remind': () => remindSheet(),
   'say': t => sayZh(t.dataset.h),
