@@ -468,9 +468,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .face{position:absolute;inset:0;border-radius:22px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 5px 0 rgba(120,95,60,.13);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
 .face.back{transform:rotateY(180deg)}
 .face-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px 18px 34px;text-align:center}
-.fc-tz{display:flex;gap:6px;justify-content:center}
-.fc-tz .tzg{box-shadow:none;background:var(--card-2)}
-.fc-tz .tzg b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:calc(var(--s) * .72);line-height:1;color:var(--ink)}
 .fc-ch{font-family:var(--hanzi);font-weight:600;line-height:1.05;word-break:break-all;color:var(--ink)}
 .fc-py{font-size:24px;font-weight:700;color:var(--seal);display:flex;align-items:center;gap:6px;letter-spacing:.01em}
 .fc-py .icon-btn{width:38px;height:38px;color:var(--seal);background:var(--seal-soft)}
@@ -3379,15 +3376,13 @@ function startStudy() {
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
 function hzSize(n) { return [0, 132, 104, 80, 64][n] || Math.max(34, Math.floor(250 / n)); }
 function enSize(s) { const l = s.length; return l < 9 ? 46 : l < 16 ? 38 : l < 28 ? 30 : l < 50 ? 24 : 20; }
-function Faces(c, d) {   // the same card as onboarding: the character in a writing grid; turned over, pinyin you can hear and the meaning
+function Faces(c, d) {   // English on one side; the character and its pinyin (tap to hear) on the other
   const ch = [...c.hanzi], n = ch.length, enF = db.prefs.englishFirst;
   if (d.id === 'today') d = db.decks.find(x => x.cards.includes(c)) || { name: 'Word bank' };   // today's cards: the deck each one is from
-  const grid = n <= 4 && ch.every(x => HAN.test(x));
-  const tz = grid ? `<div class="fc-tz">${ch.map(x => `<div class="tzg" style="--s:${['', 'min(210px,56vw)', 'min(132px,36vw)', 'min(92px,25vw)', 'min(70px,19vw)'][n]}">${TZG}<b>${esc(x)}</b></div>`).join('')}</div>`
-    : `<div class="fc-ch" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div>`;
-  const q = enF ? `<div class="fc-q" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div>` : tz;
+  const hz = `<div class="fc-ch" style="font-size:${hzSize(n)}px">${esc(c.hanzi)}</div>`;   // the plain character, no writing grid
+  const q = enF ? `<div class="fc-q" style="font-size:${enSize(c.en)}px">${esc(c.en)}</div>` : hz;
   const py = `<span class="fc-py">${esc(c.pinyin)}<button class="icon-btn" data-act="say" data-h="${esc(c.hanzi)}" aria-label="Hear it">${I.sound}</button></span>`, foot = `<span class="foot">${esc(d.name)}</span>`;
-  const ans = enF ? `${tz}${py}${foot}`   // English first: the answer is the character and its pinyin
+  const ans = enF ? `${hz}${py}${foot}`   // English first: the answer is the character and its pinyin
     : `<div class="fc-ch" style="font-size:${n === 1 ? 76 : Math.min(64, Math.round(hzSize(n) * .62))}px">${esc(c.hanzi)}</div>${py}
       <span class="fc-en" style="font-size:${Math.max(17, Math.min(22, Math.round(enSize(c.en) * .6)))}px">${esc(c.en)}</span>${foot}`;
   // English first starts turned round (startAngle 180), so the question goes on the back face
@@ -4796,7 +4791,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.86';
+const APP_VERSION = '1.87';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
