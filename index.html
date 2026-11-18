@@ -121,9 +121,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
-/* home bar: your photo (opens the side menu) on the left, the ShiCards name in the middle, your streak flame on the right */
+/* home bar: the menu button (opens the side menu) on the left, the ShiCards name in the middle, your streak flame on the right */
 .bar-home{display:grid;grid-template-columns:1fr auto 1fr}
-.bar-home .av{justify-self:start;margin-left:3px}
+.bar-home .hm-menu{justify-self:start}
 .hm-streak{justify-self:end;display:flex;align-items:center;gap:1px;height:42px;padding:0 8px 0 4px;border-radius:21px;transition:opacity .2s}
 .hm-streak:active{opacity:.4;transition:none}
 .hm-streak .flame{width:30px;height:30px;flex:none;margin-right:1px}
@@ -854,13 +854,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .rpop-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:36px;margin-top:9px;border-radius:9px;background:var(--seal);color:var(--seal-ink);font-size:13.5px;font-weight:700}
 .rpop-add svg.i{width:15px;height:15px;stroke-width:2.4}
 
-/* ---------- small photo in the top bar + side menu ---------- */
-.av{justify-self:center;width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--card);color:var(--line-2);
-  box-shadow:0 0 0 1.5px var(--card),0 0 0 2.5px color-mix(in srgb,var(--seal) 35%,transparent);transition:transform .2s}
-.av:active{transform:scale(.9);transition:none}
-.av img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.av .me-ini{font-size:19px}
-.av svg.i{width:21px;height:21px;stroke-width:1.6}
+/* ---------- side menu ---------- */
 #drawer-root{position:fixed;inset:0;z-index:45;pointer-events:none}
 #drawer-root.open{pointer-events:auto}
 .dr-scrim{position:absolute;inset:0;background:rgba(30,20,10,.34);opacity:0;transition:opacity .3s}
@@ -871,11 +865,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 #drawer-root.open .drawer{transform:none}
 @media (prefers-reduced-motion:reduce){.drawer,.dr-scrim{transition:none}}
 .dr-head{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:4px 10px 18px;border-bottom:1px solid var(--line)}
-.dr-pic{width:68px;height:68px;border-radius:50%;overflow:hidden;background:var(--card);box-shadow:var(--ring);display:grid;place-items:center;color:var(--line-2)}
-.dr-pic img{width:100%;height:100%;object-fit:cover;display:block}
-.dr-pic .me-ini{font-size:34px}
-.dr-pic svg.i{width:36px;height:36px;stroke-width:1.3}
-.dr-name{margin-top:12px;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.dr-name{font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
 .dr-sub{font-size:13.5px;color:var(--muted);margin-top:2px}
 .dr-list{display:flex;flex-direction:column;gap:2px;margin:12px -4px 0;padding:0 4px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 .dr-list::-webkit-scrollbar{display:none}
@@ -892,22 +882,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .dr-item:active{background:var(--fill);transition:none}
 .dr-item svg.i{color:var(--seal)}
 .dr-foot{padding:12px 10px 0;font-size:12px;line-height:1.45;color:var(--muted)}
-
-/* ---------- Move and zoom (profile photo) ---------- */
-.crop{position:fixed;inset:0;z-index:55;background:#14110D;color:#F4EEE3;display:flex;flex-direction:column;align-items:center;
-  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);animation:cropIn .22s ease-out both}
-.crop.out{animation:cropOut .2s ease-in both}
-@keyframes cropIn{from{opacity:0}to{opacity:1}}
-@keyframes cropOut{to{opacity:0}}
-.crop-top{display:grid;grid-template-columns:90px 1fr 90px;align-items:center;width:100%;max-width:480px;height:60px;padding:0 6px}
-.crop-cancel{justify-self:start;padding:10px 12px;font-size:16px;color:rgba(244,238,227,.85)}
-.crop-title{text-align:center;font-weight:600;font-size:17px}
-.crop-stage{position:relative;margin:auto 0 0;width:min(calc(100% - 32px),400px);aspect-ratio:1;overflow:hidden;touch-action:none;cursor:grab;border-radius:6px}
-.crop-stage:active{cursor:grabbing}
-.crop-stage img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;user-select:none;-webkit-user-select:none;pointer-events:none}
-.crop-ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 999px rgba(20,17,13,.62);pointer-events:none}
-.crop-hint{margin:16px 0 auto;font-size:14px;color:rgba(244,238,227,.6)}
-.crop-dock{width:100%;max-width:480px;padding:12px 20px 18px}
 
 /* ---------- month calendar + streak (Profile) ---------- */
 .cal-head h2{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -1036,21 +1010,10 @@ button.st-d:active{transform:scale(.9);transition:none}
 
 /* ---------- profile section ---------- */
 .me{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 24px}
-.me-pic{position:relative;width:116px;height:116px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--line-2);
-  box-shadow:var(--ring),0 14px 28px -16px rgba(70,45,20,.55);touch-action:none;transition:transform .2s}
-.me-pic:active{transform:scale(.96);transition:none}
-.me-pic img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none}
-.me-pic>svg.i{width:58px;height:58px;stroke-width:1.2}
-.me-ini{font-family:var(--display);font-size:56px;font-weight:600;line-height:1;color:var(--seal)}
-.me-cam{position:absolute;right:0;bottom:2px;width:36px;height:36px;border-radius:50%;background:var(--seal);color:var(--seal-ink);display:grid;place-items:center;border:3px solid var(--paper)}
-.me-cam svg.i{width:17px;height:17px;stroke-width:2}
-.me-name{margin-top:14px;width:100%;max-width:290px;height:46px;border:0;border-radius:12px;background:transparent;text-align:center;font-size:25px;font-weight:600;letter-spacing:-.02em;outline:none;transition:background .2s}
+.me-name{width:100%;max-width:290px;height:46px;border:0;border-radius:12px;background:transparent;text-align:center;font-size:25px;font-weight:600;letter-spacing:-.02em;outline:none;transition:background .2s}
 .me-name::placeholder{color:var(--seal);opacity:1}
 .me-name:focus{background:var(--card);box-shadow:var(--ring)}
 .me-sub{font-size:13px;color:var(--muted);margin-top:2px}
-.ph-big{width:168px;height:168px;border-radius:50%;margin:2px auto 18px;background:var(--card);box-shadow:var(--ring);display:grid;place-items:center;color:var(--line-2);overflow:hidden}
-.ph-big img{width:100%;height:100%;object-fit:cover;display:block}
-.ph-big svg.i{width:80px;height:80px;stroke-width:1.1}
 
 /* ---------- HSK 1 course: hub, tones, pinyin chart, radicals, stroke order ---------- */
 :root{--c1:#35A877;--c1-soft:color-mix(in srgb,#35A877 13%,var(--card))}   /* HSK 1 green; also used in its pop-ups */
@@ -1602,7 +1565,7 @@ function parse() {
   return { view: 'home', deckId: null };
 }
 function route() {
-  closeSheet(true); $('#cheer')?.remove(); closeDrawer(); $('#crop')?.remove();
+  closeSheet(true); $('#cheer')?.remove(); closeDrawer();
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
   S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null; S.cBasics = !!r.basics;
@@ -1625,7 +1588,7 @@ function goBack(fallback) { if ((history.state?.d || 0) > 0) history.back(); els
 addEventListener('popstate', route);
 
 /* ---------- activity log ----------
-   Off unless switched on in the side menu (tap your photo). While on, it notes what you do (pages, taps, swipes, flips,
+   Off unless switched on in the side menu (tap the menu button on Decks). While on, it notes what you do (pages, taps, swipes, flips,
    writing checks, errors, your own notes) and keeps it on this phone only. Share it with Claude to tune the app. */
 const LOG = (() => {
   const KEYL = 'shicards.log', MAX = 5000;
@@ -2949,7 +2912,6 @@ function ProfileView() {
     <header class="bar bar-end">
       <button class="icon-btn" data-act="settings" aria-label="App settings">${I.menu}</button></header>
     <section class="me">
-      <button class="me-pic" aria-label="Profile photo. Tap or swipe up to change it">${meAvatar()}</button>
       <input class="me-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
       <div class="me-sub">So ShiCards can greet you · stays on this phone</div>
     </section>
@@ -2967,126 +2929,24 @@ function ProfileView() {
   </div>`;
 }
 
-/* ---------- profile photo ----------
-   Picked from the gallery, cut to a centred square, shrunk to 320 px and kept with your decks on this phone.
-   Tap the photo, or swipe up on it, to open its small menu. */
-function faceHtml() {   // your photo, else the first letter of your name, else a plain outline
-  const ph = db.prefs.photo, name = (db.prefs.name || '').trim();
-  return ph ? `<img src="${ph}" alt="" draggable="false">` : name ? `<span class="me-ini">${esc([...name][0].toUpperCase())}</span>` : I.profile;
-}
-const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a photo from your gallery">${I.camera}</span>`;
-/* the small photo in the top-left corner of Decks; tap it for the side menu */
-const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
+/* the menu button in the top-left corner of Decks; tap it for the side menu */
+const MenuBtn = () => `<button class="icon-btn hm-menu" data-act="drawer" aria-label="Open menu">${I.menu}</button>`;
 /* the flame in the top-right corner of the Decks page: your streak, tap it to open the Streak page */
 const StreakBtn = () => { const { n, today } = practiceStreak(), { min: g, goal } = goalToday(), C = 97.39, f = goal ? Math.min(1, g / goal) : 0;
   const fl = goal ? `<span class="gring${n ? ' on' : ''}${n && !today ? ' wait' : ''}"><svg class="gr" viewBox="0 0 34 34" aria-hidden="true"><circle class="gr-bg" cx="17" cy="17" r="15.5"/><circle class="gr-fg" cx="17" cy="17" r="15.5" stroke-dasharray="${C}" stroke-dashoffset="${(C * (1 - f)).toFixed(1)}"/></svg>${FLAME}</span>` : FLAME;
   return `<button class="hm-streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}" data-act="streak" aria-label="${n ? `${n} day streak` : 'No streak yet'}.${goal ? ` Daily goal ${Math.min(g, goal)} of ${goal} minutes.` : ''} Open your calendar">${fl}<b>${n}</b></button>`; };
-/* open the phone's gallery straight away (must run inside a tap) */
-function pickPhoto() {
-  const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = 'image/*';
-  inp.onchange = () => { if (inp.files[0]) usePhoto(inp.files[0]); };
-  LOG.add('photo-pick'); inp.click();
-}
-/* a picture picked from the gallery first goes to the Move and zoom screen; Save keeps what is inside the circle */
-function usePhoto(f) { closeSheet(); cropPhoto(f); }
-function savePhoto(url) {
-  const before = db.prefs.photo;
-  db.prefs.photo = url; save();
-  const stored = (() => { try { return localStorage.getItem(KEY) || ''; } catch (_) { return null; } })();
-  // phone storage full: keep the old photo
-  if (stored !== null && !stored.includes(url.slice(-40))) { db.prefs.photo = before; save(); toast('Not enough space on this phone for that photo'); return false; }
-  LOG.add('photo', { kb: Math.round(url.length * 0.75 / 1024) });
-  if (['home', 'learn', 'read', 'profile'].includes(S.view)) render();
-  toast('Photo updated'); return true;
-}
-
-/* ---------- Move and zoom ----------
-   Full screen: pinch with two fingers to zoom, drag with one to move (mouse: drag, and the wheel zooms).
-   The picture always fills the square, so there are never empty corners. Save cuts out the square as 320 px. */
-function cropPhoto(file) {
-  const src = URL.createObjectURL(file), img = new Image();
-  img.onerror = () => { URL.revokeObjectURL(src); toast('Couldn’t open that picture'); };
-  img.onload = () => {
-    const el = document.createElement('div');
-    el.id = 'crop'; el.className = 'crop'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Move and zoom your photo');
-    el.innerHTML = `<div class="crop-top"><button class="crop-cancel">Cancel</button><div class="crop-title">Move and zoom</div><span></span></div>
-      <div class="crop-stage"><img alt="" draggable="false"><div class="crop-ring"></div></div>
-      <p class="crop-hint">Pinch to zoom · drag to move</p>
-      <div class="crop-dock"><button class="btn btn-seal wide crop-save">Save</button></div>`;
-    $('#frame').appendChild(el);
-    const stage = el.querySelector('.crop-stage'), pic = el.querySelector('img');
-    pic.src = src;
-    const W = img.naturalWidth, H = img.naturalHeight;
-    let S = stage.clientWidth, base = S / Math.min(W, H), k = base, tx = (S - W * k) / 2, ty = (S - H * k) / 2;
-    const MAXZ = 6;
-    const clamp = () => {
-      k = Math.min(base * MAXZ, Math.max(base, k));
-      tx = Math.min(0, Math.max(S - W * k, tx)); ty = Math.min(0, Math.max(S - H * k, ty));
-    };
-    const paint = () => { pic.style.width = W + 'px'; pic.style.height = H + 'px'; pic.style.transform = `translate(${tx}px,${ty}px) scale(${k})`; };
-    // zoom by factor f keeping the point (px, py) of the stage still
-    const zoomAt = (nk, px, py, k0 = k, tx0 = tx, ty0 = ty) => {
-      nk = Math.min(base * MAXZ, Math.max(base, nk));
-      tx = px - (px - tx0) * nk / k0; ty = py - (py - ty0) * nk / k0; k = nk; clamp(); paint();
-    };
-    clamp(); paint();
-    const pts = new Map(); let st = null;
-    const local = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
-    const startGesture = () => {
-      const p = [...pts.values()];
-      if (p.length >= 2) {
-        const [a, b] = p;
-        st = { two: true, d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2, k, tx, ty };
-      } else if (p.length === 1) st = { two: false, x: p[0][0], y: p[0][1], tx, ty };
-      else st = null;
-    };
-    stage.addEventListener('pointerdown', e => { try { stage.setPointerCapture(e.pointerId); } catch (_) {} pts.set(e.pointerId, local(e)); startGesture(); });
-    stage.addEventListener('pointermove', e => {
-      if (!pts.has(e.pointerId) || !st) return;
-      pts.set(e.pointerId, local(e));
-      const p = [...pts.values()];
-      if (st.two && p.length >= 2) {
-        const [a, b] = p, d = Math.hypot(a[0] - b[0], a[1] - b[1]), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
-        // the point that was under your fingers stays under them while you pinch and move
-        const nk = Math.min(base * MAXZ, Math.max(base, st.k * d / st.d));
-        tx = mx - (st.mx - st.tx) * nk / st.k; ty = my - (st.my - st.ty) * nk / st.k; k = nk; clamp(); paint();
-      } else if (!st.two) {
-        tx = st.tx + p[0][0] - st.x; ty = st.ty + p[0][1] - st.y; clamp(); paint();
-      }
-    });
-    const lift = e => { if (pts.delete(e.pointerId)) startGesture(); };
-    stage.addEventListener('pointerup', lift); stage.addEventListener('pointercancel', lift);
-    stage.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = local(e); zoomAt(k * Math.exp(-e.deltaY * 0.0015), x, y); }, { passive: false });
-    const onResize = () => { const n = stage.clientWidth; if (!n || n === S) return; const f = n / S; S = n; base = S / Math.min(W, H); k *= f; tx *= f; ty *= f; clamp(); paint(); };
-    addEventListener('resize', onResize);
-    const close = () => { removeEventListener('resize', onResize); el.classList.add('out'); setTimeout(() => { el.remove(); URL.revokeObjectURL(src); }, 220); };
-    el.querySelector('.crop-cancel').onclick = () => { LOG.add('photo-crop', 'cancel'); close(); };
-    el.querySelector('.crop-save').onclick = () => {
-      const c = document.createElement('canvas'); c.width = c.height = 320;
-      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
-      g.drawImage(img, -tx / k, -ty / k, S / k, S / k, 0, 0, 320, 320);
-      LOG.add('photo-crop', { zoom: +(k / base).toFixed(2) });
-      if (savePhoto(c.toDataURL('image/jpeg', 0.86))) close();
-    };
-    LOG.add('photo-crop', 'open');
-  };
-  img.src = src;
-}
-
 /* ---------- side menu ----------
-   Slides in from the left when you tap your photo in the top-left corner. Holds Profile, your photo and all the settings.
+   Slides in from the left when you tap the menu button in the top-left corner of Decks. Holds Profile and all the settings.
    Close it by tapping outside, swiping it back to the left, or picking an item. */
 function openDrawer() {
   const root = $('#drawer-root'), name = (db.prefs.name || '').trim();
   root.innerHTML = `<div class="dr-scrim"></div>
     <aside class="drawer" role="dialog" aria-label="Menu">
-      <button class="dr-head" data-act="dr-profile"><span class="dr-pic">${faceHtml()}</span>
+      <button class="dr-head" data-act="dr-profile">
         <span class="dr-name">${name ? esc(name) : 'Add your name'}</span>
         <span class="dr-sub">${plural(db.bank.length, 'word')} in your word bank</span></button>
       <nav class="dr-list">
         <button class="dr-item" data-act="dr-profile">${I.profile}Profile</button>
-        <button class="dr-item" data-act="dr-photo">${I.camera}${db.prefs.photo ? 'Change photo' : 'Add a photo'}</button>
         <div class="dr-sep"></div>
         ${settingsRows(true)}
       </nav>
@@ -3128,32 +2988,6 @@ function closeDrawer() {
   setTimeout(() => { if (!root.classList.contains('open')) root.innerHTML = ''; }, 360);
 }
 addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
-function photoSheet() {
-  const ph = db.prefs.photo;
-  openSheet(`<h3>Profile photo</h3>
-    <div class="ph-big">${ph ? `<img src="${ph}" alt="" draggable="false">` : I.profile}</div>
-    <div class="list-group">
-      <label class="list-btn" style="cursor:pointer"><span>Choose from gallery</span><span class="side">${I.chev}</span><input type="file" id="phIn" accept="image/*" hidden></label>
-      ${ph ? `<button class="list-btn" id="phDel"><span style="color:var(--seal)">Remove photo</span><span class="side">${I.trash}</span></button>` : ''}
-    </div>`,
-    sh => {
-      sh.querySelector('#phIn').onchange = e => { const f = e.target.files[0]; if (f) usePhoto(f); };
-      const del = sh.querySelector('#phDel');
-      if (del) del.onclick = () => { delete db.prefs.photo; save(); closeSheet(); if (['home', 'learn', 'read', 'profile'].includes(S.view)) render(); toast('Photo removed'); };
-    });
-}
-/* tap, or swipe up/down, on the photo opens its menu; a sideways drag is left to the page swipe */
-let picDown = null;
-document.addEventListener('pointerdown', e => { picDown = e.target.closest?.('.me-pic') && !e.target.closest('.peek') ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null; }, true);
-document.addEventListener('pointerup', e => {
-  const d = picDown; picDown = null;
-  if (!d || d.id !== e.pointerId || !e.target.closest?.('.me-pic') || S.view !== 'profile') return;
-  const dx = e.clientX - d.x, dy = e.clientY - d.y;
-  if (Math.abs(dx) > 12 && Math.abs(dx) >= Math.abs(dy)) return;
-  if (Math.abs(dy) <= 24 && e.target.closest('.me-cam')) { pickPhoto(); return; }   // camera badge: straight to the gallery
-  LOG.add('photo-menu', Math.abs(dy) > 24 ? 'swipe' : 'tap'); photoSheet();
-});
-document.addEventListener('click', e => { if (e.detail === 0 && e.target.closest?.('.me-pic')) photoSheet(); });   // keyboard
 /* ---------- read: short stories from your word bank ----------
    Each story is a hand-written frame with gaps; the gaps are filled with words from your word bank that fit
    (a food where a food goes, a place where a place goes), so the Chinese stays correct. A gap no bank word fits
@@ -3448,7 +3282,7 @@ const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 function Home() {
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
-    <header class="bar bar-home">${AvBtn()}<span class="logo-mid">ShiCards</span>
+    <header class="bar bar-home">${MenuBtn()}<span class="logo-mid">ShiCards</span>
       ${StreakBtn()}</header>
     ${HotdStack()}
     <div class="section-head"><h2>My word bank</h2></div>
@@ -5442,7 +5276,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.96';
+const APP_VERSION = '1.97';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5529,7 +5363,7 @@ function devSheet() {
   });
 }
 /* ---------- settings ----------
-   The same rows sit in the side menu (tap your photo on the Decks page) and in the sheet behind Profile's menu button. */
+   The same rows sit in the side menu (tap the menu button on the Decks page) and in the sheet behind Profile's menu button. */
 function settingsRows(dr) {
   const chev = dr ? '' : I.chev;
   const row = (id, icon, t, small, side = `<span class="side">${chev}</span>`, tag = 'button', extra = '') =>
@@ -6004,7 +5838,6 @@ const A = {
   'day-deck': t => { closeSheet(true); nav('#/deck/' + t.dataset.id); },
   'drawer': () => openDrawer(),
   'dr-profile': () => { closeDrawer(); if (S.view !== 'profile') { S.instant = true; nav('#/profile'); } },
-  'dr-photo': () => { closeDrawer(); pickPhoto(); },
   'streak': () => { S.smo = 0; nav('#/streak'); },
   'st-close': () => goBack('#/'),
   'st-month': t => { S.smo += +t.dataset.step; const c = $('#stCal'); if (c) c.outerHTML = StreakCal(); },
@@ -6265,7 +6098,7 @@ for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev
 document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); }, { passive: false });
 
 /* Profile: your name, shown in the menu and as your picture's letter (stored on this phone) */
-document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); const p = $('.me-pic'); if (p && !db.prefs.photo) p.innerHTML = meAvatar(); } });
+document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); } });
 document.addEventListener('change', e => { if (e.target.id === 'pName' && db.prefs.name) toast(`Hello, ${db.prefs.name}`); });
 document.addEventListener('keydown', e => { if (e.target.id === 'pName' && e.key === 'Enter') e.target.blur(); });
 
