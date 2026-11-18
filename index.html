@@ -2609,7 +2609,7 @@ const LESSONS = LES_UNITS.flatMap(([, , ls], u) => ls.map(([title, w]) => ({ u, 
 const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome`.split('|').map(s => s.split('=')));
 const lesRows = new Map();
 function lesRow(h) {   // { h, p, en } for a lesson word
-  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? shortMeaning(r.e) : '') }); }
+  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') }); }
   return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
 }
 const lesDone = n => !!db.lessons[n]?.done;
@@ -3043,8 +3043,8 @@ function mountRadicals() {
     $('#radNone').hidden = any; };
 }
 function c1Word(h) {   // pinyin and meaning; a character that is not a word on its own shows a word it is in (没 -> in 没有)
-  const r = S.H?.byHz.get(h); if (r) return { p: r.p, e: shortMeaning(r.e) };
-  for (let l = 1; l <= 7 && S.H; l++) { const w = (S.H.levels[l] || []).find(x => x.h.includes(h)); if (w) return { p: autoPinyin(h), e: `in ${w.h}: ${shortMeaning(w.e)}` }; }
+  const r = S.H?.byHz.get(h); if (r) return { p: r.p, e: meanOf(r) };
+  for (let l = 1; l <= 7 && S.H; l++) { const w = (S.H.levels[l] || []).find(x => x.h.includes(h)); if (w) return { p: autoPinyin(h), e: `in ${w.h}: ${meanOf(w)}` }; }
   return { p: autoPinyin(h), e: '' };
 }
 function radSheet(t) {
@@ -3603,7 +3603,7 @@ function storyNewWords(s) {
     const r = S.H?.byHz.get(t.h);
     if (!r && !RL.gloss[t.h]) continue;
     // the meaning it has in the story (包 bag, not "to wrap"), else the dictionary's
-    out.push({ h: t.h, p: r?.p || t.p, en: RL.home[t.h] || RL.gloss[t.h] || (r.s ??= shortMeaning(r.e)), lv: r?.lv || 0 });
+    out.push({ h: t.h, p: r?.p || t.p, en: RL.home[t.h] || RL.gloss[t.h] || meanOf(r), lv: r?.lv || 0 });
   }
   return out;
 }
@@ -3612,7 +3612,7 @@ function readMeaning(h) {
   if (b?.en) return b.en;
   if (RL.home[h] != null) return RL.home[h];
   if (RL.gloss[h]) return RL.gloss[h];
-  const r = S.H?.byHz.get(h); return r ? shortMeaning(r.e) : '';
+  const r = S.H?.byHz.get(h); return r ? meanOf(r) : '';
 }
 /* the story on screen: a finished one (#/read/<id>) or the one you are reading now */
 function readStory() {
@@ -3821,7 +3821,7 @@ function HotdCard(just) {   // the card on Decks: Shi Shi holds up today's chara
   const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h), back = H?.top === 'story';
   const meta = H ? `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${mine ? '<span>In your word bank ✓</span>' : ''}</div>` : '';
   const txt = !H ? '<div class="hd-big">A new character</div><div class="hd-sub">Getting it ready…</div>'
-    : rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(shortMeaning(H.e))}</div>${meta}`
+    : rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(meanOf(H))}</div>${meta}`
     : `<div class="hd-big">A new character is waiting</div>${meta}`;
   return `<section class="hd-card hd-day${rev ? ' rev' : ''}${just ? ' just' : ''}${back ? ' back' : ' front'}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">HANZI OF THE DAY</div>
@@ -3998,7 +3998,7 @@ function HdxHTML(H, S2, S3) {
       <section class="hdx-pg hdx-p3" aria-label="${HDX_PAGES[3]}">
         <h4 class="hs-h">Use it <span>例句</span></h4>
         ${words.length ? `<div class="hdx-lbl">Words with ${esc(H.h)}</div>
-        <div class="hdx-words">${words.map(r => `<button class="hdx-word" data-act="say" data-h="${esc(r.h)}"><b>${mark(r.h)}</b><span><span class="hdx-wpy">${esc(r.p)}</span><small>${esc(shortMeaning(r.e))}</small></span>${I.sound}</button>`).join('')}</div>` : ''}
+        <div class="hdx-words">${words.map(r => `<button class="hdx-word" data-act="say" data-h="${esc(r.h)}"><b>${mark(r.h)}</b><span><span class="hdx-wpy">${esc(r.p)}</span><small>${esc(meanOf(r))}</small></span>${I.sound}</button>`).join('')}</div>` : ''}
         <div class="hdx-lbl">In a sentence</div>
         <div class="hdx-sents" id="hdxSents"><p class="hdx-none">Loading sentences…</p></div>
         <p class="hdx-src">Sentences from Tatoeba (tatoeba.org)</p>
@@ -4192,7 +4192,7 @@ function mountHotdSheet(sh, H) {
     if (mood) { shi.innerHTML = shiFace(mood); shi.classList.remove('hop'); void shi.offsetWidth; if (mood === 'cheer') shi.classList.add('hop'); } };
   sh.querySelector('#hsAdd').onclick = e => {
     const b = e.currentTarget; if (bankHas(H.h)) return;
-    db.bank.unshift({ id: uid(), hanzi: H.h, pinyin: H.p, en: shortMeaning(H.e), added: Date.now(), hsk: H.lv }); save();
+    db.bank.unshift({ id: uid(), hanzi: H.h, pinyin: H.p, en: meanOf(H), added: Date.now(), hsk: H.lv }); save();
     LOG.add('hotd-add', { hz: H.h });
     b.classList.add('done'); b.disabled = true; b.textContent = 'In your word bank ✓';
     say(`${H.h} is in your word bank now. It will come back in your daily cards.`, 'cheer');
@@ -5664,6 +5664,18 @@ function loadHsk() {
       (levels[row.lv] ||= []).push(row); if (!byHz.has(h)) byHz.set(h, row);
     }
     for (const l of g.split('\n')) { const [h, p, en] = l.replace(/\r$/, '').split('\t'); if (h && h[0] !== '#' && en) gl.set(h, { p, en }); }
+    // "erhua variant of 小孩; child": the sense after it, else the plain word's meanings. Hand-written meanings win, and a word-bank
+    // card still showing the old dictionary meaning (小朋友 "child", 在 "to exist") takes the new one.
+    const was = new Map();
+    for (const r of byHz.values()) {
+      const m = /^erhua variant of ([^;\s]+)(?:; (.+))?$/.exec(r.e); if (!m && !gl.has(r.h)) continue;
+      was.set(r.h, shortMeaning(r.e));
+      if (m) r.e = m[2] || byHz.get(m[1])?.e || r.e;
+      if (gl.has(r.h)) r.s = gl.get(r.h).en;
+    }
+    let fixed = false;
+    for (const w of db.bank) { const r = byHz.get(w.hanzi); if (r && was.has(w.hanzi) && w.en === was.get(w.hanzi) && w.en !== meanOf(r)) { w.en = meanOf(r); fixed = true; } }
+    if (fixed) save();
     S.H = { levels, byHz, gloss: gl }; tagBank(); return S.H;
   }).catch(e => { hskP = null; throw e; });
 }
@@ -5674,7 +5686,7 @@ const ODD_SENSE = /^(abbr|Kangxi|surname|variant|old variant|used in|see |\((col
 function writeAsk(c) {
   const chs = hanChars(c.hanzi); if (chs.length !== 1 || !S.H) return { en: c.en, py: c.pinyin };
   const g = S.H.gloss?.get(c.hanzi); if (g) return { en: g.en, py: g.p || c.pinyin };
-  const row = S.H.byHz.get(c.hanzi); if (!row || c.en !== shortMeaning(row.e)) return { en: c.en, py: c.pinyin };   // a meaning you typed yourself stays
+  const row = S.H.byHz.get(c.hanzi); if (!row || c.en !== meanOf(row)) return { en: c.en, py: c.pinyin };   // a meaning you typed yourself stays
   const ok = row.e.split('; ').filter(m => !ODD_SENSE.test(m) && !/^[A-Z][a-z]/.test(m)).join('; ');
   return { en: (ok && shortMeaning(ok)) || c.en, py: c.pinyin };
 }
@@ -5688,13 +5700,14 @@ function writeClue(c) {
     if (say && normPy(r.p.split(' ')[[...r.h].indexOf(ch)] || '') !== say) continue;   // same reading only: "long" 长 cháng, not 校长 zhǎng
     const sc = (mine.has(r.h) ? 0 : 1e5) + lv * 1e4 + k; if (sc < bs) { bs = sc; best = r; }
   }
-  return best && { hz: best.h, py: best.p, en: shortMeaning(best.e) };
+  return best && { hz: best.h, py: best.p, en: meanOf(best) };
 }
 function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
   if (!S.H) return; let changed = false;
   for (const w of db.bank) { const lv = S.H.byHz.get(w.hanzi)?.lv || 0; if (w.hsk !== lv) { w.hsk = lv; changed = true; } }
   if (changed) save();
 }
+const meanOf = r => r.s ??= shortMeaning(r.e);   // a word's card meaning: the hand-written one from dict/gloss.tsv when there is one
 function shortMeaning(e) {   // what goes on the back of the card: the first meaning, plus a second when both are short
   const ms = e.split('; ').map(m => plainMeaning(m).replace(/\s*\([^)]*\)$/, '') || plainMeaning(m)).filter(Boolean); if (!ms.length) return '';   // "to be (followed by…)" -> "to be"
   return ms[0].length < 14 && ms[1] && (ms[0] + '; ' + ms[1]).length <= 30 ? ms[0] + '; ' + ms[1] : ms[0];
@@ -5840,7 +5853,7 @@ function mountHsk() {
   const inBank = new Set(db.bank.map(w => w.hanzi));
   let rows = L, shown = 0;
   const row = r => `<button class="row word ${inBank.has(r.h) ? 'has' : sel.has(r.h) ? 'on' : ''}" style="--sep:52px" data-h="${esc(r.h)}"><span class="sel">${I.check}</span><span class="hz">${esc(r.h)}</span>
-    <span class="row-main"><span class="wp">${esc(r.p)}</span><span class="we">${esc(r.s ??= shortMeaning(r.e))}</span></span></button>`;
+    <span class="row-main"><span class="wp">${esc(r.p)}</span><span class="we">${esc(meanOf(r))}</span></span></button>`;
   const more = () => { if (shown >= rows.length) return; list.insertAdjacentHTML('beforeend', rows.slice(shown, shown + 150).map(row).join('')); shown += 150; };
   const fresh = () => rows.filter(r => !inBank.has(r.h));
   const paint = () => {
@@ -5866,7 +5879,7 @@ function mountHsk() {
   };
   addB.onclick = () => {
     const now = Date.now();
-    const words = L.filter(r => sel.has(r.h) && !inBank.has(r.h)).map((r, i) => ({ id: uid(), hanzi: r.h, pinyin: r.p, en: r.s ??= shortMeaning(r.e), added: now - i, hsk: r.lv }));
+    const words = L.filter(r => sel.has(r.h) && !inBank.has(r.h)).map((r, i) => ({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - i, hsk: r.lv }));
     if (!words.length) return;
     db.bank = [...words, ...db.bank]; save();
     words.forEach(w => inBank.add(w.hanzi)); sel.clear();
@@ -5882,7 +5895,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.06';
+const APP_VERSION = '2.07';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6160,7 +6173,7 @@ function obGo(step) { S.ob.hist.push(S.ob.i); S.ob.i = OB_STEPS.indexOf(step); L
 const obClamp = l => Math.min(7, Math.max(1, l));
 const obKnownN = () => S.ob.chk ? S.ob.chk.rounds.reduce((a, r) => a + r.on.size, 0) : 0;
 /* the word cards: a word of the level asked, with its meaning and three other meanings from the same level */
-const obMean = r => { const m = shortMeaning(r.e); return /^(abbr|variant|see |surname|old variant|used in|classifier)/i.test(m) || m.length > 30 || /[㐀-鿿]/.test(m) ? '' : m; };
+const obMean = r => { const m = meanOf(r); return /^(abbr|variant|see |surname|old variant|used in|classifier)/i.test(m) || m.length > 30 || /[㐀-鿿]/.test(m) ? '' : m; };
 function obCard(lv) {
   const Q = S.ob.q, used = new Set(Q.cards.map(c => c.w.h)), L = shuffle(S.H.levels[lv] || []);
   const w = L.find(r => !used.has(r.h) && HAN.test(r.h) && obMean(r)); if (!w) return null;
@@ -6325,12 +6338,12 @@ function obFinish(how) {
     const now = Date.now(), have = new Set(db.bank.map(w => w.hanzi));
     const known = [...O.chk.rounds.flatMap(r => r.chars.filter(c => r.on.has(c.h))), ...(O.q?.cards.filter(obRight).map(c => S.H.byHz.get(c.w.h)).filter(Boolean) || [])];
     known.forEach((r, i) => { if (have.has(r.h)) return; have.add(r.h);
-      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 1000 - i, hsk: r.lv,
+      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - 1000 - i, hsk: r.lv,
         srs: { first: now, seen: now, iv: 7, n: 1, miss: 0, due: dayStart(now, 5 + i % 21) } }); });
     // every word of the levels below yours: texts at your level use them all, so they count as known; they come back
     // a few a day (6) for a light check, spread over the months ahead, instead of all at once
     shuffle(obLowWords(lv || 1).filter(r => !have.has(r.h))).forEach((r, i) => { have.add(r.h);
-      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 60000 - i, hsk: r.lv,
+      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - 60000 - i, hsk: r.lv,
         srs: { first: now, seen: now, iv: 30, n: 1, miss: 0, due: dayStart(now, 3 + Math.floor(i / 6)) } }); });
   }
   if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk?.est, sig, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
