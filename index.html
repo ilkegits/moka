@@ -1106,10 +1106,27 @@ button.st-d:active{transform:scale(.9);transition:none}
   box-shadow:0 0 0 2px rgba(120,95,60,.14),0 4px 0 rgba(120,95,60,.14);transition:background .15s,box-shadow .15s,opacity .25s}
 .les-opts.list .les-opt{min-height:58px;padding:12px 18px;justify-items:start;text-align:left}
 .les-opt:not(:disabled):active,.les-pair:not(:disabled):active{transform:translateY(3px);box-shadow:0 0 0 2px rgba(120,95,60,.14)}
-.les-opt.ok{background:var(--jade-soft);box-shadow:0 0 0 2.5px var(--jade),0 4px 0 var(--jade)}
-.les-opt.no{background:var(--seal-soft);box-shadow:0 0 0 2.5px var(--seal),0 4px 0 var(--seal)}
-.les-opt:disabled:not(.ok):not(.no){opacity:.45}
-.les-opt.ok,.les-opt.no{opacity:1}
+.les-opt{position:relative;transition:background .15s,box-shadow .15s,opacity .3s,transform .3s}
+/* answered: the right card keeps its place and gets a red seal stamped on its corner; the others step back.
+   A wrong pick is struck through with a brush line, and the right one glows green so you see it */
+.les-opts.answered .les-opt:not(.ok):not(.no){opacity:.32;transform:scale(.96)}
+.les-opt.ok{background:var(--card);box-shadow:0 0 0 2.5px var(--jade),0 4px 0 var(--jade);opacity:1}
+.les-opt.ok.reveal{animation:lesGlow 1.1s ease-in-out 2}
+@keyframes lesGlow{50%{box-shadow:0 0 0 2.5px var(--jade),0 4px 0 var(--jade),0 0 0 9px color-mix(in srgb,var(--jade) 22%,transparent)}}
+.les-opt.no{background:color-mix(in srgb,var(--ink) 6%,var(--card));box-shadow:0 0 0 2px rgba(120,95,60,.16);opacity:1;animation:lesShake .3s}
+.les-opt.no > span{opacity:.45}
+.les-opt.no::after{content:"";position:absolute;left:14%;right:14%;top:50%;height:5px;margin-top:-2px;border-radius:3px;background:var(--ink);opacity:.6;
+  transform:rotate(-5deg);transform-origin:left center;animation:lesStrike .28s .12s cubic-bezier(.4,0,.2,1) both}
+@keyframes lesStrike{from{transform:rotate(-5deg) scaleX(0)}to{transform:rotate(-5deg) scaleX(1)}}
+.lo-stamp,.lfb-seal,.lw-stamp{display:grid;place-items:center;border-radius:8px;background:var(--seal);color:#fff;font-family:var(--hanzi);font-weight:700;line-height:1;
+  box-shadow:inset 0 0 0 2px var(--seal),inset 0 0 0 4px rgba(255,255,255,.75),0 3px 8px -2px rgba(126,29,25,.45);transform:rotate(-8deg)}
+.lo-stamp{position:absolute;top:-11px;right:-9px;z-index:2;width:36px;height:36px;font-size:21px;animation:lesStamp .42s cubic-bezier(.3,.7,.3,1) both}
+@keyframes lesStamp{0%{transform:scale(2.3) rotate(-26deg);opacity:0}55%{transform:scale(.88) rotate(-6deg);opacity:1}78%{transform:scale(1.07) rotate(-9deg)}100%{transform:rotate(-8deg)}}
+/* points in the top bar */
+.les-pts{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 4px;border-radius:9px;background:var(--card);box-shadow:var(--ring);font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+.les-pts i{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);font:700 14px/1 var(--hanzi);font-style:normal}
+.les-pts.bump{animation:lesBump .5s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes lesBump{35%{transform:scale(1.2)}}
 .lo-hz{font-family:var(--hanzi);font-weight:600;line-height:1.1;color:var(--ink)}
 .lo-py{font-size:22px;font-weight:700;color:var(--ink)}
 .lo-en{font-size:16.5px;font-weight:600;line-height:1.3;color:var(--ink)}
@@ -1121,14 +1138,55 @@ button.st-d:active{transform:scale(.9);transition:none}
 .les-pair.p-gone{opacity:.3;background:var(--jade-soft);box-shadow:none}
 @keyframes lesShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .les-dock{position:sticky;bottom:0;z-index:4;margin:auto -20px 0;padding:16px 20px calc(16px + env(safe-area-inset-bottom));background:var(--paper)}
-.les-dock.ok{background:color-mix(in srgb,var(--jade) 15%,var(--paper))}
-.les-dock.no{background:color-mix(in srgb,var(--seal) 12%,var(--paper))}
-.les-fb{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
-.les-fb b{font-size:19px;font-weight:800}
-.les-dock.ok .les-fb b{color:var(--jade)}
-.les-dock.no .les-fb b{color:var(--seal)}
-.les-fb > span{font-size:15px;color:var(--ink-2)}
-.les-fb-hz{font-family:var(--hanzi);font-weight:600;font-size:19px;color:var(--ink)}
+/* the answer strip: a paper card rising from the bottom, not a coloured panel */
+.lfb-dock{animation:lesUp .3s cubic-bezier(.2,.8,.3,1) both}
+.lfb-dock.ok{cursor:pointer}
+@keyframes lesUp{from{transform:translateY(26px);opacity:0}}
+.lfb{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 4px 0 rgba(120,95,60,.12)}
+.lfb-dock.no .lfb{margin-bottom:12px}
+.lfb-seal{flex:none;width:52px;height:52px;font-size:30px;animation:lesStamp .45s .08s cubic-bezier(.3,.7,.3,1) both}
+.lfb-shi{flex:none;width:54px;height:54px}
+.lfb-shi .shi-face{width:100%;height:100%;display:block}
+.lfb-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lfb-txt b{font-size:18px;font-weight:800;color:var(--ink)}
+.lfb-txt > span{font-size:15px;color:var(--ink-2)}
+.lfb-txt small{font-size:13px;color:var(--muted)}
+.lfb-hz{font-family:var(--hanzi);font-weight:600;font-size:19px;color:var(--ink)}
+.lfb-gain{flex:none;font-size:23px;font-weight:800;color:var(--seal);font-variant-numeric:tabular-nums;animation:lesGain .5s .18s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes lesGain{from{transform:translateY(12px) scale(.7);opacity:0}}
+.lfb-time{display:block;height:4px;margin:12px 8px 0;border-radius:2px;background:var(--fill);overflow:hidden}
+.lfb-time i{display:block;height:100%;background:var(--c1);transform-origin:left;animation:lesDrain var(--t) linear both}
+@keyframes lesDrain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+/* writing in the tianzige */
+.lw-word{display:flex;flex-direction:column;align-items:center;gap:7px;margin:-6px 0 14px}
+.lw-hz{display:flex;align-items:center;gap:3px;font-family:var(--hanzi);font-weight:600;font-size:34px;line-height:1.15;color:var(--ink)}
+.lw-gap{display:inline-grid;place-items:center;width:1.2em;height:1.2em;border-radius:7px;background:var(--seal-soft);color:var(--seal);font-weight:600}
+.lw-gap.hide{background:transparent;border:2px dashed color-mix(in srgb,var(--seal) 70%,transparent)}
+.lw-py{font-size:17px;padding:4px 11px}
+.lw-py svg.i{width:17px;height:17px}
+.lw-en{font-size:16px;font-weight:600;color:var(--ink-2);text-align:center}
+.lw-stage{display:grid;place-items:center}
+.lw-box{border-radius:10px;box-shadow:0 0 0 2px rgba(120,95,60,.14),0 6px 0 rgba(120,95,60,.12)}
+.lw-box.lw-done{box-shadow:0 0 0 2.5px var(--jade),0 6px 0 color-mix(in srgb,var(--jade) 55%,transparent)}
+.lw-stamp{position:absolute;right:-14px;bottom:-14px;z-index:3;width:58px;height:58px;font-size:33px;animation:lesStamp .45s .12s cubic-bezier(.3,.7,.3,1) both}
+.lw-cap{margin-top:14px}
+.lw-hint{display:block;margin:2px auto 0;padding:8px 12px;font-size:14.5px;font-weight:700;color:var(--seal)}
+.lw-hint:disabled{opacity:.4}
+/* the end: three seals */
+.les-seals{display:flex;justify-content:center;gap:14px;margin:22px 0 4px}
+.les-seal{display:flex;flex-direction:column;align-items:center;gap:8px;width:92px}
+.les-seal i{width:60px;height:60px;border-radius:11px;display:grid;place-items:center;font:700 33px/1 var(--hanzi);font-style:normal;color:var(--line);border:2.5px dashed var(--line)}
+.les-seal.got i{border:0;background:var(--seal);color:#fff;box-shadow:inset 0 0 0 3px var(--seal),inset 0 0 0 5px rgba(255,255,255,.75),0 4px 10px -3px rgba(126,29,25,.5);
+  transform:rotate(-8deg);animation:lesStamp .45s var(--d) cubic-bezier(.3,.7,.3,1) both}
+.les-seal small{font-size:12.5px;line-height:1.25;color:var(--muted);text-align:center}
+.les-seal.got small{color:var(--ink-2);font-weight:600}
+.les-tally{display:flex;width:100%;margin-top:18px;border-radius:16px;background:var(--card);box-shadow:var(--ring)}
+.les-tally span{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:12px 6px}
+.les-tally span+span{border-left:1px solid var(--line)}
+.les-tally b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.les-tally small{font-size:12.5px;color:var(--muted)}
+.les-wrote{width:100%;margin-top:14px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.les-wrote > small{margin-right:4px;font-size:13.5px;font-weight:700;color:var(--muted)}
 .btn-jade{background:var(--jade);color:#fff}
 .les-end{display:flex;flex-direction:column;align-items:center;text-align:center;padding-bottom:20px}
 .les-end-shi{width:150px;height:150px;margin:44px auto 6px;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
@@ -1138,7 +1196,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .les-end-box{width:100%;margin-top:22px;padding:16px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
 .les-end-box > b{display:block;margin-bottom:12px;font-size:16.5px;color:var(--jade)}
 .les-end-box > small{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.les-start,.les-pair.p-bad,.les-end-shi{animation:none}}
+@media (prefers-reduced-motion:reduce){.les-start,.les-pair.p-bad,.les-end-shi,.les-opt.no,.les-opt.no::after,.les-opt.ok.reveal,.lo-stamp,.lfb-seal,.lw-stamp,.lfb-dock,.lfb-gain,.lfb-time i,.les-pts.bump,.les-seal.got i{animation:none}}
 
 /* tones: the pitch staff (5 = high, 1 = low) with each tone's line on it */
 .tone-svg{display:block;overflow:visible}
@@ -2543,8 +2601,104 @@ function startLesson(n) {
   for (let i = 1; i < q.length; i++) if (q[i].w === q[i - 1].w) {   // never the same word twice in a row
     const j = q.findIndex((x, k) => k > i && x.w !== q[i - 1].w); if (j > 0) [q[i], q[j]] = [q[j], q[i]];
   }
-  S.les = { n, words, pool, step: 'intro', i: 0, q, qi: 0, ans: null, settled: 0, total: q.length };
+  // writing in the tianzige: trace each picked character a quarter and half way in, then the first one again from memory at the end
+  const nq = q.length, wt = lesWriteTasks(n, words);
+  if (wt[0]) q.splice(nq, 0, { t: 'write', mode: 'recall', ...wt[0] });
+  if (wt[1]) q.splice(Math.round(nq * .55), 0, { t: 'write', mode: 'trace', ...wt[1] });
+  if (wt[0]) q.splice(Math.round(nq * .25), 0, { t: 'write', mode: 'trace', ...wt[0] });
+  S.les = { n, words, pool, step: 'intro', i: 0, q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq,
+    pts: 0, combo: 0, best: 0, wroteCh: [] };
   LOG.add('lesson-start', { n, title: L.title });
+}
+function lesWriteTasks(n, words) {   // up to two characters to write, from two different words, the ones this lesson brings in first
+  const before = new Set(LESSONS.slice(0, n - 1).flatMap(L => L.words.flatMap(hanChars)));
+  const seen = new Set(), fresh = [], old = [];
+  for (const w of shuffle(words)) {
+    const cs = hanChars(w.h).filter(c => !seen.has(c)), ch = cs.find(c => !before.has(c)) || cs[0];
+    if (ch) { seen.add(ch); (before.has(ch) ? old : fresh).push({ ch, w }); }
+  }
+  return [...fresh, ...old].slice(0, 2);
+}
+/* points: 10 a right answer, up to +15 more for a run in a row; writing 15 (trace) or 25 (from memory), +10 with no slips */
+const LES_AUTO = 1500;   // a right answer moves on by itself after this long (tap to go sooner)
+function lesGain(g) { const E = S.les; E.pts += g; E.gain = g; E.flash = 1; }
+function lesAutoNext() {
+  const E = S.les, qi = E.qi; clearTimeout(E.timer);
+  E.timer = setTimeout(() => { if (S.les === E && S.view === 'lesson' && E.qi === qi && E.ans != null) lesAct('next'); }, LES_AUTO + 150);
+}
+const lesBoxSize = () => Math.max(170, Math.min(250, (document.documentElement.clientWidth || 360) - 130));
+function lesTop() {
+  const E = S.les, nW = E.words.length, P = E.pairs;
+  const prog = (Math.min(E.i, nW) + E.settled + (P ? P.gone.size / P.L.length : 0)) / (nW + E.total + 1);
+  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the lesson">${I.close}</button><span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
+    <span class="les-pts${E.flash ? ' bump' : ''}" aria-label="${E.pts} points"><i>分</i><b>${E.pts}</b></span></div>`;
+}
+/* the answer strip: a right answer gets a red seal stamp, the points and a timer line, and moves on by itself;
+   a wrong one shows a quiet note with the right word (no red flood) and waits for "Got it" */
+function lesFb() {
+  const E = S.les, Q = E.q[E.qi], a = Q.w, word = `<span><span class="lfb-hz">${esc(a.h)}</span> ${esc(a.p)} · ${esc(a.en)}</span>`;
+  if (!E.ok) return `<div class="les-dock lfb-dock no" role="status"><div class="lfb"><span class="lfb-shi">${shiFace('miss')}</span>
+      <span class="lfb-txt"><b>This one was it</b>${word}<small>${Q.again ? 'Keep it in mind for your review.' : 'It comes back before the end.'}</small></span></div>
+    <button class="btn btn-seal wide" data-les="next">Got it</button></div>`;
+  return `<div class="les-dock lfb-dock ok" data-les="next" role="status"><div class="lfb"><span class="lfb-seal">${E.seal}</span>
+      <span class="lfb-txt"><b>${esc(E.praise)}</b>${word}</span><span class="lfb-gain">+${E.gain}</span></div>
+    <span class="lfb-time" style="--t:${LES_AUTO}ms"><i></i></span></div>`;
+}
+function lesWriteHtml(Q, done) {   // the word with the character to write marked, and the tianzige
+  const trace = Q.mode === 'trace', s = lesBoxSize();
+  const word = [...Q.w.h].map(c => c === Q.ch ? `<b class="lw-gap${trace ? '' : ' hide'}">${trace || done ? esc(c) : ''}</b>` : esc(c)).join('');
+  return `<div class="les-body"><p class="les-ask">${trace ? 'Trace it' : 'Now from memory'}<span>+${trace ? 15 : 25}</span></p>
+    <div class="lw-word"><span class="lw-hz">${word}</span><button class="les-py lw-py" data-act="say" data-h="${esc(Q.w.h)}" aria-label="Hear ${esc(Q.w.h)}">${esc(Q.w.p)}${I.sound}</button><span class="lw-en">${esc(Q.w.en)}</span></div>
+    <div class="lw-stage"><div class="tzg lw-box${done ? ' lw-done' : ''}" id="lwBox" style="--s:${s}px">${TZG}<div class="quiz">${done ? `<span class="ans-fallback" style="--s:${s}px">${esc(Q.ch)}</span>` : ''}</div>${done ? `<span class="lw-stamp">${S.les.seal}</span>` : ''}</div></div>
+    <p class="hs-cap lw-cap" id="lwCap">${done ? '' : trace ? 'Follow the light lines, stroke by stroke' : 'Write it stroke by stroke'}</p>
+    ${!trace && !done ? '<button class="link-btn lw-hint" data-les="whint">Show me how</button>' : ''}</div>`;
+}
+function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWriter checks each stroke)
+  const E = S.les, Q = E?.step === 'quiz' ? E.q[E.qi] : null;
+  if (!Q || Q.t !== 'write' || E.ans != null) return;
+  const box = $('#lwBox'), q = box?.querySelector('.quiz'), cap = $('#lwCap'); if (!q || q.childElementCount) return;
+  const off = () => { if (S.les !== E || E.q[E.qi] !== Q || E.ans != null) return; cap.textContent = 'Writing needs the internet. Skipping it for now.';
+    setTimeout(() => { if (S.les === E && E.q[E.qi] === Q && E.ans == null) lesDropWrites(true); }, 1400); };
+  if (!window.HanziWriter) return off();
+  const s = box.offsetWidth || lesBoxSize(), trace = Q.mode === 'trace';
+  let miss = 0, N = 0;
+  const W = HanziWriter.create(q, Q.ch, writerOpts(s, { showCharacter: false, showOutline: trace, strokeColor: css('--ink'), outlineColor: css('--line'),
+    drawingColor: css('--ink'), highlightColor: css('--seal'), drawingWidth: Math.max(4, Math.round(s / 55)), showHintAfterMisses: trace ? 2 : 3,
+    highlightOnComplete: true, highlightCompleteColor: css('--jade'), strokeAnimationSpeed: 2.2, delayBetweenStrokes: 70,   // "Show me how" plays quickly
+    charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
+  E.writer = W;
+  E.wq = () => W.quiz({ onMistake: () => { miss++; },
+    onCorrectStroke: d => { if (d.strokesRemaining) cap.textContent = `Stroke ${d.strokeNum + 1} of ${N || d.strokeNum + 1 + d.strokesRemaining} ✓`; },
+    onComplete: () => lesWriteDone(Q, miss) });
+  loadRef(Q.ch).then(ref => { N = ref.strokes.length; if (E.writer === W && E.ans == null && !trace) cap.textContent = `${plural(N, 'stroke')}. A hint shows after 3 slips.`; }, off);
+  E.wq();
+}
+function lesWriteDone(Q, miss) {
+  const E = S.les; if (!E || E.q[E.qi] !== Q || E.ans != null) return;
+  const clean = !miss && !E.hinted;
+  E.ans = 'w'; E.ok = true; E.settled++; E.combo++; E.best = Math.max(E.best, E.combo); E.wroteCh.push(Q.ch);
+  lesGain((Q.mode === 'trace' ? 15 : 25) + (clean ? 10 : 0));
+  E.seal = clean ? '美' : '写';
+  E.praise = clean ? 'Every stroke right!' : E.hinted ? 'Written, with a hint' : `Written · ${plural(miss, 'slip')}`;
+  LOG.add('lesson-write', { n: E.n, hz: Q.ch, mode: Q.mode, mistakes: miss, hint: !!E.hinted });
+  E.hinted = false; E.writer = null; chime();
+  setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 300);
+  // keep the finished character on screen: swap in the stamp, the top bar and the answer strip, not the whole page
+  const scr = $('#lesScr'); if (!scr) return;
+  const swap = (el, html) => { if (!el) return; const t = document.createElement('template'); t.innerHTML = html; el.replaceWith(t.content); };
+  const box = $('#lwBox'); box?.classList.add('lw-done'); box?.insertAdjacentHTML('beforeend', `<span class="lw-stamp">${E.seal}</span>`);
+  $('#lwCap').textContent = ''; scr.querySelector('.lw-hint')?.remove();
+  swap(scr.querySelector('.les-top'), lesTop()); swap(scr.querySelector('.les-dock'), lesFb()); E.flash = 0;
+  lesAutoNext();
+}
+function lesDropWrites(quiet) {   // "Can't write now", or no internet: no more writing in this lesson (and no writing seal)
+  const E = S.les, left = E.q.slice(E.qi).filter(x => x.t === 'write').length;
+  E.q = [...E.q.slice(0, E.qi), ...E.q.slice(E.qi).filter(x => x.t !== 'write')];
+  E.settled += left; E.skipW = true; E.writer = null;
+  if (!quiet) toast('No more writing in this lesson');
+  LOG.add('lesson-write-skip', { n: E.n, left, quiet: !!quiet });
+  if (E.qi >= E.q.length) lesPairsStart();
+  lesPaint(true);
 }
 function lesOpts(Q) {   // the answer and three others that can't be mistaken for it
   const a = Q.w, show = Q.t === 'hz2en' ? 'en' : Q.t === 'py' ? 'p' : 'h', sound = Q.t === 'ear' || Q.t === 'py';
@@ -2565,9 +2719,7 @@ function LessonView() {
 function lesInner() {
   const E = S.les;
   if (E.step === 'done') return lesEndHtml();
-  const nW = E.words.length, P = E.pairs;
-  const prog = (Math.min(E.i, nW) + E.settled + (P ? P.gone.size / P.L.length : 0)) / (nW + E.total + 1);
-  const top = `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the lesson">${I.close}</button><span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span></div>`;
+  const nW = E.words.length, P = E.pairs, top = lesTop();
   if (E.step === 'intro') {
     const w = E.words[E.i];
     return `${top}<div class="les-body"><p class="les-ask">New word<span>${E.i + 1} of ${nW}</span></p>
@@ -2580,10 +2732,12 @@ function lesInner() {
     const cell = (side, w, i) => { const gone = P.gone.has(w.h), sel = P.sel?.side === side && P.sel.i === i, bad = P.bad?.[side] === i;
       return `<button class="les-pair${gone ? ' p-gone' : sel ? ' p-sel' : bad ? ' p-bad' : ''}" data-les="${side}" data-i="${i}"${gone ? ' disabled' : ''}>${side === 'l'
         ? `<span class="lo-hz" style="font-size:${lesHz(w.h, 2)}px">${esc(w.h)}</span>` : `<span class="lo-en">${esc(w.en)}</span>`}</button>`; };
-    return `${top}<div class="les-body"><p class="les-ask">Match the pairs</p>
+    return `${top}<div class="les-body"><p class="les-ask">Match the pairs<span>+5 each</span></p>
       <div class="les-pairs"><div class="les-col">${P.L.map((w, i) => cell('l', w, i)).join('')}</div><div class="les-col">${P.R.map((w, i) => cell('r', w, i)).join('')}</div></div></div>`;
   }
   const Q = E.q[E.qi], a = Q.w, done = E.ans != null;
+  if (Q.t === 'write') return top + lesWriteHtml(Q, done)
+    + (done ? lesFb() : '<div class="les-dock"><button class="btn btn-ghost wide" data-les="wskip">Can’t write now</button></div>');
   Q.opts ||= lesOpts(Q);
   const hz = `<span class="les-hz" style="font-size:${lesHz(a.h)}px">${esc(a.h)}</span>`;
   const ask = {
@@ -2594,15 +2748,20 @@ function lesInner() {
   }[Q.t];
   const lab = w => Q.t === 'hz2en' ? `<span class="lo-en">${esc(w.en)}</span>` : Q.t === 'py' ? `<span class="lo-py">${esc(w.p)}</span>`
     : `<span class="lo-hz" style="font-size:${lesHz(w.h, 1)}px">${esc(w.h)}</span>`;
+  const cls = (w, i) => !done ? '' : w === a ? (E.ok ? ' ok pick' : ' ok reveal') : i === E.ans ? ' no' : '';
   return `${top}<div class="les-body"><p class="les-ask">${ask[0]}</p><div class="les-big">${ask[1]}</div>
-    <div class="les-opts${Q.t === 'hz2en' ? ' list' : ''}">${Q.opts.map((w, i) => `<button class="les-opt${done ? w === a ? ' ok' : i === E.ans ? ' no' : '' : ''}" data-les="opt" data-i="${i}"${done ? ' disabled' : ''}>${lab(w)}</button>`).join('')}</div></div>
-    ${done ? `<div class="les-dock ${E.ok ? 'ok' : 'no'}"><div class="les-fb" role="status"><b>${E.ok ? E.praise : 'Not quite'}</b><span><span class="les-fb-hz">${esc(a.h)}</span> ${esc(a.p)} · ${esc(a.en)}</span></div>
-      <button class="btn ${E.ok ? 'btn-jade' : 'btn-seal'} wide" data-les="next">Continue</button></div>` : ''}`;
+    <div class="les-opts${Q.t === 'hz2en' ? ' list' : ''}${done ? ' answered' : ''}">${Q.opts.map((w, i) => `<button class="les-opt${cls(w, i)}" data-les="opt" data-i="${i}"${done ? ' disabled' : ''}>${lab(w)}${done && E.ok && w === a ? `<span class="lo-stamp" aria-hidden="true">${E.seal}</span>` : ''}</button>`).join('')}</div></div>
+    ${done ? lesFb() : ''}`;
 }
+/* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
-  const E = S.les, L = LESSONS[E.n - 1], add = E.added || [];
+  const E = S.les, L = LESSONS[E.n - 1], add = E.added || [], chars = [...new Set(E.wroteCh)];
+  const seals = [['完', 'Finished', true], ['准', '80% right first time', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW]];
   return `<div class="les-end"><span class="les-end-shi">${shiFace('cheer')}</span>
-      <h1>Lesson done!</h1><p class="muted">Lesson ${E.n} · ${esc(L.title)} · ${E.pct}% right first time</p>
+      <h1>Lesson done!</h1><p class="muted">Lesson ${E.n} · ${esc(L.title)}</p>
+      <div class="les-seals">${seals.map(([zh, en, got], i) => `<span class="les-seal${got ? ' got' : ''}" style="--d:${(.45 + i * .3).toFixed(2)}s"><i>${zh}</i><small>${en}</small></span>`).join('')}</div>
+      <div class="les-tally"><span><b>${E.pts}</b><small>${E.newBest ? 'points · new best' : 'points'}</small></span><span><b>${E.pct}%</b><small>right first time</small></span><span><b>${E.best}</b><small>best run</small></span></div>
+      ${chars.length ? `<div class="les-wrote"><small>You wrote</small>${chars.map(miniTZG).join('')}</div>` : ''}
       <div class="les-end-box"><b>${add.length ? `+${plural(add.length, 'word')} in your word bank` : 'These words were already in your word bank'}</b>
         <div class="les-words">${E.words.map(w => `<span class="les-chip${add.includes(w) ? '' : ' have'}"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
         ${add.length ? '<small>They come back in your daily review tomorrow.</small>' : ''}</div></div>
@@ -2610,13 +2769,18 @@ function lesEndHtml() {
 }
 function mountLesson() {
   const scr = $('#lesScr'); if (!scr) return;
-  scr.onclick = e => { const b = e.target.closest('[data-les]'); if (b && !b.disabled) lesAct(b.dataset.les, b); };
-  lesAuto();
+  scr.onclick = e => {
+    const b = e.target.closest('[data-les]');
+    if (b) { if (!b.disabled) lesAct(b.dataset.les, b); return; }
+    const E = S.les;   // after a right answer, a tap anywhere (but a sound button) goes on
+    if (E?.step === 'quiz' && E.ans != null && E.ok && !e.target.closest('[data-act]')) lesAct('next');
+  };
+  lesAuto(); lesWriteMount();
 }
-function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (auto) lesAuto(); }
-function lesAuto() {   // say each new word, and the word in "what does this mean" and "which one do you hear"
+function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (S.les) S.les.flash = 0; if (auto) lesAuto(); lesWriteMount(); }
+function lesAuto() {   // say each new word, the word in "what does this mean" and "which one do you hear", and the word you are about to write
   const E = S.les; if (!E) return;
-  const h = E.step === 'intro' ? E.words[E.i]?.h : E.step === 'quiz' && ['hz2en', 'ear'].includes(E.q[E.qi]?.t) ? E.q[E.qi].w.h : null;
+  const h = E.step === 'intro' ? E.words[E.i]?.h : E.step === 'quiz' && ['hz2en', 'ear', 'write'].includes(E.q[E.qi]?.t) ? E.q[E.qi].w.h : null;
   if (h) setTimeout(() => { if (S.les === E) sayZh(h); }, 150);
 }
 function lesPairsStart() {
@@ -2626,7 +2790,7 @@ function lesPairsStart() {
 }
 function lesAct(k, b) {
   const E = S.les; if (!E) return;
-  const leave = () => { S.les = null; goBack('#/course/1'); };
+  const leave = () => { clearTimeout(E.timer); S.les = null; goBack('#/course/1'); };
   if (k === 'quit') { if (E.step === 'intro' && !E.i) leave(); else confirmSheet('Quit this lesson?', 'You will start it again from the beginning next time.', 'Quit', leave); return; }
   if (k === 'end') { goBack('#/course/1'); return; }
   if (E.step === 'intro' && k === 'next') { if (++E.i >= E.words.length) { E.step = 'quiz'; E.qi = 0; } lesPaint(true); return; }
@@ -2634,14 +2798,25 @@ function lesAct(k, b) {
     const Q = E.q[E.qi];
     if (k === 'opt' && E.ans == null) {
       E.ans = +b.dataset.i; E.ok = Q.opts[E.ans] === Q.w;
-      E.praise = ['Right!', 'Nice!', 'Correct!', '对了！', 'Well done!'][Math.random() * 5 | 0];
-      if (E.ok) chime(); else { buzz(); if (!Q.again) E.q.push({ t: Q.t, w: Q.w, again: true }); }
+      if (E.ok) {
+        E.combo++; E.best = Math.max(E.best, E.combo);
+        lesGain(Q.again ? 5 : 10 + 5 * Math.min(E.combo - 1, 3));
+        E.seal = E.combo >= 5 ? '棒' : E.combo >= 3 ? '好' : '对';
+        E.praise = E.combo >= 3 ? `${E.combo} in a row!` : ['Right!', 'Nice!', 'Correct!', 'Well done!'][Math.random() * 4 | 0];
+        chime();
+      } else { E.combo = 0; buzz(); if (!Q.again) E.q.push({ t: Q.t, w: Q.w, again: true }); }
       if (E.ok || Q.again) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 350);
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
-      lesPaint(); return;
+      lesPaint(); if (E.ok) lesAutoNext(); return;
     }
-    if (k === 'next' && E.ans != null) { E.ans = null; if (++E.qi >= E.q.length) lesPairsStart(); lesPaint(true); }
+    if (k === 'wskip' && Q.t === 'write' && E.ans == null) { lesDropWrites(); return; }
+    if (k === 'whint' && E.writer && E.ans == null) {   // play the strokes once, then write it again (no clean-writing bonus)
+      const W = E.writer; E.hinted = true; b.disabled = true; W.cancelQuiz();
+      W.animateCharacter({ onComplete: () => { if (E.writer !== W || E.ans != null) return; W.hideCharacter(); E.wq(); b.disabled = false; } });
+      return;
+    }
+    if (k === 'next' && E.ans != null) { clearTimeout(E.timer); E.ans = null; if (++E.qi >= E.q.length) lesPairsStart(); lesPaint(true); }
     return;
   }
   if (E.step === 'pairs' && (k === 'l' || k === 'r')) {
@@ -2650,7 +2825,7 @@ function lesAct(k, b) {
     if (!P.sel || P.sel.side === k) { P.sel = { side: k, i }; P.bad = null; lesPaint(); return; }
     const other = (P.sel.side === 'l' ? P.L : P.R)[P.sel.i];
     if (other === w) {
-      P.gone.add(w.h); P.sel = null; P.bad = null; chime();
+      P.gone.add(w.h); P.sel = null; P.bad = null; chime(); lesGain(5);
       if (P.gone.size === P.L.length) setTimeout(() => { if (S.les === E) { finishLesson(); lesPaint(); } }, 550);
     } else {
       buzz(); P.bad = { [P.sel.side]: P.sel.i, [k]: i }; P.sel = null;
@@ -2664,12 +2839,14 @@ function finishLesson() {
   const E = S.les, now = Date.now(), add = E.words.filter(w => !bankHas(w.h));
   add.slice().reverse().forEach(w => db.bank.unshift({ id: uid(), hanzi: w.h, pinyin: w.p, en: w.en, added: now, hsk: S.H?.byHz.get(w.h)?.lv || 1,
     src: 'lesson', les: E.n, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));
-  const again = E.q.filter(x => x.again).length, pct = Math.round((E.total - again) / E.total * 100);
-  const rec = db.lessons[E.n] ||= {}; rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct);
+  const again = E.q.filter(x => x.again).length, pct = Math.round((E.nq - again) / E.nq * 100);   // the writing steps don't count here
+  const seals = 1 + (pct >= 80) + (E.nWrite > 0 && !E.skipW);
+  const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts;
+  rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct); rec.pts = Math.max(rec.pts || 0, E.pts); rec.seals = Math.max(rec.seals || 0, seals);
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
   if (E.n === LESSONS.length) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, 2);   // all of HSK 1 done: HSK 2 opens
   E.added = add; E.pct = pct; E.step = 'done'; save();
-  LOG.add('lesson-done', { n: E.n, pct, added: add.map(w => w.h).join('') });
+  LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
 /* Basics: a slim row on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
 function BasicsView() {
@@ -5550,7 +5727,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.01';
+const APP_VERSION = '2.02';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
