@@ -173,7 +173,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .crs.locked .crs-name,.crs.locked .crs-badge{opacity:.5}
 .crs-locked{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--muted)}
 .crs-locked svg.i{width:17px;height:17px}
-/* Basics as a slim row once you are past HSK 1 */
+/* Basics as a slim row above the HSK levels */
 .crs-fold{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px 10px 10px;border-radius:18px;background:var(--card);text-align:left;
   box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);transition:transform .2s}
 .crs-fold:active{transform:translateY(2px) scale(.985);transition:none}
@@ -2187,12 +2187,8 @@ function CourseBlock() {
   const k = knownWords(), H = S.H, top = openLevel();
   const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H?.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
   const zh = ['', '一级', '二级', '三级', '四级', '五级', '六级', '七至九级'];
-  const basicsCard = `<button class="crs" data-act="basics-open" style="--crs:${CRS[0][0]}">
-      <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[0][1]()}</svg></span>
-      <span class="crs-cap"><span class="crs-top"><span class="crs-name">Basics<span class="crs-zh">基础</span></span><span class="crs-badge">4 topics</span></span>
-        <span class="crs-sub">Tones, pinyin, radicals and stroke order</span></span></button>`;
-  /* past HSK 1, Basics is just a slim row that opens it, no picture */
-  const basics = top < 2 ? basicsCard : `<button class="crs-fold" data-act="basics-open"><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
+  /* Basics is a slim row above the levels that opens it; its picture is on the Basics page itself */
+  const basics = `<button class="crs-fold" data-act="basics-open"><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
       <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span><span class="crs-fold-chev">${I.chev}</span></button>`;
   return `<div class="crs-list">${basics}${lv.map(x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
@@ -5276,7 +5272,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.97';
+const APP_VERSION = '1.98';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
