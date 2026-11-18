@@ -156,20 +156,6 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
   background:linear-gradient(transparent, var(--paper) 32%);z-index:4}
 
 /* ---------- home ---------- */
-.hello{padding:26px 4px 30px}
-.hello-hz{font-family:var(--hanzi);font-size:46px;line-height:1.1;letter-spacing:.04em}
-.hello-py{font-size:14px;color:var(--seal);margin-top:6px;letter-spacing:.02em}
-.hello-en{font-size:15px;color:var(--muted);margin-top:4px}
-.hello-name{font-family:var(--ui);font-weight:700;font-style:italic;letter-spacing:-.01em;font-size:32px}
-/* home greeting: the Chinese slowly fades into its English meaning and back, on a loop */
-.hello-swap{display:grid}
-.hello-swap>*{grid-area:1/1;align-self:end}
-.hello-swap .hello-hz{font-size:36px;font-weight:600;will-change:opacity;animation:hello-a 14s cubic-bezier(.37,0,.63,1) infinite}
-.hello-swap .hello-tr{font-family:var(--ui);font-weight:700;font-style:italic;font-size:32px;letter-spacing:-.01em;line-height:1.15;opacity:0;will-change:opacity;animation:hello-b 14s cubic-bezier(.37,0,.63,1) infinite}
-@keyframes hello-a{0%,31%{opacity:1}50%,81%{opacity:0}100%{opacity:1}}
-@keyframes hello-b{0%,31%{opacity:0}50%,81%{opacity:1}100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.hello-swap .hello-hz{animation:none}.hello-swap .hello-tr{animation:none;opacity:0}}
-.name-nudge{margin-top:10px;font-size:14px;font-weight:600;color:var(--seal);padding:4px 0}
 /* Learn: your progress, Shi Shi's mane fills up as you learn each HSK level */
 .prog-card{display:flex;align-items:center;gap:16px;width:100%;padding:16px;margin-bottom:10px;border-radius:20px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:background .25s}
 .prog-card:active,.prog-lv:active{background:var(--paper-deep);transition:none}
@@ -204,7 +190,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes shiBreathe{0%,100%{transform:none}50%{transform:scale(1.03,.98)}}
 /* Hanzi of the day: the second red card. Today's character hides under gold foil; rub it off, Shi Shi peeks at it */
 /* the two cards sit in a little stack: Hanzi of the day on top, the story card's edge peeking out under it */
-.hd-stack{position:relative;margin:-12px 0 28px}
+.hd-stack{position:relative;margin:14px 0 28px}
+.bar-home+.section-head{margin-top:18px}   /* both daily cards closed: keep the first heading off the top bar */
 .hd-stack.two{padding-bottom:12px;margin-bottom:20px}
 .hd-stack>.hd-card{margin:0}
 .hd-stack>#hotd{z-index:1;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
@@ -2180,25 +2167,13 @@ function addReadWord(t) {   // "Add to my words" in the word bubble
   $$('.rw').forEach(x => { const [a, b] = x.dataset.k.split('.').map(Number); if (storyTokens(s)[a]?.[b]?.h === w.h) x.classList.add('mine'); });
 }
 
-function greeting() {
-  const h = new Date().getHours();
-  if (h >= 5 && h < 12) return ['早上好', 'Good morning'];
-  if (h >= 12 && h < 18) return ['下午好', 'Good afternoon'];
-  return ['晚上好', 'Good evening'];
-}
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
 function Home() {
-  const [hz, en] = greeting(), name = (db.prefs.name || '').trim();
-  const total = db.decks.reduce((n, d) => n + d.cards.length, 0);
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
     <header class="bar bar-home">${AvBtn()}<span class="logo-mid">ShiCards</span>
       ${StreakBtn()}</header>
-    <section class="hello"><div class="hello-swap"><div class="hello-hz">${hz}${name ? `<span class="hello-name">，${esc(name)}</span>` : ''}</div>
-      <div class="hello-tr" aria-hidden="true">${en}${name ? ', ' + esc(name) : ''}</div></div>
-      <div class="hello-en">${plural(total, 'card')} in ${plural(db.decks.length, 'deck')}</div>
-      ${name ? '' : '<button class="name-nudge" data-act="set-name">Add your name</button>'}</section>
     ${HotdStack()}
     <div class="section-head"><h2>My word bank</h2></div>
     ${BankTile()}
@@ -4014,7 +3989,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.68';
+const APP_VERSION = '1.69';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4043,7 +4018,7 @@ function installHelp() {
 
 function nameSheet() {
   openSheet(`<h3>Your name</h3>
-    <p class="muted" style="margin:-6px 0 14px">ShiCards greets you with it, like 早上好，Ilkem.</p>
+    <p class="muted" style="margin:-6px 0 14px">Shown in the menu and on your profile.</p>
     <input class="input" id="nmIn" placeholder="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done">
     <button class="btn btn-primary wide" id="nmSave" style="margin-top:12px">Save</button>`,
     sh => {
@@ -4060,7 +4035,7 @@ function settingsRows(dr) {
   const row = (id, icon, t, small, side = `<span class="side">${chev}</span>`, tag = 'button', extra = '') =>
     `<${tag} class="${dr ? 'dr-item' : 'list-btn'}"${id ? ` id="${id}"` : ''}${tag === 'label' ? ' style="cursor:pointer"' : ''}>${dr ? icon : ''}<span${dr ? ' class="dr-t"' : ''}>${t}${dr ? '' : '<br>'}${small}</span>${side}${extra}</${tag}>`;
   return [
-    row('sName', I.pen, 'Your name', db.prefs.name ? `<small>${esc(db.prefs.name)} · shown after the greeting</small>` : '<small class="opt">Shown after the greeting on the Decks page</small>'),
+    row('sName', I.pen, 'Your name', db.prefs.name ? `<small>${esc(db.prefs.name)}</small>` : '<small class="opt">Shown in the menu and on your profile</small>'),
     isInstalled() ? '' : row('sInst', I.install, 'Install app', '<small class="opt">Put ShiCards on your home screen</small>'),
     row('sUpd', I.refresh, 'Check for updates', `<small id="sUpdSub">You have version ${APP_VERSION}</small>`, `<span class="side" id="sUpdR">${chev}</span>`),
     row('sEn', I.swap, 'Flip cards start on English', '<small class="opt">Otherwise the Chinese side shows first</small>', `<span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span>`),
@@ -4395,7 +4370,7 @@ document.addEventListener('dragstart', e => { if (e.target.closest?.('img,svg'))
 for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
 document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); }, { passive: false });
 
-/* Profile: your name, used only for the greeting on the Decks page (stored on this phone) */
+/* Profile: your name, shown in the menu and as your picture's letter (stored on this phone) */
 document.addEventListener('input', e => { if (e.target.id === 'pName') { db.prefs.name = e.target.value.trim().replace(/\s+/g, ' '); save(); const p = $('.me-pic'); if (p && !db.prefs.photo) p.innerHTML = meAvatar(); } });
 document.addEventListener('change', e => { if (e.target.id === 'pName' && db.prefs.name) toast(`Hello, ${db.prefs.name}`); });
 document.addEventListener('keydown', e => { if (e.target.id === 'pName' && e.key === 'Enter') e.target.blur(); });
