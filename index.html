@@ -181,7 +181,10 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .crs-fold-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .crs-fold-main b{font-weight:800;font-size:17px}
 .crs-fold-main small{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crs-fold-chev{flex:none;color:var(--muted)}
+.crs-fold-chev{flex:none;color:var(--muted);transition:transform .2s}
+.crs-low .crs-fold-seal svg.i{width:22px;height:22px;stroke-width:2.6}
+.crs-low.open .crs-fold-chev{transform:rotate(90deg)}
+.crs-lows{display:contents}
 .crs-cap{display:block;padding:14px 16px 16px 18px}
 .crs-top{display:flex;align-items:center;gap:10px}
 .crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
@@ -1454,6 +1457,15 @@ button.scene-tile:active svg{opacity:.92}
 .ob-ch-t[aria-pressed="true"]{background:color-mix(in srgb,var(--card) 86%,var(--seal));box-shadow:0 0 0 2.5px var(--seal),0 3px 0 var(--seal)}
 .ob-ch-t[aria-pressed="true"] i{transform:scale(1)}
 .ob-wait{height:200px}
+.ob-qask{margin-top:4px}
+.ob-qcard{padding:26px 20px 22px;margin-bottom:18px}
+.ob-qcard .les-mean{font-size:16px;color:var(--ink-2)}
+.ob-story{padding:18px 18px 16px;border-radius:18px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);font-family:var(--hanzi);font-size:21px;line-height:1.75;color:var(--ink);text-align:justify}
+.ob-sq{margin:20px 2px 12px;font-size:18px;font-weight:800;letter-spacing:-.01em}
+.ob-sigs{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:330px;margin:16px auto 0}
+.ob-sig{display:flex;flex-direction:column;align-items:center;padding:7px 12px;border-radius:12px;background:var(--card);box-shadow:var(--ring)}
+.ob-sig small{font-size:11.5px;color:var(--muted);font-weight:600}
+.ob-sig b{font-size:14px;font-weight:800}
 /* your level */
 .ob-art-s{width:min(120px,32vw);margin-top:4px}
 .ob-place{display:flex;flex-direction:column;align-items:center;margin:14px 0 0}
@@ -2333,7 +2345,11 @@ function CourseBlock() {
   /* Basics is a slim row above the levels that opens it; its picture is on the Basics page itself */
   const basics = `<button class="crs-fold" data-act="basics-open"><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
       <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span><span class="crs-fold-chev">${I.chev}</span></button>`;
-  return `<div class="crs-list">${basics}${lv.map(x => {
+  /* the levels below the one you started on are open but folded into one row, so your own level is what you see first */
+  const start = Math.min(7, db.prefs.level || 1), lowN = start - 1;
+  const fold = lowN ? `<button class="crs-fold crs-low${S.lowOpen ? ' open' : ''}" data-act="crs-low" aria-expanded="${!!S.lowOpen}"><span class="crs-fold-seal" style="--crs:${CRS[1][0]}">${I.check}</span>
+      <span class="crs-fold-main"><b>${lowN > 1 ? `HSK 1–${lowN}` : 'HSK 1'}</b><small>Below your level · already known</small></span><span class="crs-fold-chev">${I.chev}</span></button>` : '';
+  const card = x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
     const foot = locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
       : !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
@@ -2343,7 +2359,8 @@ function CourseBlock() {
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
         ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
-  }).join('')}</div>`;
+  };
+  return `<div class="crs-list">${basics}${fold}${lowN && S.lowOpen ? `<div class="crs-lows">${lv.filter(x => x.l < start).map(card).join('')}</div>` : ''}${lv.filter(x => x.l >= start).map(card).join('')}</div>`;
 }
 /* ---------- HSK 1 course: tap the HSK 1 picture on Learn ----------
    HSK levels are lessons only: the HSK 1 page holds the lessons path, still locked. The four foundation topics
@@ -5727,7 +5744,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.02';
+const APP_VERSION = '2.03';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5911,7 +5928,7 @@ const GOALS = [[5, 'Casual'], [10, 'Regular'], [15, 'Serious'], [20, 'Intense']]
 const newPerDay = () => db.prefs.goalMin ? Math.max(2, Math.round(db.prefs.goalMin * .4)) : NEW_PER_DAY;
 let actT = 0;
 ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { actT = Date.now(); }, { capture: true, passive: true }));
-const practising = () => S.view === 'study' || S.view === 'write' || S.view === 'lesson' || !!$('.story') || !!$('.hdx') || !!(S.ob && OB_STEPS[S.ob.i] === 'check');
+const practising = () => S.view === 'study' || S.view === 'write' || S.view === 'lesson' || !!$('.story') || !!$('.hdx') || !!(S.ob && ['check', 'words', 'read'].includes(OB_STEPS[S.ob.i]));
 setInterval(() => {
   if (document.hidden || Date.now() - actT > 6e4 || !practising()) return;
   const d = db.days[dayKey(Date.now())] ||= { decks: {} }; d.sec = (d.sec || 0) + 5;
@@ -5956,22 +5973,96 @@ function goalSheet() {
 }
 
 /* ---------- onboarding: shown once, on a phone that has never opened ShiCards ----------
-   It only finds where you start: why (pick any) → level → which characters can you read (up to 4 short rounds that move
-   up or down) → your estimated level → daily minutes, with how soon each finishes your level → reminder or home screen */
+   It finds where you start: why (pick any) → how much you think you know → which characters can you read (up to 4 short
+   rounds that move up or down) → 4 word cards, each with 4 meanings to pick from (a right answer asks a harder level next,
+   a wrong one an easier level) → a short story with one question → your level, from all of these together → daily minutes,
+   with how soon each finishes your level → reminder or home screen. Starting above HSK 1 puts every word of the levels
+   below into your word bank as known, since stories and texts at your level use them all the time. */
 const OB_WHY = [['travel', '旅', 'Travel'], ['family', '家', 'Family and heritage'], ['work', '工', 'Work or school'],
   ['exam', '考', 'The HSK exam'], ['culture', '文', 'Films, books and culture'], ['fun', '趣', 'Just for fun']];
 const OB_LEVEL = [[1, '初', 'Beginner'], [2, '中', 'Intermediate'], [4, '高', 'Advanced'], [5, '专', 'Pro']];   // value: the HSK level the character check starts at
-const OB_STEPS = ['hi', 'why', 'level', 'check', 'placed', 'goal', 'habit'];
-const OB_PROG = { why: .18, level: .34, check: .5, placed: .68, goal: .84, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
-const OB_ROUND = 12, OB_ROUNDS = 4;
+const OB_STEPS = ['hi', 'why', 'level', 'check', 'words', 'read', 'placed', 'goal', 'habit'];
+const OB_PROG = { why: .14, level: .26, check: .4, words: .54, read: .66, placed: .78, goal: .9, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
+const OB_ROUND = 12, OB_ROUNDS = 4, OB_CARDS = 4;
+/* the short reading test: hand-written passages per HSK level (two each, one picked at random), each with one question */
+const OB_READ = {
+  1: [{ zh: '今天是星期天。我和妈妈去商店买东西。我们买了很多水果，还买了一本书。妈妈说：“这个苹果很好吃！”我们下午三点回家了。',
+        q: 'Where did they go?', a: ['To a shop', 'To a school', 'To a hospital', 'To a restaurant'] },
+      { zh: '我叫小明，是一个学生。我的朋友在北京工作。昨天他给我打电话，说下个月来看我。我很高兴。',
+        q: 'Why is Xiao Ming happy?', a: ['A friend is coming to visit', 'He passed an exam', 'He got a new cat', 'It is his birthday'] }],
+  2: [{ zh: '上个星期六，我和姐姐一起去跑步。外面下雪了，非常冷，可是我们觉得很快乐。跑完以后，我们去了一家咖啡店，喝了两杯热咖啡。',
+        q: 'What was the weather like?', a: ['Snowy and very cold', 'Hot and sunny', 'Rainy but warm', 'Windy and dry'] },
+      { zh: '王老师每天早上六点起床。她先去公园走一走，然后坐公共汽车去学校。她的学生都说她是最好的老师，因为她上课很有意思。',
+        q: 'Why do the students like Teacher Wang?', a: ['Her classes are interesting', 'She gives no homework', 'She brings them cake', 'She lets them leave early'] }],
+  3: [{ zh: '我的邻居是一位老奶奶，她一个人住。她的孩子都在别的城市工作，所以周末我经常去帮她打扫房间。她总是给我做好吃的饺子，还给我讲她年轻时候的故事。',
+        q: 'What does the writer do at the weekend?', a: ['Helps the neighbour clean', 'Learns to cook', 'Visits their own grandparents', 'Works in another city'] },
+      { zh: '小李最近换了工作。新公司离家比较远，他每天要坐一个多小时的地铁。虽然路上很累，但是他对这个工作很满意，同事们也都很热情。',
+        q: 'What is hard about Xiao Li’s new job?', a: ['The long trip to work', 'The low pay', 'Unfriendly colleagues', 'Working at weekends'] }],
+  4: [{ zh: '很多人认为，学习一门外语最重要的是记住大量的词语。其实，比词语更重要的是多听多说。如果只是背单词，却不敢开口，那么即使认识再多的字，也很难和别人交流。',
+        q: 'What matters most, says the text?', a: ['Listening and speaking a lot', 'Learning many words by heart', 'Learning grammar first', 'Writing every day'] },
+      { zh: '上周我在网上买了一台洗衣机，没想到送来的时候发现有点儿问题。我马上联系了商店，他们的态度很好，第二天就派人来换了一台新的。这次购物让我对这家商店的印象非常好。',
+        q: 'What did the shop do?', a: ['Sent a new one the next day', 'Refused to help', 'Gave money back a month later', 'Asked the writer to fix it'] }],
+  5: [{ zh: '随着科技的发展，越来越多的年轻人习惯了用手机支付，出门几乎不带现金。这种方式虽然方便，却也带来了一些新的问题，比如个人信息的安全。因此，专家建议大家在使用时一定要提高警惕。',
+        q: 'What worry does the text raise?', a: ['Keeping personal information safe', 'Phones costing too much', 'Banks running out of cash', 'Young people spending too much'] },
+      { zh: '有一位作家曾经说过，读书不是为了得到一个标准答案，而是为了学会独立思考。在信息爆炸的时代，我们每天都会接触到大量观点，只有具备判断能力，才不会被别人的想法左右。',
+        q: 'Why read, according to the writer?', a: ['To learn to think for yourself', 'To find the one right answer', 'To pass exams', 'To relax after work'] }],
+  6: [{ zh: '近年来，不少城市开始推广共享单车，初衷是缓解交通拥堵、倡导绿色出行。然而，由于管理跟不上，大量车辆被随意停放，甚至堆积成山，反而给城市带来了新的麻烦。可见，一项好的政策能否成功，关键在于后续的执行。',
+        q: 'What is the main point?', a: ['A good plan needs to be carried out well', 'Shared bikes should be banned', 'Traffic is getting worse', 'Cycling is bad for cities'] },
+      { zh: '中国古人讲究“因材施教”，意思是老师应当根据每个学生的特点，采用不同的教学方法。这一理念放在今天依然不过时：与其让所有人按照同一个标准成长，不如帮助每个人发现并发挥自己的长处。',
+        q: 'What does 因材施教 mean here?', a: ['Teaching each student in the way that suits them', 'Using one method for everyone', 'Students teaching each other', 'Studying old books first'] }],
+};
 const canRemind = () => 'PushManager' in window && 'Notification' in window && SYNC.on && !(db.prefs.remind?.on);
 function obStart(replay) {
-  S.ob = { i: 0, why: [], level: null, goal: null, replay: !!replay };
+  S.ob = { i: 0, hist: [], why: [], level: null, goal: null, replay: !!replay };
   loadHsk().catch(() => {});
   LOG.add('onboarding', { step: 'hi', replay: !!replay });
   obShow();
 }
-function obGo(step) { S.ob.i = OB_STEPS.indexOf(step); LOG.add('onboarding', { step }); obShow(); }
+function obGo(step) { S.ob.hist.push(S.ob.i); S.ob.i = OB_STEPS.indexOf(step); LOG.add('onboarding', { step }); obShow(); }
+const obClamp = l => Math.min(7, Math.max(1, l));
+const obKnownN = () => S.ob.chk ? S.ob.chk.rounds.reduce((a, r) => a + r.on.size, 0) : 0;
+/* the word cards: a word of the level asked, with its meaning and three other meanings from the same level */
+const obMean = r => { const m = shortMeaning(r.e); return /^(abbr|variant|see |surname|old variant|used in|classifier)/i.test(m) || m.length > 30 || /[㐀-鿿]/.test(m) ? '' : m; };
+function obCard(lv) {
+  const Q = S.ob.q, used = new Set(Q.cards.map(c => c.w.h)), L = shuffle(S.H.levels[lv] || []);
+  const w = L.find(r => !used.has(r.h) && HAN.test(r.h) && obMean(r)); if (!w) return null;
+  const opts = [{ en: obMean(w), ok: true }], seen = new Set([opts[0].en.split(/[;,]/)[0]]);
+  for (const r of L) { if (opts.length >= 4) break; const m = obMean(r), k = m.split(/[;,]/)[0]; if (!m || r.h === w.h || seen.has(k)) continue; seen.add(k); opts.push({ en: m }); }
+  Q.cards.push({ lv, w: { h: w.h, p: w.p, en: opts[0].en }, opts: shuffle(opts), pick: null });
+  return true;
+}
+function obQuizStart() {
+  S.ob.q = { start: obClamp((S.ob.chk?.est?.lv || 1) - 1), cards: [] };   // the first card is a level you should know if the check was right
+  obCard(S.ob.q.start);
+}
+const obRight = c => c.pick != null && c.pick >= 0 && c.opts[c.pick].ok;
+/* each part's guess at the level you start on (the first level you don't know well yet) */
+function obSignals() {
+  const O = S.ob, sig = {};
+  if (O.level) sig.self = O.level;
+  if (O.chk?.est) sig.check = O.chk.est.lv;
+  const C = O.q?.cards.filter(c => c.pick != null);
+  if (C?.length) { const l = C.at(-1); sig.quiz = obClamp(l.lv + (obRight(l) ? 1 : 0)); }
+  if (O.st?.pick != null) sig.story = obClamp(O.st.lv + (O.st.pick >= 0 && O.st.ok === O.st.pick ? 1 : 0));
+  return sig;
+}
+const OB_W = { self: .1, check: .4, quiz: .3, story: .2 };   // how much each part counts
+function obLevel(sig = obSignals()) {
+  const k = Object.keys(sig); if (!k.length) return null;
+  const w = k.reduce((a, x) => a + OB_W[x], 0);
+  return obClamp(Math.round(k.reduce((a, x) => a + OB_W[x] * sig[x], 0) / w + 1e-9));
+}
+function obStoryStart() {   // a passage one level below where you look like starting: you should be able to read it
+  const lv = Math.min(6, obClamp(obLevel() - 1)), P = OB_READ[lv], s = P[Math.random() * P.length | 0];
+  const order = shuffle(s.a.map((_, i) => i));
+  S.ob.st = { lv, zh: s.zh, q: s.q, a: order.map(i => s.a[i]), ok: order.indexOf(0), pick: null };
+}
+const obSkipTests = () => !S.ob.chk || !obKnownN();   // you knew none of the characters: no word cards or story to puzzle over
+function obLowWords(lv) {   // every word of the levels below yours, each once
+  const seen = new Set(), out = [];
+  for (let l = 1; l < lv; l++) for (const r of S.H?.levels[l] || []) if (!seen.has(r.h)) { seen.add(r.h); out.push(r); }
+  return out;
+}
 function obTop(back = true) {
   const p = OB_PROG[OB_STEPS[S.ob.i]] || 0;
   return `<div class="ob-top"><button class="icon-btn" data-ob="back" aria-label="Back"${back ? '' : ' hidden'}>${I.back}</button>
@@ -6021,7 +6112,7 @@ function obCheckHTML() {
 function obShow() {
   const O = S.ob, step = OB_STEPS[O.i];
   let html = '';
-  if (step === 'hi') html = `<div class="ob-hi"><div class="ob-big">${shiFace('cheer')}</div><div class="ob-name">ShiCards</div>
+  if (step === 'hi') html = (O.replay ? `<div class="ob-top"><button class="icon-btn" data-ob="quit" aria-label="Close">${I.back}</button></div>` : '') + `<div class="ob-hi"><div class="ob-big">${shiFace('cheer')}</div><div class="ob-name">ShiCards</div>
       <h1>Learn to read and write Chinese characters</h1><p>A few minutes a day with Shi Shi. Getting started takes about two minutes.</p></div>
     <div class="ob-dock"><button class="btn btn-seal" data-ob="next">Get started</button><button class="ob-link" data-ob="skip">I’ve used ShiCards before</button></div>`;
   else if (step === 'why') html = obTop() + obSay('happy', 'Why are you learning Chinese?', 'Pick as many as you like.')
@@ -6031,28 +6122,53 @@ function obShow() {
     + `<div class="ob-opts" data-pick="level">${OB_LEVEL.map(([v, g, t]) => obOpt(v, `<span class="ob-glyph">${g}</span>`, t, '', O.level === v)).join('')}</div>
     <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.level ? '' : ' disabled'}>Continue</button></div>`;
   else if (step === 'check') html = obCheckHTML();
+  else if (step === 'words') {
+    if (!O.q) obQuizStart();
+    const Q = O.q, c = Q.cards.at(-1), done = c.pick != null;
+    const cls = (o, k) => !done ? '' : o.ok ? (c.pick === k ? ' ok pick' : ' ok reveal') : c.pick === k ? ' no' : '';
+    html = obTop() + `<p class="les-ask ob-qask">What does this mean?<span>${Q.cards.length} of ${OB_CARDS}</span></p>
+      <div class="les-card ob-qcard"><span class="les-hz" style="font-size:${lesHz(c.w.h)}px">${esc(c.w.h)}</span>${done ? `<span class="les-mean">${esc(c.w.p)}</span>` : ''}</div>
+      <div class="les-opts list${done ? ' answered' : ''}">${c.opts.map((o, k) => `<button class="les-opt${cls(o, k)}" data-qo="${k}"${done ? ' disabled' : ''}><span class="lo-en">${esc(o.en)}</span></button>`).join('')}</div>
+      <div class="ob-dock"><button class="ob-link" data-qo="-1"${done ? ' disabled' : ''}>I don’t know this one</button></div>`;
+  }
+  else if (step === 'read') {
+    if (!O.st) obStoryStart();
+    const T = O.st, done = T.pick != null;
+    const cls = k => !done ? '' : k === T.ok ? (T.pick === k ? ' ok pick' : ' ok reveal') : T.pick === k ? ' no' : '';
+    html = obTop() + obSay('focus', 'Read this short story', 'No pinyin this time. Then answer one question.')
+      + `<article class="ob-story" lang="zh">${esc(T.zh)}</article>
+      <p class="ob-sq">${esc(T.q)}</p>
+      <div class="les-opts list${done ? ' answered' : ''}">${T.a.map((x, k) => `<button class="les-opt${cls(k)}" data-so="${k}"${done ? ' disabled' : ''}><span class="lo-en">${esc(x)}</span></button>`).join('')}</div>
+      <div class="ob-dock"><button class="ob-link" data-so="-1"${done ? ' disabled' : ''}>I can’t read this yet</button></div>`;
+  }
   else if (step === 'placed') {
-    const E = O.chk?.est || { lv: 1, chars: 0 }, nk = O.chk ? O.chk.rounds.reduce((a, r) => a + r.on.size, 0) : 0;
-    html = obTop() + `<div class="ob-art ob-art-s">${shiFace(E.chars ? 'wow' : 'happy')}</div>
-      <div class="ob-place"><small>You can read about</small><b>${E.chars ? E.chars.toLocaleString('en') : '0'}</b><small>characters</small></div>
-      <div class="ob-lvls" aria-label="Your level: ${HSK_NAME(E.lv)}">${[1, 2, 3, 4, 5, 6, 7].map(l => `<span class="${l < E.lv ? 'done' : l === E.lv ? 'now' : ''}">${l === 7 ? '7–9' : l}</span>`).join('')}</div>
-      <h2 class="mo-title">You’re starting at ${HSK_NAME(E.lv)}</h2>
-      <p class="mo-text">${E.chars ? 'Hanzi of the day and your new words start here.' : 'Perfect, everyone starts here. Hanzi of the day and your new words start with the basics.'}${nk ? ` The ${plural(nk, 'character')} you know go into your word bank.` : ''}</p>
+    const sig = obSignals(), lv = obLevel(sig) || 1, chars = O.chk?.est?.chars || 0, nk = obKnownN(), low = obLowWords(lv).length, range = 'HSK 1' + (lv > 2 ? '–' + (lv - 1) : '');
+    const C = O.q?.cards.filter(c => c.pick != null) || [], nr = C.filter(obRight).length;
+    const chip = (t, v) => `<span class="ob-sig"><small>${t}</small><b>${v}</b></span>`;
+    const sigs = [O.level && chip('You said', OB_LEVEL.find(x => x[0] === O.level)?.[2]), O.chk && chip('Characters', `${nk} known`),
+      C.length && chip('Word cards', `${nr} of ${C.length}`), O.st?.pick != null && chip('Story', O.st.pick === O.st.ok ? 'understood' : 'not yet')].filter(Boolean);
+    html = obTop() + `<div class="ob-art ob-art-s">${shiFace(chars ? 'wow' : 'happy')}</div>
+      <div class="ob-place"><small>You can read about</small><b>${chars ? chars.toLocaleString('en') : '0'}</b><small>characters</small></div>
+      ${sigs.length > 1 ? `<div class="ob-sigs">${sigs.join('')}</div>` : ''}
+      <div class="ob-lvls" aria-label="Your level: ${HSK_NAME(lv)}">${[1, 2, 3, 4, 5, 6, 7].map(l => `<span class="${l < lv ? 'done' : l === lv ? 'now' : ''}">${l === 7 ? '7–9' : l}</span>`).join('')}</div>
+      <h2 class="mo-title">You’re starting at ${HSK_NAME(lv)}</h2>
+      <p class="mo-text">${lv > 1 ? `${O.replay ? '' : `All ${low.toLocaleString('en')} words of ${range} go into your word bank as words you know. `}${range} stay${lv > 2 ? '' : 's'} open on Learn. Hanzi of the day and your new words start at ${HSK_NAME(lv).replace(' ', ' ')}.`
+        : chars ? 'Hanzi of the day and your new words start here.' : 'Perfect, everyone starts here. Hanzi of the day and your new words start with the basics.'}${nk && !O.replay && lv === 1 ? ` The ${plural(nk, 'character')} you know go into your word bank.` : ''}</p>
       <div class="ob-dock"><button class="btn btn-primary" data-ob="next">Continue</button></div>`;
   }
   else if (step === 'goal') {
-    const lv = O.chk?.est?.lv || 1, f = O.chk?.res?.[lv] || 0, left = Math.max(10, Math.round((S.H?.levels[lv]?.length || HSK_COUNT[lv]) * (1 - f)));
+    const lv = obLevel() || 1, f = O.chk?.res?.[lv] || 0, left = Math.max(10, Math.round((S.H?.levels[lv]?.length || HSK_COUNT[lv]) * (1 - f)));
     html = obTop() + obSay('up', 'How many minutes a day?', `More minutes means more new words each day, so you finish ${HSK_NAME(lv)} sooner.`)
       + `<div class="ob-opts" data-pick="goal">${GoalOpts(O.goal, lv, left)}</div>
       <p class="ob-note">Estimates. One round a day keeps your streak; the goal is extra.</p>
       <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.goal ? '' : ' disabled'}>Commit to my goal</button></div>`;
   }
   else if (step === 'habit') {
-    if (canRemind()) html = obTop(false) + `<div class="ob-art">${shiFace('up')}</div>
+    if (canRemind()) html = obTop() + `<div class="ob-art">${shiFace('up')}</div>
         <h2 class="mo-title">When should Shi Shi remind you?</h2><p class="mo-text">One message a day, only on days you haven’t practised yet. Turn it off any time.</p>
         <div class="chips ob-hours" id="obHr">${REMIND_HOURS.map(h => `<button class="chip${h === 19 ? ' on' : ''}" data-h="${h}">${h}:00</button>`).join('')}</div>
         <div class="ob-dock"><button class="btn btn-seal" data-ob="remind">Remind me</button><button class="ob-link" data-ob="done">Not now</button></div>`;
-    else html = obTop(false) + `<div class="ob-phone"><img src="icons/icon-192.png" alt=""></div>
+    else html = obTop() + `<div class="ob-phone"><img src="icons/icon-192.png" alt=""></div>
         <h2 class="mo-title">Keep Shi Shi on your home screen</h2><p class="mo-text">Then today’s round is one tap away, and ShiCards opens full screen like any other app.</p>
         <div class="ob-dock"><button class="btn btn-seal" data-ob="install">Add to home screen</button><button class="ob-link" data-ob="done">Not now</button></div>`;
   }
@@ -6067,26 +6183,48 @@ async function obCheckStart() {   // the HSK lists may still be loading
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
 }
 function obFinish(how) {
-  const O = S.ob, lv = O.chk?.est?.lv || (O.level ? Math.min(O.level, 2) : null);
-  if (!O.replay && O.chk) {   // the characters you tapped go into the word bank as known (back for a light review over the next weeks)
+  const O = S.ob, sig = O.chk ? obSignals() : {}, lv = O.chk ? obLevel(sig) : how === 'skipped' ? null : O.level ? Math.min(O.level, 2) : null;
+  if (!O.replay && O.chk) {   // what you showed you know goes into the word bank as known (back for a light review over the next weeks)
     const now = Date.now(), have = new Set(db.bank.map(w => w.hanzi));
-    O.chk.rounds.flatMap(r => r.chars.filter(c => r.on.has(c.h))).forEach((r, i) => { if (have.has(r.h)) return; have.add(r.h);
+    const known = [...O.chk.rounds.flatMap(r => r.chars.filter(c => r.on.has(c.h))), ...(O.q?.cards.filter(obRight).map(c => S.H.byHz.get(c.w.h)).filter(Boolean) || [])];
+    known.forEach((r, i) => { if (have.has(r.h)) return; have.add(r.h);
       db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 1000 - i, hsk: r.lv,
         srs: { first: now, seen: now, iv: 7, n: 1, miss: 0, due: dayStart(now, 5 + i % 21) } }); });
+    // every word of the levels below yours: texts at your level use them all, so they count as known; they come back
+    // a few a day (6) for a light check, spread over the months ahead, instead of all at once
+    shuffle(obLowWords(lv || 1).filter(r => !have.has(r.h))).forEach((r, i) => { have.add(r.h);
+      db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: shortMeaning(r.e), added: now - 60000 - i, hsk: r.lv,
+        srs: { first: now, seen: now, iv: 30, n: 1, miss: 0, due: dayStart(now, 3 + Math.floor(i / 6)) } }); });
   }
-  if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk?.est, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
+  if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk?.est, sig, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
     if (lv && db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }   // today's character was picked before your level was known
     save(); }
   else if (lv) {   // a replay keeps your words and goal, but the level it finds becomes yours (it unlocks the HSK levels up to it)
     db.prefs.level = lv;
     if (db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }
     save(); }
-  LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, goal: O.goal, replay: O.replay, set_level: lv || null });
+  LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, sig, goal: O.goal, replay: O.replay, set_level: lv || null });
   S.ob = null; closeLayer(() => { S.instant = true; render(); });
 }
 async function obClick(e) {
-  const b = e.target.closest('[data-ob],[data-v],[data-c]'); if (!b || !S.ob) return;
+  const b = e.target.closest('[data-ob],[data-v],[data-c],[data-qo],[data-so]'); if (!b || !S.ob || b.disabled) return;
   const O = S.ob, step = OB_STEPS[O.i];
+  if (b.dataset.qo) {   // a word card: show right or wrong for a moment, then the next card (a level up after a right answer, down after a wrong one)
+    const Q = O.q, c = Q.cards.at(-1); if (c.pick != null) return;
+    c.pick = +b.dataset.qo; LOG.add('onboarding-card', { lv: c.lv, h: c.w.h, right: obRight(c) }); obShow();
+    setTimeout(() => {
+      if (S.ob !== O || OB_STEPS[O.i] !== 'words' || Q.cards.at(-1) !== c) return;
+      if (Q.cards.length >= OB_CARDS || !obCard(obClamp(c.lv + (obRight(c) ? 1 : -1))) && !obCard(c.lv)) { obGo('read'); return; }
+      obShow();
+    }, c.pick >= 0 && !obRight(c) || c.pick < 0 ? 1500 : 900);
+    return;
+  }
+  if (b.dataset.so) {   // the story question
+    const T = O.st; if (T.pick != null) return;
+    T.pick = +b.dataset.so; LOG.add('onboarding-story', { lv: T.lv, right: T.pick === T.ok }); obShow();
+    setTimeout(() => { if (S.ob === O && OB_STEPS[O.i] === 'read' && O.st === T) obGo('placed'); }, T.pick === T.ok ? 900 : 1600);
+    return;
+  }
   if (b.dataset.c) {   // the character check: tap to mark one you know
     const R = O.chk.rounds.at(-1), h = R.chars[+b.dataset.c].h; R.on.has(h) ? R.on.delete(h) : R.on.add(h);
     b.setAttribute('aria-pressed', R.on.has(h)); $('#ob [data-ob="next"]').textContent = R.on.size ? `Next · ${R.on.size} known` : 'I don’t know these'; return;
@@ -6101,11 +6239,17 @@ async function obClick(e) {
   const a = b.dataset.ob;
   if (a === 'skip') { obFinish('skipped'); return; }
   if (a === 'done') { obFinish(step === 'habit' ? 'not-now' : 'done'); return; }
-  if (a === 'back') {
+  if (a === 'quit') { LOG.add('onboarding-done', { how: 'closed', replay: O.replay }); S.ob = null; closeLayer(); return; }
+  if (a === 'back') {   // one page (or one round, one card) back; your answers there stay picked
     if (step === 'check' && O.chk?.rounds.length > 1) { const R = O.chk.rounds.pop(); delete O.chk.res[O.chk.rounds.at(-1).lv]; delete O.chk.res[R.lv]; obShow(); return; }
-    const to = OB_STEPS[Math.max(0, O.i - 1)];
-    if (to === 'check' || step === 'check') O.chk = null;   // the check starts over
-    if (to === 'placed' && !O.chk) { O.i = OB_STEPS.indexOf('level'); obShow(); return; }
+    if (step === 'words' && O.q?.cards.length > 1) { O.q.cards.pop(); O.q.cards.at(-1).pick = null; obShow(); return; }
+    const to = OB_STEPS[O.hist.pop() ?? Math.max(0, O.i - 1)];
+    if (step === 'check') O.chk = null;   // backing out of the check: it starts over next time
+    if (step === 'words') O.q = null;
+    if (step === 'read') O.st = null;
+    if (to === 'check' && O.chk) { delete O.chk.est; delete O.chk.res[O.chk.rounds.at(-1).lv]; O.q = null; O.st = null; }   // back on its last round
+    if (to === 'words' && O.q) { O.q.cards.at(-1).pick = null; O.st = null; }   // back on the last card
+    if (to === 'read' && O.st) O.st.pick = null;
     O.i = OB_STEPS.indexOf(to); obShow(); return;
   }
   if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obFinish('reminder'); return; }
@@ -6118,7 +6262,7 @@ async function obClick(e) {
   if (step === 'check') {
     if (!O.chk) return;
     const R = O.chk.rounds.at(-1); LOG.add('onboarding-check', { lv: R.lv, known: R.on.size, of: R.chars.length });
-    if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); obGo('placed'); } else obShow();
+    if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.q = null; O.st = null; obGo(obSkipTests() ? 'placed' : 'words'); } else obShow();
     return;
   }
   if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
@@ -6280,6 +6424,7 @@ const A = {
   'les-node': t => loadHsk().then(() => lesSheet(+t.dataset.n), () => toast('Lessons need the internet the first time')),
   'les-go': t => { closeSheet(true); nav(`#/course/1/lesson/${t.dataset.n}`); },
   'basics-open': () => nav('#/basics'),
+  'crs-low': () => { S.lowOpen = !S.lowOpen; S.instant = true; render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
   'c1-back': () => goBack(S.cPart ? '#/basics' : '#/learn'),
