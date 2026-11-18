@@ -2406,7 +2406,7 @@ function hotdPick(fresh) {   // fresh: the Developer sheet's "Try another charac
 }
 function HotdCard(just) {   // the card on Decks: Shi Shi holds up today's character on a little gold-foil tile; one Learn now bubble
   const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h);
-  const meta = H ? `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${H.n ? `<span>${plural(H.n, 'stroke')}</span>` : ''}${mine ? '<span>In your word bank ✓</span>' : ''}</div>` : '';
+  const meta = H ? `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${mine ? '<span>In your word bank ✓</span>' : ''}</div>` : '';
   const txt = !H ? '<div class="hd-big">A new character</div><div class="hd-sub">Getting it ready…</div>'
     : rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(shortMeaning(H.e))}</div>${meta}`
     : `<div class="hd-big">A new character is waiting</div>${meta}`;
@@ -2489,10 +2489,10 @@ function paintFoil(ctx, w, h) {
   ctx.fillStyle = '#F4C14E'; ctx.fillText('?', w / 2, h * .44);
   ctx.font = `600 ${Math.round(w * .1)}px "Noto Serif SC",serif`; ctx.fillStyle = '#A86A0C'; ctx.fillText('刮 一 刮', w / 2, h * .82);
 }
-function mountHotd() {   // the card shows today's stroke count once the stroke data is at hand
+function mountHotd() {   // note today's stroke count for the pop-up once the stroke data is at hand
   const H = db.hotd; if (!H || H.n || !window.HanziWriter || mountHotd.busy) return;
   mountHotd.busy = true;
-  loadRef(H.h).then(ref => { H.n = ref.strokes.length; save(); const c = $('#hotd'); if (c && db.hotd === H && !$('.hdx')) c.outerHTML = HotdCard(); }, () => {})
+  loadRef(H.h).then(ref => { H.n = ref.strokes.length; save(); }, () => {})
     .finally(() => { mountHotd.busy = false; });
 }
 /* ---------- the Hanzi of the day pop-up ----------
@@ -4310,7 +4310,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.73';
+const APP_VERSION = '1.74';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
