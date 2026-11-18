@@ -5272,7 +5272,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.98';
+const APP_VERSION = '1.99';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5331,7 +5331,7 @@ function devSheet() {
     <p class="muted dev-now">${esc(now)}</p>
     <div class="day-h" style="margin-top:20px">Proven patterns</div>
     <div class="list-group">
-      ${p('devOb', 'Play: onboarding', 'The first-run pages. Your words and goal stay as they are')}
+      ${p('devOb', 'Play: onboarding', 'The first-run pages. Your words and goal stay as they are; the level it finds becomes yours')}
       ${p('devSaved', 'Play: streak saved', 'What you see after a freeze covers a missed day')}
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
@@ -5615,7 +5615,11 @@ function obFinish(how) {
   if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk?.est, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
     if (lv && db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }   // today's character was picked before your level was known
     save(); }
-  LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, goal: O.goal });
+  else if (lv) {   // a replay keeps your words and goal, but the level it finds becomes yours (it unlocks the HSK levels up to it)
+    db.prefs.level = lv;
+    if (db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }
+    save(); }
+  LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, goal: O.goal, replay: O.replay, set_level: lv || null });
   S.ob = null; closeLayer(() => { S.instant = true; render(); });
 }
 async function obClick(e) {
