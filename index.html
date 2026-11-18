@@ -1048,16 +1048,97 @@ button.st-d:active{transform:scale(.9);transition:none}
 .c1-art-ghost{fill:var(--line-2);font-size:50px}
 .c1-art-stroke{fill:none;stroke:var(--seal);stroke-width:6;stroke-linecap:round}
 .c1-art-n{font:700 8px var(--ui);fill:#fff;text-anchor:middle;dominant-baseline:central}
-/* the lessons path, locked for now */
-.c1-path{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0 4px}
-.c1-node{width:62px;height:56px;border-radius:50%;display:grid;place-items:center;transform:translateX(var(--x));
-  background:var(--fill);color:var(--muted);box-shadow:inset 0 -5px 0 rgba(120,95,60,.12)}
-.c1-node svg.i{width:24px;height:24px}
-.c1-wait{position:absolute;left:calc(50% - 132px);top:46px;width:70px;height:70px}
-.c1-wait .shi-face{width:100%;height:100%;display:block}
-.c1-soon{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:8px;padding:14px 16px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:center}
-.c1-soon b{font-size:15.5px}
-.c1-soon span{font-size:13.5px;color:var(--muted);line-height:1.4}
+/* ---------- HSK 1 lessons: the path, then the lesson screens ---------- */
+.les-count{font-size:13px;font-weight:700}
+.les-intro{margin:-4px 2px 4px;font-size:14px;line-height:1.4}
+.les-unit{margin-top:18px}
+.les-band{display:flex;flex-direction:column;gap:1px;padding:13px 18px 14px;border-radius:18px;background:var(--c1);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--c1) 68%,#000)}
+.les-band small{font-size:13px;font-weight:700;opacity:.88}
+.les-band b{font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.les-band-zh{font-family:var(--hanzi);font-weight:600;font-size:.78em;margin-left:8px;opacity:.9}
+.les-path{display:flex;flex-direction:column;align-items:center;gap:18px;padding:26px 0 8px}
+.les-row{position:relative;display:grid;place-items:center;transform:translateX(var(--x))}
+.les-node{width:66px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--fill);color:var(--muted);box-shadow:inset 0 -6px 0 rgba(120,95,60,.14);transition:transform .15s}
+.les-node:active{transform:translateY(3px)}
+.les-node svg.i{width:25px;height:25px}
+.les-node.done{background:var(--c1);color:#fff;box-shadow:inset 0 -6px 0 rgba(0,0,0,.2)}
+.les-node.done svg.i{stroke-width:3.2}
+.les-node.cur{width:78px;height:72px;background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 -7px 0 rgba(0,0,0,.22),0 0 0 7px var(--seal-soft)}
+.les-glyph{font-family:var(--hanzi);font-weight:700;font-size:33px;line-height:1;margin-top:-4px}
+.les-start{position:absolute;bottom:calc(100% + 12px);padding:6px 13px;border-radius:10px;background:var(--card);box-shadow:var(--ring);font-weight:800;font-size:13.5px;color:var(--seal);white-space:nowrap;animation:lesBob 1.8s ease-in-out infinite}
+.les-start::after{content:"";position:absolute;left:50%;top:100%;margin-left:-7px;border:7px solid transparent;border-top-color:var(--card)}
+@keyframes lesBob{50%{transform:translateY(-4px)}}
+.les-shi{position:absolute;left:calc(100% + 20px);top:50%;width:66px;height:66px;margin-top:-33px}
+.les-shi.l{left:auto;right:calc(100% + 20px)}
+.les-shi .shi-face{width:100%;height:100%;display:block}
+.les-sh-top{text-align:center}
+.les-sh-top small{font-size:13px;font-weight:700;color:var(--c1)}
+.les-sh-top h3{margin:2px 0 14px}
+.les-sh-note{margin:14px 0 16px;font-size:14px}
+.les-words{display:flex;flex-wrap:wrap;gap:8px}
+.les-chip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:76px;padding:8px 12px 9px;border-radius:12px;background:var(--fill)}
+.les-chip b{font-family:var(--hanzi);font-weight:600;font-size:22px;line-height:1.15}
+.les-chip small{font-size:12.5px;font-weight:700;color:var(--seal)}
+.les-chip i{font-style:normal;font-size:12.5px;line-height:1.3;color:var(--ink-2);max-width:150px}
+.les-chip.have{opacity:.55}
+.w-src{margin-top:6px;font-size:13px}
+/* inside a lesson */
+.les-top{display:flex;align-items:center;gap:12px;height:60px}
+.les-bar{flex:1;height:12px;border-radius:7px;background:var(--fill);overflow:hidden}
+.les-bar i{display:block;height:100%;border-radius:7px;background:var(--c1);transition:width .35s}
+.les-body{display:flex;flex-direction:column;padding:6px 0 20px}
+.les-ask{margin:6px 0 16px;font-size:21px;font-weight:800;letter-spacing:-.01em}
+.les-ask span{margin-left:8px;font-size:14px;font-weight:700;color:var(--muted)}
+.les-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 20px 28px;border-radius:22px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 4px 0 rgba(120,95,60,.12)}
+.les-hz{font-family:var(--hanzi);font-weight:600;line-height:1.08;color:var(--ink)}
+.les-py{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:12px;background:var(--seal-soft);color:var(--seal);font-size:22px;font-weight:700}
+.les-py svg.i{width:20px;height:20px}
+.les-mean{font-size:20px;font-weight:600;color:var(--ink-2);text-align:center;line-height:1.3}
+.les-big{display:flex;align-items:center;justify-content:center;gap:14px;min-height:136px;margin-bottom:18px}
+.les-en{font-size:28px;font-weight:800;letter-spacing:-.01em;text-align:center;line-height:1.2}
+.les-snd{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
+.les-play{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 -6px 0 rgba(0,0,0,.2)}
+.les-play:active{transform:translateY(2px)}
+.les-play svg.i{width:42px;height:42px}
+.les-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.les-opts.list{grid-template-columns:1fr}
+.les-opt,.les-pair{min-height:84px;padding:12px;border-radius:16px;display:grid;place-items:center;text-align:center;background:var(--card);
+  box-shadow:0 0 0 2px rgba(120,95,60,.14),0 4px 0 rgba(120,95,60,.14);transition:background .15s,box-shadow .15s,opacity .25s}
+.les-opts.list .les-opt{min-height:58px;padding:12px 18px;justify-items:start;text-align:left}
+.les-opt:not(:disabled):active,.les-pair:not(:disabled):active{transform:translateY(3px);box-shadow:0 0 0 2px rgba(120,95,60,.14)}
+.les-opt.ok{background:var(--jade-soft);box-shadow:0 0 0 2.5px var(--jade),0 4px 0 var(--jade)}
+.les-opt.no{background:var(--seal-soft);box-shadow:0 0 0 2.5px var(--seal),0 4px 0 var(--seal)}
+.les-opt:disabled:not(.ok):not(.no){opacity:.45}
+.les-opt.ok,.les-opt.no{opacity:1}
+.lo-hz{font-family:var(--hanzi);font-weight:600;line-height:1.1;color:var(--ink)}
+.lo-py{font-size:22px;font-weight:700;color:var(--ink)}
+.lo-en{font-size:16.5px;font-weight:600;line-height:1.3;color:var(--ink)}
+.les-pairs{display:grid;grid-template-columns:1fr 1.3fr;gap:12px}
+.les-col{display:flex;flex-direction:column;gap:12px}
+.les-pair{min-height:66px}
+.les-pair.p-sel{background:color-mix(in srgb,var(--c1) 13%,var(--card));box-shadow:0 0 0 2.5px var(--c1),0 4px 0 var(--c1)}
+.les-pair.p-bad{background:var(--seal-soft);box-shadow:0 0 0 2.5px var(--seal),0 4px 0 var(--seal);animation:lesShake .3s}
+.les-pair.p-gone{opacity:.3;background:var(--jade-soft);box-shadow:none}
+@keyframes lesShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.les-dock{position:sticky;bottom:0;z-index:4;margin:auto -20px 0;padding:16px 20px calc(16px + env(safe-area-inset-bottom));background:var(--paper)}
+.les-dock.ok{background:color-mix(in srgb,var(--jade) 15%,var(--paper))}
+.les-dock.no{background:color-mix(in srgb,var(--seal) 12%,var(--paper))}
+.les-fb{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
+.les-fb b{font-size:19px;font-weight:800}
+.les-dock.ok .les-fb b{color:var(--jade)}
+.les-dock.no .les-fb b{color:var(--seal)}
+.les-fb > span{font-size:15px;color:var(--ink-2)}
+.les-fb-hz{font-family:var(--hanzi);font-weight:600;font-size:19px;color:var(--ink)}
+.btn-jade{background:var(--jade);color:#fff}
+.les-end{display:flex;flex-direction:column;align-items:center;text-align:center;padding-bottom:20px}
+.les-end-shi{width:150px;height:150px;margin:44px auto 6px;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.les-end-shi .shi-face{width:100%;height:100%;display:block}
+.les-end h1{margin:8px 0 4px;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.les-end > .muted{margin:0;font-size:14.5px}
+.les-end-box{width:100%;margin-top:22px;padding:16px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.les-end-box > b{display:block;margin-bottom:12px;font-size:16.5px;color:var(--jade)}
+.les-end-box > small{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.les-start,.les-pair.p-bad,.les-end-shi{animation:none}}
 
 /* tones: the pitch staff (5 = high, 1 = low) with each tone's line on it */
 .tone-svg{display:block;overflow:visible}
@@ -1540,6 +1621,7 @@ db.prefs = Object.assign({ englishFirst: true, writeMode: 'free', outline: false
 if (!db.prefs.enDefault) { db.prefs.englishFirst = true; db.prefs.enDefault = 1; }   // v1.86: Flip cards start on English for everyone, once; the switch still works after that
 if (db.prefs.goal && !db.prefs.goalMin) { db.prefs.goalMin = { 5: 5, 10: 10, 20: 15, 30: 20 }[db.prefs.goal] || 10; delete db.prefs.goal; }   // v1.82 goals were words a day
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
+db.lessons = db.lessons && typeof db.lessons === 'object' ? db.lessons : {};   // HSK 1 lessons you finished: { n: { done, last, best } }
 db.readDone = Array.isArray(db.readDone) ? db.readDone : [];   // finished stories: [{ id, zh, en, lines, hsk, done, learned }], newest first
 db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("2026-10-17", month from 0): { decks: { deckId: { name, n, cards } } }: the different cards you practised
 // streak freezes: have = how many are saved up (at most 2), days = the days a freeze covered, run/given = the 7-day rewards of the current streak
@@ -1559,6 +1641,7 @@ function parse() {
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'basics') return { view: 'course', deckId: null, basics: true, part: p[1] || null };
+  if (p[0] === 'course' && p[1] === '1' && p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0 };
   if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
@@ -1576,6 +1659,7 @@ function route() {
   }
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
+  if (S.view === 'lesson') lesRoute(r.les);
   // what you used last, for the slot under the word bank on the Decks page
   if (d && S.deckId !== 'bank' && S.deckId !== 'today' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
   if (S.view === 'read' && !S.readId && db.readCur?.opened) { db.last = { t: 'read' }; save(); }
@@ -1856,6 +1940,7 @@ function render() {
   else if (S.view === 'bank') { app.innerHTML = BankView(); mountBank(); }
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
   else if (S.view === 'course') { app.innerHTML = CourseView(); mountCourse(); }
+  else if (S.view === 'lesson') { app.innerHTML = LessonView(); mountLesson(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
   const main = () => ['home', 'learn', 'profile'].includes(S.view) || S.view === 'read' && !S.readId;
@@ -2379,21 +2464,214 @@ function CourseView() {
   if (P === 'strokes') return StrokesView();
   if (S.cBasics) return BasicsView();
   const L = S.H?.levels[1] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
-  const lock = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
+  const done = LESSONS.filter(x => lesDone(x.n)).length;
   return `<div class="screen fade-in c1">${c1Head('')}
     <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[1][1]()}</svg></div>
     <section class="c1-top"><h1 class="c1-title">HSK 1 <span class="c1-zh">入门</span></h1>
       ${L.length ? `<p class="muted">${L.length} words · ${n} you know.</p>` : ''}</section>
-    <div class="section-head"><h2>Lessons <span class="cal-zh">课</span></h2></div>
-    <div class="c1-path" aria-label="Lessons, coming soon">
-      ${[0, 1, 2, 3, 4].map(i => `<span class="c1-node" style="--x:${[0, 46, 64, 30, -26][i]}px">${lock}</span>`).join('')}
-      <span class="c1-wait">${shiFace('happy')}</span>
-      <div class="c1-soon"><b>Lessons are on the way</b><span>Short lessons with listening, speaking and writing. Until then, learn the sounds and strokes in Basics.</span>
-        <button class="link-btn" data-act="basics-open">Go to Basics</button></div>
-    </div>
+    <div class="section-head"><h2>Lessons <span class="cal-zh">课</span></h2><span class="muted les-count">${done} of ${LESSONS.length} done</span></div>
+    <p class="muted les-intro">Each lesson teaches a few words. Finish it and they go into your word bank by themselves.</p>
+    ${LessonPath()}
   </div>`;
 }
-/* Basics: its own card on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
+
+/* ---------- HSK 1 lessons ----------
+   49 short lessons in 8 units cover all 294 HSK 1 words, one theme each. A lesson: meet each new word (sound, pinyin,
+   meaning), then about a dozen quick questions (what it means, which character, which one you hear, how you say it);
+   a wrong answer comes back at the end; last, match the pairs. Finishing a lesson puts its words into the word bank by
+   itself, back in the daily review tomorrow, so the word bank fills as you learn; Quick add and the HSK lists still add
+   words by hand. Lessons open one after another. db.lessons = { n: { done, last, best } }, n from 1. Route: #/course/1/lesson/n */
+const LES_UNITS = [
+  ['Hello', '你好', [['Hello', '你 好 我 您 再见 谢谢'], ['Polite words', '不客气 对不起 没关系 请 请问 喂'], ['Me, you, them', '我们 你们 他 她 他们 她们'],
+    ['Who is it?', '是 不 谁 人 叫 名字'], ['Asking questions', '吗 呢 什么 哪 哪儿 哪里'], ['One to five', '一 二 三 四 五 零']]],
+  ['Numbers and time', '时间', [['Six to ten', '六 七 八 九 十 两'], ['Big numbers', '百 千 几 多少 第 半 一半'], ['Days', '今天 明天 昨天 天 日 号'],
+    ['Weeks and months', '星期 星期天 星期日 月 年 岁'], ['Times of day', '早上 上午 中午 下午 晚上 白天'], ['Telling the time', '点 分 分钟 小时 时候 时间']]],
+  ['Family and people', '家人', [['Family', '爸爸 妈妈 家 家人 孩子 儿子 女儿'], ['Brothers and sisters', '哥哥 姐姐 弟弟 妹妹 们'], ['Friends', '朋友 男朋友 女朋友 同学 大家 小朋友'],
+    ['Men and women', '男 女 先生 女士 老师 学生'], ['At work', '医生 医院 公司 工作 上班 下班'], ['This year', '今年 去年 明年 现在 早 晚']]],
+  ['Food and shopping', '吃饭', [['Eat and drink', '吃 喝 饭 水 茶 菜'], ['Meals', '早饭 午饭 晚饭 米饭 做饭 饭店'], ['Breakfast', '牛奶 鸡蛋 面包 包子 饺子 面条儿'],
+    ['Fruit', '水果 苹果 好吃 杯子 口 一点儿'], ['Money', '买 卖 钱 块 元 贵 便宜'], ['Shops', '商店 超市 书店 店 东西 衣服 穿']]],
+  ['School', '学校', [['School', '学校 小学 中学 大学 上学 课'], ['Students', '大学生 中学生 小学生 上课 下课'], ['Studying', '学 学习 读 读书 写 字'],
+    ['Chinese', '中国 中文 汉语 汉字 国 书'], ['Talking', '说 说话 问 问题 听 知道'], ['See and hear', '看 看见 听见 见 认识 觉得']]],
+  ['Home and travel', '回家', [['My room', '房间 桌子 椅子 电脑 电视 手机'], ['Sleep and rest', '睡 睡觉 起床 休息 住 回'], ['Phones and films', '电话 打电话 电影 电影院 歌 唱'],
+    ['Getting around', '车 开车 出租车 火车 飞机 坐'], ['Come and go', '去 来 到 开 找 给'], ['Here and there', '这里 那里 这儿 那儿 这边 那边']]],
+  ['Describing things', '怎么样', [['Up and down', '上 下 里 外 外边 边'], ['Big and small', '大 小 多 少 很 太'], ['Likes', '爱 喜欢 想 要 高兴 忙'],
+    ['Weather', '天气 热 冷 雨 下雨 雪'], ['Nice!', '漂亮 好看 好听 好玩儿 新 真'], ['Feeling ill', '病 生病 看病 有点儿 非常'], ['Pets and play', '狗 猫 玩 做']]],
+  ['Little words', '小词', [['This and that', '这 那 这些 那些 哪些 些'], ['Counting words', '个 本 件 一些 有些 有的'], ['Have and be', '有 没有 在 正在 的 了'],
+    ['And, also, all', '和 也 都 还 再 只'], ['Can and may', '会 能 可以 不要 吧 对'], ['How', '怎么 怎么样 前 后 事 它 它们']]],
+];
+const LESSONS = LES_UNITS.flatMap(([, , ls], u) => ls.map(([title, w]) => ({ u, title, words: w.split(' ') }))).map((L, i) => Object.assign(L, { n: i + 1 }));
+/* plain meanings for lessons where the dictionary's first one is odd or too long ("年: grain; harvest") */
+const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome`.split('|').map(s => s.split('=')));
+const lesRows = new Map();
+function lesRow(h) {   // { h, p, en } for a lesson word
+  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? shortMeaning(r.e) : '') }); }
+  return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
+}
+const lesDone = n => !!db.lessons[n]?.done;
+const lesNext = () => LESSONS.find(L => !lesDone(L.n))?.n || 0;   // 0: every lesson done
+const LES_X = [0, 44, 66, 44, 0, -44, -66, -44];   // the path winds left and right
+const lesHz = (h, kind = 0) => { const n = [...h].length; return ([[0, 112, 92, 72, 58], [0, 44, 38, 30, 26], [0, 34, 30, 24, 20]][kind][n]) || [50, 24, 18][kind]; };
+function LessonPath() {
+  const next = lesNext();
+  return LES_UNITS.map(([en, zh], u) => `<section class="les-unit"><div class="les-band"><small>Unit ${u + 1}</small><b>${en}<span class="les-band-zh">${zh}</span></b></div>
+    <div class="les-path">${LESSONS.filter(L => L.u === u).map(L => {
+      const x = LES_X[(L.n - 1) % LES_X.length], done = lesDone(L.n), cur = L.n === next;
+      return `<div class="les-row" style="--x:${x}px">${cur ? '<span class="les-start">Start</span>' : ''}
+        <button class="les-node${done ? ' done' : cur ? ' cur' : ''}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${L.n}, ${esc(L.title)}${done ? ', done' : cur ? '' : ', locked'}">${done ? I.check : cur ? `<span class="les-glyph">${hanChars(L.words[0])[0]}</span>` : LOCK_I}</button>
+        ${cur ? `<span class="les-shi${x > 0 ? ' l' : ''}">${shiFace('happy')}</span>` : ''}</div>`;
+    }).join('')}</div></section>`).join('');
+}
+function lesSheet(n) {   // tap a lesson on the path: its words, and Start
+  const L = LESSONS[n - 1], done = lesDone(n), next = lesNext();
+  if (!done && n !== next) { toast(`Finish lesson ${next} first`); return; }
+  openSheet(`<div class="les-sh-top"><small>Unit ${L.u + 1} · Lesson ${n}</small><h3>${esc(L.title)}</h3></div>
+    <div class="les-words">${L.words.map(h => { const w = lesRow(h); return `<span class="les-chip"><b>${esc(h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`; }).join('')}</div>
+    <p class="muted les-sh-note">${done ? 'Done. Do it again any time.' : `Finish it and ${L.words.length === 1 ? 'this word goes' : 'these words go'} into your word bank.`}</p>
+    <button class="btn btn-seal wide" data-act="les-go" data-n="${n}">${done ? 'Practise again' : 'Start lesson'}</button>`);
+}
+function lesRoute(n) {   // opening #/course/1/lesson/n
+  if (!LESSONS[n - 1] || !lesDone(n) && n !== lesNext()) { history.replaceState(history.state, '', '#/course/1'); S.view = 'course'; S.cPart = null; S.cBasics = false; return; }
+  if (S.les && S.les.n === n && S.les.step !== 'done') return;   // back to a lesson you left: carry on
+  S.les = null;
+  if (S.H) startLesson(n);
+  else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n); render(); } }, () => toast('Lessons need the internet the first time'));
+}
+function startLesson(n) {
+  const L = LESSONS[n - 1], words = L.words.map(lesRow);
+  const pool = LESSONS.slice(Math.max(0, n - 4), n).flatMap(x => x.words).map(lesRow);   // this lesson and the three before it
+  const q = shuffle(words.flatMap(w => shuffle(['hz2en', 'en2hz', 'ear', 'py']).slice(0, 2).map(t => ({ t, w }))));
+  for (let i = 1; i < q.length; i++) if (q[i].w === q[i - 1].w) {   // never the same word twice in a row
+    const j = q.findIndex((x, k) => k > i && x.w !== q[i - 1].w); if (j > 0) [q[i], q[j]] = [q[j], q[i]];
+  }
+  S.les = { n, words, pool, step: 'intro', i: 0, q, qi: 0, ans: null, settled: 0, total: q.length };
+  LOG.add('lesson-start', { n, title: L.title });
+}
+function lesOpts(Q) {   // the answer and three others that can't be mistaken for it
+  const a = Q.w, show = Q.t === 'hz2en' ? 'en' : Q.t === 'py' ? 'p' : 'h', sound = Q.t === 'ear' || Q.t === 'py';
+  const more = shuffle(LESSONS.slice(0, S.les.n + 3).flatMap(L => L.words)).map(lesRow);
+  const out = [a], seen = new Set([a[show]]);
+  for (const w of [...shuffle(S.les.pool), ...more]) {
+    if (out.length >= 4) break;
+    if (w.h === a.h || w.en === a.en || seen.has(w[show]) || sound && w.p === a.p) continue;
+    seen.add(w[show]); out.push(w);
+  }
+  return shuffle(out);
+}
+function LessonView() {
+  if (!S.les) return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="c1-back" aria-label="Close">${I.close}</button></div>
+    <p class="muted" style="text-align:center;margin-top:40px">Getting the lesson ready…</p></div>`;
+  return `<div class="screen fade-in les-scr" id="lesScr">${lesInner()}</div>`;
+}
+function lesInner() {
+  const E = S.les;
+  if (E.step === 'done') return lesEndHtml();
+  const nW = E.words.length, P = E.pairs;
+  const prog = (Math.min(E.i, nW) + E.settled + (P ? P.gone.size / P.L.length : 0)) / (nW + E.total + 1);
+  const top = `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the lesson">${I.close}</button><span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span></div>`;
+  if (E.step === 'intro') {
+    const w = E.words[E.i];
+    return `${top}<div class="les-body"><p class="les-ask">New word<span>${E.i + 1} of ${nW}</span></p>
+      <div class="les-card"><span class="les-hz" style="font-size:${lesHz(w.h)}px">${esc(w.h)}</span>
+        <button class="les-py" data-act="say" data-h="${esc(w.h)}" aria-label="Hear ${esc(w.h)}">${esc(w.p)}${I.sound}</button>
+        <span class="les-mean">${esc(w.en)}</span></div></div>
+      <div class="les-dock"><button class="btn btn-seal wide" data-les="next">${E.i + 1 < nW ? 'Next' : 'Start the questions'}</button></div>`;
+  }
+  if (E.step === 'pairs') {
+    const cell = (side, w, i) => { const gone = P.gone.has(w.h), sel = P.sel?.side === side && P.sel.i === i, bad = P.bad?.[side] === i;
+      return `<button class="les-pair${gone ? ' p-gone' : sel ? ' p-sel' : bad ? ' p-bad' : ''}" data-les="${side}" data-i="${i}"${gone ? ' disabled' : ''}>${side === 'l'
+        ? `<span class="lo-hz" style="font-size:${lesHz(w.h, 2)}px">${esc(w.h)}</span>` : `<span class="lo-en">${esc(w.en)}</span>`}</button>`; };
+    return `${top}<div class="les-body"><p class="les-ask">Match the pairs</p>
+      <div class="les-pairs"><div class="les-col">${P.L.map((w, i) => cell('l', w, i)).join('')}</div><div class="les-col">${P.R.map((w, i) => cell('r', w, i)).join('')}</div></div></div>`;
+  }
+  const Q = E.q[E.qi], a = Q.w, done = E.ans != null;
+  Q.opts ||= lesOpts(Q);
+  const hz = `<span class="les-hz" style="font-size:${lesHz(a.h)}px">${esc(a.h)}</span>`;
+  const ask = {
+    hz2en: ['What does this mean?', `${hz}<button class="les-snd" data-act="say" data-h="${esc(a.h)}" aria-label="Hear it">${I.sound}</button>`],
+    en2hz: ['Which one means…', `<span class="les-en">${esc(a.en)}</span>`],
+    ear: ['Which one do you hear?', `<button class="les-play" data-act="say" data-h="${esc(a.h)}" aria-label="Play it again">${I.sound}</button>`],
+    py: ['How do you say it?', hz],
+  }[Q.t];
+  const lab = w => Q.t === 'hz2en' ? `<span class="lo-en">${esc(w.en)}</span>` : Q.t === 'py' ? `<span class="lo-py">${esc(w.p)}</span>`
+    : `<span class="lo-hz" style="font-size:${lesHz(w.h, 1)}px">${esc(w.h)}</span>`;
+  return `${top}<div class="les-body"><p class="les-ask">${ask[0]}</p><div class="les-big">${ask[1]}</div>
+    <div class="les-opts${Q.t === 'hz2en' ? ' list' : ''}">${Q.opts.map((w, i) => `<button class="les-opt${done ? w === a ? ' ok' : i === E.ans ? ' no' : '' : ''}" data-les="opt" data-i="${i}"${done ? ' disabled' : ''}>${lab(w)}</button>`).join('')}</div></div>
+    ${done ? `<div class="les-dock ${E.ok ? 'ok' : 'no'}"><div class="les-fb" role="status"><b>${E.ok ? E.praise : 'Not quite'}</b><span><span class="les-fb-hz">${esc(a.h)}</span> ${esc(a.p)} · ${esc(a.en)}</span></div>
+      <button class="btn ${E.ok ? 'btn-jade' : 'btn-seal'} wide" data-les="next">Continue</button></div>` : ''}`;
+}
+function lesEndHtml() {
+  const E = S.les, L = LESSONS[E.n - 1], add = E.added || [];
+  return `<div class="les-end"><span class="les-end-shi">${shiFace('cheer')}</span>
+      <h1>Lesson done!</h1><p class="muted">Lesson ${E.n} · ${esc(L.title)} · ${E.pct}% right first time</p>
+      <div class="les-end-box"><b>${add.length ? `+${plural(add.length, 'word')} in your word bank` : 'These words were already in your word bank'}</b>
+        <div class="les-words">${E.words.map(w => `<span class="les-chip${add.includes(w) ? '' : ' have'}"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
+        ${add.length ? '<small>They come back in your daily review tomorrow.</small>' : ''}</div></div>
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">Continue</button></div>`;
+}
+function mountLesson() {
+  const scr = $('#lesScr'); if (!scr) return;
+  scr.onclick = e => { const b = e.target.closest('[data-les]'); if (b && !b.disabled) lesAct(b.dataset.les, b); };
+  lesAuto();
+}
+function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (auto) lesAuto(); }
+function lesAuto() {   // say each new word, and the word in "what does this mean" and "which one do you hear"
+  const E = S.les; if (!E) return;
+  const h = E.step === 'intro' ? E.words[E.i]?.h : E.step === 'quiz' && ['hz2en', 'ear'].includes(E.q[E.qi]?.t) ? E.q[E.qi].w.h : null;
+  if (h) setTimeout(() => { if (S.les === E) sayZh(h); }, 150);
+}
+function lesPairsStart() {
+  const E = S.les, pick = [], ens = new Set();
+  for (const w of shuffle(E.words)) { if (pick.length >= 5) break; if (ens.has(w.en)) continue; ens.add(w.en); pick.push(w); }
+  E.pairs = { L: shuffle(pick), R: shuffle(pick), sel: null, bad: null, gone: new Set() }; E.step = 'pairs';
+}
+function lesAct(k, b) {
+  const E = S.les; if (!E) return;
+  const leave = () => { S.les = null; goBack('#/course/1'); };
+  if (k === 'quit') { if (E.step === 'intro' && !E.i) leave(); else confirmSheet('Quit this lesson?', 'You will start it again from the beginning next time.', 'Quit', leave); return; }
+  if (k === 'end') { goBack('#/course/1'); return; }
+  if (E.step === 'intro' && k === 'next') { if (++E.i >= E.words.length) { E.step = 'quiz'; E.qi = 0; } lesPaint(true); return; }
+  if (E.step === 'quiz') {
+    const Q = E.q[E.qi];
+    if (k === 'opt' && E.ans == null) {
+      E.ans = +b.dataset.i; E.ok = Q.opts[E.ans] === Q.w;
+      E.praise = ['Right!', 'Nice!', 'Correct!', '对了！', 'Well done!'][Math.random() * 5 | 0];
+      if (E.ok) chime(); else { buzz(); if (!Q.again) E.q.push({ t: Q.t, w: Q.w, again: true }); }
+      if (E.ok || Q.again) E.settled++;
+      if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 350);
+      LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
+      lesPaint(); return;
+    }
+    if (k === 'next' && E.ans != null) { E.ans = null; if (++E.qi >= E.q.length) lesPairsStart(); lesPaint(true); }
+    return;
+  }
+  if (E.step === 'pairs' && (k === 'l' || k === 'r')) {
+    const P = E.pairs, i = +b.dataset.i, w = (k === 'l' ? P.L : P.R)[i];
+    if (k === 'l') sayZh(w.h);
+    if (!P.sel || P.sel.side === k) { P.sel = { side: k, i }; P.bad = null; lesPaint(); return; }
+    const other = (P.sel.side === 'l' ? P.L : P.R)[P.sel.i];
+    if (other === w) {
+      P.gone.add(w.h); P.sel = null; P.bad = null; chime();
+      if (P.gone.size === P.L.length) setTimeout(() => { if (S.les === E) { finishLesson(); lesPaint(); } }, 550);
+    } else {
+      buzz(); P.bad = { [P.sel.side]: P.sel.i, [k]: i }; P.sel = null;
+      setTimeout(() => { if (S.les === E && P.bad) { P.bad = null; lesPaint(); } }, 500);
+    }
+    lesPaint();
+  }
+}
+/* the end of a lesson: its words go into the word bank by themselves (each one seen today, back for review tomorrow) */
+function finishLesson() {
+  const E = S.les, now = Date.now(), add = E.words.filter(w => !bankHas(w.h));
+  add.slice().reverse().forEach(w => db.bank.unshift({ id: uid(), hanzi: w.h, pinyin: w.p, en: w.en, added: now, hsk: S.H?.byHz.get(w.h)?.lv || 1,
+    src: 'lesson', les: E.n, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));
+  const again = E.q.filter(x => x.again).length, pct = Math.round((E.total - again) / E.total * 100);
+  const rec = db.lessons[E.n] ||= {}; rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct);
+  const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
+  if (E.n === LESSONS.length) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, 2);   // all of HSK 1 done: HSK 2 opens
+  E.added = add; E.pct = pct; E.step = 'done'; save();
+  LOG.add('lesson-done', { n: E.n, pct, added: add.map(w => w.h).join('') });
+}
+/* Basics: a slim row on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
 function BasicsView() {
   return `<div class="screen fade-in c1">${c1Head('')}
     <div class="c1-scene" style="--c1:${CRS[0][0]}"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[0][1]()}</svg></div>
@@ -2582,6 +2860,7 @@ function mountCourse() {
   else if (P === 'radicals') mountRadicals();
   else if (P === 'strokes') mountStrokes();
   else if (P === 'pinyin') mountPinyin();
+  else if (!S.cBasics) setTimeout(() => { const c = $('.les-node.cur'); if (c && S.view === 'course' && lesNext() > 3) c.scrollIntoView({ block: 'center' }); }, 30);   // the lesson you're on
 }
 const ruleWriters = new Map();
 function mountStrokes() {
@@ -2634,7 +2913,7 @@ function LearnView() {
   const bankBlk = db.bank.length ? `<button class="scene-tile" data-act="practise-bank" style="--accent:var(--seal)">${SCENE.bank}
       <span class="scene-cap"><span class="deck-name">Word bank</span><span class="deck-count">${plural(db.bank.length, 'word')}</span>
         <span class="scene-go">Practise${I.chev}</span></span></button>`
-    : `<p class="learn-none">No words yet. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>`;
+    : `<p class="learn-none">No words yet. Finish an HSK 1 lesson and its words land here, or <button class="link-btn" data-act="open-hsk" style="padding:0">add words you know</button>.</p>`;
   return `<div class="screen fade-in">
     <div class="top-gap"></div>
     ${ReviewTile(head)}
@@ -2648,7 +2927,6 @@ function LearnView() {
           <span class="scene-go">Practise${I.chev}</span></span></button>`
       : `<button class="scene-tile" data-act="tab" data-h="#/" style="--accent:var(--seal)">${deckScene()}
           <span class="scene-cap"><span class="deck-count">Make a deck first</span><span class="scene-go">Go to decks${I.chev}</span></span></button>`}</div>
-    <div class="soon-line"><span class="seal lesson-seal">课</span>Guided lessons are coming soon</div>
   </div>`;
 }
 
@@ -2657,9 +2935,9 @@ function LearnView() {
    like a diary of your reading. The flame counts the days in a row you practised: flip cards, writing or a story. */
 const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
-function practiceDays() {   // the days you practised cards, wrote or finished a story
+function practiceDays() {   // the days you practised cards, wrote, finished a lesson or finished a story
   const days = new Set(db.readDone.map(s => dayKey(s.done)));
-  for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length) days.add(k);
+  for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length || v?.les?.length) days.add(k);
   return days;
 }
 /* A freeze covers a day you missed so the streak lives on. You start with one, get one more for every 7 days in a row
@@ -5007,7 +5285,7 @@ function BankView() {
       <div class="group word-list" id="bankWords">${db.bank.map(w => `<button class="row word word-row" style="--sep:76px" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
           <span class="hz">${esc(w.hanzi)}</span><span class="row-main"><span class="wp">${esc(w.pinyin)}</span><span class="we">${esc(w.en || '—')}</span></span>${w.hsk ? `<span class="row-val">${HSK_NAME(w.hsk)}</span>` : ''}<span class="chev">${I.chev}</span></button>`).join('')}</div>
       <p class="muted" style="font-size:11.5px;margin:18px 2px 0">Meanings from CC-CEDICT (mdbg.net, CC BY-SA 4.0)</p>`
-    : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Tick the words you know in the HSK lists, or add them one by one with Quick add. The count grows as you go.</p></div>`}
+    : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Finish an HSK 1 lesson and its words land here by themselves. You can also tick words you know in the HSK lists, or add them one by one with Quick add.</p></div>`}
     <div class="dock row-btns">${n ? `<button class="btn btn-ghost" data-act="practise-bank">${I.flip}Practise</button>` : ''}<button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
   </div>`;
 }
@@ -5019,7 +5297,7 @@ function mountBank() {
 function wordSheet(id) {
   const w = db.bank.find(x => x.id === id); if (!w) return;
   const has = new Set(db.decks.filter(d => d.cards.some(c => c.hanzi === w.hanzi)).map(d => d.id)), sel = new Set();
-  openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div></div></div>
+  openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div>${w.src === 'lesson' && LESSONS[w.les - 1] ? `<div class="muted w-src">From HSK 1 lesson ${w.les} · ${esc(LESSONS[w.les - 1].title)}</div>` : ''}</div></div>
     <label class="field"><span class="lbl">Meaning · English</span><input class="input" id="wEn" value="${esc(w.en || '')}" placeholder="What it means" autocomplete="off"></label>
     <div class="group qa-decks"><button class="row" id="wDecks"><span class="row-main"><span class="row-t">Add to deck</span></span><span class="row-val" id="wDeckVal"></span><span class="chev">${I.chev}</span></button></div>
     <div class="row-btns" style="margin-top:6px"><button class="btn btn-ghost" id="wDel" style="flex:0 0 56px;padding:0;color:var(--seal)" aria-label="Remove from word bank">${I.trash}</button>
@@ -5272,7 +5550,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.99';
+const APP_VERSION = '2.0';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5409,7 +5687,7 @@ function bindSettings(sh, dr) {
   };
   sh.querySelector('#sImp').onchange = async e => {
     const f = e.target.files[0]; if (!f) return;
-    try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: true, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.days = d.days && typeof d.days === 'object' ? d.days : {}; db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze); save(); done(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
+    try { const d = JSON.parse(await f.text()); if (!Array.isArray(d.decks)) throw 0; db = d; db.prefs = Object.assign({ englishFirst: true, writeMode: 'free', outline: false }, db.prefs); db.bank = Array.isArray(db.bank) ? db.bank : []; db.readDone = Array.isArray(db.readDone) ? db.readDone : []; db.lessons = db.lessons && typeof db.lessons === 'object' ? db.lessons : {}; S.les = null; db.days = d.days && typeof d.days === 'object' ? d.days : {}; db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze); save(); done(); history.replaceState({ d: 0 }, '', '#/'); route(); toast('Backup restored'); }
     catch (_) { toast('That file isn’t a ShiCards backup'); }
   };
 }
@@ -5449,7 +5727,7 @@ const GOALS = [[5, 'Casual'], [10, 'Regular'], [15, 'Serious'], [20, 'Intense']]
 const newPerDay = () => db.prefs.goalMin ? Math.max(2, Math.round(db.prefs.goalMin * .4)) : NEW_PER_DAY;
 let actT = 0;
 ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { actT = Date.now(); }, { capture: true, passive: true }));
-const practising = () => S.view === 'study' || S.view === 'write' || !!$('.story') || !!$('.hdx') || !!(S.ob && OB_STEPS[S.ob.i] === 'check');
+const practising = () => S.view === 'study' || S.view === 'write' || S.view === 'lesson' || !!$('.story') || !!$('.hdx') || !!(S.ob && OB_STEPS[S.ob.i] === 'check');
 setInterval(() => {
   if (document.hidden || Date.now() - actT > 6e4 || !practising()) return;
   const d = db.days[dayKey(Date.now())] ||= { decks: {} }; d.sec = (d.sec || 0) + 5;
@@ -5815,6 +6093,8 @@ const A = {
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
   'c1-open': () => nav('#/course/1'),
+  'les-node': t => loadHsk().then(() => lesSheet(+t.dataset.n), () => toast('Lessons need the internet the first time')),
+  'les-go': t => { closeSheet(true); nav(`#/course/1/lesson/${t.dataset.n}`); },
   'basics-open': () => nav('#/basics'),
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
