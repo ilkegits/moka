@@ -2214,7 +2214,7 @@ function hotdPick() {
 }
 function HotdCard(just) {
   const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h);
-  if (H?.off) return StoryCard(just);
+  if (H?.off) return HotdStoryCard(just);
   const tile = `<div class="hd-tile">${TZG}<span class="hd-ch">${H && rev ? esc(H.h) : ''}</span></div>`;
   const pad = rev ? `<button class="hd-pad" data-act="hotd-open" aria-label="Open ${esc(H.h)}">${tile}</button>`
     : `<div class="hd-pad hd-scratch" id="hdScratch" role="button" tabindex="0" aria-label="Scratch the gold to see today's character">${tile}
@@ -2230,7 +2230,7 @@ function HotdCard(just) {
     <div class="hd-shi">${shiFace(rev ? 'cheer' : 'peek')}</div><div class="hd-fx" aria-hidden="true"></div></section>`;
 }
 /* once today's character is done (in your word bank) or closed with ×, the card's back: a story to read */
-function StoryCard(flip) {
+function HotdStoryCard(flip) {
   const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read a story';
   return `<section class="hd-card rev hd-story${flip ? ' flipin' : ''}" id="hotd" aria-label="Read a story">
     <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
@@ -3942,7 +3942,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.56';
+const APP_VERSION = '1.57';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
