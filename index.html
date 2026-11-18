@@ -189,16 +189,18 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 @keyframes shiHop{0%,100%{transform:none}20%{transform:translateY(-10px) rotate(-5deg)}40%{transform:translateY(0) scale(1.04,.96)}60%{transform:translateY(-10px) rotate(5deg)}80%{transform:translateY(0) scale(1.04,.96)}}
 @keyframes shiBreathe{0%,100%{transform:none}50%{transform:scale(1.03,.98)}}
 /* Hanzi of the day: the second red card. Today's character hides under gold foil; rub it off, Shi Shi peeks at it */
-/* the two cards sit in a little stack: Hanzi of the day on top, the story card's edge peeking out under it */
-.hd-stack{position:relative;margin:14px 0 28px}
-.bar-home+.section-head{margin-top:18px}   /* both daily cards closed: keep the first heading off the top bar */
-.hd-stack.two{padding-bottom:12px;margin-bottom:20px}
+/* the daily cards sit in a little deck: Hanzi of the day and the story card, with a third sheet under them.
+   Swipe the top card away and it goes to the bottom; the card under it comes up (no × to close them) */
+.hd-stack{position:relative;margin:14px 0 14px;padding-bottom:24px;touch-action:pan-y}
 .hd-stack>.hd-card{margin:0}
-.hd-stack>#hotd{z-index:1;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
-.hd-card.back{position:absolute;left:0;right:0;top:0;bottom:12px;transform:translateY(12px) scale(.94);transform-origin:50% 100%;box-shadow:none}
-.hd-card.back>*{opacity:0}
-.hd-card.back.up>*{opacity:1;transition:opacity .3s .18s}
-.hd-card.back.up .hd-shi{animation:hdUp .6s cubic-bezier(.3,1.5,.5,1) .28s both}
+.hd-stack>.front{z-index:2;box-shadow:0 16px 26px -16px rgba(110,25,15,.8),0 2px 6px -3px rgba(110,25,15,.5)}
+.hd-stack::after{content:"";position:absolute;left:0;right:0;top:0;bottom:24px;border-radius:22px;background:#A45446;
+  transform:translateY(24px) scale(.88) rotate(1.4deg);transform-origin:50% 100%;opacity:.55}   /* the third sheet, deep in the deck */
+.hd-card.back{position:absolute;left:0;right:0;top:0;bottom:24px;z-index:1;transform:translateY(12px) scale(.94) rotate(-1.2deg);transform-origin:50% 100%;
+  box-shadow:0 8px 14px -10px rgba(110,25,15,.6)}
+.hd-card.back>*{opacity:var(--show,0)}
+.hd-card.back.up>*{transition:opacity .25s}
+.hd-card.back.up .hd-shi{animation:hdUp .6s cubic-bezier(.3,1.5,.5,1) .12s both}
 .hd-card{--hd:#C4432E;position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 18px 18px;border-radius:22px;background:var(--hd);color:var(--seal-ink);
   box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
 .hd-card::before{content:"";position:absolute;left:-60px;top:-30px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.34),transparent 62%);pointer-events:none}
@@ -2406,66 +2408,102 @@ function hotdPick(fresh) {   // fresh: the Developer sheet's "Try another charac
   save(); LOG.add('hotd-pick', { hz: r.h, lv: r.lv });
   return db.hotd;
 }
+const hdDone = H => !!(H?.done || H?.off === 'done');   // today's character is in your word bank (off: older saves)
 function HotdCard(just) {   // the card on Decks: Shi Shi holds up today's character on a little gold-foil tile; one Learn now bubble
-  const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h);
+  const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h), back = H?.top === 'story';
   const meta = H ? `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${mine ? '<span>In your word bank ✓</span>' : ''}</div>` : '';
   const txt = !H ? '<div class="hd-big">A new character</div><div class="hd-sub">Getting it ready…</div>'
     : rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(shortMeaning(H.e))}</div>${meta}`
     : `<div class="hd-big">A new character is waiting</div>${meta}`;
-  return `<section class="hd-card hd-day${rev ? ' rev' : ''}${just ? ' just' : ''}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}>
+  return `<section class="hd-card hd-day${rev ? ' rev' : ''}${just ? ' just' : ''}${back ? ' back' : ' front'}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">HANZI OF THE DAY</div>
-    ${H ? `<button class="hd-x" data-act="hotd-close" aria-label="Close Hanzi of the day">${I.close}</button>` : ''}
     <div class="hd-txt">${txt}</div>
     ${H ? `<button class="hd-bub" data-act="hotd-open">Learn now${I.chev}</button>` : ''}
     <button class="hd-pic" data-act="hotd-open" tabindex="-1" aria-hidden="true"${H ? '' : ' disabled'}>
       <span class="hd-tag${rev ? ' open' : ''}">${rev ? `${TZG}<b>${esc(H.h)}</b>` : '<i>?</i>'}</span>
       <span class="hd-shi">${shiFace(rev ? 'cheer' : 'peek')}</span></button></section>`;
 }
-/* Hanzi of the day lies on top of the story card. Once today's character is done (in your word bank) or closed
-   with ×, the top card is tossed away and the story card rises into its place. */
+/* Hanzi of the day and the story card lie in a little deck (db.hotd.top: 'story' when the story card is on top).
+   Swipe the top card away to either side: it flies off and slides in at the bottom, the card under it comes up.
+   Once today's character is in your word bank the deck turns over by itself, so the story card is on top. */
 function HotdStack() {
-  const H = hotdPick(), two = !H?.off;
-  if (H?.storyOff) return '';   // both cards closed: nothing here until tomorrow's character
-  return `<div class="hd-stack${two ? ' two' : ''}" id="hdStack">${HotdStoryCard(two)}${two ? HotdCard() : ''}</div>`;
+  const storyTop = hotdPick()?.top === 'story';
+  return `<div class="hd-stack" id="hdStack">${storyTop ? HotdCard() + HotdStoryCard() : HotdStoryCard() + HotdCard()}</div>`;
 }
-function HotdStoryCard(back) {
-  const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read now';
+function HotdStoryCard() {
+  const s = db.readCur, H = db.hotd, back = H?.top !== 'story', go = s?.opened ? 'Keep reading' : 'Read now';
   const ch = s ? hanChars((s.zh || '').replace(/^狮狮的?/, '')).slice(0, 2) : [];
-  return `<section class="hd-card rev hd-story${back ? ' back' : ''}" id="hdStory" aria-label="Story time"${back ? ' inert aria-hidden="true"' : ''}>
+  return `<section class="hd-card rev hd-story${back ? ' back' : ' front'}" id="hdStory" aria-label="Story time"${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
-    ${back ? '' : `<button class="hd-x" data-act="story-close" aria-label="Close the story card">${I.close}</button>`}
     <div class="hd-row"><div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
-        ${H?.off === 'done' ? `<div class="hd-meta"><span>Today’s hanzi ${esc(H.h)} ✓</span></div>` : ''}</div></div>
+        ${hdDone(H) ? `<div class="hd-meta"><span>Today’s hanzi ${esc(H.h)} ✓</span></div>` : ''}</div></div>
     <button class="btn hd-go" data-act="tab" data-h="#/read">${I.read}${go}</button>
     <button class="hd-shi" data-act="tab" data-h="#/read" tabindex="-1" aria-hidden="true">${shiReads(ch)}</button></section>`;
 }
-function hotdDismiss() {   // the top card flies off to the side, the story card under it rises and grows into place
-  const st = $('#hdStack'), front = $('#hotd'), back = $('#hdStory');
-  if (!st || !front || !back || stillMotion()) { if (st) st.outerHTML = HotdStack(); return; }
-  const h0 = st.offsetHeight, hb = back.offsetHeight;
+const HD_BACK = (p = 0) => `translateY(${12 * (1 - p)}px) scale(${.94 + .06 * p}) rotate(${-1.2 * (1 - p)}deg)`;   // the under card, p of the way up
+function hdRotate(dir = 1, x = 0) {   // the top card flies off to one side and slides in at the bottom; the card under it rises
+  const H = db.hotd, st = $('#hdStack'); if (!H || !st) return;
+  const front = st.querySelector('.front'), back = st.querySelector('.back');
+  H.top = H.top === 'story' ? 'hotd' : 'story'; save();
+  LOG.add('daily-card-swipe', { top: H.top === 'story' ? 'story' : 'hanzi' });
+  if (!front || !back || stillMotion()) { st.outerHTML = HotdStack(); return; }
+  const w = st.offsetWidth, h0 = st.offsetHeight, hb = back.offsetHeight, pad = h0 - front.offsetHeight;
   back.style.bottom = 'auto'; const nat = back.offsetHeight; back.style.bottom = '';   // its own height once on top
-  const T = { duration: 480, delay: 80, easing: 'cubic-bezier(.2,.8,.3,1.08)', fill: 'forwards' };
-  front.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(108%,-14px) rotate(13deg)', opacity: .2 }],
-    { duration: 380, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' });
-  back.classList.add('up');
-  back.animate([{ transform: 'translateY(12px) scale(.94)', height: hb + 'px' }, { transform: 'none', height: nat + 'px' }], T);
-  st.animate([{ height: h0 + 'px', marginBottom: '20px' }, { height: nat + 'px', marginBottom: '28px' }], T).onfinish = () => { if (st.isConnected) st.outerHTML = HotdStack(); };
+  const p0 = Math.min(1, Math.abs(x) / (w * .5)), T = { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1.06)', fill: 'forwards' };
+  front.animate([{ transform: `translateX(${x}px) rotate(${x / w * 10}deg)` }, { transform: `translateX(${dir * w * 1.15}px) rotate(${dir * 16}deg)` }],
+    { duration: 260, easing: 'cubic-bezier(.4,0,.9,.5)', fill: 'forwards' });
+  back.classList.add('up'); back.style.setProperty('--show', 1);
+  back.animate([{ transform: HD_BACK(p0), height: hb + 'px' }, { transform: 'none', height: nat + 'px' }], T);
+  st.animate([{ height: h0 + 'px' }, { height: nat + pad + 'px' }], T).onfinish = () => {
+    if (!st.isConnected) return;
+    st.outerHTML = HotdStack();
+    $('#hdStack .back')?.animate([{ transform: `translateX(${dir * 30}px) translateY(18px) scale(.86) rotate(${dir * 6}deg)`, opacity: 0 }, { transform: HD_BACK(), opacity: 1 }],
+      { duration: 320, easing: 'cubic-bezier(.2,.8,.3,1)' });   // the card that flew off tucks in at the bottom
+  };
 }
-function hotdClose() {
-  const H = db.hotd; if (!H || H.off) return;
-  H.off = 'x'; save(); LOG.add('hotd-close', { hz: H.h, revealed: !!H.rev });
-  hotdDismiss();
-}
-function storyClose() {   // the story card flies off too and the space closes up; tomorrow brings a new stack
-  const H = db.hotd; if (!H || H.storyOff) return;
-  H.storyOff = true; save(); LOG.add('story-card-close', { hz: H.h });
-  const st = $('#hdStack'), c = $('#hdStory'); if (!st) return;
-  if (!c || stillMotion()) { st.remove(); return; }
-  const cs = getComputedStyle(st);
-  c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(108%,-14px) rotate(13deg)', opacity: .2 }], { duration: 380, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' });
-  st.animate([{ height: st.offsetHeight + 'px', marginTop: cs.marginTop, marginBottom: cs.marginBottom }, { height: '0px', marginTop: '0px', marginBottom: '0px' }],
-    { duration: 360, delay: 220, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => st.remove();
-}
+/* swipe the top daily card: it follows your finger and the card under it comes up into view as you go.
+   Let go past a third of the width, or flick, and it flies off and goes under; otherwise it springs back. */
+(function hdSwipe() {
+  const app = $('#app'); let g = null, noClickUntil = 0;
+  const pose = p => { g.back.style.transform = HD_BACK(p); g.back.style.setProperty('--show', p); };
+  app.addEventListener('pointerdown', e => {
+    if (g || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const st = e.target.closest?.('#hdStack'), front = st?.querySelector('.front'), back = st?.querySelector('.back');
+    if (!front || !back) return;
+    g = { id: e.pointerId, sx: e.clientX, sy: e.clientY, st, front, back, hist: [[e.clientX, e.timeStamp]], v: 0, x: 0, on: false };
+  });
+  app.addEventListener('pointermove', e => {
+    if (!g || e.pointerId !== g.id || g.done) return;
+    const dx = e.clientX - g.sx, dy = e.clientY - g.sy;
+    if (!g.on) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; }   // up/down: normal scrolling
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+      g.on = true; g.w = g.st.offsetWidth;
+      try { g.front.setPointerCapture(g.id); } catch (_) {}
+    }
+    g.v = speed(g.hist, e.clientX, e.timeStamp); g.x = dx;
+    g.front.style.transform = `translateX(${dx}px) rotate(${dx / g.w * 10}deg)`;
+    pose(Math.min(1, Math.abs(dx) / (g.w * .5)));
+  });
+  const end = e => {
+    if (!g || e.pointerId !== g.id) return; const G = g; g = null;
+    if (!G.on) return;
+    noClickUntil = performance.now() + 350;
+    const go = e.type === 'pointerup' && (Math.abs(G.x) > G.w * .33 || (Math.abs(G.v) > .35 && Math.sign(G.v) === Math.sign(G.x)));
+    if (go) { G.front.style.transform = ''; G.back.style.transform = ''; hdRotate(Math.sign(G.x), G.x); return; }
+    if (stillMotion()) { G.front.style.transform = G.back.style.transform = ''; G.back.style.removeProperty('--show'); return; }
+    const T = { duration: 300, easing: 'cubic-bezier(.3,1.3,.5,1)' };   // not far enough: spring back
+    G.front.animate([{ transform: G.front.style.transform }, { transform: 'none' }], T);
+    G.back.animate([{ transform: G.back.style.transform }, { transform: HD_BACK() }], T);
+    G.front.style.transform = G.back.style.transform = '';
+    G.back.classList.add('up'); G.back.style.removeProperty('--show');
+    setTimeout(() => G.back.classList.remove('up'), 300);
+  };
+  app.addEventListener('pointerup', end);
+  app.addEventListener('pointercancel', end);
+  app.addEventListener('touchmove', e => { if (g?.on && e.cancelable) e.preventDefault(); }, { passive: false });
+  document.addEventListener('click', e => { if (performance.now() < noClickUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 function hdFlake(fx, x, y, burst) {   // a fleck of gold foil flying off where you rub (x, y: place inside fx)
   if (stillMotion()) return;
@@ -2589,9 +2627,9 @@ function hdxClose(instant) {   // and shrinks back into the card
   const el = $('.hdx'); if (!el || el._closing) return; el._closing = true;
   const H = el._H; document.documentElement.classList.remove('hdx-on');
   LOG.add('hotd-shut', { hz: H.h, page: el._page + 1, revealed: !!H.rev });
-  const done = db.hotd === H && !H.off && bankHas(H.h);
+  const done = db.hotd === H && !hdDone(H) && bankHas(H.h);
   let card = $('#hotd'); if (card) { card.outerHTML = HotdCard(H.rev && !el._wasRev); card = $('#hotd'); }   // the card now shows the character
-  const end = () => { el.remove(); if (done) { H.off = 'done'; save(); LOG.add('hotd-done', { hz: H.h }); hotdDismiss(); } };
+  const end = () => { el.remove(); if (done) { H.done = true; save(); LOG.add('hotd-done', { hz: H.h }); if (H.top !== 'story') hdRotate(1); } };
   if (instant || stillMotion()) return end();
   const box = el.querySelector('.hdx-box');
   box.querySelectorAll(':scope>*').forEach(x => x.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: 'forwards' }));
@@ -4326,7 +4364,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.76';
+const APP_VERSION = '1.77';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4371,7 +4409,7 @@ function nameSheet() {
 function devSheet() {
   const H = hotdPick();
   const now = !H ? 'Today’s character is not picked yet (the HSK list is still loading).'
-    : `Today: ${H.h} ${H.p} · ${H.rev ? 'uncovered' : 'under the foil'} · ${H.off || H.storyOff ? 'card closed' : 'card on Decks'}${bankHas(H.h) ? ' · in your word bank' : ''}`;
+    : `Today: ${H.h} ${H.p} · ${H.rev ? 'uncovered' : 'under the foil'} · ${H.top === 'story' ? 'story card on top' : 'Hanzi card on top'}${bankHas(H.h) ? ' · in your word bank' : ''}`;
   const b = (id, t, s) => `<button class="list-btn" id="${id}"${H ? '' : ' disabled'}><span>${t}<br><small>${s}</small></span><span class="side">${I.chev}</span></button>`;
   openSheet(`<h3>Developer</h3>
     <p class="muted" style="margin:-6px 0 14px">Replay what normally happens once a day. Only today’s cards change, on this device.</p>
@@ -4379,10 +4417,10 @@ function devSheet() {
       ${b('devCover', 'Cover the character again', 'Gold foil back on, both cards back on Decks')}
       ${b('devNew', 'Try another character', 'A random one you don’t know yet, under foil')}
       ${b('devOpen', 'Play: card opens', 'Decks, then the card grows into the pop-up')}
-      ${b('devToss', 'Play: card flies away', 'The top card is tossed, the story card rises')}
+      ${b('devToss', 'Play: card swipes away', 'The top card flies off and goes under, the story card rises')}
     </div>
     <p class="muted dev-now">${esc(now)}</p>`, sh => {
-    const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; };
+    const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; delete X.done; delete X.top; };
     const go = (what, prep, then) => () => {
       LOG.add('dev', what); prep(); save(); closeSheet();
       setTimeout(() => {
@@ -4394,7 +4432,7 @@ function devSheet() {
     sh.querySelector('#devCover').onclick = go('cover', () => { back(); db.hotd.rev = false; }, () => toast(`${db.hotd.h} is under the foil again`));
     sh.querySelector('#devNew').onclick = go('new', () => { hotdPick(true); }, () => toast('A new character is waiting'));
     sh.querySelector('#devOpen').onclick = go('open', back, () => hotdOpen());
-    sh.querySelector('#devToss').onclick = go('toss', back, () => hotdClose());
+    sh.querySelector('#devToss').onclick = go('toss', back, () => hdRotate(1));
   });
 }
 /* ---------- settings ----------
@@ -4490,8 +4528,6 @@ const A = {
   'remind': () => remindSheet(),
   'say': t => sayZh(t.dataset.h),
   'hotd-open': () => hotdOpen(),
-  'hotd-close': () => hotdClose(),
-  'story-close': () => storyClose(),
   'rpop-add': t => addReadWord(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
@@ -4622,7 +4658,7 @@ document.addEventListener('click', e => {
   };
   app.addEventListener('pointerdown', e => {
     if (g || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf')) return;
+    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf,.hd-stack')) return;
     const T = targets(); if (!T) return;
     g = { id: e.pointerId, sx: e.clientX, sy: e.clientY, hist: [[e.clientX, e.timeStamp]], v: 0, x0: 0, T, on: false };
   });
