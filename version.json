@@ -1,1 +1,1 @@
-{"version": "2.0", "notes": "HSK 1 lessons: 49 short lessons in 8 units cover all 294 HSK 1 words. Each teaches a few words, asks quick questions (meaning, character, listening, pinyin) and ends with matching pairs. Finishing a lesson puts its words into your word bank by itself; Quick add and the HSK lists still add words too"}
+{"version": "2.01", "notes": "Developer has a Reset all progress button: after a confirm it wipes this device back to a fresh install (word bank, lessons, streak, decks, settings) and restarts with the first-run pages. The activity log stays"}

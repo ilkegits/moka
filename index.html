@@ -5550,7 +5550,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.01';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5614,7 +5614,14 @@ function devSheet() {
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
-    </div>`, sh => {
+    </div>
+    <div class="day-h" style="margin-top:20px">Start over</div>
+    <button class="btn btn-danger wide" id="devReset">${I.trash}Reset all progress</button>
+    <p class="muted dev-now">Back to a fresh install on this device: word bank, lessons, streak, decks and settings. The activity log stays.</p>`, sh => {
+    // wipe the saved data and restart, so the app opens like the first time (onboarding included); save() is switched off so nothing writes the old data back while the page reloads
+    sh.querySelector('#devReset').onclick = () => confirmSheet('Reset all progress?',
+      'Everything you learned and made on this device is wiped, as if ShiCards was just installed, and the app restarts with the first-run pages. This can’t be undone. To keep a copy, use Export backup first.',
+      'Reset', () => { LOG.add('dev', 'reset progress'); save = () => {}; try { localStorage.removeItem(KEY); } catch (_) {} location.replace(location.pathname); });
     const play = f => () => { LOG.add('dev', f.name); closeSheet(); setTimeout(f, 320); };
     sh.querySelector('#devOb').onclick = play(function onboarding() { obStart(true); });
     sh.querySelector('#devSaved').onclick = play(function saved() { momentSaved({ days: 1, left: db.freeze.have }); });
