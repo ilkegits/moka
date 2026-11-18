@@ -2290,6 +2290,18 @@ function chime() {
     }
   } catch (_) {}
 }
+/* the wrong-answer buzz: two low, dull notes going down (B♭3 then F♯3), each sagging a little in pitch, softened by a filter */
+function buzz() {
+  try { const c = acx(), t = c.currentTime + .01;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(c.destination);
+    for (const [f, d] of [[233, 0], [185, .16]]) for (const [type, g] of [['square', .07], ['triangle', .22]]) {
+      const o = c.createOscillator(), v = c.createGain(); o.type = type;
+      o.frequency.setValueAtTime(f, t + d); o.frequency.exponentialRampToValueAtTime(f * .9, t + d + .2);
+      v.gain.setValueAtTime(0, t + d); v.gain.linearRampToValueAtTime(g, t + d + .012); v.gain.setValueAtTime(g, t + d + .1); v.gain.exponentialRampToValueAtTime(.0001, t + d + .26);
+      o.connect(v).connect(lp); o.start(t + d); o.stop(t + d + .3);
+    }
+  } catch (_) {}
+}
 
 /* radicals: the building blocks inside characters, by stroke count, each with characters that contain it */
 const RADICALS = [
@@ -2419,7 +2431,7 @@ function mountTones() {
       }, () => toast('The ear test needs the internet the first time'));
     } else if (k === 'play') play();
     else if (k === 'next') { S.ear.i++; S.ear.ans = null; paint(); if (S.ear.i < S.ear.q.length) play(); else LOG.add('c1-ear', { right: S.ear.right }); }
-    else { const t = +k; S.ear.ans = t; if (t === S.ear.q[S.ear.i].t) { S.ear.right++; chime(); } paint(); }
+    else { const t = +k; S.ear.ans = t; if (t === S.ear.q[S.ear.i].t) { S.ear.right++; chime(); } else buzz(); paint(); }
   };
 }
 function playTone(t) {
@@ -5365,7 +5377,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.92';
+const APP_VERSION = '1.93';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
