@@ -183,6 +183,12 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .rem-ic svg.i{width:20px;height:20px}
 .rem-t{flex:1}
 .remind-warn{margin:14px 2px 0;padding:10px 12px;border-radius:12px;background:var(--seal-soft);color:var(--seal);font-size:13px;line-height:1.4}
+.remind-help{margin:14px 2px 0;padding:12px 14px;border-radius:12px;background:var(--seal-soft);color:var(--ink);font-size:13.5px;line-height:1.45}
+.remind-help b{color:var(--seal)}
+.remind-help ol{margin:6px 0 4px;padding-left:20px}.remind-help li{margin:3px 0}
+.remind-help .muted{font-size:12.5px;margin:6px 0 0}
+.remind-help.flash{animation:helpflash .7s ease}
+@keyframes helpflash{0%,100%{transform:none}30%{transform:scale(1.03)}}
 .soon-line{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:4px 0 8px;border-radius:14px;background:var(--fill);font-size:13.5px;color:var(--ink-2)}
 .soon-line .lesson-seal{width:26px;height:26px;font-size:14px;flex:none}
 .today-card{position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 16px 18px;border-radius:22px;background:var(--seal);color:var(--seal-ink);
@@ -1427,6 +1433,23 @@ async function remindSync(force) {   // send the note when it changed (after pra
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') remindSync(); });
 const b64uBytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const notifBlocked = () => 'Notification' in window && Notification.permission === 'denied';
+function remindHelp() {   // the phone said no once, so the app can't ask again: show where to switch it back on
+  return `<div class="remind-help" id="rHelp"${notifBlocked() ? '' : ' hidden'}><b>Notifications are blocked on this phone</b>
+    <ol><li>Press and hold the ShiCards icon on your home screen, then tap <b>App info</b>.</li>
+      <li>Tap <b>Notifications</b> and turn on <b>Show notifications</b>.</li>
+      <li>Come back here and tap <b>Remind me</b>.</li></ol>
+    <p class="muted">Using ShiCards in Chrome instead? Chrome ⋮ › Settings › Site settings › Notifications › ilkegits.github.io › Allow.</p></div>`;
+}
+function showRemindHelp() {
+  const h = $('#rHelp'); if (!h) return false;
+  h.hidden = false; h.classList.remove('flash'); void h.offsetWidth; h.classList.add('flash');
+  h.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  return true;
+}
+document.addEventListener('visibilitychange', () => {   // back from the phone settings: hide the steps once it's allowed
+  const h = $('#rHelp'); if (document.visibilityState === 'visible' && h && !notifBlocked()) h.hidden = true;
+});
 async function remindSet(on, hour) {
   const r = db.prefs.remind || {};
   hour = hour || r.hour || 19;
@@ -1434,7 +1457,7 @@ async function remindSet(on, hour) {
     if (!('PushManager' in window) || !('Notification' in window)) { toast('This phone can’t show reminders from the app'); return false; }
     const reg = await navigator.serviceWorker?.getRegistration();
     if (!reg) { toast('Reminders work in the installed app'); return false; }
-    if (await Notification.requestPermission() !== 'granted') { toast('Notifications are off for ShiCards. Allow them in the phone settings'); return false; }
+    if (await Notification.requestPermission() !== 'granted') { if (!(notifBlocked() && showRemindHelp())) toast('Notifications are off for ShiCards. Allow them in the phone settings'); return false; }
     try {
       const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(VAPID_PUBLIC) });
       r.sub = sub.toJSON();
@@ -1456,6 +1479,7 @@ function remindSheet() {
     <div class="group"><button class="list-btn" id="rOn"><span>Remind me<br><small id="rSub">${remindLine()}</small></span><span class="switch ${r.on ? 'on' : ''}"></span></button></div>
     <div class="day-h" style="margin-top:18px">Time</div>
     <div class="chips" id="rHr">${REMIND_HOURS.map(h => `<button class="chip${h === hour ? ' on' : ''}" data-h="${h}">${h}:00</button>`).join('')}</div>
+    ${remindHelp()}
     ${SYNC.on ? '' : '<p class="remind-warn">First switch on “Send to Claude automatically” in Menu › Activity log. The reminder uses the same key to reach Shi Shi’s server.</p>'}
     <p class="muted" style="font-size:12.5px;margin:16px 2px 0">It can arrive up to about half an hour late. Turn it off here any time.</p>`,
   sh => {
@@ -3523,7 +3547,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.51';
+const APP_VERSION = '1.52';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
