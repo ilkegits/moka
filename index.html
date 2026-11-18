@@ -1159,7 +1159,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pyp-t svg.i{width:15px;height:15px}
 .pyp-t:active{background:var(--tc);color:#fff}
 .pyp-note{margin:10px 0 0;font-size:12.5px;line-height:1.4;color:var(--ink-2)}
-.py-tk{flex:none;width:34px;font-weight:800;font-size:18px;color:var(--seal)}
 
 /* radicals: a dictionary page, grouped by stroke count like a paper radical index */
 .rad-sec{margin-bottom:18px}
@@ -2291,14 +2290,6 @@ function chime() {
     }
   } catch (_) {}
 }
-const PY_TRICKY = [   // [letter, syllable, tone, how to say it]
-  ['q', 'qi', 1, 'like “ch” in cheese'], ['x', 'xi', 1, 'like “sh” in sheep'], ['j', 'ji', 3, 'like “j” in jeep'],
-  ['zh', 'zhong', 1, 'like “j” in jump, tongue curled back'], ['ch', 'chi', 1, 'like “ch” in church, tongue curled back'],
-  ['sh', 'shi', 4, 'like “sh” in shirt, tongue curled back'], ['r', 'ren', 2, 'between “r” in run and “s” in measure'],
-  ['z', 'zi', 4, 'like “ds” in kids'], ['c', 'cai', 4, 'like “ts” in cats, with a puff of air'],
-  ['ü', 'nü', 3, 'say “ee”, then round your lips'], ['e', 'e', 4, 'like “uh” in duh'],
-  ['-i', 'si', 4, 'after z, c, s, zh, ch, sh, r: a buzz, not “ee”'],
-];
 
 /* radicals: the building blocks inside characters, by stroke count, each with characters that contain it */
 const RADICALS = [
@@ -2455,9 +2446,6 @@ function PinyinView() {
     <label class="search py-search">${I.search}<input id="pyQ" type="search" placeholder="Search pinyin, use v for ü" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>
     <div class="py-wrap" id="pyWrap"><div class="py-grid" style="--cols:${PY_COLS.length}">${head}${rows}</div><div class="py-pop" id="pyPop" hidden></div></div>
     <p class="py-credit">Recordings by Chen Wang, from audio-cmn (CC BY-SA).</p>
-    <div class="section-head"><h2>Sounds to watch <span class="cal-zh">难发的音</span></h2></div>
-    <div class="group">${PY_TRICKY.map(([l, s, t, how]) => `<button class="row" data-act="c1-pyplay" data-s="${s}" data-t="${t}">
-      <span class="py-tk">${l}</span><span class="row-main"><span class="row-t">${how}</span><span class="row-s">${toneMark(s, t)}</span></span><span class="c1-snd">${I.sound}</span></button>`).join('')}</div>
   </div>`;
 }
 function mountPinyin() {
@@ -5377,7 +5365,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.91';
+const APP_VERSION = '1.92';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -5919,7 +5907,6 @@ const A = {
   'c1-part': t => nav('#/course/1/' + t.dataset.p),
   'c1-back': () => goBack(S.cPart ? '#/course/1' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
-  'c1-pyplay': t => playPy(t.dataset.s, +t.dataset.t),
   'c1-rad': t => radSheet(t),
   'c1-char': t => strokeSheet(t),
   'c1-stroke': t => { t.classList.remove('draw'); void t.offsetWidth; t.classList.add('draw'); sayZh(t.dataset.h); },
