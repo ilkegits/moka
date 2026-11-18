@@ -2184,10 +2184,7 @@ function TodayCard() {
   if (!allItems().length) body = `<div class="today-big">Add your first words</div>
       <div class="today-sub">Tick words you know, or make a deck</div>
       <button class="btn today-go" data-act="open-hsk">Add words</button>`;
-  else if (!n) { const tmr = dueBy(dayStart(Date.now(), 2));
-    body = `<div class="today-big">${today ? 'All done for today' : 'Nothing waiting'}</div>
-      <div class="today-sub">${tmr ? `Tomorrow: ${plural(tmr, 'card')}` : 'Add new words to keep growing'}</div>
-      <button class="btn today-go ghost" data-act="tab" data-h="#/read">Read a story</button>`; }
+  else if (!n) return '';   // nothing waiting: no card ("All done for today" was little use); Hanzi of the day leads instead
   else body = `<div class="today-big">${n === 1 ? '1 card' : n + ' cards'} waiting</div>
       <div class="today-sub">${say || `About ${Math.max(1, Math.round(n * 10 / 60))} min`}</div>
       <div class="today-mix">${P.due.length ? `<span>${P.due.length} to review</span>` : ''}${P.fresh.length ? `<span>${P.fresh.length} new</span>` : ''}</div>
@@ -3956,7 +3953,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.58';
+const APP_VERSION = '1.59';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
