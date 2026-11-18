@@ -487,6 +487,22 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
   padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:calc(100% - var(--kb) - 30px);overflow-y:auto;
   transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.85,.25,1), bottom .15s;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
 #sheet-root.open .sheet{transform:none}
+/* deck picker: a second pop-up stacked on the first */
+#sheet-root .picker{position:absolute;inset:0;z-index:2}
+#sheet-root .picker .scrim{opacity:0}
+#sheet-root .picker.on .scrim{opacity:1}
+#sheet-root .picker .sheet{transform:translateY(105%)}
+#sheet-root .picker.on .sheet{transform:none}
+.picker .group{margin-bottom:16px}
+.pk-dot{width:10px;height:10px;border-radius:3px;flex:none}
+.pk-new{color:var(--seal)}
+.pk-new svg.i{width:18px;height:18px;flex:none;margin-left:-4px}
+.pk-new .row-t{color:var(--seal)}
+.pk-make{gap:8px}
+.pk-make .input{height:42px;flex:1}
+.pk-make .btn{height:42px;padding:0 16px}
+.qa-decks{margin-bottom:16px}
+.qa-decks .row-val{max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .handle{width:40px;height:5px;border-radius:5px;background:var(--line-2);margin:0 auto 14px;position:relative;cursor:grab}
 .handle::after{content:"";position:absolute;inset:-14px -40px}  /* bigger grab area */
 .sheet h3{font-size:17px;font-weight:600;letter-spacing:-.01em;text-align:center;margin:0 0 20px}
@@ -3261,7 +3277,7 @@ function speed(hist, p, t) {
 }
 /* Drag a pop-up down to close it. Works from anywhere on the sheet once its content is scrolled to the top.
    Let go past a quarter of its height, or flick it, and it closes; otherwise it springs back. */
-function sheetDrag(sh, scrim) {
+function sheetDrag(sh, scrim, close = closeSheet) {
   let g = null;
   const begin = (x, y, t) => { g = { x, y, hist: [[y, t]], v: 0, off: 0, on: false, top: sh.scrollTop <= 0 }; };
   const claim = () => { g.on = true; g.h = sh.offsetHeight; sh.style.transition = scrim.style.transition = 'none'; };
@@ -3273,11 +3289,11 @@ function sheetDrag(sh, scrim) {
   };
   const finish = () => {
     if (!g) return; const G = g; g = null; if (!G.on) return;
-    const close = G.off > G.h * 0.25 || (G.v > 0.45 && G.off > 12);
-    LOG.add('sheet-drag', { closed: close, pulled: Math.round(G.off / G.h * 100) + '%', speed: +G.v.toFixed(2) });
-    sh.style.transition = close ? 'transform .26s cubic-bezier(.3,.7,.4,1)' : '';
+    const shut = G.off > G.h * 0.25 || (G.v > 0.45 && G.off > 12);
+    LOG.add('sheet-drag', { closed: shut, pulled: Math.round(G.off / G.h * 100) + '%', speed: +G.v.toFixed(2) });
+    sh.style.transition = shut ? 'transform .26s cubic-bezier(.3,.7,.4,1)' : '';
     scrim.style.transition = sh.style.transform = scrim.style.opacity = '';
-    if (close) { document.activeElement?.blur?.(); closeSheet(); }
+    if (shut) { document.activeElement?.blur?.(); close(); }
     else setTimeout(() => { if (!g) sh.style.transition = ''; }, 400);
   };
   // touch: decide on the first move so the browser never starts scrolling a drag we take over
@@ -3297,7 +3313,7 @@ function sheetDrag(sh, scrim) {
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
   });
 }
-addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheet-root').classList.contains('open')) closeSheet(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheet-root').classList.contains('open')) { const pk = $('#sheet-root .picker.on'); pk ? pk._close() : closeSheet(); } });
 function closeSheet(instant) {
   const root = $('#sheet-root'); if (!root.classList.contains('open') && !root.innerHTML) return;
   if (root.classList.contains('open')) LOG.add('sheet-close', root.querySelector('.sheet h3')?.textContent || '');
@@ -3495,6 +3511,40 @@ function deckChips(box, sel, has, onChange) {
   paint();
 }
 
+/* a second pop-up on top of the current one: every deck in a tick list, plus New deck. `sel` is the set of picked deck ids. */
+function deckPicker(sel, onChange) {
+  const root = $('#sheet-root');
+  root.querySelector('.picker')?.remove();
+  const wrap = document.createElement('div'); wrap.className = 'picker';
+  wrap.innerHTML = `<div class="scrim"></div><div class="sheet" role="dialog"><div class="handle"></div><h3>Add to deck</h3>
+    <div class="group" id="pkList"></div><button class="btn btn-primary wide" id="pkDone">Done</button></div>`;
+  root.appendChild(wrap);
+  const list = wrap.querySelector('#pkList'), sh = wrap.querySelector('.sheet'), scrim = wrap.querySelector('.scrim');
+  const paint = () => {
+    list.innerHTML = db.decks.map(d => `<button class="row ${sel.has(d.id) ? 'on' : ''}" data-id="${d.id}" style="--sep:40px"><span class="pk-dot" style="background:${d.accent}"></span>
+      <span class="row-main"><span class="row-t">${esc(d.name)}</span><span class="row-s">${plural(d.cards.length, 'card')}</span></span><span class="tick">${I.check}</span></button>`).join('')
+      + `<button class="row pk-new" data-new="1" style="--sep:40px">${I.plus}<span class="row-main"><span class="row-t">New deck</span></span></button>`;
+  };
+  const close = () => {
+    if (!wrap.isConnected || !wrap.classList.contains('on')) return;
+    wrap.classList.remove('on'); LOG.add('deck-picker', { picked: sel.size });
+    setTimeout(() => wrap.remove(), 380); onChange();
+  };
+  list.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.id) { sel.has(b.dataset.id) ? sel.delete(b.dataset.id) : sel.add(b.dataset.id); b.classList.toggle('on'); return; }
+    if (!b.dataset.new) return;
+    b.outerHTML = `<div class="row pk-make"><input class="input" placeholder="New deck name" maxlength="40" autocomplete="off"><button class="btn btn-primary">Create</button></div>`;
+    const row = list.querySelector('.pk-make'), inp = row.querySelector('input');
+    const make = () => { const name = inp.value.trim(); if (!name) { inp.focus(); return; } const d = newDeckNamed(name); sel.add(d.id); LOG.add('deck-new', { name, from: 'picker' }); paint(); };
+    row.querySelector('button').onclick = make; inp.onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); make(); } };
+    inp.focus();
+  };
+  scrim.onclick = close; wrap.querySelector('#pkDone').onclick = close; wrap._close = close;
+  sheetDrag(sh, scrim, close);
+  paint(); wrap.offsetHeight; wrap.classList.add('on');
+}
+
 function quickAddSheet() {
   const Q = { mode: db.prefs.qaMode || 'write', word: '', pick: null, reading: 0, enDirty: false, D: null, seq: 0 };
   const sel = new Set();   // decks to also add to; kept while the pop-up stays open
@@ -3510,7 +3560,7 @@ function quickAddSheet() {
         <input class="input" id="qaEn" placeholder="What it means" autocomplete="off"></label>
       <div class="means" id="qaMeans"></div>
     </div>
-    <div class="field"><span class="lbl"><span>Also add to decks</span><span class="lbl-note">optional</span></span><div class="chips" id="qaDecks"></div></div>
+    <div class="group qa-decks"><button class="row" id="qaDecks"><span class="row-main"><span class="row-t">Add to deck</span></span><span class="row-val" id="qaDeckVal"></span><span class="chev">${I.chev}</span></button></div>
     <button class="btn btn-primary wide" id="qaAdd" disabled>Add to word bank</button>`,
   sh => {
     const $q = s => sh.querySelector(s);
@@ -3572,7 +3622,13 @@ function quickAddSheet() {
     enEl.addEventListener('input', () => { Q.enDirty = true; });
     $q('#qaBk').onclick = () => { if (Q.word) setWord([...Q.word].slice(0, -1).join('')); };
     $q('#qaNot').onclick = e => { const b = e.target.closest('[data-h]'); if (!b) return; LOG.add('qa-word-pick', { had: Q.word, picked: b.dataset.h }); setWord(b.dataset.h); Q.reset?.(); };
-    deckChips($q('#qaDecks'), sel, new Set(), paintButton);
+    const paintDecks = () => {
+      const ds = [...sel].map(deckById).filter(Boolean);
+      $q('#qaDeckVal').textContent = !ds.length ? 'None' : ds.length === 1 ? ds[0].name : plural(ds.length, 'deck');
+      paintButton();
+    };
+    $q('#qaDecks').onclick = () => deckPicker(sel, paintDecks);
+    paintDecks();
 
     /* --- the three ways in --- */
     const modes = {
@@ -3972,7 +4028,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.66';
+const APP_VERSION = '1.67';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
