@@ -548,6 +548,21 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .prompt-en{font-family:var(--display);font-weight:600;line-height:1.1;margin:10px 0 8px}
 .prompt .reveal-line{min-height:28px;display:flex;justify-content:center;align-items:center;gap:10px}
 .prompt .reveal-line .py{margin:0;font-size:16px}
+/* which sense is meant: a common word with the character left out (东＿ · thing) */
+.w-clue{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;padding:4px 11px;border-radius:10px;background:var(--fill);font-size:14px;color:var(--ink-2)}
+.w-clue .hz{font-family:var(--hanzi);font-size:19px;font-weight:400;color:var(--ink);display:inline-flex;align-items:center;height:auto;background:none;box-shadow:none;border-radius:0}
+.w-clue .py{font-size:13px;color:var(--muted)}
+.w-gap{display:inline-block;width:.95em;height:.95em;margin:0 1px;border:1.5px dashed var(--line-2);border-radius:3px;vertical-align:-2px}
+.w-gap.fill{border:0;width:auto;height:auto;color:var(--seal);font-style:normal}
+/* a hint: the next stroke drawn in faint red, in its writing direction, like a copybook */
+.tzg .hint{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .3s}
+.tzg .hint .hs{fill:none;stroke:color-mix(in srgb,var(--seal) 34%,transparent);stroke-width:150;stroke-linecap:round;stroke-linejoin:round;animation:hintDraw .7s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes hintDraw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.tzg .hint .hs{animation-duration:.01s}}
+.tzg.revealed .hint{opacity:0}
+.pick-n{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 8px}
+.pick-n > span{font-size:14.5px;font-weight:600}
+.pick-n .seg button{min-width:40px;padding:0 10px}
 .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gap,12px);width:100%;margin:0 auto}
 .grid.rows .tzg::before{content:attr(data-n);position:absolute;top:6px;left:8px;z-index:2;pointer-events:none;
   font:600 10.5px/1 var(--ui);letter-spacing:.02em;color:var(--grid);opacity:.75}
@@ -1325,8 +1340,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .sr-txt b{font-size:13.5px;line-height:1.25}
 .sr-txt span{font-size:12px;color:var(--muted)}
 .hz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
-.hz{height:52px;border-radius:12px;background:var(--card);box-shadow:var(--ring);font-family:var(--hanzi);font-size:25px;font-weight:600;color:var(--ink)}
-.hz:active{background:var(--c1-soft)}
+.hz-grid .hz{height:52px;border-radius:12px;background:var(--card);box-shadow:var(--ring);font-family:var(--hanzi);font-size:25px;font-weight:600;color:var(--ink)}
+.hz-grid .hz:active{background:var(--c1-soft)}
 .ss-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .ss-hz{font-family:var(--hanzi);font-size:44px;font-weight:600;line-height:1}
 .ss-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1649,6 +1664,7 @@ const I = {
   undo: ic('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
   trash: ic('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
   check: ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  bulb: ic('<path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.5 1.1-2.1A6 6 0 0 0 12 3z"/>'),
   search: ic('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>'),
   eye: ic('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
   swap: ic('<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'),
@@ -1701,6 +1717,7 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (
 const FRESH = (() => { try { return !localStorage.getItem(KEY); } catch (e) { return false; } })();   // first time ShiCards opens on this phone: show the onboarding
 let db = load();
 db.prefs = Object.assign({ englishFirst: true, writeMode: 'free', outline: false }, db.prefs);
+db.prefs.writeN ??= 10;   // word bank writing: how many at a time (0 = all)
 if (!db.prefs.enDefault) { db.prefs.englishFirst = true; db.prefs.enDefault = 1; }   // v1.86: Flip cards start on English for everyone, once; the switch still works after that
 if (db.prefs.goal && !db.prefs.goalMin) { db.prefs.goalMin = { 5: 5, 10: 10, 20: 15, 30: 20 }[db.prefs.goal] || 10; delete db.prefs.goal; }   // v1.82 goals were words a day
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
@@ -4493,13 +4510,32 @@ function stepCard(dir) {
 }
 
 /* ---------- write (tianzige) ---------- */
+/* A round: the word bank asks "how many at a time" (Practise sheet); a word you miss comes back after the round's
+   last new word, and once more if you miss it again. The score counts first tries. */
 function startWrite(ids) {
   const d = curDeck();
   if (ids || !S.write || S.write.deckId !== d.id || !S.write.order.every(id => cardById(d, id)))
-    S.write = { deckId: d.id, order: ids || shuffle(d.cards.map(c => c.id)), i: 0, results: {}, done: false };
+    S.write = { deckId: d.id, order: ids || writePick(d), i: 0, results: {}, tries: {}, last: {}, done: false };
+  S.write.main ??= S.write.order.length;
   resetCardState();
+  if (!S.H) loadHsk().then(() => { const W = S.write; if (S.view === 'write' && W && !W.done && $('#wprompt')) $('#wprompt').innerHTML = promptHtml(cardById(curDeck(), W.order[W.i])); }, () => {});
 }
-function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, shownAt: Date.now() }); }
+function writePick(d) {   // word bank: N words, the ones you missed last time and the ones never practised first
+  const ids = shuffle(d.cards.map(c => c.id)), n = db.prefs.writeN ?? 10;
+  if (d.id !== 'bank' || !n || n >= ids.length) return ids;
+  const rank = c => { const h = c.hist || []; return !h.length ? 1 : h[h.length - 1] ? 2 : 0; };
+  return shuffle(ids.map(id => cardById(d, id)).sort((a, b) => rank(a) - rank(b)).slice(0, n).map(c => c.id));
+}
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, sounded: false, shownAt: Date.now() }); }
+function promptHtml(c) {
+  const W = S.write, chars = hanChars(c.hanzi), ask = writeAsk(c), clue = writeClue(c), open = W.revealed || W.guidedDone;
+  const left = W.order.length - W.i;
+  const clueHz = clue && [...clue.hz].map(x => x === c.hanzi ? (open ? `<i class="w-gap fill">${esc(x)}</i>` : '<i class="w-gap"></i>') : esc(x)).join('');
+  return `<div class="eyebrow">${W.i >= W.main ? `Once more · ${left === 1 ? 'last one' : left + ' left'}` : `Write in hanzi · ${plural(chars.length, 'character')}`}</div>
+      <div class="prompt-en" style="font-size:${Math.min(44, enSize(ask.en))}px">${esc(ask.en)}</div>
+      ${clue ? `<div class="w-clue" id="wclue">as in <span class="hz">${clueHz}</span>${W.pyShown || open ? `<span class="py">${esc(clue.py)}</span>` : ''}<span>· ${esc(clue.en)}</span></div>` : ''}
+      <div class="reveal-line" id="rline">${open ? revealLine(c) : `<button class="link" data-act="py-hint">${W.pyShown ? esc(ask.py) : 'Show pinyin'}</button>`}</div>`;
+}
 function WriteView(d) {
   const W = S.write, n = W.order.length;
   if (W.done) return WriteSummary(d);
@@ -4509,21 +4545,45 @@ function WriteView(d) {
     <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button>
       <div class="progress"><div class="progress-fill" style="width:${W.i / n * 100}%"></div></div>
       <div class="seg"><button data-act="wmode" data-m="free" class="${guided ? '' : 'on'}">Free</button><button data-act="wmode" data-m="guided" class="${guided ? 'on' : ''}">Guided</button></div></header>
-    <section class="prompt">
-      <div class="eyebrow">Write in hanzi · ${plural(chars.length, 'character')}</div>
-      <div class="prompt-en" style="font-size:${Math.min(44, enSize(c.en))}px">${esc(c.en)}</div>
-      <div class="reveal-line" id="rline">${W.revealed || W.guidedDone ? revealLine(c) : `<button class="link" data-act="py-hint">${W.pyShown ? esc(c.pinyin) : 'Show pinyin'}</button>`}</div>
-    </section>
+    <section class="prompt" id="wprompt">${promptHtml(c)}</section>
     <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}" data-n="${i + 1}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
     <div class="note" id="note">${guided ? 'Draw each stroke in order — wrong strokes bounce back.' : 'Write with your finger, then check.'}</div>
     <div class="tools" id="tools">${guided
       ? `<button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
-      : `<button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>
+      : `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint</button><button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>
     <div class="dock" id="wdock">${writeDock()}</div></div>`;
 }
-const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(c.pinyin)}</span>`;
+const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(writeAsk(c).py)}</span>`;
+/* Hint: each tap draws the next stroke, in writing order, faintly into every box (the first tap shows stroke 1). */
+async function writeHint() {
+  const W = S.write; if (W.revealed || W.checking) return;
+  const c = cardById(curDeck(), W.order[W.i]), chars = hanChars(c.hanzi), boxes = $$('#grid .tzg');
+  let refs; try { refs = await Promise.all(chars.map(loadRef)); } catch (_) { toast('Hints need the internet the first time'); return; }
+  if (S.write !== W || W.revealed) return;
+  const most = Math.max(...refs.map(r => r.strokes.length));
+  if (W.hints >= most) { toast('That’s every stroke'); return; }
+  const k = W.hints++;
+  boxes.forEach((box, i) => {
+    const ref = refs[i], s = box._s || box.offsetWidth; if (k >= ref.strokes.length) return;
+    let svg = box.querySelector('.hint');
+    if (!svg) {
+      const p = Math.round(s * .09), sc = (s - 2 * p) / 1024;   // the same placement HanziWriter uses
+      box.querySelector('canvas').insertAdjacentHTML('beforebegin', `<svg class="hint" viewBox="0 0 ${s} ${s}" aria-hidden="true"><defs></defs><g transform="translate(${p} ${p + 900 * sc}) scale(${sc} ${-sc})"></g></svg>`);
+      svg = box.querySelector('.hint');
+    }
+    const id = `wh${i}_${k}_${Date.now() % 1e6}`, m = ref.medians[k];
+    const L = Math.ceil(m.reduce((a, q, j) => j ? a + Math.hypot(q[0] - m[j - 1][0], q[1] - m[j - 1][1]) : 0, 0)) + 160;
+    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<clipPath id="${id}"><path d="${ref.strokes[k]}"/></clipPath>`);
+    svg.querySelector('g').insertAdjacentHTML('beforeend', `<path class="hs" clip-path="url(#${id})" d="M${m.map(q => q.join(' ')).join('L')}" style="stroke-dasharray:${L} ${L + 400};stroke-dashoffset:${L}"/>`);
+  });
+  const n = W.hints;
+  $('#whint').innerHTML = `${I.bulb}${n >= most ? 'All strokes' : 'Next stroke'}`;
+  $('#note').textContent = chars.length > 1 ? `Hint: stroke ${n} of each character` : `Hint: stroke ${n} of ${refs[0].strokes.length}`;
+  LOG.add('write-hint', { hz: c.hanzi, n });
+}
 function writeDock() {
   const W = S.write, guided = db.prefs.writeMode === 'guided';
+  if (W.revealed && W.checking) return `<button class="btn btn-seal wide" disabled><span class="spin"></span>Checking…</button>`;
   if (W.revealed && W.judge && W.judge.ok !== null)
     return W.judge.ok
       ? `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Count as wrong</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Next</button></div>`
@@ -4841,7 +4901,9 @@ function judgeNote(chars) {
    matches best (order and direction don't matter), extra ink shrinks away, missing strokes grow out of your
    ink, and the lines thicken to brush width. Strokes set off one after another in writing order, so the
    motion flows; near the end the real brush character fades in on top, so there's no visible switch. */
-const MORPH = { n: 32, ms: 1100, stagger: .4, handoff: .72 };
+/* Each stroke also turns into its real brush shape as it lands (the line fades while the brush outline fills in), so by
+   the end the canvas already shows exactly the brush character and the switch to it can't be seen. */
+const MORPH = { n: 32, ms: 1250, stagger: .42, brush: .5 };
 function alongLine(pts, n) {           // n points spread evenly along a line
   const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
   const L = d[d.length - 1], out = []; let j = 1;
@@ -4862,7 +4924,7 @@ function morphToChar(box, ref) {
   U.forEach((u, i) => R.forEach((r, j) => { const ur = [...u].reverse(), f = gap(u, r), b = gap(ur, r); pairs.push({ i, j, c: Math.min(f, b), u: b < f ? ur : u }); }));
   pairs.sort((a, b) => a.c - b.c);
   const usedU = new Set(), usedR = new Set(), tracks = [];
-  for (const q of pairs) if (!usedU.has(q.i) && !usedR.has(q.j)) { usedU.add(q.i); usedR.add(q.j); tracks.push({ from: q.u, to: R[q.j], a0: 1, a1: 1, ord: q.j + 1 }); }
+  for (const q of pairs) if (!usedU.has(q.i) && !usedR.has(q.j)) { usedU.add(q.i); usedR.add(q.j); tracks.push({ from: q.u, to: R[q.j], a0: 1, a1: 1, ord: q.j + 1, j: q.j }); }
   const nearestPt = (q, A) => A.reduce((b, x) => Math.hypot(x.x - q.x, x.y - q.y) < Math.hypot(b.x - q.x, b.y - q.y) ? x : b);
   const Ua = U.flat(), Ra = R.flat();
   U.forEach((u, i) => { if (usedU.has(i)) return;                       // extra ink: shrink onto the character and fade
@@ -4870,7 +4932,9 @@ function morphToChar(box, ref) {
     tracks.push({ from: u, to: u.map(() => to), a0: 1, a1: 0, ord: 0 }); });
   R.forEach((r, j) => { if (usedR.has(j)) return;                       // missing stroke: grow out of the nearest ink
     const from = Ua.length ? nearestPt(r[n >> 1], Ua) : r[0];
-    tracks.push({ from: r.map(() => from), to: r, a0: 0, a1: 1, ord: j + 1 }); });
+    tracks.push({ from: r.map(() => from), to: r, a0: 0, a1: 1, ord: j + 1, j }); });
+  const brush = ref.strokes.map(d => { try { return new Path2D(d); } catch (_) { return null; } });
+  const clamp = x => Math.max(0, Math.min(1, x)), smooth = x => x * x * (3 - 2 * x);
   const last = Math.max(1, ...tracks.map(tr => tr.ord));               // extra ink leaves first, then strokes in writing order
   tracks.forEach(tr => { tr.d = MORPH.stagger * tr.ord / last; });
   const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
@@ -4881,18 +4945,25 @@ function morphToChar(box, ref) {
   const frame = now => {
     if (!box.isConnected) return;
     t0 ??= now; const t = Math.min(1, (now - t0) / MORPH.ms);
-    ctx.clearRect(0, 0, s, s); ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.clearRect(0, 0, s, s); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     for (const tr of tracks) {
-      const e = ease(Math.max(0, Math.min(1, (t - tr.d) / span)));
-      ctx.globalAlpha = Math.max(0, Math.min(1, tr.a0 + (tr.a1 - tr.a0) * e)); if (ctx.globalAlpha < .01) continue;
-      ctx.lineWidth = w0 + (w1 - w0) * e * e;                          // thickens mostly once the stroke has arrived
-      const P = tr.from.map((a, i) => { const b = tr.to[i]; return { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e }; });
-      ctx.beginPath(); ctx.moveTo(P[0].x, P[0].y);                     // rounded curve through the points
-      for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2);
-      ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); ctx.stroke();
+      const lin = clamp((t - tr.d) / span), e = ease(lin);
+      const f = tr.j != null && brush[tr.j] ? smooth(clamp((lin - MORPH.brush) / (1 - MORPH.brush))) : 0;   // 0 = your line, 1 = the brush stroke
+      const a = clamp(tr.a0 + (tr.a1 - tr.a0) * e);
+      ctx.globalAlpha = a * (1 - clamp((f - .25) / .75));              // the line lets go a little after the brush starts to show
+      if (ctx.globalAlpha >= .01) {
+        ctx.lineWidth = w0 + (w1 - w0) * e * e;                        // thickens mostly once the stroke has arrived
+        const P = tr.from.map((q, i) => { const b = tr.to[i]; return { x: q.x + (b.x - q.x) * e, y: q.y + (b.y - q.y) * e }; });
+        ctx.beginPath(); ctx.moveTo(P[0].x, P[0].y);                   // rounded curve through the points
+        for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2);
+        ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); ctx.stroke();
+      }
+      if (f > 0) {                                                     // the real brush stroke, placed exactly where HanziWriter draws it
+        ctx.globalAlpha = clamp(f * 1.5) * Math.max(a, f);
+        ctx.save(); ctx.translate(p, p + 900 * k); ctx.scale(k, -k); ctx.fill(brush[tr.j]); ctx.restore();
+      }
     }
     ctx.globalAlpha = 1;
-    if (t >= MORPH.handoff) handOff();
     if (t < 1) raf = requestAnimationFrame(frame); else end();
   };
   box._endMorph = end;
@@ -4916,15 +4987,19 @@ function revealFree() {
       }
     } else el.innerHTML = `<span class="ans-fallback">${chars[i]}</span>`;
     box.classList.add('revealed');
-    const j = W.judge?.chars?.[i];
-    if (j && j.ok !== null) {
-      box.classList.add(j.ok ? 'judged-ok' : 'judged-no');
-    }
   });
-  $('#rline').innerHTML = revealLine(c);
-  $('#note').innerHTML = (W.judge ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
+  $('#wprompt').innerHTML = promptHtml(c);
+  $('#note').innerHTML = W.checking ? '&nbsp;' : 'Tap a box to watch the stroke order.';
   $('#tools').innerHTML = '';
   $('#wdock').innerHTML = writeDock();
+  if (!W.checking) showVerdict();
+}
+function showVerdict() {   // the checker's answer: green or red ring per box, the reason, the sound, the grade buttons
+  const W = S.write, c = cardById(curDeck(), W.order[W.i]), chars = hanChars(c.hanzi);
+  $$('#grid .tzg').forEach((box, i) => { const j = W.judge?.chars?.[i]; if (j && j.ok !== null) box.classList.add(j.ok ? 'judged-ok' : 'judged-no'); });
+  $('#note').innerHTML = (W.judge ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
+  $('#wdock').innerHTML = writeDock();
+  if (W.judge?.ok != null) { W.sounded = true; W.judge.ok ? chime() : buzz(); }
 }
 function initGuided(boxes, chars, s) {
   const W = S.write;
@@ -4954,33 +5029,40 @@ function startQuiz(i) {
 function finishGuided(gaveUp) {
   const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
   W.guidedDone = true;
+  if (!gaveUp) { W.sounded = true; chime(); }
   LOG.add('write-guided', { hz: c.hanzi, mistakes: W.mistakes, gave_up: gaveUp ? true : undefined, took: Math.round((Date.now() - W.shownAt) / 1000) + 's' });
   $$('#grid .tzg').forEach(b => b.classList.remove('dim'));
-  $('#rline').innerHTML = revealLine(c);
+  $('#wprompt').innerHTML = promptHtml(c);
   $('#note').textContent = gaveUp ? 'Watch the strokes, then grade yourself.' : (W.mistakes ? `Done — ${plural(W.mistakes, 'mistake')}.` : 'Flawless — no mistakes! 👏');
   $('#tools').innerHTML = '';
   $('#wdock').innerHTML = writeDock();
 }
 function gradeWrite(ok) {
-  const W = S.write, d = curDeck(), c = cardById(d, W.order[W.i]);
-  W.results[c.id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); save(); noteDeck(d, c.id);
-  LOG.add('write-grade', { hz: c.hanzi, counted: ok ? 'right' : 'wrong', mode: db.prefs.writeMode, checker: W.judge ? W.judge.ok : undefined });
+  const W = S.write, d = curDeck(), id = W.order[W.i], c = cardById(d, id), first = !(id in W.results);
+  if (!W.sounded) ok ? chime() : buzz();                              // graded by you (offline, or Show me): the sound now
+  if (first) { W.results[id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); }   // the score and the memory count first tries
+  save(); noteDeck(d, c.id);
+  W.tries[id] = (W.tries[id] || 0) + 1; W.last[id] = ok;
+  if (!ok && W.tries[id] < 3) W.order.push(id);                       // missed: it comes back after the round's new words
+  LOG.add('write-grade', { hz: c.hanzi, counted: ok ? 'right' : 'wrong', mode: db.prefs.writeMode, checker: W.judge ? W.judge.ok : undefined, again: first ? undefined : true, hints: W.hints || undefined });
   W.i++;
-  if (W.i >= W.order.length) { W.done = true; LOG.add('write-round', { right: W.order.filter(id => W.results[id]).length, of: W.order.length }); }
+  if (W.i >= W.order.length) { W.done = true; LOG.add('write-round', { right: W.order.slice(0, W.main).filter(id => W.results[id]).length, of: W.main, fixed: W.order.slice(0, W.main).filter(id => !W.results[id] && W.last[id]).length }); }
   resetCardState(); render();
 }
 function WriteSummary(d) {
-  const W = S.write, ids = W.order, ok = ids.filter(id => W.results[id]).length, n = ids.length, pct = Math.round(ok / n * 100);
-  const missed = ids.filter(id => !W.results[id]).map(id => cardById(d, id)).filter(Boolean);
+  const W = S.write, ids = W.order.slice(0, W.main), ok = ids.filter(id => W.results[id]).length, n = ids.length, pct = Math.round(ok / n * 100);
+  const missed = ids.filter(id => !W.results[id]).map(id => cardById(d, id)).filter(Boolean), fixed = missed.filter(c => W.last[c.id]).length;
+  const more = d.id === 'bank' && (db.prefs.writeN ?? 10) && d.cards.length > n;   // the word bank has more words than this round
   const [hz, py, en] = pct === 100 ? ['太棒了', 'tài bàng le', 'Perfect round'] : pct >= 70 ? ['很好', 'hěn hǎo', 'Well done'] : ['加油', 'jiā yóu', 'Keep going'];
   return `<div class="screen fade-in" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button><div class="bar-title">Session</div><span style="width:42px"></span></header>
     <section class="summary"><div class="ring" style="--p:${pct}"><div><b>${ok}</b><span>of ${n}</span></div></div>
-      <h2>${hz}</h2><div class="py" style="margin-top:4px">${py}</div><div class="sub">${en}</div>
+      <h2>${hz}</h2><div class="py" style="margin-top:4px">${py}</div><div class="sub">${en}${fixed ? ` · ${fixed} right when ${fixed === 1 ? 'it' : 'they'} came back` : ''}</div>
       ${missed.length ? `<div class="missed">${missed.map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}</section>
     <div class="dock" style="display:flex;flex-direction:column;gap:10px">
       ${missed.length ? `<button class="btn btn-seal wide" data-act="retry-missed">Practise the ${missed.length} missed</button>` : ''}
-      <div class="row-btns"><button class="btn btn-ghost" data-act="write-again">Again</button><button class="btn btn-primary" data-act="back-deck">Done</button></div>
+      <div class="row-btns"><button class="btn btn-ghost" data-act="write-again">Again</button>${more
+        ? `<button class="btn btn-primary" data-act="write-next">Next ${db.prefs.writeN ?? 10}</button>` : '<button class="btn btn-primary" data-act="back-deck">Done</button>'}</div>
     </div></div>`;
 }
 
@@ -5558,16 +5640,41 @@ function HskShelf() {
 }
 let hskP = null;
 function loadHsk() {
-  return hskP ||= fetch('dict/hsk.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
-    const levels = {}, byHz = new Map();
+  const gloss = fetch('dict/gloss.tsv').then(r => r.ok ? r.text() : '', () => '');   // clear single-character meanings (writing practice); optional
+  return hskP ||= Promise.all([fetch('dict/hsk.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }), gloss]).then(([t, g]) => {
+    const levels = {}, byHz = new Map(), gl = new Map();
     for (const l of t.split('\n')) {
       if (!l || l[0] === '#') continue;
       const [lv, h, p, e] = l.split('\t'); if (!h) continue;
       const row = { lv: +lv, h, p, e: e || '' };
       (levels[row.lv] ||= []).push(row); if (!byHz.has(h)) byHz.set(h, row);
     }
-    S.H = { levels, byHz }; tagBank(); return S.H;
+    for (const l of g.split('\n')) { const [h, p, en] = l.replace(/\r$/, '').split('\t'); if (h && h[0] !== '#' && en) gl.set(h, { p, en }); }
+    S.H = { levels, byHz, gloss: gl }; tagBank(); return S.H;
   }).catch(e => { hskP = null; throw e; });
+}
+/* What a single character is asked as in writing practice. The HSK list's first dictionary sense is often a rare one
+   (长 "chief; head", 年 "grain; harvest (old)"), so: the hand-written meaning from dict/gloss.tsv when there is one,
+   else the dictionary meanings without abbreviations, radical names, slang and old senses. */
+const ODD_SENSE = /^(abbr|Kangxi|surname|variant|old variant|used in|see |\((coll|slang|literary|old|dialect|Tw|Taiwan|Cantonese|archaic|loanword|physics|math|chemistry)[^)]*\))|radical/i;
+function writeAsk(c) {
+  const chs = hanChars(c.hanzi); if (chs.length !== 1 || !S.H) return { en: c.en, py: c.pinyin };
+  const g = S.H.gloss?.get(c.hanzi); if (g) return { en: g.en, py: g.p || c.pinyin };
+  const row = S.H.byHz.get(c.hanzi); if (!row || c.en !== shortMeaning(row.e)) return { en: c.en, py: c.pinyin };   // a meaning you typed yourself stays
+  const ok = row.e.split('; ').filter(m => !ODD_SENSE.test(m) && !/^[A-Z][a-z]/.test(m)).join('; ');
+  return { en: (ok && shortMeaning(ok)) || c.en, py: c.pinyin };
+}
+/* a common word that uses the character, shown with the character left out (东＿ · thing): which sense is meant,
+   without giving the answer. Words from your word bank first, then the easiest HSK level. */
+function writeClue(c) {
+  const ch = c.hanzi; if (hanChars(ch).length !== 1 || !S.H) return null;
+  const mine = new Set(db.bank.map(w => w.hanzi)), say = normPy(writeAsk(c).py || ''); let best = null, bs = Infinity;
+  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, r] of (S.H.levels[lv] || []).entries()) {
+    if (r.h === ch || !r.h.includes(ch) || [...r.h].length > 3 || !r.e) continue;
+    if (say && normPy(r.p.split(' ')[[...r.h].indexOf(ch)] || '') !== say) continue;   // same reading only: "long" 长 cháng, not 校长 zhǎng
+    const sc = (mine.has(r.h) ? 0 : 1e5) + lv * 1e4 + k; if (sc < bs) { bs = sc; best = r; }
+  }
+  return best && { hz: best.h, py: best.p, en: shortMeaning(best.e) };
 }
 function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
   if (!S.H) return; let changed = false;
@@ -5590,9 +5697,13 @@ function practiseSheet() {
   openSheet(`<h3>Practise your word bank</h3><p class="muted" style="margin:-6px 0 16px">Choose the levels you want to be asked about.</p>
     <div class="group" id="pLv" style="margin-bottom:24px"><div class="row"><span class="row-s">Loading levels…</span></div></div>
     <p class="group-foot" id="pSum">&nbsp;</p>
+    <div class="pick-n"><span>Write, at a time</span><div class="seg" id="pN">${[5, 10, 15, 20, 0].map(k => `<button data-n="${k}" class="${(db.prefs.writeN ?? 10) === k ? 'on' : ''}">${k || 'All'}</button>`).join('')}</div></div>
+    <p class="group-foot" style="margin-top:0">Ones you get wrong come back at the end of the round.</p>
     <div class="row-btns"><button class="btn btn-ghost" id="pFlip">${I.flip}Flip cards</button><button class="btn btn-seal" id="pWrite">${I.pen}Write</button></div>`,
   sh => {
     const box = sh.querySelector('#pLv'), sum = sh.querySelector('#pSum'), bF = sh.querySelector('#pFlip'), bW = sh.querySelector('#pWrite');
+    sh.querySelector('#pN').onclick = e => { const b = e.target.closest('[data-n]'); if (!b) return; db.prefs.writeN = +b.dataset.n; save();
+      sh.querySelectorAll('#pN button').forEach(x => x.classList.toggle('on', x === b)); };
     let sel = new Set(), counts = {};
     const paint = () => {
       const lvls = [1, 2, 3, 4, 5, 6, 7, 0].filter(l => counts[l]);
@@ -5757,7 +5868,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.04';
+const APP_VERSION = '2.05';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6524,23 +6635,25 @@ const A = {
     $('#card3d').innerHTML = Faces(cardById(d, st.order[st.i]), d); st.angle = startAngle(); setAngle(false); showGrades(false);
   },
   'wmode': t => { if (db.prefs.writeMode === t.dataset.m) return; db.prefs.writeMode = t.dataset.m; save(); resetCardState(); render(); },
-  'py-hint': t => { const W = S.write; W.pyShown = true; t.textContent = cardById(curDeck(), W.order[W.i]).pinyin; },
+  'py-hint': () => { const W = S.write; W.pyShown = true; $('#wprompt').innerHTML = promptHtml(cardById(curDeck(), W.order[W.i])); },
+  'whint': () => writeHint(),
   'undo': () => { const W = S.write, box = W.history.pop(); if (box) { box._strokes.pop(); redraw(box); } },
   'clear': () => { const W = S.write; $$('#grid .tzg').forEach(b => { b._strokes = []; redraw(b); }); W.history = []; },
   'check': async () => {
     const W = S.write; if (!W.history.length) { toast('Write something first ✍️'); return; }
-    if (W.checking) return; W.checking = true; const t0 = Date.now();
-    $('#wdock').innerHTML = `<button class="btn btn-seal wide" disabled><span class="spin"></span>Checking…</button>`;
+    if (W.checking || W.revealed) return; W.checking = true; const t0 = Date.now();
     const chars = hanChars(cardById(curDeck(), W.order[W.i]).hanzi), boxes = $$('#grid .tzg');
-    const res = await rescueWithWord(null, chars, boxes, await Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))));
-    if (S.write !== W || W.revealed) return;
+    const judging = Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))).then(r => rescueWithWord(null, chars, boxes, r));
+    revealFree();   // your ink starts turning into the character right away; the verdict lands while it moves
+    const res = await judging;
+    if (S.write !== W || !W.revealed || !W.checking) return;   // switched mode or card meanwhile
     W.checking = false;
     W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
     LOG.add('write-check', { hz: chars.join(''), ok: W.judge.ok, wrote_for: Math.round((t0 - W.shownAt) / 1000) + 's', check_took: (Date.now() - t0) + 'ms',
       boxes: res.map((r, i) => ({ ok: r.ok, strokes: (boxes[i]._strokes || []).length, rank: r.rank, top: r.cands?.[0], fit: r.shape?.fit != null ? +r.shape.fit.toFixed(2) : undefined, missing: r.shape?.missing || undefined, stray: r.shape?.stray || undefined, part: r.shape?.badPart?.pos,
         ink: r.ok === false && !r.empty ? { s: boxes[i]._s, strokes: (boxes[i]._strokes || []).map(st => st.filter((_, k) => k % 2 === 0 || k === st.length - 1).map(p => [Math.round(p.x), Math.round(p.y)])) } : undefined })),   // a failed drawing, so a wrong "wrong" can be replayed and fixed
       said: judgeNote(chars).replace(/<[^>]+>/g, '') });
-    revealFree();
+    showVerdict();
   },
   'outline': t => {
     db.prefs.outline = !db.prefs.outline; save(); t.classList.toggle('on', db.prefs.outline);
@@ -6551,10 +6664,11 @@ const A = {
     W.writers.forEach((w, i) => { try { w.cancelQuiz(); } catch (_) {} setTimeout(() => w.animateCharacter(), i * 600); });
     finishGuided(true);
   },
-  'skip': () => gradeWrite(false),
+  'skip': () => { S.write.sounded = true; gradeWrite(false); },   // skipping is not a wrong answer: no buzz
   'grade': t => gradeWrite(t.dataset.ok === '1'),
-  'retry-missed': () => { const W = S.write; startWrite(W.order.filter(id => !W.results[id])); render(); },
-  'write-again': () => { startWrite(shuffle(S.write.order)); render(); },
+  'retry-missed': () => { const W = S.write; startWrite(W.order.slice(0, W.main).filter(id => !W.results[id])); render(); },
+  'write-again': () => { startWrite(shuffle(S.write.order.slice(0, S.write.main))); render(); },
+  'write-next': () => { startWrite(writePick(curDeck())); render(); },   // word bank: the next N (the ones just written right go to the back)
 };
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-act]'); if (!t || t.disabled) return;
