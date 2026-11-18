@@ -4326,7 +4326,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.75';
+const APP_VERSION = '1.76';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4574,7 +4574,7 @@ document.addEventListener('click', e => {
    Decks, Learn and Profile sit side by side: drag left or right and the next page follows your finger.
    Inside a deck, drag right to slide back to all decks. Let go past 30% of the width, or flick, to switch. */
 (function pageSwipe() {
-  const app = $('#app'), EASE = 'cubic-bezier(.2,.8,.2,1)', BOUNCE = 'cubic-bezier(.3,1.45,.5,1)';
+  const app = $('#app'), EASE = 'cubic-bezier(.2,.8,.2,1)';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let g = null, noClickUntil = 0;
   const targets = () => {
@@ -4611,8 +4611,8 @@ document.addEventListener('click', e => {
     const to = G.x0 < 0 ? G.T.next : G.T.prev;
     const go = e.type === 'pointerup' && to && (Math.abs(G.x0) > G.w * 0.3 || (Math.abs(G.v) > 0.3 && Math.sign(G.v) === Math.sign(G.x0)));
     LOG.add('swipe', { dir: G.x0 < 0 ? 'left' : 'right', switched: !!go, dragged: Math.round(Math.abs(G.x0) / G.w * 100) + '%', speed: +G.v.toFixed(2), page: !to ? 'none that way' : undefined });
-    const final = go ? Math.sign(G.x0) * G.w : 0, dur = reduce.matches ? 0 : go ? 260 : !to ? 520 : 220;
-    place(final, dur || 1, !go && !to ? BOUNCE : EASE);   // first or last page: spring back with a little bounce
+    const final = go ? Math.sign(G.x0) * G.w : 0, dur = reduce.matches || (!go && !G.x0) ? 0 : go ? 260 : 220;
+    place(final, dur || 1);
     setTimeout(() => {
       g = null; app.classList.remove('swiping');
       const pl = pill(); if (pl) pl.style.transition = '';
@@ -4635,9 +4635,9 @@ document.addEventListener('click', e => {
       begin();
     }
     g.v = speed(g.hist, e.clientX, e.timeStamp);
-    // first or last page, nothing that way: the page still follows your finger out to the far edge, then springs back on release
+    // first or last page, nothing that way: the page stays still
     const edge = (dx > 0 && !g.T.prev) || (dx < 0 && !g.T.next);
-    g.x0 = edge ? Math.sign(dx) * Math.min(g.w, Math.abs(dx)) * 0.85 : Math.max(-g.w, Math.min(g.w, dx));
+    g.x0 = edge ? 0 : Math.max(-g.w, Math.min(g.w, dx));
     place(g.x0, 0);
   });
   app.addEventListener('pointerup', end);
