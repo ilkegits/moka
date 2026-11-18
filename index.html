@@ -556,7 +556,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .w-gap.fill{border:0;width:auto;height:auto;color:var(--seal);font-style:normal}
 /* a hint: the next stroke drawn in faint red, in its writing direction, like a copybook */
 .tzg .hint{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .3s}
-.tzg .hint .hs{fill:none;stroke:color-mix(in srgb,var(--seal) 34%,transparent);stroke-width:150;stroke-linecap:round;stroke-linejoin:round;animation:hintDraw .7s cubic-bezier(.4,0,.2,1) forwards}
+.tzg .hint .hs{fill:none;stroke:color-mix(in srgb,var(--seal) 48%,transparent);stroke-width:150;stroke-linecap:round;stroke-linejoin:round;animation:hintDraw .8s cubic-bezier(.4,0,.2,1) forwards}
 @keyframes hintDraw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.tzg .hint .hs{animation-duration:.01s}}
 .tzg.revealed .hint{opacity:0}
@@ -4526,7 +4526,7 @@ function writePick(d) {   // word bank: N words, the ones you missed last time a
   const rank = c => { const h = c.hist || []; return !h.length ? 1 : h[h.length - 1] ? 2 : 0; };
   return shuffle(ids.map(id => cardById(d, id)).sort((a, b) => rank(a) - rank(b)).slice(0, n).map(c => c.id));
 }
-function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, sounded: false, shownAt: Date.now() }); }
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, gNext: [], gHint: [], sounded: false, shownAt: Date.now() }); }
 function promptHtml(c) {
   const W = S.write, chars = hanChars(c.hanzi), ask = writeAsk(c), clue = writeClue(c), open = W.revealed || W.guidedDone;
   const left = W.order.length - W.i;
@@ -4549,37 +4549,50 @@ function WriteView(d) {
     <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}" data-n="${i + 1}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
     <div class="note" id="note">${guided ? 'Draw each stroke in order — wrong strokes bounce back.' : 'Write with your finger, then check.'}</div>
     <div class="tools" id="tools">${guided
-      ? `<button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
+      ? `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint</button><button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
       : `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint</button><button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>
     <div class="dock" id="wdock">${writeDock()}</div></div>`;
 }
 const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(writeAsk(c).py)}</span>`;
-/* Hint: each tap draws the next stroke, in writing order, faintly into every box (the first tap shows stroke 1). */
+/* Hint: each tap draws the next stroke faintly in red, in its writing direction.
+   Free: stroke 1, then 2… into every box. Guided: the stroke you are due to write next, in the box you are on. */
 async function writeHint() {
-  const W = S.write; if (W.revealed || W.checking) return;
+  const W = S.write; if (W.revealed || W.checking || W.guidedDone) return;
   const c = cardById(curDeck(), W.order[W.i]), chars = hanChars(c.hanzi), boxes = $$('#grid .tzg');
   let refs; try { refs = await Promise.all(chars.map(loadRef)); } catch (_) { toast('Hints need the internet the first time'); return; }
-  if (S.write !== W || W.revealed) return;
+  if (S.write !== W || W.revealed || W.guidedDone) return;
+  const btn = $('#whint');
+  if (db.prefs.writeMode === 'guided') {
+    const i = W.active, ref = refs[i], k = Math.max(W.gNext?.[i] || 0, (W.gHint?.[i] ?? -1) + 1);
+    if (k >= ref.strokes.length) { toast('That’s every stroke'); return; }
+    (W.gHint ||= [])[i] = k; W.hints++;
+    hintStroke(boxes[i], ref, k);
+    $('#note').textContent = `Hint: stroke ${k + 1} of ${ref.strokes.length}${chars.length > 1 ? ` (box ${i + 1})` : ''}`;
+    if (btn) btn.innerHTML = `${I.bulb}Next stroke`;
+    LOG.add('write-hint', { hz: c.hanzi, n: k + 1, mode: 'guided' });
+    return;
+  }
   const most = Math.max(...refs.map(r => r.strokes.length));
   if (W.hints >= most) { toast('That’s every stroke'); return; }
   const k = W.hints++;
-  boxes.forEach((box, i) => {
-    const ref = refs[i], s = box._s || box.offsetWidth; if (k >= ref.strokes.length) return;
-    let svg = box.querySelector('.hint');
-    if (!svg) {
-      const p = Math.round(s * .09), sc = (s - 2 * p) / 1024;   // the same placement HanziWriter uses
-      box.querySelector('canvas').insertAdjacentHTML('beforebegin', `<svg class="hint" viewBox="0 0 ${s} ${s}" aria-hidden="true"><defs></defs><g transform="translate(${p} ${p + 900 * sc}) scale(${sc} ${-sc})"></g></svg>`);
-      svg = box.querySelector('.hint');
-    }
-    const id = `wh${i}_${k}_${Date.now() % 1e6}`, m = ref.medians[k];
-    const L = Math.ceil(m.reduce((a, q, j) => j ? a + Math.hypot(q[0] - m[j - 1][0], q[1] - m[j - 1][1]) : 0, 0)) + 160;
-    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<clipPath id="${id}"><path d="${ref.strokes[k]}"/></clipPath>`);
-    svg.querySelector('g').insertAdjacentHTML('beforeend', `<path class="hs" clip-path="url(#${id})" d="M${m.map(q => q.join(' ')).join('L')}" style="stroke-dasharray:${L} ${L + 400};stroke-dashoffset:${L}"/>`);
-  });
+  boxes.forEach((box, i) => { if (k < refs[i].strokes.length) hintStroke(box, refs[i], k); });
   const n = W.hints;
-  $('#whint').innerHTML = `${I.bulb}${n >= most ? 'All strokes' : 'Next stroke'}`;
+  if (btn) btn.innerHTML = `${I.bulb}${n >= most ? 'All strokes' : 'Next stroke'}`;
   $('#note').textContent = chars.length > 1 ? `Hint: stroke ${n} of each character` : `Hint: stroke ${n} of ${refs[0].strokes.length}`;
   LOG.add('write-hint', { hz: c.hanzi, n });
+}
+function hintStroke(box, ref, k) {   // stroke k, drawn in along its own direction, clipped to the brush outline
+  const s = box._s || box.offsetWidth;
+  let svg = box.querySelector('.hint');
+  if (!svg) {
+    const p = Math.round(s * .09), sc = (s - 2 * p) / 1024;   // the same placement HanziWriter uses
+    box.querySelector('canvas').insertAdjacentHTML('beforebegin', `<svg class="hint" viewBox="0 0 ${s} ${s}" aria-hidden="true"><defs></defs><g transform="translate(${p} ${p + 900 * sc}) scale(${sc} ${-sc})"></g></svg>`);
+    svg = box.querySelector('.hint');
+  }
+  const id = `wh${box.dataset.i}_${k}_${Date.now() % 1e6}`, m = ref.medians[k];
+  const L = Math.ceil(m.reduce((a, q, j) => j ? a + Math.hypot(q[0] - m[j - 1][0], q[1] - m[j - 1][1]) : 0, 0)) + 160;
+  svg.querySelector('defs').insertAdjacentHTML('beforeend', `<clipPath id="${id}"><path d="${ref.strokes[k]}"/></clipPath>`);
+  svg.querySelector('g').insertAdjacentHTML('beforeend', `<path class="hs" clip-path="url(#${id})" d="M${m.map(q => q.join(' ')).join('L')}" style="stroke-dasharray:${L} ${L + 400};stroke-dashoffset:${L}"/>`);
 }
 function writeDock() {
   const W = S.write, guided = db.prefs.writeMode === 'guided';
@@ -5015,10 +5028,11 @@ function initGuided(boxes, chars, s) {
 }
 function startQuiz(i) {
   const W = S.write, boxes = $$('#grid .tzg');
-  W.active = i;
+  W.active = i; (W.gNext ||= [])[i] = 0;
   boxes.forEach((b, j) => b.classList.toggle('dim', j !== i && !b.classList.contains('done-ok')));
   W.writers[i].quiz({
     onMistake: () => { W.mistakes++; LOG.add('write-miss', { box: i + 1 }); $('#note').textContent = `${plural(W.mistakes, 'mistake')} so far`; },
+    onCorrectStroke: d => { W.gNext[i] = d.strokeNum + 1; },   // the stroke a Hint shows next
     onComplete: () => {
       boxes[i].classList.add('done-ok'); boxes[i].classList.remove('dim');
       if (i + 1 < W.writers.length) setTimeout(() => S.write === W && startQuiz(i + 1), 380);
@@ -5868,7 +5882,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.05';
+const APP_VERSION = '2.06';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
