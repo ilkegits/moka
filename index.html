@@ -2208,12 +2208,14 @@ function HotdCard(just) {
    with ×, the top card is tossed away and the story card rises into its place. */
 function HotdStack() {
   const H = hotdPick(), two = !H?.off;
+  if (H?.storyOff) return '';   // both cards closed: nothing here until tomorrow's character
   return `<div class="hd-stack${two ? ' two' : ''}" id="hdStack">${HotdStoryCard(two)}${two ? HotdCard() : ''}</div>`;
 }
 function HotdStoryCard(back) {
   const s = db.readCur, H = db.hotd, go = s?.opened ? 'Keep reading' : 'Read a story';
   return `<section class="hd-card rev hd-story${back ? ' back' : ''}" id="hdStory" aria-label="Read a story"${back ? ' inert aria-hidden="true"' : ''}>
     <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
+    ${back ? '' : `<button class="hd-x" data-act="story-close" aria-label="Close the story card">${I.close}</button>`}
     <div class="hd-row"><button class="hd-pad" data-act="tab" data-h="#/read" aria-label="${go}"><div class="hd-tile">${TZG}<span class="hd-ch">${esc(s ? storyGlyph(s) : '读')}</span></div></button>
       <div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
         <div class="hd-meta">${H?.off === 'done' ? `<span>Today’s hanzi ${esc(H.h)} ✓</span>` : '<span>Tap any word for its meaning</span>'}</div></div></div>
@@ -2236,6 +2238,16 @@ function hotdClose() {
   const H = db.hotd; if (!H || H.off) return;
   H.off = 'x'; save(); LOG.add('hotd-close', { hz: H.h, revealed: !!H.rev });
   hotdDismiss();
+}
+function storyClose() {   // the story card flies off too and the space closes up; tomorrow brings a new stack
+  const H = db.hotd; if (!H || H.storyOff) return;
+  H.storyOff = true; save(); LOG.add('story-card-close', { hz: H.h });
+  const st = $('#hdStack'), c = $('#hdStory'); if (!st) return;
+  if (!c || stillMotion()) { st.remove(); return; }
+  const cs = getComputedStyle(st);
+  c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(108%,-14px) rotate(13deg)', opacity: .2 }], { duration: 380, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'forwards' });
+  st.animate([{ height: st.offsetHeight + 'px', marginTop: cs.marginTop, marginBottom: cs.marginBottom }, { height: '0px', marginTop: '0px', marginBottom: '0px' }],
+    { duration: 360, delay: 220, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => st.remove();
 }
 const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 function hdFlake(card, x, y, burst) {   // a fleck of gold foil flying off where you rub
@@ -3928,7 +3940,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.61';
+const APP_VERSION = '1.62';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4056,6 +4068,7 @@ const A = {
   'say': t => sayZh(t.dataset.h),
   'hotd-open': () => hotdSheet(),
   'hotd-close': () => hotdClose(),
+  'story-close': () => storyClose(),
   'rpop-add': t => addReadWord(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
   'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
