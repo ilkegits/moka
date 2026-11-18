@@ -205,25 +205,11 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-lbl{position:relative;display:flex;align-items:baseline;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;opacity:.95}
 .hd-zh{font-family:var(--hanzi);font-weight:600;font-size:13px;letter-spacing:.12em;opacity:.8}
 .hd-row{position:relative;display:flex;align-items:center;gap:16px;margin-top:12px}
-.hd-pad{position:relative;flex:none;width:118px;height:118px;border-radius:12px;overflow:hidden;box-shadow:0 10px 18px -10px rgba(60,10,5,.6),0 0 0 3px rgba(255,248,242,.16)}
-.hd-tile{position:absolute;inset:0;display:grid;place-items:center;background:var(--card);color:var(--grid)}
-.hd-ch{position:relative;font-family:var(--hanzi);font-weight:600;font-size:80px;line-height:1;color:var(--ink);margin-top:-4px}
-.hd-foil,.hd-scratch canvas{position:absolute;inset:0;width:100%;height:100%}
-.hd-scratch canvas{touch-action:none;cursor:grab;opacity:0}
-.hd-scratch.live canvas{opacity:1}
-.hd-scratch.live .hd-foil{visibility:hidden}
-.hd-foil{display:grid;place-items:center;align-content:center;background:linear-gradient(135deg,#E2AE3E,#FFE7A0 45%,#E9B949 60%,#C98F24);color:#A86A0C}
-.hd-foil b{font:800 54px/1 "Baloo 2",var(--ui)}
-.hd-foil small{font-family:var(--hanzi);font-size:12px;letter-spacing:.2em;font-weight:600}
 .hd-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 48%,transparent 60%);
   transform:translateX(-120%);animation:hdSheen 3.6s ease-in-out 1s infinite}
-.hd-scratch.going .hd-sheen{display:none}
 @keyframes hdSheen{0%{transform:translateX(-120%)}35%,100%{transform:translateX(120%)}}
-.hd-scratch.pop canvas{transition:opacity .4s ease,transform .45s cubic-bezier(.3,.6,.4,1);opacity:0;transform:scale(1.25)}
-.hd-scratch.pop .hd-tile{animation:hdStamp .5s cubic-bezier(.3,1.6,.5,1) both}
 @keyframes hdStamp{0%{transform:scale(.86)}60%{transform:scale(1.07)}100%{transform:none}}
 .hd-txt{position:relative;flex:1;min-width:0;padding-right:60px}
-.hd-card.rev .hd-txt{padding-right:0}
 .hd-big{font-size:25px;font-weight:800;line-height:1.05;letter-spacing:-.02em}
 .hd-sub{margin-top:6px;font-size:14px;line-height:1.35;opacity:.88}
 .hd-py{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
@@ -235,11 +221,28 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-shi{position:absolute;right:-8px;bottom:-30px;width:88px;height:88px;transform-origin:50% 100%;animation:hdPeek 4.5s ease-in-out infinite;pointer-events:none}
 .hd-shi .shi-face{width:100%;height:100%;display:block}
 @keyframes hdPeek{0%,100%{transform:translateY(8px) rotate(4deg)}45%,70%{transform:translateY(-6px) rotate(-7deg)}}
-.hd-card.rev .hd-shi{bottom:6px;width:88px;height:88px;right:8px;animation:none}
+/* the card: Shi Shi on the right, one Learn bubble; once uncovered, the character with its sound and meaning */
+.hd-day{min-height:172px}
+.hd-day .hd-txt{margin-top:12px;padding-right:112px}
+.hd-day .hd-big{max-width:210px}
+.hd-day .hd-meta{margin-top:10px}
+.hd-today{display:flex;align-items:center;gap:12px}
+.hd-han{flex:none;font-family:var(--hanzi);font-weight:600;font-size:60px;line-height:1}
+.hd-id{min-width:0}
+.hd-id .hd-py{display:block;font-size:24px}
+.hd-id .hd-en{margin-top:2px;font-size:15px}
+.hd-bub{position:relative;display:inline-flex;align-items:center;gap:7px;margin-top:16px;height:46px;padding:0 14px 0 22px;border-radius:23px 23px 6px 23px;
+  background:var(--seal-ink);color:var(--hd);font-size:18px;font-weight:800;letter-spacing:-.01em;box-shadow:0 10px 18px -12px rgba(60,10,5,.75);transition:transform .2s}
+.hd-bub:active{transform:scale(.95);transition:none}
+.hd-bub .hd-zh{font-size:16px;opacity:.7;letter-spacing:0}
+.hd-bub svg.i{width:18px;height:18px;stroke-width:2.8;margin-left:-2px}
+.hd-bub::after{content:"";position:absolute;right:-10px;bottom:5px;width:16px;height:13px;background:inherit;clip-path:polygon(0 0,100% 72%,0 100%)}   /* the tail points at Shi Shi */
+.hd-day .hd-shi{right:-6px;bottom:-14px;width:128px;height:128px;pointer-events:auto;cursor:pointer;padding:0;background:none;border:0}
+.hd-day.rev .hd-shi{bottom:-8px;animation:none}
 .hd-card.just .hd-shi{animation:hdUp .7s cubic-bezier(.3,1.5,.5,1) both,shiHop 1.4s ease-in-out .7s 1}
 @keyframes hdUp{from{transform:translateY(70px) scale(.7)}to{transform:none}}
-.hd-card.just .hd-py,.hd-card.just .hd-en,.hd-card.just .hd-meta,.hd-card.just .hd-go{animation:hdRise .5s cubic-bezier(.2,.8,.3,1) both}
-.hd-card.just .hd-en{animation-delay:.08s}.hd-card.just .hd-meta{animation-delay:.16s}.hd-card.just .hd-go{animation-delay:.26s}
+.hd-card.just .hd-today,.hd-card.just .hd-meta,.hd-card.just .hd-bub,.hd-card.just .hd-go{animation:hdRise .5s cubic-bezier(.2,.8,.3,1) both}
+.hd-card.just .hd-today{animation-delay:.04s}.hd-card.just .hd-meta{animation-delay:.16s}.hd-card.just .hd-bub,.hd-card.just .hd-go{animation-delay:.26s}
 @keyframes hdRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .hd-fx{position:absolute;inset:0;pointer-events:none}
 .hd-flake{position:absolute;width:7px;height:5px;border-radius:1.5px;background:#FFD15C;box-shadow:0 0 0 .5px rgba(168,106,12,.5)}
@@ -260,7 +263,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-card.rev.hd-story .hd-shi{right:-4px;bottom:-8px;width:160px;height:160px;pointer-events:auto;padding:0;background:none;border:0;cursor:pointer}
 .hd-story .shi-read{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 14px rgba(40,6,4,.45))}
 @media (max-width:359px){.hd-card.rev.hd-story .hd-shi{width:124px;height:124px}.hd-card.rev.hd-story .hd-txt{padding-right:100px}.hd-story .hd-go{padding:0 14px;font-size:15px}}   /* small phones: the button keeps one line and stays clear of the book */
-@media (prefers-reduced-motion:reduce){.hd-shi,.hd-sheen,.hd-card.just *,.hd-scratch.pop *,.hd-card.back.up *{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){.hd-shi,.hd-sheen,.hd-card.just *,.hdx-tile.pop *,.hdx-in,.hdx-head.new,.hdx-after>*,.hd-card.back.up *{animation:none!important;transition:none!important}}
 /* the Hanzi of the day pop-up: meaning, stroke order step by step, write it yourself, add to the word bank */
 .hs-top{display:flex;align-items:center;gap:16px;margin:-4px 2px 14px}
 .hs-hz{font-family:var(--hanzi);font-weight:600;font-size:74px;line-height:1;color:var(--ink)}
@@ -311,6 +314,78 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hs-btns{display:flex;flex-direction:column;gap:10px}
 .hs-add.done{background:var(--jade-soft);color:var(--jade);animation:pop .35s cubic-bezier(.2,.9,.3,1.4) both}
 .hs-off{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 18px}
+/* the Hanzi of the day pop-up: the card grows into a full red page with three pages side by side, swipe between them */
+html.hdx-on,html.hdx-on body{overflow:hidden}
+.hdx{--hd:#C4432E;position:fixed;inset:0;z-index:48;background:var(--hd);color:var(--seal-ink);overflow:hidden}
+.hdx::before{content:"";position:absolute;left:-120px;top:-90px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.3),transparent 62%);pointer-events:none}
+.hdx-in{position:relative;height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column}
+.hdx-bar{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top)) 10px 4px 20px}
+.hdx-bar .hd-lbl{flex:1;min-width:0;white-space:nowrap}
+.hdx .hd-x{position:static;flex:none;width:40px;height:40px}
+.hdx .hd-x svg.i{width:19px;height:19px}
+.hdx-dots{display:flex}
+.hdx-dots button{width:20px;height:40px;display:grid;place-items:center}
+.hdx-dots button::before{content:"";width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.35;transition:width .25s,opacity .25s}
+.hdx-dots button.on::before{width:18px;opacity:1}
+.hdx-pager{flex:1;min-height:0;display:flex;overflow:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior:contain}
+.hdx-pager.free{overflow-x:auto}
+.hdx-pager::-webkit-scrollbar{display:none}
+.hdx-pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:none;
+  display:flex;flex-direction:column;align-items:center;padding:8px 20px calc(18px + env(safe-area-inset-bottom))}
+.hdx-pg>*{flex-shrink:0}
+.hdx-head{min-height:84px;margin-bottom:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.hdx-head.new>*{animation:hdRise .45s cubic-bezier(.2,.8,.3,1) both}.hdx-head.new>*+*{animation-delay:.08s}
+.hdx-t{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.hdx-s{margin-top:6px;font-size:15px;opacity:.88}
+.hdx-py{display:flex;align-items:center;gap:10px;font-size:36px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.hdx .hs-say{width:40px;height:40px;background:rgba(255,248,242,.18);color:var(--seal-ink)}
+.hdx-en{margin-top:6px;font-size:16px;font-weight:600;line-height:1.35}
+.hdx-en span{opacity:.6;margin:0 3px}
+.hdx-tile{--t:min(calc(100vw - 56px),336px,44vh);position:relative;flex:none;width:var(--t);height:var(--t);border-radius:16px;overflow:hidden;background:var(--card);color:var(--grid);
+  box-shadow:0 22px 34px -18px rgba(60,10,5,.75),0 0 0 4px rgba(255,248,242,.16);touch-action:none}
+.hdx-ch{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:calc(var(--t) * .68);line-height:1;color:var(--ink);padding-bottom:calc(var(--t) * .03)}
+.hdx-foil,.hdx-tile canvas{position:absolute;inset:0;width:100%;height:100%}
+.hdx-foil{background:linear-gradient(135deg,#E2AE3E,#FFE7A0 45%,#E9B949 60%,#C98F24)}
+.hdx-tile.live .hdx-foil{visibility:hidden}
+.hdx-tile canvas{cursor:grab;touch-action:none}
+.hdx-tile.going .hd-sheen{display:none}
+.hdx-tile.pop canvas{transition:opacity .4s ease,transform .45s cubic-bezier(.3,.6,.4,1);opacity:0;transform:scale(1.25)}
+.hdx-tile.pop .hdx-ch{animation:hdStamp .5s cubic-bezier(.3,1.6,.5,1) both}
+.hdx-tile:focus-visible{outline:3px solid #FFE08A;outline-offset:4px}
+.hdx-after{min-height:104px;margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.hdx-after>*{animation:hdRise .45s cubic-bezier(.2,.8,.3,1) .12s both}.hdx-after>*+*{animation-delay:.22s}
+.hdx-after .hd-meta{margin:0}
+.hdx-next{display:inline-flex;align-items:center;gap:4px;height:44px;padding:0 14px 0 20px;border-radius:22px;background:rgba(255,248,242,.16);color:var(--seal-ink);font-size:15.5px;font-weight:700;flex:none}
+.hdx-next svg.i{width:17px;height:17px;stroke-width:2.6}
+.hdx-say{margin-top:auto;align-self:stretch;display:flex;align-items:flex-end;gap:8px;padding-top:12px}
+.hdx .hs-shi{flex:none;width:58px;height:58px;transform-origin:50% 100%}
+.hdx .hs-shi.hop{animation:shiHop 1.2s ease-in-out 1}
+.hdx .hs-bub{box-shadow:none}
+.hdx .hs-h{align-self:stretch;margin:4px 2px 14px;font-size:20px}
+.hdx .hs-h span{color:inherit;opacity:.75}
+.hdx .hs-ctl .icon-btn{background:rgba(255,248,242,.16);color:var(--seal-ink)}
+.hdx .hs-ctl .hs-play{background:var(--seal-ink);color:var(--hd)}
+.hdx .hs-cap{color:inherit;opacity:.85}
+.hdx .hs-strip{align-self:stretch;margin:14px -20px 16px;overscroll-behavior-x:contain}
+.hdx .hs-fr.on{box-shadow:0 0 0 2.5px #FFD15C}
+.hdx .hs-say-row{align-self:stretch}
+.hdx-btn{flex:none;background:var(--seal-ink);color:var(--hd);font-weight:700}
+.hdx-btn svg.i{width:19px;height:19px}
+.hdx-p2 .hdx-next,.hdx-p3 .hdx-src{margin-top:14px}
+.hdx-p3 .hs-words{align-self:stretch}
+.hdx .hs-w{color:var(--ink)}
+.hdx-sents{align-self:stretch;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.hdx-sent{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 46px 13px 15px;border-radius:14px;background:var(--card);color:var(--ink);text-align:left;transition:background .25s}
+.hdx-sent:active{background:var(--paper-deep);transition:none}
+.hdx-sent b{font-family:var(--hanzi);font-weight:600;font-size:21px;line-height:1.35}
+.hdx-sent b i{font-style:normal;color:var(--seal)}
+.hdx-sent small{font-size:13px;line-height:1.35;color:var(--muted)}
+.hdx-sent span{font-size:14.5px;line-height:1.35;color:var(--ink-2)}
+.hdx-sent svg.i{position:absolute;right:14px;top:16px;width:20px;height:20px;color:var(--seal)}
+.hdx-none{text-align:center;font-size:14.5px;opacity:.85;margin:8px 0}
+.hdx .hs-add.done{background:var(--seal-ink);color:var(--jade);opacity:1}
+.hdx-src{font-size:12px;opacity:.7;margin:0}
+.hdx :focus-visible{outline:3px solid #FFE08A;outline-offset:3px}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
 .section-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
 .decks{display:flex;flex-direction:column;margin-bottom:22px;background:var(--card);border-radius:14px;box-shadow:var(--ring);overflow:hidden}
@@ -2310,21 +2385,18 @@ function hotdPick() {
   save(); LOG.add('hotd-pick', { hz: r.h, lv: r.lv });
   return db.hotd;
 }
-function HotdCard(just) {
+function HotdCard(just) {   // the card on Decks: Shi Shi and one Learn bubble; the character itself waits in the pop-up
   const H = hotdPick(), rev = !!H?.rev, mine = H && bankHas(H.h);
-  const tile = `<div class="hd-tile">${TZG}<span class="hd-ch">${H && rev ? esc(H.h) : ''}</span></div>`;
-  const pad = rev ? `<button class="hd-pad" data-act="hotd-open" aria-label="Open ${esc(H.h)}">${tile}</button>`
-    : `<div class="hd-pad hd-scratch" id="hdScratch" role="button" tabindex="0" aria-label="Scratch the gold to see today's character">${tile}
-        <div class="hd-foil"><b>?</b><small>刮一刮</small></div><canvas></canvas><div class="hd-sheen"></div></div>`;
-  const txt = rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(shortMeaning(H.e))}</div>
-      <div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${H.n ? `<span>${H.n} strokes</span>` : ''}${mine ? '<span>In your word bank ✓</span>' : ''}</div>`
-    : `<div class="hd-big">Scratch the gold</div><div class="hd-sub">Rub it off to see today’s character</div>`;
-  return `<section class="hd-card${rev ? ' rev' : ''}${just ? ' just' : ''}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}>
+  const meta = H ? `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span>${H.n ? `<span>${plural(H.n, 'stroke')}</span>` : ''}${mine ? '<span>In your word bank ✓</span>' : ''}</div>` : '';
+  const txt = !H ? '<div class="hd-big">A new character</div><div class="hd-sub">Getting it ready…</div>'
+    : rev ? `<div class="hd-today"><span class="hd-han">${esc(H.h)}</span><span class="hd-id"><span class="hd-py">${esc(H.p)}</span><span class="hd-en">${esc(shortMeaning(H.e))}</span></span></div>${meta}`
+    : `<div class="hd-big">A new character is waiting</div>${meta}`;
+  return `<section class="hd-card hd-day${rev ? ' rev' : ''}${just ? ' just' : ''}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}>
     <div class="hd-lbl">HANZI OF THE DAY <span class="hd-zh">今日一字</span></div>
     ${H ? `<button class="hd-x" data-act="hotd-close" aria-label="Close Hanzi of the day">${I.close}</button>` : ''}
-    <div class="hd-row">${pad}<div class="hd-txt">${txt}</div></div>
-    ${rev ? '<button class="btn hd-go" data-act="hotd-open">Learn to write it</button>' : ''}
-    <div class="hd-shi">${shiFace(rev ? 'cheer' : 'peek')}</div><div class="hd-fx" aria-hidden="true"></div></section>`;
+    <div class="hd-txt">${txt}</div>
+    ${H ? `<button class="hd-bub" data-act="hotd-open">Learn <span class="hd-zh">学</span>${I.chev}</button>` : ''}
+    <button class="hd-shi" data-act="hotd-open" tabindex="-1" aria-hidden="true"${H ? '' : ' disabled'}>${shiFace(rev ? 'cheer' : 'peek')}</button></section>`;
 }
 /* Hanzi of the day lies on top of the story card. Once today's character is done (in your word bank) or closed
    with ×, the top card is tossed away and the story card rises into its place. */
@@ -2372,9 +2444,9 @@ function storyClose() {   // the story card flies off too and the space closes u
     { duration: 360, delay: 220, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => st.remove();
 }
 const stillMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-function hdFlake(card, x, y, burst) {   // a fleck of gold foil flying off where you rub
+function hdFlake(fx, x, y, burst) {   // a fleck of gold foil flying off where you rub (x, y: place inside fx)
   if (stillMotion()) return;
-  const fx = card.querySelector('.hd-fx'), f = document.createElement('i'), k = Math.random();
+  const f = document.createElement('i'), k = Math.random();
   f.className = 'hd-flake' + (k < .25 ? ' w' : k < .5 ? ' d' : ''); f.style.left = x + 'px'; f.style.top = y + 'px'; fx.append(f);
   const a = Math.random() * Math.PI * 2, d = burst ? 60 + Math.random() * 110 : 0;
   const dx = burst ? Math.cos(a) * d : (Math.random() - .5) * 46, dy = burst ? Math.sin(a) * d : 26 + Math.random() * 50;
@@ -2396,110 +2468,212 @@ function paintFoil(ctx, w, h) {
   ctx.fillStyle = '#F4C14E'; ctx.fillText('?', w / 2, h * .44);
   ctx.font = `600 ${Math.round(w * .1)}px "Noto Serif SC",serif`; ctx.fillStyle = '#A86A0C'; ctx.fillText('刮 一 刮', w / 2, h * .82);
 }
-function mountHotd() {
-  const box = $('#hdScratch'), H = db.hotd, card = $('#hotd');
-  if (!box || !H || H.day !== dayKey(Date.now()) || box._on) return;
-  const cv = box.querySelector('canvas'), w = box.offsetWidth, h = box.offsetHeight;
-  if (!w) return;
-  box._on = true;
-  if (window.HanziWriter) loadRef(H.h).then(ref => { if (H.n !== ref.strokes.length) { H.n = ref.strokes.length; save(); } }, () => {});
+function mountHotd() {   // the card shows today's stroke count once the stroke data is at hand
+  const H = db.hotd; if (!H || H.n || !window.HanziWriter || mountHotd.busy) return;
+  mountHotd.busy = true;
+  loadRef(H.h).then(ref => { H.n = ref.strokes.length; save(); const c = $('#hotd'); if (c && db.hotd === H && !$('.hdx')) c.outerHTML = HotdCard(); }, () => {})
+    .finally(() => { mountHotd.busy = false; });
+}
+/* ---------- the Hanzi of the day pop-up ----------
+   Tap Learn on the card and the card grows into a full-screen red page. Three pages, swipe left between them:
+   1. a big tianzige under gold foil: rub until the character shows (then its sound and meaning)
+   2. the stroke order, step by step, and a go at writing it
+   3. words and example sentences that use it, and Add to my word bank
+   Pages 2 and 3 open only once the character is uncovered. */
+let sentP = null;
+function loadSentences() {   // dict/sentences.tsv: character, sentence, English (Tatoeba)
+  return sentP ||= fetch('dict/sentences.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    const m = new Map();
+    for (const l of t.split('\n')) {
+      if (!l || l[0] === '#') continue;
+      const [c, zh, en] = l.split('\t'); if (!en) continue;
+      if (!m.has(c)) m.set(c, []); m.get(c).push({ zh, en });
+    }
+    return m;
+  }).catch(e => { sentP = null; throw e; });
+}
+const HDX_PAGES = ['The character', 'Stroke order', 'Example sentences'];
+function hotdMeanings(H) {
+  return [...new Set(H.e.split('; ').map(m => plainMeaning(m)).filter(m => m && !/^(CL|surname|variant of|old variant)/i.test(m)))].slice(0, 4);
+}
+function HdxId(H) {   // page 1, once uncovered: the sound and the meaning above the box
+  return `<div class="hdx-py">${esc(H.p)}${'speechSynthesis' in window ? `<button class="hs-say" data-act="say" data-h="${esc(H.h)}" aria-label="Say it">${I.sound}</button>` : ''}</div>
+    <div class="hdx-en">${hotdMeanings(H).map(esc).join(' <span>·</span> ')}</div>`;
+}
+function HdxAfter(H) {
+  return `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span><span id="hsN">${H.n ? plural(H.n, 'stroke') : '…'}</span></div>
+    <button class="hdx-next" data-pg="1">Stroke order ${I.chev}</button>`;
+}
+function HdxHTML(H, S2) {
+  const rev = !!H.rev, mine = bankHas(H.h);
+  const words = S.H ? [...S.H.byHz.values()].filter(r => r.h !== H.h && r.h.includes(H.h) && [...r.h].length <= 3).sort((a, b) => a.lv - b.lv || a.h.length - b.h.length).slice(0, 3) : [];
+  return `<div class="hdx-in">
+    <header class="hdx-bar"><div class="hd-lbl">HANZI OF THE DAY <span class="hd-zh">今日一字</span></div>
+      <div class="hdx-dots">${HDX_PAGES.map((t, i) => `<button data-pg="${i}" aria-label="${t}"${i ? '' : ' class="on" aria-current="true"'}></button>`).join('')}</div>
+      <button class="hd-x hdx-close" aria-label="Close">${I.close}</button></header>
+    <div class="hdx-pager${rev ? ' free' : ''}">
+      <section class="hdx-pg hdx-p1" aria-label="${HDX_PAGES[0]}">
+        <div class="hdx-head" id="hdxHead">${rev ? HdxId(H) : '<div class="hdx-t">Scratch the gold</div><div class="hdx-s">Rub until today’s character shows</div>'}</div>
+        <div class="hdx-tile${rev ? ' shown' : ''}" id="hdxTile"${rev ? '' : ' role="button" tabindex="0" aria-label="Scratch the gold to see today’s character"'}>${TZG}<span class="hdx-ch">${rev ? esc(H.h) : ''}</span>${rev ? '' : '<div class="hdx-foil"></div><canvas></canvas><div class="hd-sheen"></div>'}</div>
+        <div class="hdx-after" id="hdxAfter">${rev ? HdxAfter(H) : ''}</div>
+        <div class="hdx-say"><div class="hs-shi" id="hdxShi">${shiFace(rev ? 'cheer' : 'peek')}</div><div class="hs-bub" id="hdxBub">${rev ? `Swipe left to see how to write ${esc(H.h)}.` : 'Rub the gold off with your finger!'}</div></div>
+      </section>
+      <section class="hdx-pg hdx-p2" aria-label="${HDX_PAGES[1]}">
+        <h4 class="hs-h">How to write it <span>笔顺</span></h4>
+        <div class="hs-stage"><div class="tzg hs-tzg" id="hsBox" style="--s:${S2}px">${TZG}<svg class="hs-svg" viewBox="-70 -70 1164 1164" aria-hidden="true"></svg><div class="quiz"></div></div></div>
+        <div class="hs-ctl"><button class="icon-btn" id="hsPrev" aria-label="Previous stroke">${I.left}</button>
+          <button class="icon-btn hs-play" id="hsPlay" aria-label="Play all strokes">${I.play}</button>
+          <button class="icon-btn" id="hsNext" aria-label="Next stroke">${I.right}</button></div>
+        <div class="hs-cap" id="hsCap">Loading the strokes…</div>
+        <div class="hs-strip" id="hsStrip"></div>
+        <div class="hs-say-row"><div class="hs-shi" id="hsShi">${shiFace('happy')}</div><div class="hs-bub" id="hsBub">Watch the red stroke, then write it yourself!</div></div>
+        <button class="btn wide hdx-btn" id="hsTry">${I.pen}Write it yourself</button>
+        <button class="hdx-next" data-pg="2">Example sentences ${I.chev}</button>
+      </section>
+      <section class="hdx-pg hdx-p3" aria-label="${HDX_PAGES[2]}">
+        <h4 class="hs-h">Use it <span>例句</span></h4>
+        ${words.length ? `<div class="hs-words">${words.map(r => `<button class="hs-w" data-act="say" data-h="${esc(r.h)}"><b>${[...r.h].map(c => c === H.h ? `<i>${esc(c)}</i>` : esc(c)).join('')}</b><small>${esc(r.p)} · ${esc(shortMeaning(r.e))}</small></button>`).join('')}</div>` : ''}
+        <div class="hdx-sents" id="hdxSents"><p class="hdx-none">Loading sentences…</p></div>
+        <button class="btn wide hdx-btn hs-add${mine ? ' done' : ''}" id="hsAdd"${mine ? ' disabled' : ''}>${mine ? 'In your word bank ✓' : `${I.plus}Add to my word bank`}</button>
+        <p class="hdx-src">Sentences from Tatoeba (tatoeba.org)</p>
+      </section>
+    </div></div><div class="hd-fx" aria-hidden="true"></div>`;
+}
+const hdxClip = (b, o) => `inset(${b.top - o.top}px ${o.right - b.right}px ${o.bottom - b.bottom}px ${b.left - o.left}px round 22px)`;
+function hotdOpen() {
+  const H = db.hotd; if (!H || $('.hdx')) return;
+  LOG.add('hotd-open', { hz: H.h, revealed: !!H.rev });
+  const card = $('#hotd'), el = document.createElement('div');
+  el.className = 'hdx'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Hanzi of the day');
+  el._H = H; el._page = 0; el._wasRev = !!H.rev;
+  el.innerHTML = HdxHTML(H, Math.round(Math.min(300, Math.min(480, innerWidth) - 84, innerHeight * .38)));
+  document.body.append(el); document.documentElement.classList.add('hdx-on');
+  mountHdx(el, H);
+  if (card && !stillMotion()) {   // the card grows into the page
+    el.animate([{ clipPath: hdxClip(card.getBoundingClientRect(), el.getBoundingClientRect()) }, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }], { duration: 460, easing: 'cubic-bezier(.2,.85,.25,1)' });
+    el.querySelector('.hdx-in').animate([{ opacity: 0, transform: 'translateY(24px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 340, delay: 150, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' });
+  }
+  el.querySelector('.hdx-close').focus({ preventScroll: true });
+}
+function hdxClose(instant) {
+  const el = $('.hdx'); if (!el || el._closing) return; el._closing = true;
+  const H = el._H; document.documentElement.classList.remove('hdx-on');
+  LOG.add('hotd-shut', { hz: H.h, page: el._page + 1, revealed: !!H.rev });
+  const done = db.hotd === H && !H.off && bankHas(H.h);
+  let card = $('#hotd'); if (card) { card.outerHTML = HotdCard(H.rev && !el._wasRev); card = $('#hotd'); }   // the card now shows the character
+  const end = () => { el.remove(); if (done) { H.off = 'done'; save(); LOG.add('hotd-done', { hz: H.h }); hotdDismiss(); } };
+  if (instant || !card || stillMotion()) return end();
+  el.querySelector('.hdx-in').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: 'forwards' });
+  el.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)' }, { clipPath: hdxClip(card.getBoundingClientRect(), el.getBoundingClientRect()) }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = end;
+}
+addEventListener('popstate', () => hdxClose(true));
+addEventListener('keydown', e => {
+  const el = $('.hdx'); if (!el || $('#sheet-root').classList.contains('open')) return;
+  if (e.key === 'Escape') hdxClose();
+  else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !e.target.closest?.('input,textarea')) el._go?.(el._page + (e.key === 'ArrowRight' ? 1 : -1));
+});
+function mountHdx(el, H) {
+  const pager = el.querySelector('.hdx-pager'), dots = [...el.querySelectorAll('.hdx-dots button')];
+  el._go = i => { if (!pager.classList.contains('free') || i < 0 || i > 2) return; pager.scrollTo({ left: i * pager.clientWidth, behavior: stillMotion() ? 'auto' : 'smooth' }); };
+  el.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (b) el._go(+b.dataset.pg); });
+  el.querySelector('.hdx-close').onclick = () => hdxClose();
+  pager.addEventListener('scroll', () => {
+    const i = Math.round(pager.scrollLeft / pager.clientWidth); if (i === el._page) return;
+    el._page = i; dots.forEach((d, j) => { d.classList.toggle('on', j === i); d.toggleAttribute('aria-current', j === i); });
+    LOG.add('hotd-page', { hz: H.h, page: i + 1 });
+  }, { passive: true });
+  if (H.rev) hdxPages(el, H); else hdxScratch(el, H);
+}
+function hdxPages(el, H) {   // pages 2 and 3 fill in once the character is out
+  mountHotdSheet(el, H);
+  const box = el.querySelector('#hdxSents');
+  loadSentences().then(m => {
+    if (!el.isConnected) return;
+    const L = m.get(H.h) || [];
+    box.innerHTML = L.length ? L.map(s => `<button class="hdx-sent" data-act="say" data-h="${esc(s.zh)}"><b>${[...s.zh].map(c => c === H.h ? `<i>${esc(c)}</i>` : esc(c)).join('')}</b>
+        <small>${esc(autoPinyin(s.zh).replace(/ (?=[。，？！、；：,.?!])/g, ''))}</small><span>${esc(s.en)}</span>${I.sound}</button>`).join('')
+      : `<p class="hdx-none">No example sentences for ${esc(H.h)} yet. The words above use it.</p>`;
+  }, () => { box.innerHTML = '<p class="hdx-none">The sentences need the internet. Try again when you are online.</p>'; });
+}
+function hdxScratch(el, H) {   // page 1: rub the gold off the big tianzige
+  const box = el.querySelector('#hdxTile'), cv = box.querySelector('canvas'), fx = el.querySelector('.hd-fx');
+  const w = box.offsetWidth, h = box.offsetHeight; if (!w) return;
+  if (window.HanziWriter && !H.n) loadRef(H.h).then(ref => { H.n = ref.strokes.length; save(); }, () => {});
   const dpr = Math.min(2, devicePixelRatio || 1), ctx = cv.getContext('2d', { willReadFrequently: true });
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); ctx.scale(dpr, dpr);
   paintFoil(ctx, w, h); box.classList.add('live');
-  box.querySelector('.hd-ch').textContent = H.h;   // only now: a page-swipe preview never shows it
+  box.querySelector('.hdx-ch').textContent = H.h;   // only now, under the foil
   document.fonts?.ready.then(() => { if (!box.classList.contains('going')) { ctx.clearRect(0, 0, w, h); paintFoil(ctx, w, h); } });
-  let last = null, moved = 0, done = false, t0 = 0, sinceFlake = 0, checkT = 0;
+  let last = null, moved = 0, done = false, sinceFlake = 0, checkT = 0;
   const pt = e => { const b = cv.getBoundingClientRect(); return { x: (e.clientX - b.left) * w / b.width, y: (e.clientY - b.top) * h / b.height }; };
-  const off = () => ({ x: box.offsetLeft + box.offsetParent.offsetLeft, y: box.offsetTop + box.offsetParent.offsetTop });
+  const toFx = p => { const b = cv.getBoundingClientRect(), f = fx.getBoundingClientRect(); return { x: b.left - f.left + p.x * b.width / w, y: b.top - f.top + p.y * b.height / h }; };
   const rub = (a, b) => {
-    ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = w * .26; ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = w * .17; ctx.lineCap = ctx.lineJoin = 'round';
     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x + .01, b.y); ctx.stroke(); ctx.restore();
     sinceFlake += Math.hypot(b.x - a.x, b.y - a.y);
-    if (sinceFlake > 9) { sinceFlake = 0; const o = off(); hdFlake(card, o.x + b.x, o.y + b.y); }
+    if (sinceFlake > 12) { sinceFlake = 0; const q = toFx(b); hdFlake(fx, q.x, q.y); }
   };
   const cleared = () => { const d = ctx.getImageData(0, 0, cv.width, cv.height).data; let n = 0, t = 0; for (let i = 3; i < d.length; i += 64) { t++; if (d[i] < 50) n++; } return n / t; };
-  const reveal = () => { if (done) return; done = true; hotdReveal(card, box, moved < 8 ? 'tap' : 'rub'); };
-  const auto = () => {   // a tap (or Enter): the foil scratches itself off in a quick zigzag
+  const reveal = how => { if (done) return; done = true; hdxReveal(el, H, box, how); };
+  const auto = () => {   // keyboard: Enter scratches the foil off in a quick zigzag
     if (done) return; box.classList.add('going');
+    if (stillMotion()) return reveal('key');
     const P = [[.1, .15], [.9, .2], [.15, .45], [.88, .5], [.12, .78], [.9, .85], [.5, .5]].map(([x, y]) => ({ x: x * w, y: y * h }));
-    if (stillMotion()) return reveal();
     let i = 0, prev = P[0];
-    const step = () => { if (i >= P.length) return reveal();
+    const step = () => { if (i >= P.length) return reveal('key');
       const to = P[i++], from = prev, s0 = performance.now();
       const seg = now => { const f = Math.min(1, (now - s0) / 90), q = { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f };
         rub(prev, q); prev = q; if (f < 1) requestAnimationFrame(seg); else step(); };
       requestAnimationFrame(seg); };
     step();
   };
-  cv.addEventListener('pointerdown', e => { if (done) return; e.preventDefault(); cv.setPointerCapture?.(e.pointerId); last = pt(e); t0 = Date.now(); });
+  cv.addEventListener('pointerdown', e => { if (done) return; e.preventDefault(); cv.setPointerCapture?.(e.pointerId); last = pt(e); box.classList.add('going'); rub(last, last); });
   cv.addEventListener('pointermove', e => {
     if (!last || done) return;
-    const p = pt(e); moved += Math.hypot(p.x - last.x, p.y - last.y);
-    if (moved > 4) { box.classList.add('going'); rub(last, p); }
-    last = p;
-    if (moved > 80 && Date.now() - checkT > 150) { checkT = Date.now(); if (cleared() > .5) reveal(); }
+    const p = pt(e); moved += Math.hypot(p.x - last.x, p.y - last.y); rub(last, p); last = p;
+    if (moved > w * .8 && Date.now() - checkT > 150) { checkT = Date.now(); if (cleared() > .55) reveal('rub'); }
   });
-  const up = () => { if (!last || done) return; last = null;
-    if (moved < 8 && Date.now() - t0 < 500) auto();
-    else if (cleared() > .38) reveal(); };
-  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', () => { last = null; });
+  cv.addEventListener('pointerup', () => { if (!last || done) return; last = null; if (cleared() > .45) reveal('rub'); });
+  cv.addEventListener('pointercancel', () => { last = null; });
   box.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); auto(); } });
 }
-function hotdReveal(card, box, how) {
-  const H = db.hotd; H.rev = true; save();
+function hdxReveal(el, H, box, how) {
+  H.rev = true; save();
   LOG.add('hotd-reveal', { hz: H.h, how });
   try { navigator.vibrate?.(18); } catch (_) {}
-  box.classList.add('pop');
-  const cx = box.offsetLeft + box.offsetParent.offsetLeft + box.offsetWidth / 2, cy = box.offsetTop + box.offsetParent.offsetTop + box.offsetHeight / 2;
-  for (let i = 0; i < 26; i++) hdFlake(card, cx + (Math.random() - .5) * 70, cy + (Math.random() - .5) * 70, true);
-  setTimeout(() => { if (card.isConnected) card.outerHTML = HotdCard(true); }, stillMotion() ? 0 : 480);
+  box.classList.add('pop'); box.removeAttribute('role'); box.removeAttribute('tabindex'); box.removeAttribute('aria-label');
+  const fx = el.querySelector('.hd-fx'), b = box.getBoundingClientRect(), f = fx.getBoundingClientRect();
+  for (let i = 0; i < 34; i++) hdFlake(fx, b.left - f.left + b.width * (.2 + Math.random() * .6), b.top - f.top + b.height * (.2 + Math.random() * .6), true);
+  const head = el.querySelector('#hdxHead'), after = el.querySelector('#hdxAfter'), shi = el.querySelector('#hdxShi'), bub = el.querySelector('#hdxBub');
+  head.innerHTML = HdxId(H); head.classList.add('new');
+  after.innerHTML = HdxAfter(H);
+  shi.innerHTML = shiFace('cheer'); shi.classList.add('hop');
+  bub.textContent = `It’s ${H.h}! Swipe left to see how to write it.`; bub.classList.add('new');
+  el.querySelector('.hdx-pager').classList.add('free');
+  setTimeout(() => { if (!box.isConnected) return; box.querySelector('canvas')?.remove(); box.querySelector('.hd-sheen')?.remove(); box.querySelector('.hdx-foil')?.remove(); box.classList.add('shown'); }, stillMotion() ? 0 : 480);
+  hdxPages(el, H);
 }
-/* the pop-up: meaning, words that use it, Shi Shi's tip, the stroke order step by step, write it yourself, add to the word bank */
-function hotdSheet() {
-  const H = db.hotd; if (!H) return;
-  LOG.add('hotd-open', { hz: H.h });
-  const ms = [...new Set(H.e.split('; ').map(m => plainMeaning(m)).filter(m => m && !/^(CL|surname|variant of|old variant)/i.test(m)))].slice(0, 4);
-  const words = S.H ? [...S.H.byHz.values()].filter(r => r.h !== H.h && r.h.includes(H.h) && [...r.h].length <= 3).sort((a, b) => a.lv - b.lv || a.h.length - b.h.length).slice(0, 3) : [];
-  const mine = bankHas(H.h);
-  openSheet(`<h3>Hanzi of the day</h3>
-    <div class="hs-top"><div class="hs-hz">${esc(H.h)}</div>
-      <div class="hs-id"><div class="hs-py">${esc(H.p)}${'speechSynthesis' in window ? `<button class="hs-say" data-act="say" data-h="${esc(H.h)}" aria-label="Say it">${I.sound}</button>` : ''}</div>
-        <div class="hs-tags"><span>${HSK_NAME(H.lv)}</span><span id="hsN">${H.n ? plural(H.n, 'stroke') : '…'}</span></div></div></div>
-    <p class="hs-ms">${ms.map(esc).join(' <span>·</span> ')}</p>
-    ${words.length ? `<div class="hs-words">${words.map(r => `<button class="hs-w" data-act="say" data-h="${esc(r.h)}"><b>${[...r.h].map(c => c === H.h ? `<i>${esc(c)}</i>` : esc(c)).join('')}</b><small>${esc(r.p)} · ${esc(shortMeaning(r.e))}</small></button>`).join('')}</div>` : ''}
-    <div class="hs-say-row"><div class="hs-shi" id="hsShi">${shiFace('happy')}</div><div class="hs-bub" id="hsBub">Watch the red stroke, then write it yourself!</div></div>
-    <h4 class="hs-h">How to write it <span>笔顺</span></h4>
-    <div class="hs-stage"><div class="tzg hs-tzg no-drag" id="hsBox">${TZG}<svg class="hs-svg" viewBox="-70 -70 1164 1164" aria-hidden="true"></svg><div class="quiz"></div></div></div>
-    <div class="hs-ctl"><button class="icon-btn" id="hsPrev" aria-label="Previous stroke">${I.left}</button>
-      <button class="icon-btn hs-play" id="hsPlay" aria-label="Play all strokes">${I.play}</button>
-      <button class="icon-btn" id="hsNext" aria-label="Next stroke">${I.right}</button></div>
-    <div class="hs-cap" id="hsCap">Loading the strokes…</div>
-    <div class="hs-strip no-drag" id="hsStrip"></div>
-    <div class="hs-btns"><button class="btn btn-ghost wide" id="hsTry">${I.pen}Write it yourself</button>
-      <button class="btn ${mine ? 'hs-add done' : 'btn-seal hs-add'} wide" id="hsAdd"${mine ? ' disabled' : ''}>${mine ? 'In your word bank ✓' : `${I.plus}Add to my word bank`}</button></div>`,
-    sh => mountHotdSheet(sh, H));
-  S.onSheetClose = () => { if (db.hotd === H && !H.off && bankHas(H.h)) { H.off = 'done'; save(); LOG.add('hotd-done', { hz: H.h }); hotdDismiss(); } };
-}
+/* page 2 and 3: the stroke order step by step, write it yourself, add to the word bank */
 function mountHotdSheet(sh, H) {
   const box = sh.querySelector('#hsBox'), svg = box.querySelector('.hs-svg'), cap = sh.querySelector('#hsCap'), strip = sh.querySelector('#hsStrip');
-  const bub = sh.querySelector('#hsBub'), shi = sh.querySelector('#hsShi');
+  const bub = sh.querySelector('#hsBub'), shi = sh.querySelector('#hsShi'), S2 = box.offsetWidth || 228;
   const say = (txt, mood) => { bub.textContent = txt; bub.classList.remove('new'); void bub.offsetWidth; bub.classList.add('new');
     if (mood) { shi.innerHTML = shiFace(mood); shi.classList.remove('hop'); void shi.offsetWidth; if (mood === 'cheer') shi.classList.add('hop'); } };
   sh.querySelector('#hsAdd').onclick = e => {
     const b = e.currentTarget; if (bankHas(H.h)) return;
     db.bank.unshift({ id: uid(), hanzi: H.h, pinyin: H.p, en: shortMeaning(H.e), added: Date.now(), hsk: H.lv }); save();
     LOG.add('hotd-add', { hz: H.h });
-    b.className = 'btn hs-add done wide'; b.disabled = true; b.textContent = 'In your word bank ✓';
+    b.classList.add('done'); b.disabled = true; b.textContent = 'In your word bank ✓';
     say(`${H.h} is in your word bank now. It will come back in your daily cards.`, 'cheer');
   };
   const fail = () => { cap.textContent = 'The strokes need the internet. Try again when you are online.'; sh.querySelector('.hs-ctl').hidden = true; sh.querySelector('#hsTry').hidden = true;
-    box.querySelector('.quiz').innerHTML = `<span class="ans-fallback" style="--s:228px">${esc(H.h)}</span>`; };
+    box.querySelector('.quiz').innerHTML = `<span class="ans-fallback" style="--s:${S2}px">${esc(H.h)}</span>`; };
   if (!window.HanziWriter) return fail();
   loadRef(H.h).then(ref => {
     if (!sh.isConnected) return;
     const N = ref.strokes.length, id = 'hs' + uid().slice(0, 6);
     if (H.n !== N) { H.n = N; save(); }
-    sh.querySelector('#hsN').textContent = plural(N, 'stroke');
+    const nEl = sh.querySelector('#hsN'); if (nEl) nEl.textContent = plural(N, 'stroke');
     say(N <= 4 ? `Only ${N} strokes. Watch the red one, then try it yourself!` : `${N} strokes. Top to bottom, left to right. Step through them with the arrows.`);
     const FLIP = 'translate(0 900) scale(1 -1)', med = i => ref.medians[i];
     const frame = k => `<svg viewBox="-70 -70 1164 1164"><g transform="${FLIP}">${ref.strokes.map((d, i) => `<path class="${i < k - 1 ? 's-done' : i === k - 1 ? 's-cur' : 's-todo'}" d="${d}"/>`).join('')}</g></svg>`;
@@ -2545,8 +2719,8 @@ function mountHotdSheet(sh, H) {
       if (box.classList.contains('quizzing')) { quizOff(); play(); return; }
       stop(); show(0); box.classList.add('quizzing'); cap.textContent = 'Write it in the box, stroke by stroke';
       e.currentTarget.innerHTML = `${I.play}Watch it again`;
-      let miss = 0; const s = 228;
-      writer = HanziWriter.create(box.querySelector('.quiz'), H.h, writerOpts(s, {
+      let miss = 0;
+      writer = HanziWriter.create(box.querySelector('.quiz'), H.h, writerOpts(S2, {
         showCharacter: false, showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'), drawingColor: css('--ink'), highlightColor: css('--seal'),
         drawingWidth: 4, showHintAfterMisses: 2, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
         charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
@@ -4091,7 +4265,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.70';
+const APP_VERSION = '1.71';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4220,7 +4394,7 @@ const A = {
   'rw': t => readPop(t),
   'remind': () => remindSheet(),
   'say': t => sayZh(t.dataset.h),
-  'hotd-open': () => hotdSheet(),
+  'hotd-open': () => hotdOpen(),
   'hotd-close': () => hotdClose(),
   'story-close': () => storyClose(),
   'rpop-add': t => addReadWord(t),
