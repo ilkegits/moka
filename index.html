@@ -1099,6 +1099,172 @@ button.scene-tile:active svg{opacity:.92}
 .note-input{width:100%;min-height:96px;border-radius:12px;border:0;box-shadow:var(--ring);background:var(--card);padding:12px 16px;font:inherit;font-size:16px;color:inherit;resize:vertical;outline:none}
 .note-input:focus{box-shadow:0 0 0 2px var(--seal)}
 
+/* ---------- full-screen moments: onboarding, streak saved, milestones, welcome back, paywall ---------- */
+#ob{position:fixed;inset:0;z-index:60;background:var(--paper);display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;
+  padding:env(safe-area-inset-top) 0 0;animation:obIn .32s cubic-bezier(.2,.8,.3,1) both}
+#ob.out{animation:obOut .2s ease both}
+@keyframes obIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes obOut{to{opacity:0;transform:translateY(10px)}}
+.ob-in{flex:1;display:flex;flex-direction:column;width:100%;max-width:480px;margin:0 auto;padding:0 20px}
+.ob-top{display:flex;align-items:center;gap:10px;height:60px;flex:none}
+.ob-top .icon-btn{color:var(--ink-2);flex:none}
+.ob-top .icon-btn[hidden]{display:grid;visibility:hidden}
+.ob-prog{flex:1;height:12px;border-radius:8px;background:var(--fill);overflow:hidden}
+.ob-prog i{display:block;height:100%;border-radius:8px;background:var(--seal);transition:width .5s cubic-bezier(.3,1.3,.5,1)}
+.ob-say{display:flex;align-items:flex-end;gap:12px;margin:12px 0 22px}
+.ob-shi{flex:none;width:74px;height:74px}
+.ob-shi .shi-face{width:100%;height:100%;display:block}
+.ob-bub{position:relative;flex:1;margin:0 0 14px;padding:13px 16px;border-radius:18px 18px 18px 4px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);
+  font-weight:700;font-size:19px;line-height:1.3;letter-spacing:-.01em}
+.ob-bub small{display:block;margin-top:4px;font-weight:500;font-size:14.5px;color:var(--ink-2);letter-spacing:0}
+.ob-opts{display:flex;flex-direction:column;gap:10px}
+.ob-opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 14px;border-radius:16px;background:var(--card);text-align:left;
+  box-shadow:0 0 0 2px rgba(120,95,60,.12),0 3px 0 rgba(120,95,60,.12);transition:box-shadow .15s,background .15s,transform .15s}
+.ob-opt:active{transform:translateY(2px);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 1px 0 rgba(120,95,60,.12);transition:none}
+.ob-opt[aria-pressed="true"]{background:color-mix(in srgb,var(--card) 88%,var(--seal));box-shadow:0 0 0 2.5px var(--seal),0 3px 0 var(--seal)}
+.ob-glyph{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal);font-family:var(--hanzi);font-weight:600;font-size:23px}
+.ob-opt[aria-pressed="true"] .ob-glyph{background:var(--seal);color:var(--seal-ink)}
+.ob-opt b{display:block;font-size:16.5px;line-height:1.25}
+.ob-opt small{display:block;font-size:13.5px;color:var(--muted);margin-top:1px}
+.ob-opt .ob-txt{flex:1;min-width:0}
+.ob-opt .ob-num{flex:none;font-family:var(--display);font-weight:600;font-size:30px;line-height:1;color:var(--ink-2);font-variant-numeric:lining-nums tabular-nums}
+.ob-dock{position:sticky;bottom:0;margin-top:auto;padding:16px 0 calc(16px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--paper) 26%);display:flex;flex-direction:column;gap:6px}
+.ob-dock .btn{width:100%;height:54px;font-size:17px}
+.ob-dock .btn:disabled{opacity:1;background:var(--fill);color:var(--muted)}
+.ob-link{height:44px;font-weight:600;font-size:15px;color:var(--ink-2)}
+/* welcome */
+.ob-hi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:20px}
+.ob-hi .ob-big{width:min(220px,56vw);aspect-ratio:1;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.ob-hi .ob-big .shi-face{width:100%;height:100%;display:block;animation:shiHop 1.4s ease-in-out .9s 2}
+.ob-name{margin:18px 0 0;font-family:'Baloo 2',var(--ui);font-weight:800;font-size:40px;line-height:1;letter-spacing:-.01em;color:var(--seal)}
+.ob-hi h1{margin:14px 0 0;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.2;max-width:15em;text-wrap:balance}
+.ob-hi p{margin:8px 0 0;font-size:16px;color:var(--ink-2);max-width:20em}
+/* first lesson: a card you turn over */
+.ob-stage{perspective:1200px;margin:2px auto 0;width:min(300px,78vw)}
+.ob-card{position:relative;width:100%;aspect-ratio:4/5;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.25,.5,1);cursor:pointer}
+.ob-card.flip{transform:rotateY(180deg)}
+.ob-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;background:var(--card);
+  box-shadow:0 0 0 2px rgba(120,95,60,.12),0 5px 0 rgba(120,95,60,.13);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px}
+.ob-face.back{transform:rotateY(180deg)}
+.ob-face .tzg{--s:min(210px,56vw);box-shadow:none;background:var(--card-2)}
+.ob-face .tzg .ob-ch{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:calc(var(--s) * .72);line-height:1;color:var(--ink)}
+.ob-tap{font-size:14px;font-weight:600;color:var(--muted)}
+.ob-back-ch{font-family:var(--hanzi);font-weight:600;font-size:76px;line-height:1}
+.ob-py{font-size:24px;font-weight:700;color:var(--seal);display:flex;align-items:center;gap:6px}
+.ob-py .icon-btn{width:38px;height:38px;color:var(--seal);background:var(--seal-soft)}
+.ob-en{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.ob-why{margin:4px 0 0;padding:9px 12px;border-radius:12px;background:var(--fill);font-size:14.5px;color:var(--ink-2);text-align:center;max-width:16em}
+.ob-dots{display:flex;justify-content:center;gap:7px;margin:18px 0 0}
+.ob-dots i{width:9px;height:9px;border-radius:50%;background:var(--line-2);transition:background .2s,transform .2s}
+.ob-dots i.on{background:var(--seal);transform:scale(1.25)}
+.ob-dots i.done{background:var(--jade)}
+.ob-write{display:flex;flex-direction:column;align-items:center}
+.ob-write .tzg{--s:min(270px,72vw)}
+.ob-write .quiz{position:absolute;inset:0}
+.ob-cap{margin:14px 0 0;font-size:15px;font-weight:600;color:var(--ink-2);min-height:22px;text-align:center}
+/* celebration (also used by milestones and streak moments) */
+.mo-hero{position:relative;text-align:center;padding:20px 0 0}
+.mo-hero .done-shi{width:170px;height:170px}
+.mo-hero h2{font-family:var(--hanzi);font-weight:600;font-size:34px;margin:12px 0 2px}
+.mo-sub{font-size:15px;color:var(--muted)}
+.mo-title{text-wrap:balance;margin:18px 0 6px;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.2;text-align:center}
+.mo-text{margin:0 auto;font-size:16px;line-height:1.45;color:var(--ink-2);text-align:center;max-width:22em}
+.mo-big{display:flex;align-items:center;justify-content:center;gap:4px;margin:20px 0 0}
+.mo-big b{font-family:var(--display);font-weight:600;font-size:110px;line-height:.8;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.mo-big .flame{width:92px;height:92px}
+.mo-big.cold .flame .f-out{fill:#8FD0F7;stroke:#2A6FA8}
+.mo-big.cold .flame .f-mid{fill:#C9EBFF}
+.mo-big.cold .flame .f-core{fill:#fff}
+.mo-week{display:flex;justify-content:center;gap:8px;margin:22px 0 0}
+.mo-week span{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}
+.mo-week i{width:32px;height:32px;border-radius:50%;background:var(--fill);display:grid;place-items:center}
+.mo-week i.on{background:#E8742C}
+.mo-week i.ice{background:#9FD3F5}
+.mo-week i svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.mo-card{display:flex;align-items:center;gap:14px;margin:22px 0 0;padding:14px 16px;border-radius:16px;background:var(--card);box-shadow:var(--ring)}
+.mo-card b{display:block;font-size:15.5px}
+.mo-card small{display:block;font-size:13.5px;color:var(--ink-2)}
+.mo-card .ice{width:42px;height:42px;flex:none}
+.mo-pips{display:flex;gap:6px;margin-top:8px}
+.mo-pips i{width:26px;height:8px;border-radius:5px;background:var(--fill)}
+.mo-pips i.on{background:#E8742C}
+.ob-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 0}
+.ob-stats div{display:flex;flex-direction:column;align-items:center;padding:12px 4px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
+.ob-stats b{font-family:var(--display);font-weight:600;font-size:32px;line-height:1;font-variant-numeric:lining-nums}
+.ob-stats span{font-size:12.5px;color:var(--muted);margin-top:4px;text-align:center}
+.ob-words{display:flex;justify-content:center;gap:10px;margin:18px 0 0}
+.ob-words span{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:var(--card);box-shadow:var(--ring);font-family:var(--hanzi);font-weight:600;font-size:32px}
+.ob-hours{justify-content:center;margin:6px 0 0}
+.ob-art{width:min(190px,50vw);margin:20px auto 0}
+.ob-art .shi-face{width:100%;height:auto;display:block}
+.ob-phone{position:relative;width:150px;height:150px;margin:24px auto 0;border-radius:34px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);display:grid;place-items:center}
+.ob-phone img{width:88px;height:88px;border-radius:22px;box-shadow:0 6px 16px -6px rgba(70,45,20,.4)}
+.ob-phone::after{content:"";position:absolute;top:22px;right:24px;width:22px;height:22px;border-radius:50%;background:var(--seal);box-shadow:0 0 0 3px var(--card)}
+/* daily goal ring around the flame on Decks */
+.hm-streak .gring{position:relative;width:34px;height:34px;display:grid;place-items:center;flex:none}
+.hm-streak .gring svg.gr{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.gr circle{fill:none;stroke-width:3}
+.gr .gr-bg{stroke:var(--fill)}
+.gr .gr-fg{stroke:var(--jade);stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.hm-streak .gring .flame{width:22px;height:22px}
+/* daily goal: Streak page row and end of round */
+.goal-row{display:flex;align-items:center;gap:12px;width:100%;margin:16px 0 0;padding:12px 14px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.goal-row .goal-main{flex:1;min-width:0}
+.goal-row b{display:block;font-size:15px}
+.goal-row small{display:block;font-size:13px;color:var(--muted)}
+.goal-bar{display:block;height:10px;margin-top:7px;border-radius:6px;background:var(--fill);overflow:hidden}
+.goal-bar i{display:block;height:100%;border-radius:6px;background:var(--jade);transition:width .6s ease}
+.goal-row .goal-ch{flex:none;font-size:14px;font-weight:700;color:var(--seal)}
+.done-goal{margin:12px 0 0}
+.done-goal .goal-row{margin:0}
+/* badges on Profile */
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:26px}
+.bdg{display:flex;flex-direction:column;align-items:center;padding:14px 6px 12px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:center}
+.bdg-seal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-family:var(--hanzi);font-weight:600;font-size:25px;
+  background:radial-gradient(circle at 35% 30%,#FFE58A,#F4C14E 60%,#E8A33C);color:#7E1D19;box-shadow:0 0 0 3px #fff,0 0 0 5px #E8A33C,0 4px 8px -2px rgba(168,106,12,.5)}
+.bdg b{display:block;margin-top:10px;font-size:13.5px;line-height:1.2}
+.bdg small{display:block;margin-top:2px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bdg.off .bdg-seal{background:var(--fill);color:var(--line-2);box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--line)}
+.bdg.off b{color:var(--ink-2)}
+.bdg-bar{width:70%;height:5px;margin-top:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.bdg-bar i{display:block;height:100%;background:#E8A33C}
+/* nothing waiting on Learn */
+.rv-tile.calm{cursor:default}
+/* paywall (preview only) */
+.pw-top{display:flex;justify-content:space-between;align-items:center;height:56px;flex:none}
+.pw-tag{padding:5px 10px;border-radius:8px;background:var(--fill);font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.pw-head{display:flex;align-items:center;gap:14px}
+.pw-head .ob-shi{width:64px;height:64px}
+.pw-head h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.pw-head h2 span{color:var(--seal)}
+.pw-list{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pw-list li{display:flex;align-items:center;gap:12px;font-size:15.5px;font-weight:600}
+.pw-list li i{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--jade-soft);color:var(--jade);font-style:normal;font-family:var(--hanzi);font-size:16px}
+.pw-tl{position:relative;margin:18px 0 6px;padding:4px 0 0 0}
+.pw-tl h3{margin:0 0 12px;font-size:16px;font-weight:800}
+.pw-step{position:relative;display:flex;gap:14px;padding-bottom:12px}
+.pw-step:not(:last-child)::before{content:"";position:absolute;left:15px;top:30px;bottom:0;width:3px;border-radius:2px;background:var(--line)}
+.pw-step:first-of-type:not(:last-child)::before{background:linear-gradient(var(--seal),var(--line))}
+.pw-dot{flex:none;width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:var(--fill);color:var(--ink-2)}
+.pw-dot svg.i{width:18px;height:18px}
+.pw-step.now .pw-dot{background:var(--seal);color:var(--seal-ink)}
+.pw-step b{display:block;font-size:15px}
+.pw-step small{display:block;font-size:13.5px;color:var(--ink-2)}
+.pw-plans{display:flex;flex-direction:column;gap:10px;margin:6px 0 0}
+.pw-plan{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border-radius:16px;background:var(--card);text-align:left;box-shadow:0 0 0 2px rgba(120,95,60,.14)}
+.pw-plan[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--seal);background:color-mix(in srgb,var(--card) 92%,var(--seal))}
+.pw-radio{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line-2)}
+.pw-plan[aria-pressed="true"] .pw-radio{box-shadow:inset 0 0 0 7px var(--seal)}
+.pw-plan .pw-pt{flex:1}
+.pw-plan b{display:block;font-size:16px}
+.pw-plan small{display:block;font-size:13px;color:var(--muted)}
+.pw-price{text-align:right;font-weight:800;font-size:16px}
+.pw-price small{font-weight:500}
+.pw-save{position:absolute;top:-10px;right:14px;padding:3px 9px;border-radius:7px;background:var(--seal);color:var(--seal-ink);font-size:11.5px;font-weight:800;letter-spacing:.02em}
+.pw-fine{margin:2px 0 0;font-size:12.5px;line-height:1.4;color:var(--muted);text-align:center}
+#ob.mo .ob-top{height:9vh}
+@media (prefers-reduced-motion:reduce){#ob,#ob.out,.ob-hi .ob-big,.ob-hi .ob-big .shi-face{animation:none}.ob-card{transition:none}}
+
 .fade-in{animation:fadeIn .35s ease both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -1199,6 +1365,7 @@ function seed() {
 }
 function load() { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && Array.isArray(d.decks)) return d; } catch (e) {} return seed(); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+const FRESH = (() => { try { return !localStorage.getItem(KEY); } catch (e) { return false; } })();   // first time ShiCards opens on this phone: show the onboarding
 let db = load();
 db.prefs = Object.assign({ englishFirst: false, writeMode: 'free', outline: false }, db.prefs);
 db.bank = Array.isArray(db.bank) ? db.bank : [];   // word bank: [{ id, hanzi, pinyin, en, added }], newest first
@@ -1517,6 +1684,9 @@ function render() {
   else if (S.view === 'hsk') { app.innerHTML = HskView(); mountHsk(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs();
+  const main = () => ['home', 'learn', 'profile'].includes(S.view) || S.view === 'read' && !S.readId;
+  if (main()) setTimeout(() => { if (main()) moments(); }, 380);
+  iconBadge();
 }
 
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
@@ -1828,7 +1998,10 @@ function CourseBlock() {
 }
 /* Learn: today's review round (every card due from all your decks, plus up to 5 new words a day); hidden when nothing waits */
 function ReviewTile(head) {
-  const P = todayPile(), n = P.cards.length; if (!n) return '';
+  const P = todayPile(), n = P.cards.length;
+  if (!n) return allItems().length ? `${head('Today’s review', '今日复习', 1)}<div class="rv-tile calm"><span class="rv-shi">${shiFace('cheer')}</span>
+      <span class="rv-main"><b>All caught up</b><small>Nothing to review right now. Read a story or add new words.</small></span>
+      <button class="btn btn-ghost rv-go" data-act="tab" data-h="#/read">Read</button></div>` : '';
   const mood = shiMood(n), say = { miss: 'Shi Shi is waiting for you', sleep: 'Shi Shi dozed off. One round wakes him up' }[mood];
   const mix = [P.due.length && `${P.due.length} to review`, P.fresh.length && `${P.fresh.length} new`, `about ${Math.max(1, Math.round(n * 10 / 60))} min`].filter(Boolean).join(' · ');
   return `${head('Today’s review', '今日复习', 1)}
@@ -1877,7 +2050,7 @@ function applyFreezes() {
   d.setDate(d.getDate() - 1);
   while (!act.has(dayKey(d)) && !F.days.includes(dayKey(d))) { gap.push(dayKey(d)); d.setDate(d.getDate() - 1); if (gap.length > 3) return; }
   if (gap.length && gap.length <= F.have) {
-    F.days.push(...gap); F.have -= gap.length; F.notice = gap.length === 1 ? 'Your streak freeze saved yesterday ❄️' : `${gap.length} streak freezes saved your streak ❄️`;
+    F.days.push(...gap); F.have -= gap.length; F.saved = { days: gap.length, left: F.have };   // shown as the Streak saved page (moments)
     LOG.add('freeze-used', { days: gap.length, left: F.have }); save();
   }
 }
@@ -1885,8 +2058,9 @@ function practiceStreak() {
   applyFreezes();
   const F = db.freeze, act = practiceDays(), ice = new Set(F.days), d = new Date(), today = act.has(dayKey(d));
   if (!today) d.setDate(d.getDate() - 1);   // today is not over yet: a streak that ran until yesterday still counts
-  let n = 0, start = null;
-  for (;;) { const k = dayKey(d); if (act.has(k)) { n++; start = k; } else if (!ice.has(k)) break; d.setDate(d.getDate() - 1); }
+  let n = 0, start = null, startD = null;
+  for (;;) { const k = dayKey(d); if (act.has(k)) { n++; start = k; startD = new Date(d); } else if (!ice.has(k)) break; d.setDate(d.getDate() - 1); }
+  if (db.earn && earnBack(n, startD)) { const r = practiceStreak(); db.earnDone = r.n; save(); return r; }   // a lost streak won back
   if (n && F.run !== start) { F.run = start; F.given = 0; save(); }
   const m = Math.floor(n / 7);
   if (n && m > F.given) { const before = F.have; F.have = Math.min(2, F.have + m - F.given); F.given = m; if (F.have > before && !F.notice) F.notice = `${n} days in a row! You earned a streak freeze ❄️`; save(); }
@@ -1973,6 +2147,9 @@ function StreakView() {
       <p class="st-note">${note}</p>
       <div class="st-fz${fz ? '' : ' none'}">${ICE_SVG.replace('class="ice"', 'class="ice st-ice"')}<div><p>${fzT}</p><span>${fzS}</span></div></div>
     </section>
+    ${GoalRow()}
+    ${db.earn ? `<div class="mo-card"><div style="flex:1"><b>Win back your ${db.earn.n}-day streak</b><small>Practise 3 days in a row by ${new Date(db.earn.until - DAY).toLocaleDateString('en-GB', { weekday: 'long' })}. It’s free.</small>
+      <div class="mo-pips">${[0, 1, 2].map(i => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div></div></div>` : ''}
     <h2 class="st-h">Streak calendar</h2>
     ${StreakCal()}
   </div>`;
@@ -2125,6 +2302,8 @@ function ProfileView() {
       <div class="stat"><b>${written}</b><span>Cards written</span></div>
       <div class="stat"><b>${pct}</b><span>Written correctly</span></div>
     </div>
+    <div class="section-head"><h2>Badges</h2></div>
+    ${Badges()}
   </div>`;
 }
 
@@ -2139,7 +2318,9 @@ const meAvatar = () => faceHtml() + `<span class="me-cam" aria-label="Choose a p
 /* the small photo in the top-left corner of Decks; tap it for the side menu */
 const AvBtn = () => `<button class="av" data-act="drawer" aria-label="Open menu">${faceHtml()}</button>`;
 /* the flame in the top-right corner of the Decks page: your streak, tap it to open the Streak page */
-const StreakBtn = () => { const { n, today } = practiceStreak(); return `<button class="hm-streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}" data-act="streak" aria-label="${n ? `${n} day streak` : 'No streak yet'}. Open your calendar">${FLAME}<b>${n}</b></button>`; };
+const StreakBtn = () => { const { n, today } = practiceStreak(), { n: g, goal } = goalToday(), C = 97.39, f = goal ? Math.min(1, g / goal) : 0;
+  const fl = goal ? `<span class="gring${n ? ' on' : ''}${n && !today ? ' wait' : ''}"><svg class="gr" viewBox="0 0 34 34" aria-hidden="true"><circle class="gr-bg" cx="17" cy="17" r="15.5"/><circle class="gr-fg" cx="17" cy="17" r="15.5" stroke-dasharray="${C}" stroke-dashoffset="${(C * (1 - f)).toFixed(1)}"/></svg>${FLAME}</span>` : FLAME;
+  return `<button class="hm-streak${n ? ' on' : ''}${n && !today ? ' wait' : ''}" data-act="streak" aria-label="${n ? `${n} day streak` : 'No streak yet'}.${goal ? ` Daily goal ${Math.min(g, goal)} of ${goal}.` : ''} Open your calendar">${fl}<b>${n}</b></button>`; };
 /* open the phone's gallery straight away (must run inside a tap) */
 function pickPhoto() {
   const inp = document.createElement('input');
@@ -2636,7 +2817,7 @@ function hotdPick(fresh) {   // fresh: the Developer sheet's "Try another charac
   const known = knownWords(), past = new Set(H?.past || []);
   const ok = r => [...r.h].length === 1 && HAN.test(r.h) && r.e && r.e[0] !== '(' && !/^surname /.test(r.e);   // no particles, no surnames
   let pool = [];
-  for (const l of [1, 2, 3, 4, 5, 6, 7]) { pool = (S.H.levels[l] || []).filter(r => ok(r) && !known.has(r.h) && !past.has(r.h)); if (pool.length) break; }
+  for (const l of [1, 2, 3, 4, 5, 6, 7].filter(l => l >= (db.prefs.level || 1))) { pool = (S.H.levels[l] || []).filter(r => ok(r) && !known.has(r.h) && !past.has(r.h)); if (pool.length) break; }
   if (!pool.length) pool = (S.H.levels[1] || []).filter(ok);
   const r = pool[(fresh ? Math.random() * pool.length | 0 : strHash(today)) % pool.length]; if (!r) return null;
   db.hotd = { day: today, h: r.h, p: r.p, e: r.e.trim(), lv: r.lv, n: 0, rev: false, past: [r.h, ...(H?.past || [])].slice(0, 60) };
@@ -3260,6 +3441,7 @@ function StudySummary(d) {
       <div><b>${ok}/${n}</b><span>remembered</span></div>
       <div><b>${fresh.length}</b><span>${fresh.length === 1 ? 'new word' : 'new words'}</span></div>
       <div class="fl"><b>${streak}</b><span>day streak</span></div></div>
+    ${db.prefs.goal ? `<div class="done-goal">${GoalRow()}</div>` : ''}
     ${fresh.length ? `<div class="done-words">${fresh.slice(0, 8).map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}
     <div class="done-next"><span class="done-cal"><small>${tm.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()}</small>${tm.getDate()}</span>
       <span><b>${tmr ? `Tomorrow: ${plural(tmr, 'card')}` : 'Nothing due tomorrow'}</b><small>${tmr ? 'Shi Shi will be waiting' : 'Add new words to keep growing'}</small></span></div>
@@ -4596,7 +4778,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.81';
+const APP_VERSION = '1.82';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -4642,6 +4824,7 @@ function devSheet() {
   const H = hotdPick();
   const now = !H ? 'Today’s character is not picked yet (the HSK list is still loading).'
     : `Today: ${H.h} ${H.p} · ${H.rev ? 'uncovered' : 'under the foil'} · ${H.top === 'story' ? 'story card on top' : 'Hanzi card on top'}${bankHas(H.h) ? ' · in your word bank' : ''}`;
+  const p = (id, t, s) => `<button class="list-btn" id="${id}"><span>${t}<br><small>${s}</small></span><span class="side">${I.chev}</span></button>`;
   const b = (id, t, s) => `<button class="list-btn" id="${id}"${H ? '' : ' disabled'}><span>${t}<br><small>${s}</small></span><span class="side">${I.chev}</span></button>`;
   openSheet(`<h3>Developer</h3>
     <p class="muted" style="margin:-6px 0 14px">Replay what normally happens once a day. Only today’s cards change, on this device.</p>
@@ -4651,7 +4834,21 @@ function devSheet() {
       ${b('devOpen', 'Play: card opens', 'Decks, then the card grows into the pop-up')}
       ${b('devToss', 'Play: card swipes away', 'The top card flies off and goes under, the story card rises')}
     </div>
-    <p class="muted dev-now">${esc(now)}</p>`, sh => {
+    <p class="muted dev-now">${esc(now)}</p>
+    <div class="day-h" style="margin-top:20px">Proven patterns</div>
+    <div class="list-group">
+      ${p('devOb', 'Play: onboarding', 'The first-run pages. Your words and goal stay as they are')}
+      ${p('devSaved', 'Play: streak saved', 'What you see after a freeze covers a missed day')}
+      ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
+      ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
+      ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
+    </div>`, sh => {
+    const play = f => () => { LOG.add('dev', f.name); closeSheet(); setTimeout(f, 320); };
+    sh.querySelector('#devOb').onclick = play(function onboarding() { obStart(true); });
+    sh.querySelector('#devSaved').onclick = play(function saved() { momentSaved({ days: 1, left: db.freeze.have }); });
+    sh.querySelector('#devMile').onclick = play(function milestone() { const { n } = practiceStreak(); momentMile(MILES.includes(n) ? n : 7); });
+    sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
+    sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
     const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; delete X.done; delete X.top; };
     const go = (what, prep, then) => () => {
       LOG.add('dev', what); prep(); save(); closeSheet();
@@ -4729,7 +4926,353 @@ function settingsSheet() {
 }
 
 /* ---------- actions ---------- */
+/* =========================================================
+   Proven patterns from top learning apps (evidence and sources: proven-patterns.html)
+   - Onboarding: value first (a real mini lesson, no account, no slide tour), why / level / daily goal you pick yourself,
+     a "Commit to my goal" button, then a reminder or home-screen step after the first win.
+   - Streak moments: streak saved by a freeze, milestones, welcome back after a break, a free way to win a lost streak back.
+   - Daily goal kept apart from the streak: one round keeps the streak, the goal is extra.
+   - Badges for real skills, the app icon's dot, and a paywall layout kept as a preview (nothing is sold).
+   ========================================================= */
+function layer(html, cls = '') {   // a full-screen page over the app
+  $('#ob')?.remove();
+  const el = document.createElement('div'); el.id = 'ob'; if (cls) el.className = cls;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+  el.innerHTML = `<div class="ob-in">${html}</div>`; $('#frame').appendChild(el); return el;
+}
+function closeLayer(then) {
+  const el = $('#ob'); if (!el) { then?.(); return; }
+  el.id = ''; el.classList.add('out');
+  setTimeout(() => { el.remove(); then?.(); }, stillMotion() ? 0 : 200);
+}
+const confetti = () => Array.from({ length: 22 }, (_, i) => `<i style="--x:${(i % 2 ? 1 : -1) * (40 + (i * 37) % 120)}px;--y:${-(60 + (i * 53) % 110)}px;--r:${(i * 97) % 360}deg;--d:${(i % 7) * 40}ms;background:${['#E5483F', '#FFD15C', '#3F7A5F', '#E8742C', '#B23A2C'][i % 5]}"></i>`).join('');
+
+/* ---------- daily goal: words practised today (each card once a day; a finished story counts 5) ---------- */
+const GOALS = [[5, 'Casual'], [10, 'Regular'], [20, 'Serious'], [30, 'Intense']];
+function goalToday() {
+  const k = dayKey(Date.now()); let n = 0;
+  for (const e of Object.values(db.days[k]?.decks || {})) n += e.n || 0;
+  n += 5 * db.readDone.filter(s => dayKey(s.done) === k).length;
+  return { n, goal: db.prefs.goal || 0 };
+}
+function GoalRow(act = 'goal') {
+  const { n, goal } = goalToday();
+  if (!goal) return `<button class="goal-row" data-act="${act}"><span class="goal-main"><b>Set a daily goal</b><small>How many words a day you want to practise</small></span><span class="goal-ch">Set</span></button>`;
+  const f = Math.min(1, n / goal);
+  return `<button class="goal-row" data-act="${act}"><span class="goal-main"><b>${f >= 1 ? 'Daily goal reached ✓' : 'Daily goal'}</b>
+    <small>${Math.min(n, goal)} of ${goal} words today</small><span class="goal-bar"><i style="width:${Math.round(f * 100)}%"></i></span></span><span class="goal-ch">Change</span></button>`;
+}
+function goalSheet() {
+  const cur = db.prefs.goal || 0;
+  openSheet(`<h3>Daily goal</h3><p class="muted" style="margin:-6px 0 16px;text-align:center">One round a day keeps your streak. The goal is extra.</p>
+    <div class="ob-opts" id="gOpts">${GOALS.map(([g, t]) => `<button class="ob-opt" data-g="${g}" aria-pressed="${g === cur}"><span class="ob-txt"><b>${t}</b><small>${g} words a day</small></span><span class="ob-num">${g}</span></button>`).join('')}</div>
+    <button class="btn btn-primary wide" id="gGo" style="margin-top:18px"${cur ? '' : ' disabled'}>Commit to my goal</button>`, sh => {
+    let pick = cur;
+    sh.querySelector('#gOpts').onclick = e => { const b = e.target.closest('[data-g]'); if (!b) return; pick = +b.dataset.g;
+      sh.querySelectorAll('.ob-opt').forEach(x => x.setAttribute('aria-pressed', x === b)); sh.querySelector('#gGo').disabled = false; };
+    sh.querySelector('#gGo').onclick = () => { db.prefs.goal = pick; save(); LOG.add('goal', { goal: pick }); closeSheet(); toast(`Daily goal: ${pick} words`); setTimeout(render, 250); };
+  });
+}
+
+/* ---------- onboarding: shown once, on a phone that has never opened ShiCards ---------- */
+const OB_WHY = [['travel', '旅', 'Travel'], ['family', '家', 'Family and heritage'], ['work', '工', 'Work or school'],
+  ['exam', '考', 'The HSK exam'], ['culture', '文', 'Films, books and culture'], ['fun', '趣', 'Just for fun']];
+const OB_LEVEL = [[1, '人', 'I’m brand new', 'Start with the very first characters'], [2, '好', 'I know a few words', 'Things like 你好 and 谢谢'],
+  [3, '读', 'I can read simple sentences', 'Start from HSK 3']];
+const OB_WORDS = {
+  1: [['人', 'rén', 'person', 'Two legs, out for a walk'], ['大', 'dà', 'big', 'A person stretching their arms out wide'], ['口', 'kǒu', 'mouth', 'An open mouth, seen from the front']],
+  2: [['山', 'shān', 'mountain', 'Three peaks side by side'], ['水', 'shuǐ', 'water', 'A stream, with drops splashing off both sides'], ['火', 'huǒ', 'fire', 'Flames leaping up, sparks at the sides']],
+  3: [['雨', 'yǔ', 'rain', 'Drops falling from under the sky'], ['鱼', 'yú', 'fish', 'Head on top, body in the middle, tail below'], ['雪', 'xuě', 'snow', 'Rain on top, a hand sweeping it up below']],
+};
+const OB_STEPS = ['hi', 'why', 'level', 'goal', 'learn', 'write', 'yay', 'habit'];
+const OB_PROG = { why: .16, level: .32, goal: .46, learn: .6, write: .74, yay: .9, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
+const canRemind = () => 'PushManager' in window && 'Notification' in window && SYNC.on && !(db.prefs.remind?.on);
+function obStart(replay) {
+  S.ob = { i: 0, why: null, level: null, goal: null, card: 0, flipped: false, seen: 0, replay: !!replay };
+  LOG.add('onboarding', { step: 'hi', replay: !!replay });
+  obShow();
+}
+function obGo(step) { S.ob.i = OB_STEPS.indexOf(step); S.ob.card = 0; S.ob.flipped = false; LOG.add('onboarding', { step }); obShow(); }
+function obTop(back = true) {
+  const p = OB_PROG[OB_STEPS[S.ob.i]] || 0;
+  return `<div class="ob-top"><button class="icon-btn" data-ob="back" aria-label="Back"${back ? '' : ' hidden'}>${I.back}</button>
+    <div class="ob-prog" role="progressbar" aria-valuenow="${Math.round(p * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.round(p * 100)}%"></i></div><span style="width:42px"></span></div>`;
+}
+const obSay = (mood, txt, small = '') => `<div class="ob-say"><span class="ob-shi">${shiFace(mood)}</span><p class="ob-bub">${txt}${small ? `<small>${small}</small>` : ''}</p></div>`;
+const obOpt = (val, glyph, title, sub, on) => `<button class="ob-opt" data-v="${val}" aria-pressed="${!!on}">${glyph}<span class="ob-txt"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span></button>`;
+function obShow() {
+  const O = S.ob, step = OB_STEPS[O.i];
+  // keep the old layer while the next step is built, so the page under it never flashes
+  let html = '';
+  if (step === 'hi') html = `<div class="ob-hi"><div class="ob-big">${shiFace('cheer')}</div><div class="ob-name">ShiCards</div>
+      <h1>Learn to read and write Chinese characters</h1><p>A few minutes a day with Shi Shi. Your first three characters take about a minute.</p></div>
+    <div class="ob-dock"><button class="btn btn-seal" data-ob="next">Get started</button><button class="ob-link" data-ob="skip">I’ve used ShiCards before</button></div>`;
+  else if (step === 'why') html = obTop() + obSay('happy', 'Why are you learning Chinese?', 'I’ll pick stories and words that fit.')
+    + `<div class="ob-opts" data-pick="why">${OB_WHY.map(([v, g, t]) => obOpt(v, `<span class="ob-glyph">${g}</span>`, t, '', O.why === v)).join('')}</div>
+    <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.why ? '' : ' disabled'}>Continue</button></div>`;
+  else if (step === 'level') html = obTop() + obSay('focus', 'How much Chinese do you know?', 'Hanzi of the day will start at your level.')
+    + `<div class="ob-opts" data-pick="level">${OB_LEVEL.map(([v, g, t, s]) => obOpt(v, `<span class="ob-glyph">${g}</span>`, t, s, O.level === v)).join('')}</div>
+    <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.level ? '' : ' disabled'}>Continue</button></div>`;
+  else if (step === 'goal') html = obTop() + obSay('up', 'Pick a daily goal', 'One round a day keeps your streak alive. The goal is extra.')
+    + `<div class="ob-opts" data-pick="goal">${GOALS.map(([g, t]) => obOpt(g, '', t, `${g} words a day`, O.goal === g).replace('</span></button>', `</span><span class="ob-num">${g}</span></button>`)).join('')}</div>
+    <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.goal ? '' : ' disabled'}>Commit to my goal</button></div>`;
+  else if (step === 'learn') {
+    const W = OB_WORDS[O.level || 1], [h, p, e, why] = W[O.card];
+    html = obTop() + obSay(O.flipped ? 'cheer' : 'happy', O.card ? (O.flipped ? 'Got it?' : 'Next one. Tap to turn it over.') : 'Here are your first three characters', O.card ? '' : 'Tap the card to turn it over.')
+      + `<div class="ob-stage"><div class="ob-card${O.flipped ? ' flip' : ''}" id="obCard" role="button" tabindex="0" aria-label="Card ${O.card + 1} of 3. Tap to turn it over">
+        <div class="ob-face"><div class="tzg">${TZG}<span class="ob-ch">${h}</span></div><span class="ob-tap">Tap to turn over</span></div>
+        <div class="ob-face back"><span class="ob-back-ch">${h}</span><span class="ob-py">${p}<button class="icon-btn" data-ob="say" aria-label="Hear it">${I.sound}</button></span>
+          <span class="ob-en">${e}</span><span class="ob-why">${why}</span></div></div></div>
+      <div class="ob-dots">${W.map((_, i) => `<i class="${i < O.card ? 'done' : i === O.card ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.flipped ? '' : ' disabled'}>${O.card < 2 ? 'Next' : 'Continue'}</button></div>`;
+  }
+  else if (step === 'write') {
+    const [h] = OB_WORDS[O.level || 1][0];
+    html = obTop() + obSay('focus', `Now write ${h}`, 'Trace the light lines, one stroke at a time.')
+      + `<div class="ob-write"><div class="tzg" id="obBox">${TZG}<div class="quiz"></div></div><p class="ob-cap" id="obCap">Start at the top</p></div>
+      <div class="ob-dock"><button class="btn btn-primary" data-ob="next" id="obWNext" disabled>Continue</button><button class="ob-link" data-ob="next">Skip writing</button></div>`;
+  }
+  else if (step === 'yay') {
+    const W = OB_WORDS[O.level || 1], { n } = practiceStreak(), { n: g } = goalToday();
+    html = `<div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div><div class="done-shi">${shiFace('cheer')}</div>
+        <h2>太棒了！</h2><div class="mo-sub">tài bàng le · Great job!</div></div>
+      <div class="ob-words">${W.map(w => `<span>${w[0]}</span>`).join('')}</div>
+      <div class="ob-stats"><div><b>3</b><span>characters in your word bank</span></div><div><b>${n || 1}</b><span>day streak</span></div>
+        <div><b>${Math.min(g, O.goal || g)}/${O.goal || 10}</b><span>today’s goal</span></div></div>
+      <p class="mo-text" style="margin-top:18px">They come back for a quick review tomorrow, just before you’d forget them.</p>
+      <div class="ob-dock"><button class="btn btn-seal" data-ob="next">Continue</button></div>`;
+  }
+  else if (step === 'habit') {
+    if (canRemind()) html = obTop(false) + `<div class="ob-art">${shiFace('up')}</div>
+        <h2 class="mo-title">When should Shi Shi remind you?</h2><p class="mo-text">One message a day, only on days you haven’t practised yet. Turn it off any time.</p>
+        <div class="chips ob-hours" id="obHr">${REMIND_HOURS.map(h => `<button class="chip${h === 19 ? ' on' : ''}" data-h="${h}">${h}:00</button>`).join('')}</div>
+        <div class="ob-dock"><button class="btn btn-seal" data-ob="remind">Remind me</button><button class="ob-link" data-ob="done">Not now</button></div>`;
+    else html = obTop(false) + `<div class="ob-phone"><img src="icons/icon-192.png" alt=""></div>
+        <h2 class="mo-title">Keep Shi Shi on your home screen</h2><p class="mo-text">Then today’s round is one tap away, and ShiCards opens full screen like any other app.</p>
+        <div class="ob-dock"><button class="btn btn-seal" data-ob="install">Add to home screen</button><button class="ob-link" data-ob="done">Not now</button></div>`;
+  }
+  const el = layer(html, 'obs-' + step);
+  el.querySelector('.ob-in').addEventListener('click', obClick);
+  if (step === 'learn') {
+    const card = el.querySelector('#obCard');
+    const flip = () => { if (S.ob.flipped) { card.classList.toggle('flip'); return; } S.ob.flipped = true; card.classList.add('flip'); sayZh(OB_WORDS[S.ob.level || 1][S.ob.card][0]);
+      LOG.add('onboarding-flip', { card: S.ob.card }); el.querySelector('[data-ob="next"]').disabled = false;
+      const b = el.querySelector('.ob-bub'); b.innerHTML = S.ob.card ? 'Got it?' : 'That’s how every card works. Ready for the next?'; el.querySelector('.ob-shi').innerHTML = shiFace('cheer'); };
+    card.addEventListener('click', e => { if (!e.target.closest('[data-ob]')) flip(); });
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  }
+  if (step === 'write') obWrite(el);
+  if (step === 'habit' && canRemind()) el.querySelector('#obHr').onclick = e => { const b = e.target.closest('[data-h]'); if (b) el.querySelectorAll('#obHr .chip').forEach(c => c.classList.toggle('on', c === b)); };
+}
+function obWrite(el) {
+  const [h] = OB_WORDS[S.ob.level || 1][0], box = el.querySelector('#obBox'), q = box.querySelector('.quiz'), cap = el.querySelector('#obCap'), go = el.querySelector('#obWNext');
+  if (!window.HanziWriter) { cap.textContent = 'Writing needs the internet. You can try it later.'; go.disabled = false; return; }
+  const s = box.offsetWidth || 260; let miss = 0, loaded = false;
+  const noData = () => { if (loaded || !$('#obBox')) return; cap.textContent = 'The strokes didn’t load. You can write it later from your word bank.'; go.disabled = false; LOG.add('onboarding-write', { hz: h, error: 'no stroke data' }); };
+  setTimeout(noData, 9000);
+  const w = HanziWriter.create(q, h, writerOpts(s, { showCharacter: false, showOutline: true, outlineColor: css('--line-2'), drawingColor: css('--ink'), strokeColor: css('--ink'),
+    highlightColor: css('--seal'), drawingWidth: Math.max(4, Math.round(s / 50)), showHintAfterMisses: 1, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+    charDataLoader: (ch, ok, err) => loadRef(ch).then(d => { loaded = true; ok(d); }, e => { noData(); err(e); }) }));
+  w.quiz({
+    onMistake: () => { miss++; cap.textContent = 'Almost. Follow the glowing line'; },
+    onCorrectStroke: d => { cap.textContent = d.strokesRemaining ? `Stroke ${d.strokeNum + 1} of ${d.strokeNum + 1 + d.strokesRemaining} ✓` : 'Done ✓'; },
+    onComplete: () => { LOG.add('onboarding-write', { hz: h, mistakes: miss }); cap.textContent = miss ? `You wrote ${h}!` : `Every stroke right. You wrote ${h}!`;
+      go.disabled = false; go.nextElementSibling?.remove(); el.querySelector('.ob-shi').innerHTML = shiFace('cheer'); el.querySelector('.ob-bub').innerHTML = '很好！ hěn hǎo. Nicely done.'; },
+  });
+}
+function obLearned() {   // the three characters go into the word bank and count as today's practice (day 1 of the streak)
+  const W = OB_WORDS[S.ob.level || 1];
+  if (S.ob.replay) return;
+  for (const [h, p, e] of W.slice().reverse()) {
+    let w = bankHas(h);
+    if (!w) { w = { id: uid(), hanzi: h, pinyin: p, en: e, added: Date.now(), hsk: S.H ? S.H.byHz.get(h)?.lv || 0 : undefined }; db.bank.unshift(w); }
+    noteDeck({ id: 'bank', name: 'Word bank' }, w.id);
+    if (!w.srs) srsGrade(w, 1);   // seen once: back for a quick review tomorrow
+  }
+  save();
+}
+function obFinish(how) {
+  const O = S.ob;
+  if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, how }; if (O.goal) db.prefs.goal = O.goal; if (O.level) db.prefs.level = O.level;
+    if (db.hotd && !db.hotd.rev && (db.hotd.lv || 1) < (O.level || 1)) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }   // today's character was picked before you chose your level
+    save(); }
+  LOG.add('onboarding-done', { how, why: O.why, level: O.level, goal: O.goal });
+  S.ob = null; closeLayer(() => { S.instant = true; render(); });
+}
+async function obClick(e) {
+  const b = e.target.closest('[data-ob],[data-v]'); if (!b || !S.ob) return;
+  const O = S.ob, step = OB_STEPS[O.i];
+  if (b.dataset.v) {   // a choice: mark it, wake the button
+    const k = b.closest('[data-pick]').dataset.pick; O[k] = k === 'why' ? b.dataset.v : +b.dataset.v;
+    b.parentElement.querySelectorAll('.ob-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
+    $('#ob [data-ob="next"]').disabled = false; return;
+  }
+  const a = b.dataset.ob;
+  if (a === 'say') { sayZh(OB_WORDS[O.level || 1][O.card][0]); return; }
+  if (a === 'skip') { obFinish('skipped'); return; }
+  if (a === 'done') { obFinish(step === 'habit' ? 'not-now' : 'done'); return; }
+  if (a === 'back') {
+    if (step === 'learn' && O.card) { O.card--; O.flipped = true; obShow(); return; }
+    O.i = Math.max(0, O.i - 1); O.card = 0; O.flipped = false; obShow(); return;
+  }
+  if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obFinish('reminder'); return; }
+  if (a === 'install') {
+    if (installEvt) { installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null; LOG.add('install', { outcome, from: 'onboarding' }); obFinish('install-' + outcome); }
+    else { obFinish('install-help'); setTimeout(installHelp, 350); }
+    return;
+  }
+  // next
+  if (step === 'learn' && O.card < 2) { O.card++; O.flipped = false; obShow(); return; }
+  if (step === 'learn') { obGo(window.HanziWriter ? 'write' : 'yay'); if (!window.HanziWriter) obLearned(); return; }
+  if (step === 'write') { obLearned(); obGo('yay'); return; }
+  if (step === 'yay') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
+  obGo(OB_STEPS[O.i + 1]);
+}
+
+/* ---------- streak moments: one full-screen card at a time, when you land on a main page ---------- */
+const MILES = [3, 7, 14, 30, 50, 100, 150, 200, 365, 500, 1000];
+function lastPractice() {   // the last day you practised before today, as a Date at midnight (null: never)
+  const act = practiceDays(), d = new Date(dayStart()); d.setDate(d.getDate() - 1);
+  for (let i = 0; i < 400; i++, d.setDate(d.getDate() - 1)) if (act.has(dayKey(d))) return d;
+  return null;
+}
+function runEnding(d) {   // how many practice days in a row ended on day d (freeze days bridge but don't count)
+  const act = practiceDays(), ice = new Set(db.freeze.days), x = new Date(d); let n = 0;
+  for (let i = 0; i < 2000; i++, x.setDate(x.getDate() - 1)) { const k = dayKey(x); if (act.has(k)) n++; else if (!ice.has(k)) break; }
+  return n;
+}
+function weekDots(n, ice = []) {   // this week, Monday first: practised, saved by a freeze, or not yet
+  const act = practiceDays(), iceS = new Set([...db.freeze.days, ...ice]), d = new Date(dayStart()), dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow);
+  const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7"/></svg>';
+  return `<div class="mo-week" aria-hidden="true">${['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((l, i) => { const x = new Date(d); x.setDate(d.getDate() + i); const k = dayKey(x);
+    const c = act.has(k) ? 'on' : iceS.has(k) ? 'ice' : ''; return `<span><i class="${c}">${c === 'on' ? tick : c === 'ice' ? '❄' : ''}</i>${l}</span>`; }).join('')}</div>`;
+}
+const moDock = (main, act = 'mo-close', alt = '') => `<div class="ob-dock"><button class="btn btn-seal" data-act="${act}">${main}</button>${alt}</div>`;
+function momentSaved(F) {
+  const { n } = practiceStreak();
+  layer(`<div class="ob-top"></div><div class="mo-big on cold">${FLAME}<b>${n}</b></div>
+    <h2 class="mo-title">Streak saved</h2>
+    <p class="mo-text">${F.days === 1 ? 'You missed yesterday, so a streak freeze stepped in.' : `You missed ${F.days} days, so ${F.days} streak freezes stepped in.`} Your ${n}-day streak is safe.</p>
+    ${weekDots(n)}
+    <div class="mo-card">${ICE_SVG}<div><b>${F.left ? `${plural(F.left, 'freeze')} left` : 'No freezes left'}</b><small>${F.left ? 'Each one covers a day you miss.' : 'Practise 7 days in a row to earn one.'}</small></div></div>
+    ${moDock('Keep going')}`, 'mo');
+}
+function momentMile(n) {
+  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div></div>
+    <div class="mo-big on">${FLAME}<b>${n}</b></div>
+    <h2 class="mo-title">${n} day streak!</h2>
+    <p class="mo-text">${n === 3 ? 'Three days in a row. This is where a habit starts.' : n === 7 ? 'A whole week. You earned a streak freeze too.' : n < 100 ? `${n} days of Chinese in a row. Shi Shi is proud of you.` : `${n} days. That’s a real habit.`}</p>
+    ${weekDots(n)}
+    ${moDock('Continue', 'mo-close', '<button class="ob-link" data-act="mo-share">Share my streak</button>')}`, 'mo');
+}
+function momentBack(away, lost) {
+  layer(`<div class="ob-top"></div><div class="ob-art">${shiFace('cheer')}</div>
+    <h2 class="mo-title">欢迎回来！ Welcome back!</h2>
+    <p class="mo-text">Life happens. Let’s ease back in with a short warm-up of five cards.</p>
+    ${lost ? `<div class="mo-card"><div style="flex:1"><b>Win back your ${lost}-day streak</b><small>Practise 3 days in a row this week and it comes back, free.</small>
+      <div class="mo-pips"><i></i><i></i><i></i></div></div></div>` : ''}
+    ${moDock(todayPile().cards.length ? 'Warm up: 5 cards' : 'Read a story', 'mo-warm', '<button class="ob-link" data-act="mo-close">Not now</button>')}`, 'mo');
+}
+function momentEarned(n) {
+  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div></div>
+    <div class="mo-big on">${FLAME}<b>${n}</b></div>
+    <h2 class="mo-title">Your streak is back</h2>
+    <p class="mo-text">Three days in a row did it. Your ${n}-day streak is whole again.</p>
+    ${weekDots(n)}${moDock('Keep going')}`, 'mo');
+}
+/* called after a main page is drawn: shows at most one moment, the most important first */
+function moments() {
+  if ($('#ob') || S.ob || $('#sheet-root.open') || !db.prefs.ob && FRESH) return;
+  const F = db.freeze, { n, today } = practiceStreak();
+  if (db.earnDone) { const m = db.earnDone; db.earnDone = null; save(); LOG.add('moment', { what: 'earned-back', n: m }); return momentEarned(m); }
+  if (F.saved) { const s = F.saved; F.saved = null; save(); LOG.add('moment', { what: 'saved', ...s }); return momentSaved(s); }
+  if (today && MILES.includes(n) && db.mile !== n) { db.mile = n; save(); LOG.add('moment', { what: 'milestone', n }); return momentMile(n); }
+  const tk = dayKey(Date.now()), last = lastPractice();
+  if (!today && last && db.back !== tk) {
+    const away = Math.round((dayStart() - last.getTime()) / DAY);
+    if (away >= 3) {
+      db.back = tk; const lost = n ? 0 : runEnding(last);
+      if (lost >= 3 && away <= 8 && !db.earn) db.earn = { n: lost, from: last.getTime(), until: dayStart(Date.now(), 7) };
+      save(); LOG.add('moment', { what: 'welcome-back', away, lost }); return momentBack(away, db.earn ? db.earn.n : 0);
+    }
+  }
+}
+/* win a lost streak back: practise 3 days in a row before the week is out; the gap is then covered like freeze days */
+function earnBack(n, runStart) {
+  const E = db.earn; if (!E) return false;
+  if (Date.now() > E.until) { db.earn = null; save(); return false; }
+  if (n < 3 || !runStart) return false;
+  const x = new Date(E.from); x.setDate(x.getDate() + 1);
+  for (let i = 0; i < 30 && dayKey(x) !== dayKey(runStart); i++, x.setDate(x.getDate() + 1)) db.freeze.days.push(dayKey(x));
+  db.earn = null; save(); LOG.add('earn-back', { lost: E.n });
+  return true;
+}
+
+/* ---------- badges: real skills, each with its progress ---------- */
+function bestStreak() {
+  const act = practiceDays(), ice = new Set(db.freeze.days), keys = [...act].map(k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m, d).getTime(); }).sort((a, b) => a - b);
+  let best = 0, run = 0, prev = null;
+  for (const t of keys) {
+    if (prev != null) { const x = new Date(prev); x.setDate(x.getDate() + 1); let ok = true;
+      while (dayKey(x) !== dayKey(t)) { if (!ice.has(dayKey(x))) { ok = false; break; } x.setDate(x.getDate() + 1); }
+      run = ok ? run + 1 : 1; } else run = 1;
+    best = Math.max(best, run); prev = t;
+  }
+  return best;
+}
+function Badges() {
+  const words = new Set([...db.bank.map(w => w.hanzi), ...db.decks.flatMap(d => d.cards.map(c => c.hanzi))]).size;
+  const written = db.decks.flatMap(d => d.cards).filter(c => (c.hist || []).length).length, stories = db.readDone.length, best = bestStreak();
+  const k = knownWords(), h1 = S.H?.levels[1] || [], h1k = h1.filter(r => k.has(r.h)).length;
+  const B = [['字', 'First words', words, 10], ['百', '100 words', words, 100],
+    ['火', 'Week streak', best, 7], ['月', 'Month streak', best, 30], ['年', '100-day streak', best, 100],
+    ['写', 'Writer', written, 25], ['书', 'First story', stories, 1], ['读', 'Bookworm', stories, 10], ['一', 'HSK 1 known', h1k, h1.length || HSK_COUNT[1]]];
+  return `<div class="badges">${B.map(([g, t, v, goal]) => { const on = v >= goal;
+    return `<div class="bdg${on ? '' : ' off'}"><span class="bdg-seal">${g}</span><b>${t}</b>${on ? '<small>Earned</small>' : `<small>${Math.min(v, goal)}/${goal}</small><span class="bdg-bar"><i style="width:${Math.round(Math.min(1, v / goal) * 100)}%"></i></span>`}</div>`; }).join('')}</div>`;
+}
+
+/* ---------- the app icon's dot: on until today's practice is done (works once the app is installed) ---------- */
+function iconBadge() {
+  try { if (!('setAppBadge' in navigator) || !isInstalled()) return; practiceStreak().today ? navigator.clearAppBadge() : navigator.setAppBadge(); } catch (_) {}
+}
+addEventListener('visibilitychange', () => { if (document.hidden) iconBadge(); });
+
+/* ---------- paywall layout (preview only: ShiCards sells nothing, no payment can happen) ----------
+   The tested parts: a "how your free trial works" timeline with a reminder before any charge, the yearly plan picked
+   first with its monthly price, a headline about your own goal, a close button and "Not now" in plain sight. */
+const PW_HEAD = { travel: 'Read menus and signs on your trip', family: 'Talk with your family in Chinese', work: 'Chinese that works for you',
+  exam: 'Walk into the HSK ready', culture: 'Watch and read in Chinese', fun: 'Learn Chinese your way' };
+function paywall() {
+  const why = db.prefs.ob?.why, P = [['year', 'Yearly', '7 days free, then $29.99 a year', '$2.50', '/month', 'SAVE 50%'], ['month', 'Monthly', 'No free trial', '$4.99', '/month', '']];
+  let plan = 'year', el = null;
+  const paint = () => {
+    const html = (`<div class="pw-top"><button class="icon-btn" data-act="mo-close" aria-label="Close">${I.close}</button><span class="pw-tag">Preview · nothing is sold</span><span style="width:42px"></span></div>
+      <div class="pw-head"><span class="ob-shi">${shiFace('cheer')}</span><h2>${esc(PW_HEAD[why] || 'Learn Chinese faster')} with <span>ShiCards Plus</span></h2></div>
+      ${plan === 'year' ? `<div class="pw-tl"><h3>How your free trial works</h3>
+        <div class="pw-step now"><span class="pw-dot">${I.check}</span><div><b>Today</b><small>A new story every day, writing for every word and all HSK levels unlock.</small></div></div>
+        <div class="pw-step"><span class="pw-dot">${I.bell}</span><div><b>Day 5</b><small>We remind you that the trial is ending.</small></div></div>
+        <div class="pw-step"><span class="pw-dot">${I.read}</span><div><b>Day 7</b><small>You pay $29.99 for the year. Cancel any time before.</small></div></div></div>`
+      : `<ul class="pw-list"><li><i>读</i>A new story every day at your level</li><li><i>写</i>Writing practice for every word, stroke by stroke</li>
+        <li><i>级</i>All HSK levels, 1 to 9</li><li><i>冰</i>An extra streak freeze each week</li></ul><div style="height:18px"></div>`}
+      <div class="pw-plans">${P.map(([k, t, s, pr, per, save]) => `<button class="pw-plan" data-plan="${k}" aria-pressed="${plan === k}">${save ? `<span class="pw-save">${save}</span>` : ''}<span class="pw-radio"></span>
+        <span class="pw-pt"><b>${t}</b><small>${s}</small></span><span class="pw-price">${pr}<small>${per}</small></span></button>`).join('')}</div>
+      <div class="ob-dock"><button class="btn btn-seal" data-act="pw-buy">${plan === 'year' ? 'Start my free week' : 'Continue with Monthly'}</button>
+        <p class="pw-fine">${plan === 'year' ? 'Free for 7 days, then $29.99 a year. We remind you 2 days before.' : '$4.99 every month.'} Cancel any time.</p>
+        <button class="ob-link" data-act="mo-close">Not now</button></div>`);
+    if (el) el.querySelector('.ob-in').innerHTML = html; else el = layer(html, 'pw');
+    el.querySelector('.pw-plans').onclick = e => { const b = e.target.closest('[data-plan]'); if (b && b.dataset.plan !== plan) { plan = b.dataset.plan; paint(); } };
+  };
+  LOG.add('paywall', { why }); paint();
+}
+
 const A = {
+  'mo-close': () => closeLayer(),
+  'mo-share': () => shareStreak(),
+  'mo-warm': () => closeLayer(() => { const P = todayPile(); if (!P.cards.length) { nav('#/read'); return; }
+    S.today = { id: 'today', name: 'Today', accent: ACCENTS[0], cards: P.cards.slice(0, 5) }; S.study = null; LOG.add('warm-up', { n: S.today.cards.length }); nav('#/deck/today/study'); }),
+  'pw-buy': () => toast('Preview only. Nothing was bought'),
+  'goal': () => goalSheet(),
   'home': () => goBack('#/'),
   'open-deck': t => nav('#/deck/' + t.dataset.id),
   'new-deck': () => deckSheet(null),
@@ -5030,6 +5573,7 @@ history.replaceState({ d: 0 }, '', location.hash || '#/');
 LOG.add('open', deviceInfo()); paintRec();
 takePairLink();
 route();
+if (FRESH) obStart();
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>

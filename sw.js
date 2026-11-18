@@ -2,7 +2,7 @@
    - The app page itself: try the internet first (so updates arrive), fall back to the saved copy.
    - Fonts, libraries, icons, stroke data: use the saved copy, fetch once if missing.
    - Pinyin lookups are never cached here (the app caches them itself). */
-const CACHE = 'moka-v81';
+const CACHE = 'moka-v82';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/logo.svg', './mascots/shi-shi.svg',
   'https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js',
   'https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js'];
@@ -36,9 +36,10 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'Shi Shi is waiting for you 🦁', {
+  const dot = self.navigator.setAppBadge ? self.navigator.setAppBadge().catch(() => {}) : null;   // the app icon's dot: today's round is still open
+  e.waitUntil(Promise.all([dot, self.registration.showNotification(d.title || 'Shi Shi is waiting for you 🦁', {
     body: d.body || 'A quick round keeps your streak going.', icon: './icons/icon-192.png', tag: 'shicards-daily', renotify: true, data: { url: './#/' },
-  }));
+  })]));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
