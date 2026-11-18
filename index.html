@@ -495,6 +495,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 #sheet-root .picker.on .sheet{transform:none}
 .picker .group{margin-bottom:16px}
 .pk-dot{width:10px;height:10px;border-radius:3px;flex:none}
+.picker .row.has .tick svg.i{opacity:.4}
+.picker .row.has .pk-dot{opacity:.45}
 .pk-new{color:var(--seal)}
 .pk-new svg.i{width:18px;height:18px;flex:none;margin-left:-4px}
 .pk-new .row-t{color:var(--seal)}
@@ -646,11 +648,6 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .chip i{width:8px;height:8px;border-radius:2px;background:var(--accent);flex:none}
 .chip.on{background:var(--ink);color:var(--paper)}
 .chip.on i{box-shadow:0 0 0 2px var(--paper)}
-.chip.has{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--muted)}
-.chip.add{background:transparent;color:var(--seal);padding:0 6px}
-.chip-new{display:flex;gap:8px;width:100%}
-.chip-new .input{height:44px;flex:1}
-.chip-new .btn{height:44px;padding:0 16px}
 .swatches{display:flex;gap:12px}
 .sw{width:36px;height:36px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
 .sw.on{box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--c)}
@@ -3490,29 +3487,9 @@ function newDeckNamed(name) {
   const d = { id: uid(), name, accent: ACCENTS[db.decks.length % ACCENTS.length], created: Date.now(), cards: [] };
   db.decks.push(d); save(); return d;
 }
-/* chips for picking decks; `has` = decks that already have the word (shown, not tappable) */
-function deckChips(box, sel, has, onChange) {
-  const paint = () => {
-    box.innerHTML = db.decks.map(d => has.has(d.id)
-      ? `<span class="chip has" style="--accent:${d.accent}"><i></i>${esc(d.name)} ✓</span>`
-      : `<button class="chip ${sel.has(d.id) ? 'on' : ''}" data-id="${d.id}" style="--accent:${d.accent}"><i></i>${esc(d.name)}</button>`).join('')
-      + `<button class="chip add" data-new="1">${I.plus.replace('class="i"', 'class="i" style="width:16px;height:16px"')}New deck</button>`;
-  };
-  box.onclick = e => {
-    const b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.id) { sel.has(b.dataset.id) ? sel.delete(b.dataset.id) : sel.add(b.dataset.id); b.classList.toggle('on'); onChange(); return; }
-    if (!b.dataset.new) return;
-    b.outerHTML = `<div class="chip-new"><input class="input" placeholder="New deck name" maxlength="40" autocomplete="off"><button class="btn btn-primary">Create</button></div>`;
-    const wrap = box.querySelector('.chip-new'), inp = wrap.querySelector('input');
-    const make = () => { const name = inp.value.trim(); if (!name) { inp.focus(); return; } const d = newDeckNamed(name); sel.add(d.id); LOG.add('deck-new', { name, from: 'chips' }); paint(); onChange(); };
-    wrap.querySelector('button').onclick = make; inp.onkeydown = ev => { if (ev.key === 'Enter') { ev.preventDefault(); make(); } };
-    inp.focus();
-  };
-  paint();
-}
-
-/* a second pop-up on top of the current one: every deck in a tick list, plus New deck. `sel` is the set of picked deck ids. */
-function deckPicker(sel, onChange) {
+/* a second pop-up on top of the current one: every deck in a tick list, plus New deck. `sel` is the set of picked deck ids;
+   `has` = decks that already have the word (shown ticked and greyed, not tappable) */
+function deckPicker(sel, onChange, has = new Set()) {
   const root = $('#sheet-root');
   root.querySelector('.picker')?.remove();
   const wrap = document.createElement('div'); wrap.className = 'picker';
@@ -3521,8 +3498,11 @@ function deckPicker(sel, onChange) {
   root.appendChild(wrap);
   const list = wrap.querySelector('#pkList'), sh = wrap.querySelector('.sheet'), scrim = wrap.querySelector('.scrim');
   const paint = () => {
-    list.innerHTML = db.decks.map(d => `<button class="row ${sel.has(d.id) ? 'on' : ''}" data-id="${d.id}" style="--sep:40px"><span class="pk-dot" style="background:${d.accent}"></span>
-      <span class="row-main"><span class="row-t">${esc(d.name)}</span><span class="row-s">${plural(d.cards.length, 'card')}</span></span><span class="tick">${I.check}</span></button>`).join('')
+    list.innerHTML = db.decks.map(d => has.has(d.id)
+      ? `<div class="row has" style="--sep:40px"><span class="pk-dot" style="background:${d.accent}"></span>
+        <span class="row-main"><span class="row-t">${esc(d.name)}</span><span class="row-s">already in this deck</span></span><span class="tick">${I.check}</span></div>`
+      : `<button class="row ${sel.has(d.id) ? 'on' : ''}" data-id="${d.id}" style="--sep:40px"><span class="pk-dot" style="background:${d.accent}"></span>
+        <span class="row-main"><span class="row-t">${esc(d.name)}</span><span class="row-s">${plural(d.cards.length, 'card')}</span></span><span class="tick">${I.check}</span></button>`).join('')
       + `<button class="row pk-new" data-new="1" style="--sep:40px">${I.plus}<span class="row-main"><span class="row-t">New deck</span></span></button>`;
   };
   const close = () => {
@@ -3783,13 +3763,19 @@ function wordSheet(id) {
   const has = new Set(db.decks.filter(d => d.cards.some(c => c.hanzi === w.hanzi)).map(d => d.id)), sel = new Set();
   openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div></div></div>
     <label class="field"><span class="lbl">Meaning · English</span><input class="input" id="wEn" value="${esc(w.en || '')}" placeholder="What it means" autocomplete="off"></label>
-    <div class="field"><span class="lbl"><span>Decks</span><span class="lbl-note">tap to add it</span></span><div class="chips" id="wDecks"></div></div>
+    <div class="group qa-decks"><button class="row" id="wDecks"><span class="row-main"><span class="row-t">Add to deck</span></span><span class="row-val" id="wDeckVal"></span><span class="chev">${I.chev}</span></button></div>
     <div class="row-btns" style="margin-top:6px"><button class="btn btn-ghost" id="wDel" style="flex:0 0 56px;padding:0;color:var(--seal)" aria-label="Remove from word bank">${I.trash}</button>
       <button class="btn btn-primary" id="wSave">Done</button></div>`,
   sh => {
     const en = sh.querySelector('#wEn'), btn = sh.querySelector('#wSave');
-    const paint = () => { btn.textContent = sel.size ? `Save + add to ${plural(sel.size, 'deck')}` : 'Done'; };
-    deckChips(sh.querySelector('#wDecks'), sel, has, paint);
+    const paint = () => {
+      btn.textContent = sel.size ? `Save + add to ${plural(sel.size, 'deck')}` : 'Done';
+      const ds = [...sel].map(deckById).filter(Boolean);
+      sh.querySelector('#wDeckVal').textContent = ds.length ? (ds.length === 1 ? ds[0].name : plural(ds.length, 'deck'))
+        : has.size ? `In ${has.size === 1 ? deckById([...has][0])?.name || '1 deck' : plural(has.size, 'deck')}` : 'None';
+    };
+    sh.querySelector('#wDecks').onclick = () => deckPicker(sel, paint, has);
+    paint();
     btn.onclick = () => {
       w.en = en.value.trim();
       if (sel.size && !w.en) { en.focus(); toast('Add a meaning — it goes on the back of the card'); return; }
@@ -4028,7 +4014,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.67';
+const APP_VERSION = '1.68';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
