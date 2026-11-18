@@ -369,8 +369,10 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 /* page 2: the stroke order as one quick animation */
 .hdx .hs-h{align-self:stretch;margin:2px 2px 14px;font-size:20px}
 .hdx .hs-h span{color:inherit;opacity:.75}
-.hdx .hs-tzg:not(.quizzing),.hdx .hs-tzg:not(.quizzing) *{touch-action:pan-x pan-y}
-.hdx .hs-tzg:not(.quizzing){cursor:pointer}
+.hdx .hs-tzg,.hdx .hs-tzg *{touch-action:pan-x pan-y}   /* the film box swipes like the rest; only the Write it box takes the finger for drawing */
+.hdx .hs-tzg{cursor:pointer}
+.hdx-trace{border-radius:10px;box-shadow:0 22px 34px -18px rgba(60,10,5,.75),0 0 0 4px rgba(255,248,242,.16)}
+.hdx-pw .hs-cap{margin-top:12px}
 .hdx .hs-ctl{margin-top:16px}
 .hdx .hs-ctl .hs-play{background:var(--seal-ink);color:var(--hd)}
 .hdx .hs-cap{color:inherit;opacity:.85}
@@ -2513,7 +2515,7 @@ function loadSentences() {   // dict/sentences.tsv: character, sentence, English
     return m;
   }).catch(e => { sentP = null; throw e; });
 }
-const HDX_PAGES = ['The character', 'Stroke order', 'Use it'];
+const HDX_PAGES = ['The character', 'Stroke order', 'Write it', 'Use it'];
 function hotdMeanings(H) {
   return [...new Set(H.e.split('; ').map(m => plainMeaning(m)).filter(m => m && !/^(CL|surname|variant of|old variant)/i.test(m)))].slice(0, 4);
 }
@@ -2522,7 +2524,7 @@ function HdxId(H) {   // page 1, once uncovered: the sound and the meaning above
     <div class="hdx-en">${hotdMeanings(H).map(esc).join(' <span>·</span> ')}</div>`;
 }
 const HdxAfter = H => `<div class="hd-meta"><span>${HSK_NAME(H.lv)}</span><span id="hsN">${H.n ? plural(H.n, 'stroke') : '…'}</span></div>`;
-function HdxHTML(H, S2) {
+function HdxHTML(H, S2, S3) {
   const rev = !!H.rev, mine = bankHas(H.h);
   const mark = h => [...h].map(c => c === H.h ? `<i>${esc(c)}</i>` : esc(c)).join('');
   const words = S.H ? [...S.H.byHz.values()].filter(r => r.h !== H.h && r.h.includes(H.h) && [...r.h].length <= 3).sort((a, b) => a.lv - b.lv || a.h.length - b.h.length).slice(0, 3) : [];
@@ -2541,10 +2543,16 @@ function HdxHTML(H, S2) {
         <div class="hs-stage"><div class="tzg hs-tzg" id="hsBox" style="--s:${S2}px">${TZG}<svg class="hs-svg" viewBox="-70 -70 1164 1164" aria-hidden="true"></svg><div class="quiz"></div></div></div>
         <div class="hs-ctl"><button class="icon-btn hs-play" id="hsPlay" aria-label="Play the strokes">${I.play}</button></div>
         <div class="hs-cap" id="hsCap">Loading the strokes…</div>
-        <div class="hs-say-row"><div class="hs-shi" id="hsShi">${shiFace('happy')}</div><div class="hs-bub" id="hsBub">Watch it once, then write it yourself!</div></div>
-        <button class="btn wide hdx-btn" id="hsTry">${I.pen}Write it yourself</button>
+        <div class="hs-say-row"><div class="hs-shi" id="hsShi">${shiFace('happy')}</div><div class="hs-bub" id="hsBub">Watch it once, then swipe on and write it yourself!</div></div>
       </section>
-      <section class="hdx-pg hdx-p3" aria-label="${HDX_PAGES[2]}">
+      <section class="hdx-pg hdx-pw" aria-label="${HDX_PAGES[2]}">
+        <h4 class="hs-h">Write it yourself <span>写一写</span></h4>
+        <div class="hs-stage"><div class="tzg hdx-trace" id="trBox" style="--s:${S3}px">${TZG}<div class="quiz"></div></div></div>
+        <div class="hs-cap" id="trCap">Trace the light character, stroke by stroke</div>
+        <div class="hs-say-row"><div class="hs-shi" id="trShi">${shiFace('happy')}</div><div class="hs-bub" id="trBub">Follow the light lines. After two slips Shi Shi shows you the stroke.</div></div>
+        <button class="btn wide hdx-btn" id="trAgain">${I.refresh}Write it again</button>
+      </section>
+      <section class="hdx-pg hdx-p3" aria-label="${HDX_PAGES[3]}">
         <h4 class="hs-h">Use it <span>例句</span></h4>
         ${words.length ? `<div class="hdx-lbl">Words with ${esc(H.h)}</div>
         <div class="hdx-words">${words.map(r => `<button class="hdx-word" data-act="say" data-h="${esc(r.h)}"><b>${mark(r.h)}</b><span><span class="hdx-wpy">${esc(r.p)}</span><small>${esc(shortMeaning(r.e))}</small></span>${I.sound}</button>`).join('')}</div>` : ''}
@@ -2565,7 +2573,7 @@ function hotdOpen() {   // the card grows into a pop-up over the page
   const card = $('#hotd'), el = document.createElement('div');
   el.className = 'hdx'; el._H = H; el._page = 0; el._wasRev = !!H.rev;
   const w = Math.min(innerWidth - 24, 440);
-  el.innerHTML = HdxHTML(H, Math.round(Math.min(270, w - 84, innerHeight * .36)));
+  el.innerHTML = HdxHTML(H, Math.round(Math.min(270, w - 84, innerHeight * .36)), Math.round(Math.min(310, w - 64, innerHeight * .44)));
   document.body.append(el); document.documentElement.classList.add('hdx-on');
   mountHdx(el, H);
   const box = el.querySelector('.hdx-box');
@@ -2599,7 +2607,7 @@ addEventListener('keydown', e => {
 });
 function mountHdx(el, H) {
   const pager = el.querySelector('.hdx-pager'), dots = [...el.querySelectorAll('.hdx-dots button')];
-  el._go = i => { if (!pager.classList.contains('free') || i < 0 || i > 2) return; pager.scrollTo({ left: i * pager.clientWidth, behavior: stillMotion() ? 'auto' : 'smooth' }); };
+  el._go = i => { if (!pager.classList.contains('free') || i < 0 || i >= HDX_PAGES.length) return; pager.scrollTo({ left: i * pager.clientWidth, behavior: stillMotion() ? 'auto' : 'smooth' }); };
   el.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (b) el._go(+b.dataset.pg); });
   el.querySelector('.hdx-close').onclick = () => hdxClose();
   el.querySelector('.hdx-scrim').onclick = () => hdxClose();
@@ -2611,7 +2619,7 @@ function mountHdx(el, H) {
   // a finger swipes the pages anywhere on its own (scroll snapping); a mouse drags them the same way
   let d = null, noClickUntil = 0;
   pager.addEventListener('pointerdown', e => {
-    if (e.pointerType !== 'mouse' || e.button !== 0 || !pager.classList.contains('free') || e.target.closest('canvas,.quizzing')) return;
+    if (e.pointerType !== 'mouse' || e.button !== 0 || !pager.classList.contains('free') || e.target.closest('canvas,.hdx-trace')) return;
     d = { id: e.pointerId, x: e.clientX, l: pager.scrollLeft, t: e.timeStamp, on: false };
   });
   pager.addEventListener('pointermove', e => {
@@ -2624,7 +2632,7 @@ function mountHdx(el, H) {
     noClickUntil = performance.now() + 300;
     const w = pager.clientWidth, dx = e.clientX - D.x, fast = Math.abs(dx) / Math.max(1, e.timeStamp - D.t) > .4;
     let i = Math.round(D.l / w); if (Math.abs(dx) > w * .2 || fast) i += dx < 0 ? 1 : -1;
-    i = Math.max(0, Math.min(2, i));
+    i = Math.max(0, Math.min(HDX_PAGES.length - 1, i));
     pager.scrollTo({ left: i * w, behavior: stillMotion() ? 'auto' : 'smooth' });
     setTimeout(() => pager.classList.remove('drag'), stillMotion() ? 0 : 450);
   };
@@ -2637,8 +2645,8 @@ function hdxRuby(zh, h) {   // a sentence with its pinyin over each character, r
   if (!Array.isArray(a) || !a.length) return esc(zh);
   return a.map(o => o.isZh ? `<ruby${o.origin === h ? ' class="hz-me"' : ''}>${esc(o.origin)}<rt>${esc(o.pinyin)}</rt></ruby>` : esc(o.origin)).join('');
 }
-function hdxPages(el, H) {   // pages 2 and 3 fill in once the character is out
-  mountHotdSheet(el, H);
+function hdxPages(el, H) {   // the other pages fill in once the character is out
+  mountHotdSheet(el, H); hdxTrace(el, H);
   const box = el.querySelector('#hdxSents');
   loadSentences().then(m => {
     if (!el.isConnected) return;
@@ -2705,7 +2713,35 @@ function hdxReveal(el, H, box, how) {
   setTimeout(() => { if (!box.isConnected) return; box.querySelector('canvas')?.remove(); box.querySelector('.hd-sheen')?.remove(); box.querySelector('.hdx-foil')?.remove(); box.classList.add('shown'); }, stillMotion() ? 0 : 480);
   hdxPages(el, H);
 }
-/* page 2 and 3: the stroke order as one quick animation, write it yourself, add to the word bank */
+/* the Write it page: a tianzige with the character in light grey; trace it stroke by stroke. A right stroke turns
+   to clean ink, a wrong one fades; after two slips on a stroke Shi Shi flashes where it goes. */
+function hdxTrace(el, H) {
+  const box = el.querySelector('#trBox'), q = box.querySelector('.quiz'), cap = el.querySelector('#trCap'), again = el.querySelector('#trAgain');
+  const bub = el.querySelector('#trBub'), shi = el.querySelector('#trShi'), S3 = box.offsetWidth || 260;
+  const say = (txt, mood) => { bub.textContent = txt; bub.classList.remove('new'); void bub.offsetWidth; bub.classList.add('new');
+    if (mood) { shi.innerHTML = shiFace(mood); shi.classList.remove('hop'); void shi.offsetWidth; if (mood === 'cheer') shi.classList.add('hop'); } };
+  if (!window.HanziWriter) { cap.textContent = 'Writing needs the internet. Try again when you are online.'; again.hidden = true;
+    q.innerHTML = `<span class="ans-fallback" style="--s:${S3}px">${esc(H.h)}</span>`; return; }
+  let writer = null, round = 0;
+  const start = () => {
+    writer?.cancelQuiz?.(); q.innerHTML = ''; round++;
+    let miss = 0; cap.textContent = 'Trace the light character, stroke by stroke';
+    writer = HanziWriter.create(q, H.h, writerOpts(S3, {
+      showCharacter: false, showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'), drawingColor: css('--ink'), highlightColor: css('--seal'),
+      drawingWidth: Math.max(4, Math.round(S3 / 55)), showHintAfterMisses: 2, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+      charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
+    writer.quiz({
+      onMistake: () => { miss++; },
+      onCorrectStroke: d => { cap.textContent = d.strokesRemaining ? `Stroke ${d.strokeNum + 1} of ${d.strokeNum + 1 + d.strokesRemaining} ✓` : 'Done ✓'; },
+      onComplete: () => { LOG.add('hotd-trace', { hz: H.h, mistakes: miss, round });
+        cap.textContent = miss ? `Done, ${plural(miss, 'slip')}` : 'Flawless ✓';
+        say(miss ? `很好! You wrote ${H.h}. ${plural(miss, 'slip')}, so once more?` : `太棒了! Every stroke of ${H.h} right.`, 'cheer'); },
+    });
+  };
+  again.onclick = () => { start(); say('Once more! Follow the light lines.', 'happy'); };
+  start();
+}
+/* the stroke order page (one quick animation) and the word bank button */
 function mountHotdSheet(sh, H) {
   const box = sh.querySelector('#hsBox'), svg = box.querySelector('.hs-svg'), cap = sh.querySelector('#hsCap');
   const bub = sh.querySelector('#hsBub'), shi = sh.querySelector('#hsShi'), S2 = box.offsetWidth || 228;
@@ -2718,7 +2754,7 @@ function mountHotdSheet(sh, H) {
     b.classList.add('done'); b.disabled = true; b.textContent = 'In your word bank ✓';
     say(`${H.h} is in your word bank now. It will come back in your daily cards.`, 'cheer');
   };
-  const fail = () => { cap.textContent = 'The strokes need the internet. Try again when you are online.'; sh.querySelector('.hs-ctl').hidden = true; sh.querySelector('#hsTry').hidden = true;
+  const fail = () => { cap.textContent = 'The strokes need the internet. Try again when you are online.'; sh.querySelector('.hs-ctl').hidden = true;
     box.querySelector('.quiz').innerHTML = `<span class="ans-fallback" style="--s:${S2}px">${esc(H.h)}</span>`; };
   if (!window.HanziWriter) return fail();
   loadRef(H.h).then(ref => {
@@ -2726,7 +2762,7 @@ function mountHotdSheet(sh, H) {
     const N = ref.strokes.length, id = 'hs' + uid().slice(0, 6);
     if (H.n !== N) { H.n = N; save(); }
     const nEl = sh.querySelector('#hsN'); if (nEl) nEl.textContent = plural(N, 'stroke');
-    say(N <= 4 ? `Only ${N} strokes. Watch it, then try it yourself!` : `${N} strokes. Top to bottom, left to right. Tap play to watch again.`);
+    say(N <= 4 ? `Only ${N} strokes. Watch it, then swipe on and write it!` : `${N} strokes. Top to bottom, left to right. Tap play to watch again.`);
     const FLIP = 'translate(0 900) scale(1 -1)', med = i => ref.medians[i];
     svg.innerHTML = `<defs>${ref.strokes.map((d, i) => `<clipPath id="${id}c${i}"><path d="${d}"/></clipPath>`).join('')}</defs>
       <g transform="${FLIP}">${ref.strokes.map(d => `<path class="s-todo" d="${d}"/>`).join('')}<path class="s-ink" fill="none" stroke-width="190" stroke-linecap="round" stroke-linejoin="round"/></g><g class="s-num"></g>`;
@@ -2751,35 +2787,15 @@ function mountHotdSheet(sh, H) {
       anim.oncancel = () => res(false);
     });
     const play = async () => {   // the quick film: every stroke in order, then the whole character
-      quizOff(); stop(); const me = run; show(0);
+      stop(); const me = run; show(0);
       for (let i = 0; i < N; i++) { if (!(await draw(i)) || me !== run) return; await new Promise(r => setTimeout(r, 70)); if (me !== run) return; }
       show(N, true); LOG.add('hotd-play', { hz: H.h });
     };
-    let writer = null;
-    const quizOff = () => { if (!box.classList.contains('quizzing')) return; box.classList.remove('quizzing'); writer?.cancelQuiz?.(); box.querySelector('.quiz').innerHTML = ''; writer = null;
-      sh.querySelector('#hsTry').innerHTML = `${I.pen}Write it yourself`; };
     sh.querySelector('#hsPlay').onclick = play;
-    box.addEventListener('click', () => { if (!box.classList.contains('quizzing')) play(); });   // tap the box to watch it again
-    sh.querySelector('#hsTry').onclick = e => {
-      if (box.classList.contains('quizzing')) { quizOff(); play(); return; }
-      stop(); show(0); box.classList.add('quizzing'); cap.textContent = 'Write it in the box, stroke by stroke';
-      e.currentTarget.innerHTML = `${I.play}Watch it again`;
-      let miss = 0;
-      writer = HanziWriter.create(box.querySelector('.quiz'), H.h, writerOpts(S2, {
-        showCharacter: false, showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'), drawingColor: css('--ink'), highlightColor: css('--seal'),
-        drawingWidth: 4, showHintAfterMisses: 2, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
-        charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
-      say('Your turn! Shi Shi shows the stroke again after two slips.', 'happy');
-      writer.quiz({
-        onMistake: () => { miss++; },
-        onComplete: () => { LOG.add('hotd-write', { hz: H.h, mistakes: miss });
-          cap.textContent = miss ? `Done, ${plural(miss, 'slip')}` : 'Flawless ✓';
-          say(miss ? `很好! Nice work. ${plural(miss, 'slip')}. Try once more?` : '太棒了! Every stroke right.', 'cheer'); },
-      });
-    };
+    box.addEventListener('click', play);   // tap the box to watch it again
     show(0);   // plays by itself the first time the box is on screen
     if (!stillMotion() && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => {
-      if (es.some(x => x.isIntersecting)) { io.disconnect(); setTimeout(() => sh.isConnected && !box.classList.contains('quizzing') && play(), 250); } }, { threshold: .7 });
+      if (es.some(x => x.isIntersecting)) { io.disconnect(); setTimeout(() => sh.isConnected && play(), 250); } }, { threshold: .7 });
       io.observe(box); }
   }, fail);
 }
@@ -4310,7 +4326,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '1.74';
+const APP_VERSION = '1.75';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
