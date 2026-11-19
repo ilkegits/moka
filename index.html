@@ -1546,6 +1546,19 @@ button.scene-tile:active svg{opacity:.92}
 .ob-place small{font-size:15px;color:var(--ink-2)}
 .ob-place b{font-family:var(--display);font-weight:600;font-size:76px;line-height:.95;font-variant-numeric:lining-nums tabular-nums;color:var(--ink)}
 .ob-lvls{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:20px 0 0}
+.ob-you{display:flex;flex-direction:column;align-items:center;margin:10px 0 0}
+.ob-you small{font-size:16px;font-weight:600;color:var(--ink-2)}
+.ob-hsk{display:flex;align-items:baseline;gap:12px;font-family:var(--display);font-weight:600;line-height:1;color:var(--ink);margin:2px 0 4px}
+.ob-hsk > span:first-child{font-size:44px}
+.ob-reel{display:inline-block;height:84px;overflow:hidden;font-size:84px;line-height:84px;color:var(--seal);font-variant-numeric:lining-nums tabular-nums}
+.ob-reel-in{display:flex;flex-direction:column;align-items:center;transform:translateY(calc(var(--p) * -84px));transition:transform var(--d,.15s) cubic-bezier(.3,1.4,.5,1)}
+.ob-reel-in b{height:84px;font-weight:700}
+.ob-hsk.landed .ob-reel{animation:obLand .38s cubic-bezier(.3,1.6,.5,1)}
+@keyframes obLand{40%{transform:scale(1.14)}}
+.ob-chars{margin-top:2px;font-size:14px!important;font-weight:500!important;color:var(--muted)!important}
+.ob-add{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 8px;margin:18px auto 0;font-size:14px;color:var(--ink-2);text-align:center}
+.ob-add-n{padding:3px 9px;border-radius:8px;background:var(--jade-soft);color:var(--jade);font-weight:800;font-size:13.5px}
+.ob-next{margin:8px auto 0;font-size:14px;color:var(--muted);text-align:center;max-width:22em}
 .ob-lvls span{height:34px;border-radius:9px;display:grid;place-items:center;background:var(--fill);font-size:13px;font-weight:800;color:var(--muted)}
 .ob-lvls span.done{background:var(--jade-soft);color:var(--jade)}
 .ob-lvls span.now{background:var(--seal);color:var(--seal-ink);box-shadow:0 3px 0 #7E1D19}
@@ -1561,19 +1574,6 @@ button.scene-tile:active svg{opacity:.92}
 .gopt-when b{display:block;font-size:14px}
 .gopt-when small{display:block;font-size:12.5px;color:var(--muted)}
 .ob-opt[aria-pressed="true"] .gopt-when small{color:var(--seal);font-weight:700}
-.ob-you{display:flex;flex-direction:column;align-items:center;margin:10px 0 0}
-.ob-you small{font-size:16px;font-weight:600;color:var(--ink-2)}
-.ob-hsk{display:flex;align-items:baseline;gap:12px;font-family:var(--display);font-weight:600;line-height:1;color:var(--ink);margin:2px 0 4px}
-.ob-hsk > span:first-child{font-size:44px}
-.ob-reel{display:inline-block;height:84px;overflow:hidden;font-size:84px;line-height:84px;color:var(--seal);font-variant-numeric:lining-nums tabular-nums}
-.ob-reel-in{display:flex;flex-direction:column;align-items:center;transform:translateY(calc(var(--p) * -84px));transition:transform var(--d,.15s) cubic-bezier(.3,1.4,.5,1)}
-.ob-reel-in b{height:84px;font-weight:700}
-.ob-hsk.landed .ob-reel{animation:obLand .38s cubic-bezier(.3,1.6,.5,1)}
-@keyframes obLand{40%{transform:scale(1.14)}}
-.ob-chars{margin-top:2px;font-size:14px!important;font-weight:500!important;color:var(--muted)!important}
-.ob-add{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 8px;margin:18px auto 0;font-size:14px;color:var(--ink-2);text-align:center}
-.ob-add-n{padding:3px 9px;border-radius:8px;background:var(--jade-soft);color:var(--jade);font-weight:800;font-size:13.5px}
-.ob-next{margin:8px auto 0;font-size:14px;color:var(--muted);text-align:center;max-width:22em}
 .ob-note{margin:12px 2px 0;font-size:13px;color:var(--muted);text-align:center}
 /* celebration (also used by milestones and streak moments) */
 .mo-hero{position:relative;text-align:center;padding:20px 0 0}
@@ -6297,7 +6297,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.16';
+const APP_VERSION = '2.17';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6702,6 +6702,10 @@ function obShow() {
     const chip = (t, v) => `<span class="ob-sig"><small>${t}</small><b>${v}</b></span>`;
     const sigs = [O.level && chip('You said', OB_LEVEL.find(x => x[0] === O.level)?.[2]), O.chk && chip('Characters', `${nk} known`),
       C.length && chip('Word cards', `${nr} of ${C.length}`), O.st?.pick != null && chip('Story', O.st.pick === O.st.ok ? 'understood' : 'not yet')].filter(Boolean);
+    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
+    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
+    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
+      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
     html = obTop() + `<div class="ob-art ob-art-s">${shiFace(chars ? 'wow' : 'happy')}</div>
       <div class="ob-you" aria-label="You are ${HSK_NAME(lv)}"><small>You are</small><div class="ob-hsk" aria-hidden="true"><span>HSK</span>${reel}</div>
         ${chars ? `<small class="ob-chars">You can read about ${chars.toLocaleString('en')} characters</small>` : ''}</div>
@@ -6726,10 +6730,23 @@ function obShow() {
         <h2 class="mo-title">Keep Shi Shi on your home screen</h2><p class="mo-text">Then today’s round is one tap away, and ShiCards opens full screen like any other app.</p>
         <div class="ob-dock"><button class="btn btn-seal" data-ob="install">Add to home screen</button><button class="ob-link" data-ob="done">Not now</button></div>`;
   }
+  html = html.replace(/[–—]/g, '-');   // short dashes only on these pages (HSK 7-9, HSK 1-2)
   const el = layer(html, 'obs-' + step);
   el.querySelector('.ob-in').addEventListener('click', obClick);
   if (step === 'check' && !O.chk) obCheckStart();
+  if (step === 'placed') obReel(el);
   if (step === 'habit' && canRemind()) el.querySelector('#obHr').onclick = e => { const b = e.target.closest('[data-h]'); if (b) el.querySelectorAll('#obHr .chip').forEach(c => c.classList.toggle('on', c === b)); };
+}
+/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
+function obReel(el) {
+  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
+  let t = 520;
+  for (let k = 1; k <= n; k++) {
+    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
+    t += gap;
+    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
+      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
+  }
 }
 async function obCheckStart() {   // the HSK lists may still be loading
   try { await loadHsk(); } catch (_) { if (S.ob && OB_STEPS[S.ob.i] === 'check') { LOG.add('onboarding', { step: 'check', error: 'no hsk lists' }); S.ob.chk = null; obGo('goal'); } return; }
@@ -6787,10 +6804,6 @@ async function obClick(e) {
     const k = b.closest('[data-pick]').dataset.pick;
     if (k === 'why') { const v = b.dataset.v; O.why = O.why.includes(v) ? O.why.filter(x => x !== v) : [...O.why, v]; b.setAttribute('aria-pressed', O.why.includes(v)); $('#ob [data-ob="next"]').disabled = !O.why.length; return; }
     O[k] = +b.dataset.v;
-    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
-    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
-    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
-      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
     b.parentElement.querySelectorAll('.ob-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
     $('#ob [data-ob="next"]').disabled = false; return;
   }
@@ -6816,24 +6829,11 @@ async function obClick(e) {
     else { obFinish('install-help'); setTimeout(installHelp, 350); }
     return;
   }
-  html = html.replace(/[–—]/g, '-');   // short dashes only on these pages (HSK 7-9, HSK 1-2)
   // next
   if (step === 'check') {
     if (!O.chk) return;
-  if (step === 'placed') obReel(el);
     const R = O.chk.rounds.at(-1); LOG.add('onboarding-check', { lv: R.lv, known: R.on.size, of: R.chars.length });
     if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.q = null; O.st = null; obGo(obSkipTests() ? 'placed' : 'words'); } else obShow();
-/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
-function obReel(el) {
-  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
-  let t = 520;
-  for (let k = 1; k <= n; k++) {
-    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
-    t += gap;
-    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
-      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
-  }
-}
     return;
   }
   if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
