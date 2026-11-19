@@ -684,10 +684,31 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .cand:active{opacity:.6;transition:none}
 .cands .msg{font-size:13px;color:var(--muted);align-self:center;padding-left:4px}
 /* ---------- word bank + quick add ---------- */
-.bank-tile{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px 16px 18px;margin-bottom:28px;background:var(--card);border-radius:14px;box-shadow:var(--ring);text-align:left;transition:background .25s}
-.bank-tile:active{background:var(--paper-deep);transition:none}
-.bank-tile .chev{opacity:.55}
-.bank-count{display:flex;align-items:flex-end;gap:10px;flex:none}
+/* My word temple on the Decks page (Temple.scene draws it), and the red Add more under it */
+.temple{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--ring),0 14px 28px -18px rgba(60,30,10,.5);cursor:pointer;isolation:isolate;transition:transform .2s}
+.temple:active{transform:scale(.99);transition:none}
+.temple svg{display:block;width:100%;height:auto}
+.temple [data-act="bank-word"]{cursor:pointer}
+.temple-add{display:flex;justify-content:center;margin:14px 0 28px}
+.temple-add .btn{min-width:64%;box-shadow:0 8px 18px -10px rgba(178,58,44,.7)}
+.temple-add .qa-glyph{background:var(--seal-ink);color:var(--seal)}
+.wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
+.wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
+.wt-drift{animation:wtDrift 46s ease-in-out infinite alternate}
+@keyframes wtDrift{to{transform:translateX(34px)}}
+.wt-tw{animation:wtTw 3s ease-in-out infinite alternate}
+@keyframes wtTw{from{opacity:.25}to{opacity:1}}
+.wt-smoke{animation:wtSmoke 5s ease-in infinite;opacity:0}
+@keyframes wtSmoke{0%{opacity:0;transform:translateY(4px)}25%{opacity:.75}100%{opacity:0;transform:translateY(-16px) translateX(3px)}}
+.wt-sway{transform-box:fill-box;transform-origin:50% 0;animation:wtSway 3.4s ease-in-out infinite alternate}
+@keyframes wtSway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.wt-glow{animation:wtGlow 2.4s ease-in-out infinite alternate}
+@keyframes wtGlow{from{opacity:.55}to{opacity:.95}}
+.wt-petal{animation:wtPetal 7s linear infinite}
+@keyframes wtPetal{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:1}100%{transform:translate(-40px,90px) rotate(260deg);opacity:0}}
+.wt-fly{animation:wtFly 30s linear infinite}
+@keyframes wtFly{from{transform:translateX(-60px)}to{transform:translateX(420px)}}
+@media (prefers-reduced-motion:reduce){.wt-drift,.wt-tw,.wt-sway,.wt-glow,.wt-petal,.wt-fly{animation:none}.wt-smoke{animation:none;opacity:.5}}
 .bank-num{font-family:var(--display);font-weight:600;font-size:54px;line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums}
 .bank-lbl{font-size:13px;line-height:1.35;color:var(--muted)}
 .bank-lbl b{color:var(--ink-2);font-weight:500}
@@ -4005,8 +4026,8 @@ function Home() {
     <header class="bar bar-home">${MenuBtn()}<span class="logo-mid">ShiCards</span>
       ${StreakBtn()}</header>
     ${HotdStack()}
-    <div class="section-head"><h2>My word bank</h2></div>
-    ${BankTile()}
+    <div class="section-head cal-head"><h2>My word temple <span class="cal-zh">字庙</span></h2></div>
+    ${TempleTile()}
     <div class="section-head"><h2>Pick up where you left off</h2></div>
     <div class="decks">${LastTile()}</div>
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
@@ -4014,8 +4035,7 @@ function Home() {
     <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
     <div class="section-head"><h2>Your decks</h2></div>
     <div class="decks">${db.decks.map(DeckTile).join('') || `<div class="empty"><div class="big">空</div><p>No decks yet — make your first one.</p></div>`}</div>
-    <div class="dock row-btns"><button class="btn btn-ghost" data-act="new-deck">${I.plus} New deck</button>
-      <button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
+    <div class="dock"><button class="btn btn-ghost wide" data-act="new-deck">${I.plus} New deck</button></div>
   </div>`;
 }
 /* ---------- Hanzi of the day ----------
@@ -4464,14 +4484,308 @@ function mountHotdSheet(sh, H) {
       io.observe(box); }
   }, fail);
 }
-function BankTile() {
-  const chars = bankCharList(), latest = chars.slice(-12).reverse();
-  return `<button class="bank-tile" data-act="open-bank">
-    <div class="bank-count"><div class="bank-num">${chars.length}</div>
-      <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'}<br><b>${plural(db.bank.length, 'word')}</b></div></div>
-    <div class="bank-chars">${latest.length ? latest.map(c => `<i>${esc(c)}</i>`).join('') : '<span class="msg">Tick the words you know in the HSK lists, or use Quick add</span>'}</div>
-    <span class="chev">${I.chev}</span></button>`;
+/* ---------- My word temple (the word bank on the Decks page) ----------
+   A temple in the hills that grows with the number of words in your word bank: a building site from the first word,
+   the main hall at 10, side pavilions at 50, a pagoda (and a second roof) at 150, a bell tower and a blossom tree at 300.
+   The count is on the hall's name board (on a sign at the building site before that); the next building waits as a
+   dashed outline with how many words it still needs. Your newest words hang on the lanterns: tap one to open it.
+   Day in light mode, night (stars, moon, lit windows) in dark mode. Tap anywhere else to open the word bank. */
+const Temple = (() => {
+  const INK = '#2A211A', f = v => Math.round(v * 10) / 10;
+  let UID = 0; const uid = p => 'wt' + p + (++UID);
+  const rng = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const smooth = pts => { let d = `M${pts[0][0]} ${pts[0][1]}`; for (let i = 1; i < pts.length - 1; i++) { const [x, y] = pts[i], [nx, ny] = pts[i + 1]; d += `Q${x} ${y} ${f((x + nx) / 2)} ${f((y + ny) / 2)}`; } const l = pts[pts.length - 1]; return d + `L${l[0]} ${l[1]}`; };
+  const pal = night => night
+    ? { sky: ['#0E1430', '#232248', '#47304A'], far: '#2C2E4C', mid: '#24283E', near: '#1C2231', near2: '#232A3A', mist: 'rgba(140,130,180,.16)', court: '#3A3442', court2: '#2C2733', flag: '#4A4452',
+      stone: '#5E5566', stone2: '#3E3746', col: '#8E2A24', col2: '#5E1A16', wall: '#5A1E18', door: '#3A120E', roof: '#A67A34', roof2: '#6B4E1E', ridge: '#4A3418', teal: '#235A57', blue: '#26456A', gold: '#D2A64C',
+      pine: '#1C2C25', pine2: '#26392F', cloud: 'rgba(150,150,200,.13)', smoke: 'rgba(220,220,235,.35)', plan: '#9CC0F0', lit: true }
+    : { sky: ['#F4C9A0', '#F9DFC0', '#FBEFDC'], far: '#C9C3D0', mid: '#ADB5A6', near: '#93A587', near2: '#A3B396', mist: 'rgba(255,250,240,.6)', court: '#E9DDC8', court2: '#D6C6AB', flag: '#CDBB9E',
+      stone: '#EFE5D3', stone2: '#CDBDA3', col: '#B8322A', col2: '#7E1E18', wall: '#A2302A', door: '#6E1C16', roof: '#E8B44C', roof2: '#B98426', ridge: '#7A5222', teal: '#2E7D7A', blue: '#2F5D8A', gold: '#EBC66A',
+      pine: '#5B7A55', pine2: '#7A9870', cloud: 'rgba(255,255,255,.8)', smoke: 'rgba(110,100,90,.4)', plan: '#3F6A9A', lit: false };
+  const defs = P => `<defs>
+    <linearGradient id="wtSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.sky[0]}"/><stop offset=".55" stop-color="${P.sky[1]}"/><stop offset="1" stop-color="${P.sky[2]}"/></linearGradient>
+    <linearGradient id="wtCol" x1="0" x2="1"><stop offset="0" stop-color="${P.col2}"/><stop offset=".35" stop-color="${P.col}"/><stop offset=".6" stop-color="${P.col}"/><stop offset="1" stop-color="${P.col2}"/></linearGradient>
+    <linearGradient id="wtRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.roof}"/><stop offset="1" stop-color="${P.roof2}"/></linearGradient>
+    <linearGradient id="wtShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="wtCourt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.court2}"/><stop offset=".35" stop-color="${P.court}"/></linearGradient>
+    <linearGradient id="wtDoorLit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD98E"/><stop offset="1" stop-color="#E9893A"/></linearGradient>
+    <linearGradient id="wtFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.far}"/><stop offset="1" stop-color="${P.far}" stop-opacity=".2"/></linearGradient>
+    <radialGradient id="wtLan" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#FFA463"/><stop offset=".55" stop-color="#D9321F"/><stop offset="1" stop-color="#9E1C12"/></radialGradient>
+    <radialGradient id="wtSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${P.lit ? '#F6EDCF' : '#FFF6DC'}" stop-opacity=".9"/><stop offset="1" stop-color="${P.lit ? '#F6EDCF' : '#FFE9B8'}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="wtWarm" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FF9A45" stop-opacity=".7"/><stop offset="1" stop-color="#FF9A45" stop-opacity="0"/></radialGradient>
+    <pattern id="wtTiles" width="4.2" height="10" patternUnits="userSpaceOnUse"><path d="M2.1 0V10" stroke="${P.roof2}" stroke-width="1.1" opacity=".75"/></pattern>
+    <pattern id="wtLattice" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 2.5H5M2.5 0V5" stroke="${P.gold}" stroke-width=".55" opacity=".55"/></pattern>
+    <pattern id="wtCaihua" width="16" height="7" patternUnits="userSpaceOnUse"><rect width="16" height="7" fill="${P.teal}"/><rect x="8" width="8" height="7" fill="${P.blue}"/><path d="M4 1 6.5 3.5 4 6 1.5 3.5Z M12 1 14.5 3.5 12 6 9.5 3.5Z" fill="${P.gold}"/></pattern>
+    <pattern id="wtBrick" width="10" height="5" patternUnits="userSpaceOnUse"><path d="M0 5H10M5 0V5" stroke="${INK}" stroke-width=".4" opacity=".35"/></pattern>
+    <filter id="wtSoft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <mask id="wtMoon"><circle cx="292" cy="46" r="12" fill="#fff"/><circle cx="298" cy="42" r="10" fill="#000"/></mask></defs>`;
+  function roofD(cx, yE, w, h, rx, pointed) {
+    const ow = w * .14, xl = cx - w / 2 - ow, xr = cx + w / 2 + ow, yR = yE - h, up = Math.min(7, w * .06);
+    const base = `M${f(xl)} ${f(yE - up)}Q${f(xl + ow * .7)} ${f(yE + 1)} ${f(cx - w / 2)} ${f(yE + 1)}H${f(cx + w / 2)}Q${f(xr - ow * .7)} ${f(yE + 1)} ${f(xr)} ${f(yE - up)}`;
+    if (pointed) return base + `Q${f(cx + w * .16)} ${f(yE - h * .3)} ${f(cx)} ${f(yR)}Q${f(cx - w * .16)} ${f(yE - h * .3)} ${f(xl)} ${f(yE - up)}Z`;
+    return base + `Q${f(cx + rx + (w / 2 - rx) * .55)} ${f(yE - h * .22)} ${f(cx + rx)} ${f(yR)}H${f(cx - rx)}Q${f(cx - rx - (w / 2 - rx) * .55)} ${f(yE - h * .22)} ${f(xl)} ${f(yE - up)}Z`;
+  }
+  function roof(cx, yE, w, h, P, o = {}) {
+    const rx = o.rx ?? w * .33, d = roofD(cx, yE, w, h, rx, o.pointed), id = uid('rc');
+    let s = `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="url(#wtRoof)"/>
+      <g clip-path="url(#${id})"><rect x="${f(cx - w)}" y="${f(yE - h - 2)}" width="${f(w * 2)}" height="${f(h + 4)}" fill="url(#wtTiles)"/>
+      <rect x="${f(cx - w)}" y="${f(yE - h - 2)}" width="${f(w * 2)}" height="${f(h * .35)}" fill="#fff" opacity=".12"/></g>`;
+    for (let x = cx - w / 2 + 2; x <= cx + w / 2 - 1; x += 4.2) s += `<circle cx="${f(x)}" cy="${f(yE)}" r="1.5" fill="${P.roof2}" stroke="${INK}" stroke-width=".5"/>`;
+    s += `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.ridge !== false && !o.pointed) {
+      const yR = yE - h, x0 = cx - rx - 2, x1 = cx + rx + 2;
+      s += `<rect x="${f(x0)}" y="${f(yR - 4.5)}" width="${f(x1 - x0)}" height="5.5" rx="2" fill="${P.ridge}" stroke="${INK}" stroke-width="1.2"/>
+        <path d="M${f(x0 + 1)} ${f(yR - 3)}c-5-1-7-7-3-10.5c.4 3.5 2 5.5 5 6Z M${f(x1 - 1)} ${f(yR - 3)}c5-1 7-7 3-10.5c-.4 3.5-2 5.5-5 6Z" fill="${P.ridge}" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"/>`;
+      if (o.pearl) s += `<circle cx="${cx}" cy="${f(yR - 7)}" r="3.2" fill="#D8402C" stroke="${INK}" stroke-width="1"/><path d="M${cx - 6} ${f(yR - 5)}q6 3 12 0" fill="none" stroke="${P.ridge}" stroke-width="1.6"/>`;
+    }
+    if (o.pointed) s += `<path d="M${cx} ${f(yE - h - 1)}V${f(yE - h - 9)}" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx}" cy="${f(yE - h - 4)}" r="2.4" fill="${P.gold}" stroke="${INK}" stroke-width=".9"/><circle cx="${cx}" cy="${f(yE - h - 9)}" r="1.4" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/>`;
+    return s;
+  }
+  function lantern(x, y0, w, k, big, P) {   // one of your words on a red lantern; tap it to open the word
+    const ch = [...(w.hanzi || '')].filter(c => HAN.test(c)).slice(0, 2), two = ch.length > 1;
+    const r = big ? 7.6 : 6, ry = r * (two ? 1.4 : 1.12), cy = y0 + (big ? 9 : 7) + ry;
+    let s = `<g data-act="bank-word" data-id="${esc(w.id)}" role="button" aria-label="${esc(w.hanzi)}"><g class="wt-sway" style="animation-delay:-${f((k * .7) % 3)}s">`;
+    s += `<rect x="${f(x - r - 3)}" y="${y0}" width="${f(2 * r + 6)}" height="${f(ry * 2 + (big ? 9 : 7) + 9)}" fill="transparent"/>`;   // a bigger tap area
+    s += `<path d="M${x} ${y0}V${f(cy - ry)}" stroke="${INK}" stroke-width=".8"/>`;
+    if (P.lit) s += `<circle class="wt-glow" cx="${x}" cy="${f(cy)}" r="${f(r * 2.6)}" fill="url(#wtWarm)"/>`;
+    s += `<ellipse cx="${x}" cy="${f(cy)}" rx="${r}" ry="${f(ry)}" fill="url(#wtLan)" stroke="${INK}" stroke-width=".9"/>
+      <path d="M${f(x - r * .45)} ${f(cy - ry * .9)}Q${f(x - r * .7)} ${f(cy)} ${f(x - r * .45)} ${f(cy + ry * .9)}M${f(x + r * .45)} ${f(cy - ry * .9)}Q${f(x + r * .7)} ${f(cy)} ${f(x + r * .45)} ${f(cy + ry * .9)}" fill="none" stroke="#7A1810" stroke-width=".5" opacity=".6"/>
+      <rect x="${f(x - r * .55)}" y="${f(cy - ry - 1.4)}" width="${f(r * 1.1)}" height="2.4" rx=".8" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>
+      <rect x="${f(x - r * .55)}" y="${f(cy + ry - .9)}" width="${f(r * 1.1)}" height="2.4" rx=".8" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>
+      <path d="M${x} ${f(cy + ry + 1.5)}v6" stroke="#C9302A" stroke-width="1.6" stroke-linecap="round"/>`;
+    const fs = f(r * (two ? .95 : 1.1));
+    ch.forEach((c, j) => s += `<text x="${x}" y="${f(cy + .5 + (two ? (j ? 1 : -1) * ry * .42 : 0))}" font-family="Noto Serif SC" font-weight="600" font-size="${fs}" fill="#FFE6A6" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`);
+    return s + '</g></g>';
+  }
+  function board(cx, y, n, P) {   // the name board under the eaves: how many words you know
+    const w = 64, h = 30, x = cx - w / 2;
+    return `<rect x="${f(x - 1.5)}" y="${f(y - 1.5)}" width="${w + 3}" height="${h + 3}" rx="2.5" fill="${INK}"/><rect x="${f(x)}" y="${f(y)}" width="${w}" height="${h}" rx="1.5" fill="#1D3557" stroke="${P.gold}" stroke-width="1.6"/>
+      <rect x="${f(x + 3)}" y="${f(y + 3)}" width="${w - 6}" height="${h - 6}" rx="1" fill="none" stroke="${P.gold}" stroke-width=".5" opacity=".6"/>
+      <text x="${cx}" y="${f(y + 12.5)}" font-family="Chillax,Satoshi,sans-serif" font-weight="600" font-size="17" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n}</text>
+      <text x="${cx}" y="${f(y + 24)}" font-family="Satoshi,sans-serif" font-weight="700" font-size="5.6" letter-spacing=".6" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
+  }
+  function sign(cx, base, n, P) {   // before the hall stands: the count on a wooden sign at the building site
+    return `<path d="M${cx} ${base}V${base - 26}" stroke="${INK}" stroke-width="4"/><path d="M${cx} ${base}V${base - 26}" stroke="#9A6A3E" stroke-width="2.4"/>
+      <rect x="${cx - 24}" y="${base - 50}" width="48" height="26" rx="2" fill="#C49A5A" stroke="${INK}" stroke-width="1.3"/><path d="M${cx - 21} ${base - 42}h42M${cx - 21} ${base - 33}h42" stroke="#9A6A3E" stroke-width=".6"/>
+      <text x="${cx}" y="${base - 40}" font-family="Chillax,Satoshi,sans-serif" font-weight="600" font-size="15" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n}</text>
+      <text x="${cx}" y="${base - 29.5}" font-family="Satoshi,sans-serif" font-weight="700" font-size="5.4" letter-spacing=".6" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
+  }
+  const tag = (x, y, text, P) => { const w = text.length * 4.1 + 12; x = Math.min(Math.max(x, w / 2 + 4), 356 - w / 2); return `<g><rect x="${f(x - w / 2)}" y="${y - 7}" width="${f(w)}" height="14" rx="4" fill="${P.lit ? 'rgba(20,24,48,.82)' : 'rgba(255,252,245,.9)'}" stroke="${P.plan}" stroke-width=".8"/><text x="${x}" y="${y + .3}" font-family="Satoshi,sans-serif" font-weight="700" font-size="7.4" fill="${P.plan}" text-anchor="middle" dominant-baseline="central">${text}</text></g>`; };
+  const ghost = svg => `<g class="wt-ghost">${svg}</g>`;
+  function hall(o, P) {
+    const { cx, base, w, colH } = o, st = o.st ?? 5; let s = '';
+    s += `<ellipse cx="${cx}" cy="${base + 10}" rx="${f(w * .62)}" ry="5" fill="#000" opacity=".12"/>`;
+    s += `<rect x="${f(cx - w / 2 - 9)}" y="${base}" width="${w + 18}" height="8" fill="${P.stone}" stroke="${INK}" stroke-width="1.3"/><rect x="${f(cx - w / 2 - 8)}" y="${base + 1}" width="${w + 16}" height="1.6" fill="#fff" opacity=".35"/>`;
+    const sw = w * .24; for (let i = 0; i < 3; i++) s += `<rect x="${f(cx - sw / 2 - i * 3)}" y="${f(base + 8 + i * 3.2)}" width="${f(sw + i * 6)}" height="3.4" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`;
+    const bays = 5, top = base - colH, bw = w / bays;
+    if (st >= 3) for (let b = 0; b < bays; b++) {
+      const x = cx - w / 2 + b * bw, center = b === 2;
+      s += `<rect x="${f(x)}" y="${top + 4}" width="${f(bw)}" height="${colH - 4}" fill="${center ? (P.lit ? 'url(#wtDoorLit)' : P.door) : P.wall}"/>`;
+      s += `<rect x="${f(x + 2.5)}" y="${top + 7}" width="${f(bw - 5)}" height="${colH - 13}" fill="url(#wtLattice)" opacity="${center && P.lit ? .6 : 1}"/><rect x="${f(x + 2.5)}" y="${top + 7}" width="${f(bw - 5)}" height="${colH - 13}" fill="none" stroke="${INK}" stroke-width=".6" opacity=".6"/>`;
+      if (center && P.lit) s += `<circle cx="${f(cx)}" cy="${base - 8}" r="${f(bw)}" fill="url(#wtWarm)" class="wt-glow"/>`;
+    }
+    if (st >= 3) s += `<rect x="${f(cx - w / 2)}" y="${base - 5}" width="${w}" height="5" fill="${P.col2}"/>`;
+    if (st >= 2) for (let c = 0; c <= bays; c++) { const x = cx - w / 2 + c * bw; s += `<rect x="${f(x - 3)}" y="${top}" width="6" height="${colH}" fill="url(#wtCol)" stroke="${INK}" stroke-width="1"/><rect x="${f(x - 4.5)}" y="${base - 3}" width="9" height="3" rx="1" fill="${P.stone}" stroke="${INK}" stroke-width=".7"/>`; }
+    const yb = top - 13;
+    if (st === 2) s += `<rect x="${f(cx - w / 2 - 4)}" y="${top - 4}" width="${w + 8}" height="4.5" fill="#9A6A3E" stroke="${INK}" stroke-width=".9"/>`;   // a bare timber beam on the columns
+    if (st < 3) return s;
+    s += `<rect x="${f(cx - w / 2 - 3)}" y="${top - 7}" width="${w + 6}" height="7" fill="url(#wtCaihua)" stroke="${INK}" stroke-width="1"/>`;
+    s += `<rect x="${f(cx - w / 2 - 6)}" y="${yb}" width="${w + 12}" height="6" fill="${P.teal}" stroke="${INK}" stroke-width=".9"/>`;
+    for (let x = cx - w / 2 - 3; x <= cx + w / 2 + 1; x += 6.5) s += `<path d="M${f(x)} ${yb + 5}h4v-2.5h-1v-1.5h-2v1.5h-1Z" fill="${P.gold}" opacity=".9"/>`;
+    s += `<rect x="${f(cx - w / 2)}" y="${top}" width="${w}" height="11" fill="url(#wtShade)"/>`;
+    if (st < 4) return s;
+    if (o.double) {
+      const hs = w * .13; s += roof(cx, yb, w, hs, P, { rx: w * .36, ridge: false });
+      const uw = w * .64, ut = yb - hs - 15;
+      s += `<rect x="${f(cx - uw / 2)}" y="${f(ut)}" width="${f(uw)}" height="16" fill="${P.wall}" stroke="${INK}" stroke-width="1"/>`;
+      for (let k = 0; k < 5; k++) { const wx = cx - uw / 2 + 4 + k * (uw - 8) / 5; s += `<rect x="${f(wx + 1)}" y="${f(ut + 4)}" width="${f((uw - 8) / 5 - 2)}" height="9" fill="${P.lit ? '#F2A851' : P.door}"/><rect x="${f(wx + 1)}" y="${f(ut + 4)}" width="${f((uw - 8) / 5 - 2)}" height="9" fill="url(#wtLattice)"/>`; }
+      s += `<rect x="${f(cx - uw / 2 - 4)}" y="${f(ut - 5)}" width="${f(uw + 8)}" height="5" fill="${P.teal}" stroke="${INK}" stroke-width=".8"/>`;
+      s += roof(cx, ut - 5, uw * 1.02, uw * .3, P, { pearl: true });
+    } else s += roof(cx, yb, w, w * .27, P, { pearl: true });
+    if (st < 5) return s;
+    s += board(cx, top - 11, o.n, P);
+    (o.lanterns || []).forEach(l => s += lantern(l.x, top, l.w, l.k, l.big, P));
+    return s;
+  }
+  function pavilion(cx, base, w, P) {
+    const colH = 24, top = base - colH; let s = '';
+    s += `<rect x="${f(cx - w / 2 - 5)}" y="${base}" width="${w + 10}" height="6" fill="${P.stone}" stroke="${INK}" stroke-width="1.1"/>`;
+    s += `<rect x="${f(cx - w / 2 + 2)}" y="${base - 7}" width="${w - 4}" height="7" fill="none" stroke="${P.col}" stroke-width="1.4"/><path d="M${f(cx - w / 2 + 2)} ${base - 3.5}H${f(cx + w / 2 - 2)}" stroke="${P.col}" stroke-width="1"/>`;
+    [-.42, .42].forEach(k => s += `<rect x="${f(cx + w * k - 2.5)}" y="${top}" width="5" height="${colH}" fill="url(#wtCol)" stroke="${INK}" stroke-width=".9"/>`);
+    s += `<rect x="${f(cx - w / 2 - 1)}" y="${top - 5}" width="${w + 2}" height="5" fill="url(#wtCaihua)" stroke="${INK}" stroke-width=".8"/><rect x="${f(cx - w / 2)}" y="${top}" width="${w}" height="7" fill="url(#wtShade)"/>`;
+    s += roof(cx, top - 5, w, w * .62, P, { pointed: true });
+    return { s, tip: [cx, top - 5 - w * .62 - 9] };
+  }
+  function pagoda(cx, base, w, P, built = 4) {
+    let s = `<rect x="${f(cx - w * .62)}" y="${base}" width="${f(w * 1.24)}" height="6" fill="${P.stone}" stroke="${INK}" stroke-width="1.1"/>`;
+    const T = 4, th = 11; let y = base;
+    for (let i = 0; i < built; i++) {
+      const tw = w * (1 - i * .13);
+      s += `<rect x="${f(cx - tw / 2)}" y="${f(y - th)}" width="${f(tw)}" height="${th}" fill="${P.wall}" stroke="${INK}" stroke-width=".9"/>`;
+      s += `<path d="M${f(cx - 2.6)} ${f(y - 1)}v-5a2.6 2.6 0 0 1 5.2 0v5Z" fill="${P.lit ? '#FFC46E' : '#3A1410'}"/>`;
+      [-.5, .5].forEach(k => s += `<rect x="${f(cx + tw * k - (k < 0 ? 0 : 2.5))}" y="${f(y - th)}" width="2.5" height="${th}" fill="${P.col}" stroke="${INK}" stroke-width=".5"/>`);
+      s += `<rect x="${f(cx - tw / 2 - 2)}" y="${f(y - th - 3)}" width="${f(tw + 4)}" height="3" fill="${P.teal}" stroke="${INK}" stroke-width=".6"/>`;
+      s += i < T - 1 ? roof(cx, y - th - 3, tw * 1.05, 7.5, P, { rx: tw * .43, ridge: false }) : roof(cx, y - th - 3, tw * 1.1, tw * .7, P, { pointed: true });
+      y -= th + 3 + 6.5;
+    }
+    return s;
+  }
+  function bellTower(cx, base, w, P, half) {
+    let s = `<rect x="${f(cx - w / 2)}" y="${base - 26}" width="${w}" height="26" fill="${P.stone2}" stroke="${INK}" stroke-width="1.1"/><rect x="${f(cx - w / 2)}" y="${base - 26}" width="${w}" height="26" fill="url(#wtBrick)"/>`;
+    s += `<path d="M${cx - 6} ${base}v-11a6 6 0 0 1 12 0v11Z" fill="${P.lit ? '#2A1A20' : '#4A3A30'}" stroke="${INK}" stroke-width=".9"/>`;
+    if (half) return s;
+    const hw = w * .82, top = base - 42;
+    s += `<rect x="${f(cx - hw / 2)}" y="${top}" width="${f(hw)}" height="16" fill="${P.lit ? '#3A2420' : '#E9DCC5'}" opacity=".6"/>`;
+    s += `<path d="M${cx} ${top + 2}c-4 0-5 3-5 6v5h10v-5c0-3-1-6-5-6Z" fill="#8A6A2E" stroke="${INK}" stroke-width=".9"/><path d="M${cx - 5.5} ${top + 13}h11" stroke="${INK}" stroke-width="1"/>`;
+    [-.5, -.17, .17, .5].forEach(k => s += `<rect x="${f(cx + hw * k - 2)}" y="${top}" width="4" height="16" fill="url(#wtCol)" stroke="${INK}" stroke-width=".7"/>`);
+    s += `<rect x="${f(cx - hw / 2 - 3)}" y="${top - 5}" width="${f(hw + 6)}" height="5" fill="url(#wtCaihua)" stroke="${INK}" stroke-width=".8"/>`;
+    return s + roof(cx, top - 5, hw, hw * .32, P, {});
+  }
+  function incense(cx, base, P) {
+    let s = `<ellipse cx="${cx}" cy="${base + 1}" rx="15" ry="3" fill="#000" opacity=".15"/><path d="M${cx - 9} ${base}l-2 -5M${cx + 9} ${base}l2 -5M${cx} ${base + 1}v-5" stroke="#5E4520" stroke-width="2.4" stroke-linecap="round"/>`;
+    s += `<path d="M${cx - 12} ${base - 6}Q${cx - 13} ${base - 18} ${cx - 10} ${base - 20}H${cx + 10}Q${cx + 13} ${base - 18} ${cx + 12} ${base - 6}Z" fill="#8A6A32" stroke="${INK}" stroke-width="1.1"/>`;
+    s += `<path d="M${cx - 11} ${base - 13}H${cx + 11}" stroke="${P.gold}" stroke-width="1" opacity=".7"/><rect x="${cx - 13}" y="${base - 23}" width="26" height="3.5" rx="1.5" fill="#6E5226" stroke="${INK}" stroke-width=".9"/>`;
+    s += `<path d="M${cx - 13} ${base - 22}c-4 0-4-5 0-5M${cx + 13} ${base - 22}c4 0 4-5 0-5" fill="none" stroke="#6E5226" stroke-width="1.8"/><path d="M${cx - 3} ${base - 23}v-6M${cx} ${base - 23}v-7M${cx + 3} ${base - 23}v-6" stroke="#9A5B2E" stroke-width=".9"/>`;
+    for (let k = 0; k < 3; k++) s += `<path class="wt-smoke" style="animation-delay:${f(k * 1.6)}s" d="M${cx - 3 + k * 3} ${base - 30}c-4-5 4-8 0-13s3-8 1-12" fill="none" stroke="${P.smoke}" stroke-width="1.6" stroke-linecap="round"/>`;
+    return s;
+  }
+  function pine(x, y, sc, P) {
+    let s = `<path d="M${x} ${y}v${f(-10 * sc)}" stroke="#4A3524" stroke-width="${f(1.6 * sc)}"/>`;
+    [[0, -10, 9], [-3, -15, 7], [3, -18, 6], [0, -22, 4.5]].forEach(([dx, dy, r]) => s += `<ellipse cx="${f(x + dx * sc)}" cy="${f(y + dy * sc)}" rx="${f(r * sc)}" ry="${f(r * .5 * sc)}" fill="${P.pine}"/><ellipse cx="${f(x + dx * sc)}" cy="${f(y + dy * sc - r * .2 * sc)}" rx="${f(r * .75 * sc)}" ry="${f(r * .25 * sc)}" fill="${P.pine2}"/>`);
+    return s;
+  }
+  const cloud = (x, y, sc, P) => `<g class="wt-drift" style="animation-delay:-${(x * 7) % 40}s"><g fill="${P.cloud}"><ellipse cx="${x}" cy="${y}" rx="${f(22 * sc)}" ry="${f(6 * sc)}"/><ellipse cx="${f(x - 8 * sc)}" cy="${f(y - 4 * sc)}" rx="${f(10 * sc)}" ry="${f(6 * sc)}"/><ellipse cx="${f(x + 6 * sc)}" cy="${f(y - 6 * sc)}" rx="${f(12 * sc)}" ry="${f(8 * sc)}"/></g></g>`;
+  function tree(P) {
+    const R = rng(11); let s = `<path d="M366 300C352 268 350 236 338 214M344 232C330 222 316 220 300 212M340 222C346 204 352 196 362 188M336 214C326 200 322 188 310 180" fill="none" stroke="#4A2E1E" stroke-width="5" stroke-linecap="round"/>`;
+    const pinks = P.lit ? ['#C9789A', '#E8A0B8', '#F2C6D4', '#B05A7E'] : ['#F4A7BE', '#F9C9D6', '#FFFFFF', '#E58AA8'];
+    for (let k = 0; k < 70; k++) { const a = R() * Math.PI * 2, rr = Math.sqrt(R()); s += `<circle cx="${f(330 + Math.cos(a) * 40 * rr)}" cy="${f(200 + Math.sin(a) * 28 * rr)}" r="${f(2 + R() * 3.4)}" fill="${pinks[k % 4]}" opacity="${f(.75 + R() * .25)}"/>`; }
+    for (let k = 0; k < 6; k++) s += `<ellipse class="wt-petal" style="animation-delay:-${f(k * 1.2)}s" cx="${310 + k * 8}" cy="${200 + (k % 3) * 8}" rx="2" ry="1.2" fill="${pinks[k % 3]}"/>`;
+    return s;
+  }
+  function stoneLantern(x, base, P) {
+    let s = `<ellipse cx="${x}" cy="${base + 1}" rx="13" ry="2.6" fill="#000" opacity=".15"/><path d="M${x - 10} ${base}h20l-2-5h-16Z" fill="${P.stone}" stroke="${INK}" stroke-width="1"/><rect x="${x - 3.5}" y="${base - 21}" width="7" height="16" fill="${P.stone}" stroke="${INK}" stroke-width="1"/>`;
+    s += `<path d="M${x - 9} ${base - 21}h18l-2-3h-14Z" fill="${P.stone2}" stroke="${INK}" stroke-width=".9"/><rect x="${x - 7}" y="${base - 35}" width="14" height="11" fill="${P.stone}" stroke="${INK}" stroke-width="1"/><rect x="${x - 4}" y="${base - 33}" width="8" height="7" fill="${P.lit ? '#FFC46E' : '#5A4A3A'}"/>`;
+    if (P.lit) s += `<circle class="wt-glow" cx="${x}" cy="${base - 30}" r="16" fill="url(#wtWarm)"/>`;
+    return s + `<path d="M${x - 12} ${base - 35}Q${x - 6} ${base - 37} ${x - 4} ${base - 43}H${x + 4}Q${x + 6} ${base - 37} ${x + 12} ${base - 35}Z" fill="${P.stone2}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/><circle cx="${x}" cy="${base - 45}" r="2.6" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`;
+  }
+  function branch(P) {   // a pine branch hanging into the top right corner, to frame the scene
+    let s = `<path d="M372 6C344 10 326 18 300 30M340 14C334 24 330 30 318 36" fill="none" stroke="#3E2A1C" stroke-width="3" stroke-linecap="round"/>`;
+    [[352, 10, 16], [326, 22, 14], [302, 32, 11], [334, 34, 10], [366, 22, 12]].forEach(([x, y, r]) => s += `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${f(r * .42)}" fill="${P.pine}" stroke="${INK}" stroke-width=".8"/><ellipse cx="${x}" cy="${f(y - r * .14)}" rx="${f(r * .72)}" ry="${f(r * .2)}" fill="${P.pine2}"/>`);
+    return s;
+  }
+  function banner(x, ch, k, P) {   // a tall festival banner on a pole, the last thing the temple gets
+    return `<path d="M${x} 198V108" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/><path d="M${x} 198V108" stroke="#9A6A3E" stroke-width="1.8"/><circle cx="${x}" cy="106" r="2.8" fill="${P.gold}" stroke="${INK}" stroke-width=".8"/>
+      <g class="wt-sway" style="animation-delay:-${k}s"><path d="M${x + 1.6} 112h15v46l-7.5 -6l-7.5 6Z" fill="${P.col}" stroke="${INK}" stroke-width="1"/><path d="M${x + 3.6} 115.5h11M${x + 3.6} 147h11" stroke="${P.gold}" stroke-width="1"/>
+      <text x="${x + 9.1}" y="131" font-family="Noto Serif SC" font-weight="700" font-size="11" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${ch}</text></g>`;
+  }
+  // where you are, roughly, from the phone's time zone (no location permission): the main city of common zones, else the
+  // zone's own longitude from its UTC offset, and a latitude typical for its region
+  const SPOTS = { 'Europe/London': [51.5, -.1], 'Europe/Dublin': [53.3, -6.3], 'Europe/Lisbon': [38.7, -9.1], 'Europe/Madrid': [40.4, -3.7], 'Europe/Paris': [48.9, 2.4],
+    'Europe/Brussels': [50.8, 4.4], 'Europe/Amsterdam': [52.4, 4.9], 'Europe/Berlin': [52.5, 13.4], 'Europe/Zurich': [47.4, 8.5], 'Europe/Vienna': [48.2, 16.4], 'Europe/Rome': [41.9, 12.5],
+    'Europe/Copenhagen': [55.7, 12.6], 'Europe/Oslo': [59.9, 10.8], 'Europe/Stockholm': [59.3, 18.1], 'Europe/Helsinki': [60.2, 24.9], 'Europe/Warsaw': [52.2, 21], 'Europe/Prague': [50.1, 14.4],
+    'Europe/Budapest': [47.5, 19], 'Europe/Bucharest': [44.4, 26.1], 'Europe/Athens': [38, 23.7], 'Europe/Istanbul': [41, 29], 'Europe/Kyiv': [50.5, 30.5], 'Europe/Kiev': [50.5, 30.5], 'Europe/Moscow': [55.8, 37.6],
+    'Asia/Dubai': [25.2, 55.3], 'Asia/Karachi': [24.9, 67], 'Asia/Kolkata': [21, 78], 'Asia/Calcutta': [21, 78], 'Asia/Bangkok': [13.8, 100.5], 'Asia/Ho_Chi_Minh': [10.8, 106.7], 'Asia/Jakarta': [-6.2, 106.8],
+    'Asia/Singapore': [1.3, 103.8], 'Asia/Kuala_Lumpur': [3.1, 101.7], 'Asia/Manila': [14.6, 121], 'Asia/Shanghai': [31.2, 121.5], 'Asia/Hong_Kong': [22.3, 114.2], 'Asia/Taipei': [25, 121.5],
+    'Asia/Seoul': [37.6, 127], 'Asia/Tokyo': [35.7, 139.7], 'Australia/Perth': [-32, 115.9], 'Australia/Adelaide': [-34.9, 138.6], 'Australia/Brisbane': [-27.5, 153], 'Australia/Sydney': [-33.9, 151.2],
+    'Australia/Melbourne': [-37.8, 145], 'Pacific/Auckland': [-36.8, 174.8], 'Africa/Cairo': [30, 31.2], 'Africa/Lagos': [6.5, 3.4], 'Africa/Nairobi': [-1.3, 36.8], 'Africa/Johannesburg': [-26.2, 28],
+    'America/St_Johns': [47.6, -52.7], 'America/Halifax': [44.6, -63.6], 'America/New_York': [40.7, -74], 'America/Toronto': [43.7, -79.4], 'America/Chicago': [41.9, -87.6], 'America/Denver': [39.7, -105],
+    'America/Phoenix': [33.4, -112.1], 'America/Los_Angeles': [34.1, -118.2], 'America/Vancouver': [49.3, -123.1], 'America/Anchorage': [61.2, -149.9], 'Pacific/Honolulu': [21.3, -157.9],
+    'America/Mexico_City': [19.4, -99.1], 'America/Bogota': [4.7, -74.1], 'America/Lima': [-12, -77], 'America/Santiago': [-33.4, -70.7], 'America/Sao_Paulo': [-23.5, -46.6], 'America/Argentina/Buenos_Aires': [-34.6, -58.4] };
+  function spot(tz) {
+    if (SPOTS[tz]) return SPOTS[tz];
+    const y = new Date().getFullYear(), std = Math.max(new Date(y, 0, 1).getTimezoneOffset(), new Date(y, 6, 1).getTimezoneOffset());   // minutes behind UTC in winter
+    return [/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham)|^America\/(Argentina|Montevideo|Santiago|Sao_Paulo|Asuncion)/.test(tz || '') ? -34 : /^(Africa|Asia\/(Jakarta|Makassar))/.test(tz || '') ? 5 : 45, -std / 4];
+  }
+  function night(d = new Date(), tz = Intl.DateTimeFormat().resolvedOptions().timeZone) {   // is it dark outside? the sun 6° below the horizon, as when the street lights come on
+    const [lat, lon] = spot(tz), rad = Math.PI / 180, n = d.getTime() / 864e5 - 10957.5;   // days since 1 Jan 2000, noon UTC
+    const g = (357.528 + .9856003 * n) * rad, lam = (280.46 + .9856474 * n + 1.915 * Math.sin(g) + .02 * Math.sin(2 * g)) * rad, eps = (23.439 - 4e-7 * n) * rad;
+    const dec = Math.asin(Math.sin(eps) * Math.sin(lam)), ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+    const ha = (280.46061837 + 360.98564736629 * n + lon) * rad - ra;
+    return Math.sin(lat * rad) * Math.sin(dec) + Math.cos(lat * rad) * Math.cos(dec) * Math.cos(ha) < Math.sin(-6 * rad);
+  }
+  const lion = (x, y, size, flip) => `<image href="mascots/shi-shi.svg" x="${flip ? -(x + size) : x}" y="${y}" width="${size}" height="${size}"${flip ? ' transform="scale(-1 1)"' : ''}/>`;
+  function scene(words, isNight) {
+    const P = pal(isNight), n = words.length; UID = 0;
+    // what gets built, in order: [words it needs, its name, where its label sits]. Each HSK level's total puts up one building,
+    // a piece at a time: HSK 1 (294 words) the main hall, HSK 2 (491) the pavilions, HSK 3 (978) the pagoda,
+    // HSK 4 (1,950) the bell tower, HSK 5 (3,497) the upper hall, the blossom tree and the festival banners.
+    const c = [0]; for (let l = 1; l <= 5; l++) c[l] = c[l - 1] + HSK_COUNT[l];
+    const at = (a, b, t) => Math.round(a + (b - a) * t);
+    const STEPS = [[at(0, c[1], .1), 'terrace', 180, 112], [at(0, c[1], .3), 'columns', 180, 112], [at(0, c[1], .55), 'walls', 180, 112], [at(0, c[1], .8), 'roof', 180, 112], [c[1], 'main hall', 180, 70],
+      [at(c[1], c[2], .5), 'left pavilion', 60, 236], [c[2], 'right pavilion', 300, 236],
+      ...[1, 2, 3, 4].map(k => [at(c[2], c[3], k / 4), k < 4 ? `pagoda, floor ${k}` : 'pagoda roof', 92, 62]),
+      [at(c[3], c[4], .5), 'bell tower base', 290, 66], [c[4], 'bell tower', 290, 66],
+      [at(c[4], c[5], .4), 'upper hall', 180, 52], [at(c[4], c[5], .7), 'blossom tree', 290, 236], [c[5], 'festival banners', 180, 36]];
+    const done = i => n >= STEPS[i][0], count = (a, b) => { let k = 0; for (let i = a; i <= b; i++) k += done(i); return k; };
+    const st = count(0, 4), floors = count(7, 10), bell = count(11, 12);
+    let s = `<svg viewBox="0 0 360 252" aria-hidden="true" style="--plan:${P.plan}">${defs(P)}<rect width="360" height="252" fill="url(#wtSky)"/>`;
+    if (P.lit) { const R = rng(5); for (let k = 0; k < 46; k++) s += `<circle class="wt-tw" style="animation-delay:-${f(R() * 3)}s" cx="${f(R() * 360)}" cy="${f(R() * 120)}" r="${f(.4 + R() * .9)}" fill="#FFF6DD"/>`;
+      s += `<circle cx="292" cy="46" r="34" fill="url(#wtSun)"/><circle cx="292" cy="46" r="12" fill="#F4EBCF" mask="url(#wtMoon)"/>`; }
+    else s += `<circle cx="282" cy="64" r="58" fill="url(#wtSun)"/><circle cx="282" cy="64" r="17" fill="#FFF3D2"/><g class="wt-fly"><path d="M20 52q4-4 8 0q4-4 8 0M44 44q3-3 6 0q3-3 6 0M30 38q3-3 6 0q3-3 6 0" fill="none" stroke="${INK}" stroke-width="1" opacity=".55"/></g>`;
+    s += '<g transform="translate(0 -20)">' + cloud(70, 46, 1.1, P) + cloud(210, 30, .8, P) + cloud(330, 96, .9, P);
+    s += `<path d="${smooth([[0, 128], [24, 98], [46, 112], [78, 70], [104, 100], [130, 86], [160, 112], [196, 78], [228, 104], [262, 84], [300, 112], [334, 90], [360, 106], [360, 106]])}V190H0Z" fill="url(#wtFar)"/><rect x="-10" y="112" width="380" height="22" fill="${P.mist}" filter="url(#wtSoft)"/>`;
+    s += `<path d="${smooth([[0, 150], [30, 124], [60, 140], [92, 142], [120, 138], [150, 158], [190, 160], [230, 150], [258, 146], [284, 144], [316, 128], [346, 140], [360, 132], [360, 132]])}V200H0Z" fill="${P.mid}"/>`;
+    s += `<path d="${smooth([[0, 170], [24, 150], [58, 146], [92, 146], [124, 152], [150, 172], [210, 176], [244, 156], [272, 150], [306, 152], [340, 160], [360, 154], [360, 154]])}V210H0Z" fill="${P.near}"/>`;
+    s += `<path d="${smooth([[0, 186], [40, 168], [80, 176], [120, 182], [240, 182], [280, 172], [320, 170], [360, 180], [360, 180]])}V220H0Z" fill="${P.near2}"/>`;
+    [[18, 154, .9], [34, 158, .7], [130, 160, .75], [146, 168, .6], [236, 164, .7], [318, 158, .85], [340, 164, .7], [8, 182, 1], [352, 184, 1]].forEach(([x, y, k]) => s += pine(x, y, k, P));
+    s += `<rect x="-10" y="166" width="380" height="14" fill="${P.mist}" filter="url(#wtSoft)" opacity=".7"/><path d="M0 186H360V300H0Z" fill="url(#wtCourt)"/>`;
+    for (let k = 0; k < 6; k++) s += `<path d="M0 ${f(186 + Math.pow(k + 1, 1.7) * 3.6)}H360" stroke="${P.flag}" stroke-width=".8"/>`;
+    for (let k = -7; k <= 7; k++) s += `<path d="M${180 + k * 26} 186L${180 + k * 84} 330" stroke="${P.flag}" stroke-width=".8"/>`;
+    let labels = '';   // drawn last, so no building covers them
+    const nx = STEPS.findIndex((_, i) => !done(i));
+    if (nx >= 0) { const [need, name, tx, ty] = STEPS[nx], more = need - n; labels = tag(tx, ty, `${name} · ${more} more word${more === 1 ? '' : 's'}`, P); }
+    // buildings, back to front; one being built shows as a dashed outline with its finished parts drawn in
+    if (n >= c[3]) s += bell === 2 ? bellTower(276, 148, 40, P) : ghost(bellTower(276, 148, 40, P)) + (bell ? bellTower(276, 148, 40, P, true) : '');
+    if (n >= c[2]) s += floors === 4 ? pagoda(86, 150, 34, P) : ghost(pagoda(86, 150, 34, P)) + (floors ? pagoda(86, 150, 34, P, floors) : '');
+    const strings = [];
+    if (st === 5) [[32, 5, [72.5, 126]], [328, 6, [287.5, 126]]].forEach(([x, i, hp]) => {
+      const pv = pavilion(x, 208, 46, P);
+      if (!done(i)) { s += ghost(pv.s); return; }
+      s += pv.s; strings.push(i === 6 ? [hp, pv.tip] : [pv.tip, hp]);
+    });
+    if (st === 5) {
+      const hl = [[0, true, 120], [1, false, 146], [2, false, 214], [3, false, 240]].slice(0, Math.min(4, n)).map(([k, big, x]) => ({ k, big, x, w: words[k] }));
+      s += hall({ cx: 180, base: 184, w: 168, colH: 38, double: done(13), lanterns: hl, n }, P);
+      s += lion(112, 166, 38, true) + lion(210, 166, 38, false);
+    } else {
+      if (st < 4) s += `<g fill="none" stroke="${P.plan}" stroke-width="1.3" stroke-dasharray="4 2.5" opacity=".9"><path d="${roofD(180, 133, 168, 45, 56)}"/><rect x="96" y="146" width="168" height="38"/><path d="M129.6 146V184M163.2 146V184M196.8 146V184M230.4 146V184"/>${st < 1 ? '<rect x="87" y="184" width="186" height="8"/>' : ''}</g>`;
+      if (st >= 1) {   // a building site: the hall so far, bamboo scaffolding, timber and a stack of roof tiles
+        s += hall({ cx: 180, base: 184, w: 168, colH: 38, st, n }, P);
+        const bam = '#C49A5A';
+        [92, 132, 228, 268].forEach(x => s += `<path d="M${x} 184V118" stroke="${INK}" stroke-width="3.6" stroke-linecap="round"/><path d="M${x} 184V118" stroke="${bam}" stroke-width="2.2" stroke-linecap="round"/>`);
+        [[88, 136, 150], [88, 136, 170], [224, 272, 150], [224, 272, 170], [128, 232, 128]].forEach(([a, b, y]) => s += `<path d="M${a} ${y}H${b}" stroke="${INK}" stroke-width="3"/><path d="M${a} ${y}H${b}" stroke="${bam}" stroke-width="1.8"/>`);
+        [[92, 150], [132, 150], [228, 150], [268, 150], [92, 170], [268, 170]].forEach(([x, y]) => s += `<path d="M${x - 2.5} ${y - 2.5}l5 5M${x + 2.5} ${y - 2.5}l-5 5" stroke="#8A3A22" stroke-width=".9"/>`);
+        for (let k = 0; k < 4 - Math.min(3, st - 1); k++) s += `<rect x="${44 + (k % 2) * 3}" y="${f(200 - k * 4.2)}" width="38" height="4.2" rx="1" fill="#9A6A3E" stroke="${INK}" stroke-width=".8"/>`;
+        if (st < 4) for (let k = 0; k < 5; k++) s += `<path d="M${282 + (k % 2) * 2} ${f(204 - k * 3.2)}q9 -4 18 0v2.6h-18Z" fill="${P.roof}" stroke="${INK}" stroke-width=".8"/>`;
+      }
+      s += sign(132, 216, n, P) + lion(206, 166, 38, false);
+    }
+    strings.forEach(([a, b], si) => {
+      const mx = (a[0] + b[0]) / 2, my = Math.max(a[1], b[1]) + 22;
+      s += `<path d="M${f(a[0])} ${f(a[1])}Q${f(mx)} ${f(my)} ${f(b[0])} ${f(b[1])}" fill="none" stroke="${INK}" stroke-width=".7"/>`;
+      [.33, .66].forEach((t, j) => { const k = 4 + si * 2 + j; if (k >= n) return;
+        const x = (1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * mx + t * t * b[0], y = (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * my + t * t * b[1];
+        s += lantern(f(x), f(y), words[k], k, false, P); });
+    });
+    if (st === 5) s += incense(180, 226, P);
+    s += stoneLantern(22, 238, P) + stoneLantern(338, 238, P);
+    if (done(15)) s += banner(70, '字', 0, P) + banner(273, '庙', 1.4, P);
+    if (done(14)) s += tree(P) + `<g class="wt-fly" style="animation-duration:38s;animation-delay:-12s"><path d="M0 70q6-6 12-1q6-5 12 1M18 62q4-4 8 0q4-4 8 0" fill="none" stroke="${P.lit ? '#E8E2D0' : '#FFFFFF'}" stroke-width="1.6" stroke-linecap="round"/></g>`;
+    return s + '</g>' + branch(P) + `<g transform="translate(0 -20)">${labels}</g></svg>`;
+  }
+  return { scene, night };
+})();
+function TempleTile() {
+  const n = db.bank.length, nt = Temple.night();
+  return `<div class="temple" data-act="open-bank" data-night="${nt}" role="button" tabindex="0" aria-label="My word temple: ${plural(n, 'word')}. Open your word bank">${Temple.scene(db.bank, nt)}</div>
+    <div class="temple-add"><button class="btn btn-seal" data-act="quick-add"><span class="qa-glyph">字</span>Add more</button></div>`;
 }
+function templeClock() {   // sunset or sunrise while the app is open: redraw the temple as night or day
+  const nt = Temple.night();
+  document.querySelectorAll('.temple').forEach(t => { if (t.dataset.night !== String(nt)) { t.dataset.night = nt; t.innerHTML = Temple.scene(db.bank, nt); } });
+}
+setInterval(templeClock, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) templeClock(); });
 /* the last thing you used: the story you are reading, or your last deck; with neither, a button to make a deck */
 function LastTile() {
   const L = db.last || {}, s = db.readCur?.opened ? db.readCur : null;
@@ -6299,7 +6613,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.18';
+const APP_VERSION = '2.19';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
