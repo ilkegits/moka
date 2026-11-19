@@ -1,1 +1,1 @@
-{"version": "2.14", "notes": "Shi Shi only says \"You wrote 快\" when your drawing really is that other character. A slipped attempt (a 伞 with one extra line was read as 拿) now gets \"close, but it doesn’t read clearly as 伞 yet\" instead"}
+{"version": "2.15", "notes": "When you add a stroke a character doesn’t have (like 平’s top line under 伞’s roof), the note says there’s one stroke too many. In writing practice the pinyin in the grey as in box sits on the same line as the rest"}

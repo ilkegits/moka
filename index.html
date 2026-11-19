@@ -549,7 +549,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 /* which sense is meant: a common word with the character left out (东＿ · thing) */
 .w-clue{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;padding:4px 11px;border-radius:10px;background:var(--fill);font-size:14px;color:var(--ink-2)}
 .w-clue .hz{font-family:var(--hanzi);font-size:19px;font-weight:400;color:var(--ink);display:inline-flex;align-items:center;height:auto;background:none;box-shadow:none;border-radius:0}
-.w-clue .py{font-size:13px;color:var(--muted)}
+.w-clue .py{margin:0;font-size:13px;color:var(--muted)}
 .w-gap{display:inline-block;width:.95em;height:.95em;margin:0 1px;border:1.5px dashed var(--line-2);border-radius:3px;vertical-align:-2px}
 .w-gap.fill{border:0;width:auto;height:auto;color:var(--seal);font-style:normal}
 /* a hint: the next stroke drawn in faint red, in its writing direction, like a copybook */
@@ -4915,7 +4915,7 @@ function strokeCheck(userStrokes, ref, s) {
   const looseOk = !extra && refL.every(c => c >= JUDGE.strokeCov) && onL.every(c => c >= JUDGE.inkOn) && partL.every(c => c >= JUDGE.partCov) && totalL >= JUDGE.looseTotal && Ua.length >= JUDGE.looseInk * Ra.length;
   const strong = ok && Math.min(...refCov) >= JUDGE.strong.stroke && Math.min(...parts.map(pt => pt.cov)) >= JUDGE.strong.part && total >= JUDGE.strong.total;
   const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
-  return { ok, strong, looseOk, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
+  return { ok, strong, looseOk, extra, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -4993,6 +4993,9 @@ function judgeNote(chars) {
     : sh && sh.missing ? `${where}: ${sh.missing === 1 ? 'a stroke is' : sh.missing + ' strokes are'} missing or in the wrong place`
     : sh && sh.stray ? `${where}: ${sh.stray === 1 ? 'there’s an extra stroke' : sh.stray + ' extra strokes'}`
     : sh && !sh.ok ? `${where}: some ink is off the character`
+    // a whole extra line lying close to the real strokes (平's top line under 伞's roof): only named, never turns a right answer red,
+    // since one stroke drawn in two pieces can look the same
+    : sh?.extra ? `${where}: there’s one stroke too many`
     : j.alt?.sure ? `${where} looks more like <span class="hz">${esc(j.alt.ch)}</span>`
     : sh ? `${where}: close, but it doesn’t read clearly as <span class="hz">${esc(ch)}</span> yet`
     : `${where} is hard to read`;
@@ -6086,7 +6089,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.14';
+const APP_VERSION = '2.15';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
