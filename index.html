@@ -228,9 +228,8 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hd-card.back.up .hd-shi{animation:hdUp .6s cubic-bezier(.3,1.5,.5,1) .12s both}
 .hd-card{--hd:#C4432E;position:relative;overflow:hidden;margin:-12px 0 28px;padding:16px 16px 18px 18px;border-radius:22px;background:var(--hd);color:var(--seal-ink);
   box-shadow:0 18px 30px -18px rgba(178,58,44,.75),0 2px 6px -3px rgba(178,58,44,.5)}
-.hd-card::before{content:"";position:absolute;left:-60px;top:-30px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.34),transparent 62%);pointer-events:none}
-.hd-lbl{position:relative;display:flex;align-items:baseline;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;opacity:.95}
-.hd-zh{font-family:var(--hanzi);font-weight:600;font-size:13px;letter-spacing:.12em;opacity:.8}
+.hd-lbl{position:relative;display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:600;letter-spacing:0;opacity:.9}
+.hd-zh{font-family:var(--hanzi);font-weight:600;font-size:13px;letter-spacing:.04em;opacity:.8}
 .hd-row{position:relative;display:flex;align-items:center;gap:16px;margin-top:12px}
 .hd-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 48%,transparent 60%);
   transform:translateX(-120%);animation:hdSheen 3.6s ease-in-out 1s infinite}
@@ -349,7 +348,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .hdx-scrim{position:absolute;inset:0;background:rgba(26,10,6,.52)}
 .hdx-box{--hd:#C4432E;position:relative;width:min(100%,440px);height:min(100%,700px);border-radius:28px;background:var(--hd);color:var(--seal-ink);overflow:hidden;
   display:flex;flex-direction:column;transform-origin:0 0;box-shadow:0 30px 60px -24px rgba(40,6,4,.7)}
-.hdx-box::before{content:"";position:absolute;left:-110px;top:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,92,.3),transparent 62%);pointer-events:none}
 .hdx-bar{position:relative;flex:none;display:flex;align-items:center;padding:12px 10px 0 20px}
 .hdx-bar .hd-lbl{flex:1}
 .hdx .hd-x{position:static;flex:none;width:38px;height:38px}
@@ -689,7 +687,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .bank-chars{flex:1;min-width:0;display:flex;flex-direction:row-reverse;flex-wrap:wrap;gap:5px;max-height:63px;overflow:hidden}
 .bank-chars i{font-style:normal;width:29px;height:29px;display:grid;place-items:center;border-radius:7px;background:var(--card-2);border:1px solid var(--line-2);font-family:var(--hanzi);font-size:17px;color:var(--ink)}
 .bank-chars i:first-child{background:var(--seal);border-color:var(--seal);color:var(--seal-ink);transform:rotate(-4deg)}
-.bank-chars .msg{font-size:13px;line-height:1.35;color:var(--muted);text-align:right;max-width:150px}
+.bank-chars .msg{flex:1;font-size:13px;line-height:1.4;color:var(--muted);text-align:left;padding-left:14px;border-left:1px solid var(--line)}
 .qa-glyph{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--seal);color:var(--seal-ink);font-family:var(--hanzi);font-size:15px;transform:rotate(-4deg)}
 .dock.row-btns{display:flex}
 .bank-hero{display:flex;align-items:flex-end;gap:14px;padding:22px 4px 24px}
@@ -1332,7 +1330,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* radicals: a dictionary page, grouped by stroke count like a paper radical index */
 .rad-sec{margin-bottom:18px}
 .rad-sec[hidden],.rad[hidden]{display:none}
-.rad-h{margin:0 2px 8px;font-size:12.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.rad-h{margin:0 2px 8px;font-size:13px;font-weight:600;color:var(--muted)}
 .rad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
 .rad{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 9px;border-radius:14px;background:var(--card);box-shadow:var(--ring)}
 .rad:active{background:var(--c1-soft)}
@@ -3197,7 +3195,7 @@ function practiceStreak() {
   if (db.earn && earnBack(n, startD)) { const r = practiceStreak(); db.earnDone = r.n; save(); return r; }   // a lost streak won back
   if (n && F.run !== start) { F.run = start; F.given = 0; save(); }
   const m = Math.floor(n / 7);
-  if (n && m > F.given) { const before = F.have; F.have = Math.min(2, F.have + m - F.given); F.given = m; if (F.have > before && !F.notice) F.notice = `${n} days in a row! You earned a streak freeze ❄️`; save(); }
+  if (n && m > F.given) { const before = F.have; F.have = Math.min(2, F.have + m - F.given); F.given = m; if (F.have > before && !F.notice) F.notice = `${n} days in a row! You earned a streak freeze`; save(); }
   return { n, today };
 }
 const storyGlyph = s => [...(s.zh || '').replace(/^狮狮的?/, '')].find(c => HAN.test(c)) || '读';
@@ -3667,7 +3665,8 @@ function ReadView() {
   </div>`;
   return `<div class="screen fade-in">
     <div class="top-gap"></div>
-    <div class="read-tools" style="margin-top:6px">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
+    <div class="section-head cal-head" style="margin-top:18px"><h2>Stories <span class="cal-zh">故事</span></h2></div>
+    <div class="read-tools" style="margin-top:8px">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
     ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
       : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
     ${!s ? '' : s.opened ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : StoryCover(s)}
@@ -3837,7 +3836,7 @@ function HotdCard(just) {   // the card on Decks: Shi Shi holds up today's chara
     : rev ? `<div class="hd-py">${esc(H.p)}</div><div class="hd-en">${esc(meanOf(H))}</div>${meta}`
     : `<div class="hd-big">A new character is waiting</div>${meta}`;
   return `<section class="hd-card hd-day${rev ? ' rev' : ''}${just ? ' just' : ''}${back ? ' back' : ' front'}" id="hotd" aria-label="Hanzi of the day"${H ? '' : ' data-wait="1"'}${back ? ' inert aria-hidden="true"' : ''}>
-    <div class="hd-lbl">HANZI OF THE DAY</div>
+    <div class="hd-lbl">Hanzi of the day</div>
     <div class="hd-txt">${txt}</div>
     ${H ? `<button class="hd-bub" data-act="hotd-open">Learn now${I.chev}</button>` : ''}
     <button class="hd-pic" data-act="hotd-open" tabindex="-1" aria-hidden="true"${H ? '' : ' disabled'}>
@@ -3855,7 +3854,7 @@ function HotdStoryCard() {
   const s = db.readCur, H = db.hotd, back = H?.top !== 'story', go = s?.opened ? 'Keep reading' : 'Read now';
   const ch = s ? hanChars((s.zh || '').replace(/^狮狮的?/, '')).slice(0, 2) : [];
   return `<section class="hd-card rev hd-story${back ? ' back' : ' front'}" id="hdStory" aria-label="Story time"${back ? ' inert aria-hidden="true"' : ''}>
-    <div class="hd-lbl">STORY TIME <span class="hd-zh">读故事</span></div>
+    <div class="hd-lbl">Story time <span class="hd-zh">读故事</span></div>
     <div class="hd-row"><div class="hd-txt"><div class="hd-st">${s ? esc(s.zh) : '狮狮的故事'}</div><div class="hd-en">${s ? esc(s.en) : 'A short story with your words'}</div>
         ${hdDone(H) ? `<div class="hd-meta"><span>Today’s hanzi ${esc(H.h)} ✓</span></div>` : ''}</div></div>
     <button class="btn hd-go" data-act="tab" data-h="#/read">${I.read}${go}</button>
@@ -3986,7 +3985,7 @@ function HdxHTML(H, S2, S3) {
   const words = S.H ? [...S.H.byHz.values()].filter(r => r.h !== H.h && r.h.includes(H.h) && [...r.h].length <= 3).sort((a, b) => a.lv - b.lv || a.h.length - b.h.length).slice(0, 3) : [];
   return `<div class="hdx-scrim"></div>
   <div class="hdx-box" role="dialog" aria-modal="true" aria-label="Hanzi of the day">
-    <header class="hdx-bar"><div class="hd-lbl">HANZI OF THE DAY</div><button class="hd-x hdx-close" aria-label="Close">${I.close}</button></header>
+    <header class="hdx-bar"><div class="hd-lbl">Hanzi of the day</div><button class="hd-x hdx-close" aria-label="Close">${I.close}</button></header>
     <div class="hdx-pager${rev ? ' free' : ''}">
       <section class="hdx-pg hdx-p1" aria-label="${HDX_PAGES[0]}">
         <div class="hdx-head" id="hdxHead">${rev ? HdxId(H) : '<div class="hdx-t">Scratch the gold</div><div class="hdx-s">Rub until today’s character shows</div>'}</div>
@@ -4508,7 +4507,7 @@ function stepCard(dir) {
   if (dir > 0) noteDeck(d, st.order[st.i]);   // the card you are leaving
   if (dir > 0 && ni === 0 && Object.keys(st.graded).length) return finishFlip();   // end of a round you answered: the cheer page
   LOG.add(dir > 0 ? 'card-next' : 'card-prev', { card: `${ni + 1}/${n}`, hz: cardById(d, st.order[ni])?.hanzi });
-  if (dir > 0 && ni === 0 && n > 1) toast('Round complete — from the top 🎉');
+  if (dir > 0 && ni === 0 && n > 1) toast('Round complete, back to the first card');
   showGrades(false);
   const out = wrap.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * 55}%) rotate(${-dir * 7}deg)`, opacity: 0 }], { duration: 190, easing: 'ease-in', fill: 'forwards' });
   out.onfinish = () => {
@@ -5148,7 +5147,7 @@ function finishGuided(gaveUp) {
   LOG.add('write-guided', { hz: c.hanzi, mistakes: W.mistakes, gave_up: gaveUp ? true : undefined, took: Math.round((Date.now() - W.shownAt) / 1000) + 's' });
   $$('#grid .tzg').forEach(b => b.classList.remove('dim'));
   $('#wprompt').innerHTML = promptHtml(c);
-  $('#note').textContent = gaveUp ? 'Watch the strokes, then grade yourself.' : (W.mistakes ? `Done — ${plural(W.mistakes, 'mistake')}.` : 'Flawless — no mistakes! 👏');
+  $('#note').textContent = gaveUp ? 'Watch the strokes, then grade yourself.' : (W.mistakes ? `Done — ${plural(W.mistakes, 'mistake')}.` : 'Flawless, no mistakes');
   $('#tools').innerHTML = '';
   $('#wdock').innerHTML = writeDock();
 }
@@ -6067,7 +6066,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.11';
+const APP_VERSION = '2.12';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6816,7 +6815,7 @@ const A = {
   'sgrade': t => gradeFlip(+t.dataset.g),
   'study-done': () => { const today = S.deckId === 'today'; S.study = null; S.today = null; goBack(today ? '#/learn' : '#/deck/' + S.deckId); },
   'study-again': () => {
-    if (S.deckId === 'today') { const P = todayPile(); if (!P.cards.length) { toast('All done for today 🎉'); return A['study-done'](); } S.today = { id: 'today', name: 'Today', accent: ACCENTS[0], cards: P.cards }; }
+    if (S.deckId === 'today') { const P = todayPile(); if (!P.cards.length) { toast('All done for today'); return A['study-done'](); } S.today = { id: 'today', name: 'Today', accent: ACCENTS[0], cards: P.cards }; }
     S.study = null; startStudy(); render(); },
   'next': () => stepCard(1),
   'prev': () => stepCard(-1),
@@ -6841,7 +6840,7 @@ const A = {
   'undo': () => { const W = S.write, box = W.history.pop(); if (box) { box._strokes.pop(); redraw(box); } },
   'clear': () => { const W = S.write; $$('#grid .tzg').forEach(b => { b._strokes = []; redraw(b); }); W.history = []; },
   'check': async () => {
-    const W = S.write; if (!W.history.length) { toast('Write something first ✍️'); return; }
+    const W = S.write; if (!W.history.length) { toast('Write something first'); return; }
     if (W.checking || W.revealed) return; W.checking = true; const t0 = Date.now();
     const chars = hanChars(cardById(curDeck(), W.order[W.i]).hanzi), boxes = $$('#grid .tzg');
     const judging = Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))).then(r => rescueWithWord(null, chars, boxes, r));
