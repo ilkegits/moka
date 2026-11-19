@@ -478,6 +478,183 @@ function idkah() {
   return g;
 }
 
+/* ---------- shared parts for the third set ---------- */
+// a height field over the disc of radius R; only the squares where keep() holds at a corner are built, so flat ground left out shows the stage
+function field(R, H, role, keep = (x, z, y) => y > .05, N = seg(110, 26)) {
+  const pos = [], ok = [], idx = [];
+  for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) { let x = -R + 2 * R * i / N, z = -R + 2 * R * j / N; const d = Math.hypot(x, z); if (d > R) { x *= R / d; z *= R / d; }
+    const y = H(x, z); pos.push(x, y, z); ok.push(keep(x, z, y)); }
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const a = j * (N + 1) + i, b = a + 1, c = a + N + 1, d = c + 1; if (ok[a] || ok[b] || ok[c] || ok[d]) idx.push(a, c, b, b, c, d); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return mesh(g, role);
+}
+const bumpsH = (bumps, R) => (x, z) => bumps.reduce((a, [bx, bz, h, rr]) => a + h * Math.exp(-((x - bx) ** 2 + (z - bz) ** 2) / (rr * rr)), 0) * Math.max(0, 1 - Math.pow(Math.hypot(x, z) / R, 8));
+function woods(g, r, n, R, H, skip = () => false, y0 = .3) {   // trees on the slopes
+  for (let i = 0, k = 0; i < 1500 && k < n; i++) { const a = r() * Math.PI * 2, dd = Math.sqrt(r()) * (R - .7), x = Math.cos(a) * dd, z = Math.sin(a) * dd, y = H(x, z);
+    if (y < y0 || skip(x, z)) continue; k++; const s = .45 + r() * .45;
+    if (r() < .5) g.add(sph(.48 * s, 'tree', x, y + .5 * s, z, 10)); else g.add(at(mesh(new THREE.ConeGeometry(.4 * s, 1.2 * s, seg(8, 5)), 'tree'), x, y + .55 * s, z)); }
+}
+function crowd(g, L) {   // tiny people at [x, y, z, turn]
+  if (!L.length) return; const body = new THREE.CapsuleGeometry(.055, .16, 2, 6); body.translate(0, .14, 0); const pal = ['#C9302A', '#2F5D8A', '#E8B44C', '#F2EEE6', '#4E9A72', '#E07A3A'];
+  g.add(many(body, 'person', L, i => pal[i % pal.length])); const hd = new THREE.SphereGeometry(.05, 6, 5); hd.translate(0, .32, 0); g.add(many(hd, 'skin', L));
+}
+
+/* ---------- 15 Sichuan: the Golden Summit of Mount Emei, the gold Puxian on its cliff over a sea of clouds ---------- */
+function emei() {
+  const g = new THREE.Group(), r = rnd(71), R = 9.2, cx = .3, cz = .2;
+  const H = bumpsH([[-4.6, -4.8, 5.4, 2.6], [2.8, -5.8, 4.6, 2.4], [-7.2, .4, 2.6, 2.0], [7.0, -1.8, 3.0, 2.2], [0, -2.6, 4.6, 2.6], [-3.6, 4.6, 1.0, 1.8], [5.2, 3.8, 1.2, 1.8]], R);
+  g.add(field(R, H, 'hill'));
+  // the summit: three ragged layers of cliff, each a little smaller, so the rock shows ledges; its top at T
+  const T = 5.2, ring = (sx, sz, jit) => Array.from({ length: 22 }, (_, i) => { const a = i / 22 * Math.PI * 2, k = 1 + (r() - .5) * jit; return [cx + Math.cos(a) * sx * k, cz + Math.sin(a) * sz * k]; });
+  const slab = (pts, y0, y1, role = 'cliff') => { const sh = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+    const eg = new THREE.ExtrudeGeometry(sh, { depth: y1 - y0, bevelEnabled: true, bevelThickness: .15, bevelSize: .2, bevelSegments: 1, curveSegments: 2 }); eg.rotateX(-Math.PI / 2); eg.translate(0, y0, 0); g.add(mesh(eg, role)); };
+  const L0 = ring(3.9, 3.3, .22), L1 = ring(3.45, 2.95, .18), out = ring(3.1, 2.6, .1);
+  slab(L0, -.2, 1.9); slab(L1, 1.9, 3.7); slab(out, 3.7, T - .15);
+  [[L0, 1.9 + .15, 3.45 / 3.9], [L1, 3.7 + .15, 3.1 / 3.45]].forEach(([L, y, k]) => L.forEach(([x, z], i) => { if (r() < .55) return; const t = .5 + r() * .5;   // shrubs on the ledges
+    const px = cx + (x - cx) * (k + (1 - k) * t), pz = cz + (z - cz) * (k + (1 - k) * t); g.add(sph(.22 + r() * .16, 'tree', px, y + .12, pz, 8)); }));
+  [L0, L1, out].forEach((L, li) => L.forEach(([x, z], i) => { if (r() < .5) return; const [nx, nz] = L[(i + 1) % L.length], mx = (x + nx) / 2, mz = (z + nz) / 2, dx = mx - cx, dz = mz - cz, d = Math.hypot(dx, dz);   // cracks and ribs in the faces
+    const y0 = [-.2, 1.9, 3.7][li], h = [2.1, 1.8, 1.35][li] * (.5 + r() * .45); g.add(box(.3 + r() * .4, h, .3, 'rock', mx + dx / d * .2, y0 + r() * .3, mz + dz / d * .2, Math.atan2(dx, dz))); }));
+  const top = new THREE.ShapeGeometry(new THREE.Shape(out.map(([x, z]) => new THREE.Vector2(cx + (x - cx) * 1.02, -(cz + (z - cz) * 1.02))))); top.rotateX(-Math.PI / 2);
+  g.add(at(mesh(top, 'stone'), 0, T + .06, 0));
+  const posts = []; out.forEach(([x, z], i) => { const [nx, nz] = out[(i + 1) % out.length]; for (let k = 0; k < 3; k++) { const t = k / 3, px = cx + (x + (nx - x) * t - cx) * .96, pz = cz + (z + (nz - z) * t - cz) * .96; posts.push([px, T + .06, pz]); } });
+  g.add(many(new THREE.CylinderGeometry(.025, .025, .26, 5).translate(0, .13, 0), 'white', posts));
+  posts.forEach((p, i) => { const q = posts[(i + 1) % posts.length]; g.add(rod([p[0], T + .3, p[2]], [q[0], T + .3, q[2]], .02, 'white')); });
+  // the Ten-directional Puxian: four elephants under a lotus, and a figure with heads on every side, all gilded
+  const sx = cx + .15, sz = cz - .45, Y = T + .06, P = new THREE.Group();
+  P.add(box(3.0, .45, 3.0, 'stone')); P.add(box(2.4, .55, 2.4, 'white', 0, .45)); [0, 1, 2].forEach(i => P.add(box(1.1, .15, .45, 'stone', 0, i * .15, 1.7 - i * .22)));
+  for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2, e = new THREE.Group();
+    const bd = sph(.4, 'gilt', 0, .62, 0, 16); bd.scale.set(.85, .8, 1.15); e.add(bd);
+    [[-.2, -.26], [.2, -.26], [-.2, .26], [.2, .26]].forEach(([x, z]) => e.add(cyl(.1, .11, .45, 8, 'gilt', x, 0, z)));
+    e.add(sph(.26, 'gilt', 0, .84, .46, 14)); e.add(rod([0, .76, .68], [0, .1, .8], .055, 'gilt', .08));
+    [-.22, .22].forEach(x => { const ear = sph(.2, 'gilt', x, .86, .38, 10); ear.scale.set(.35, 1, .9); e.add(ear); e.add(rod([x * .45, .68, .62], [x * .8, .55, .9], .02, 'white', .035)); });
+    e.position.set(Math.sin(a) * .7, 1.0, Math.cos(a) * .7); e.rotation.y = a; e.scale.setScalar(1.25); P.add(e); }
+  P.add(cyl(1.0, .8, .32, seg(24, 8), 'gilt', 0, 2.25));
+  const PL = []; for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2; PL.push([Math.sin(a) * 1.0, 2.5, Math.cos(a) * 1.0, a]); }   // the petals of the lotus
+  P.add(many(new THREE.SphereGeometry(.22, 8, 6).scale(1, 1.5, .6).translate(0, .12, 0), 'gilt', PL));
+  P.add(cyl(.5, .8, 2.1, seg(20, 8), 'gilt', 0, 2.6));
+  const sho = sph(.6, 'gilt', 0, 4.75, 0, 18); sho.scale.set(1, .45, 1); P.add(sho);
+  for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2, f = [Math.sin(a), Math.cos(a)], sd = [Math.cos(a), -Math.sin(a)];   // two arms on every side, the hands together at the chest
+    [-1, 1].forEach(u => { const sh = [f[0] * .25 + sd[0] * u * .5, 4.7, f[1] * .25 + sd[1] * u * .5], el = [f[0] * .55 + sd[0] * u * .42, 3.95, f[1] * .55 + sd[1] * u * .42], hd = [f[0] * .66 + sd[0] * u * .06, 4.3, f[1] * .66 + sd[1] * u * .06];
+      P.add(rod(sh, el, .1, 'gilt', .09)); P.add(rod(el, hd, .08, 'gilt', .07)); });
+    P.add(sph(.09, 'gilt', f[0] * .68, 4.35, f[1] * .68, 8)); }
+  const head = (x, y, z, rr) => { P.add(sph(rr, 'gilt', x, y, z, 14)); P.add(cyl(rr * .55, rr * .8, rr * .9, 8, 'gilt', x, y + rr * .6, z)); };
+  P.add(cyl(.3, .36, .3, 12, 'gilt', 0, 4.9));
+  for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2; head(Math.sin(a) * .2, 5.4, Math.cos(a) * .2, .25); }
+  for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2 + Math.PI / 4; head(Math.sin(a) * .13, 5.95, Math.cos(a) * .13, .19); }
+  head(0, 6.4, 0, .16); P.add(sph(.09, 'gilt', 0, 6.78, 0, 8));
+  g.add(at(P, sx, Y, sz));
+  // the little Golden Hall in front, bronze gilt under a double roof
+  const hx = cx - 2.0, hz = cz + 1.25, hall = new THREE.Group();
+  hall.add(box(1.7, .18, 1.3, 'stone')); hall.add(box(1.25, .62, .85, 'gilt', 0, .18)); hall.add(box(.4, .44, .04, 'door', 0, .18, .44));
+  hall.add(roof({ w: 1.75, d: 1.35, h: .3, inner: .62, lift: .16, role: 'gilt', y: .8 })); hall.add(box(.9, .3, .6, 'gilt', 0, 1.0)); hall.add(roof({ w: 1.4, d: 1.0, h: .45, ridge: .45, lift: .18, role: 'gilt', y: 1.3 }));
+  g.add(at(hall, hx, Y, hz, -.35));
+  crowd(g, Array.from({ length: 24 }, () => { const a = r() * Math.PI * 2, d = 1.85 + r() * .8; return [cx + Math.cos(a) * d * 1.05, Y, cz + Math.sin(a) * d * .85, r() * 6]; }).filter(([x, , z]) => Math.hypot(x - hx, z - hz) > .95));
+  // forest on the slopes, kept off the rock
+  const inRock = (x, z) => ((x - cx) / 4.3) ** 2 + ((z - cz) / 3.7) ** 2 < 1;
+  woods(g, r, seg(90, 30), R, H, inRock);
+  // the sea of clouds: billows of small puffs below the summit, filling the valleys
+  for (let i = 0, n = 0; i < 1200 && n < seg(34, 14); i++) { const a = r() * Math.PI * 2, d = 4.2 + r() * (R - 4.8), x = cx + Math.cos(a) * d, z = cz + Math.sin(a) * d * .92;
+    if (Math.hypot(x, z) > R - .7 || inRock(x, z)) continue; const y = 1.1 + r() * 1.2; if (H(x, z) > y + .3) continue; n++;
+    const c = new THREE.Group(), k = 4 + Math.floor(r() * 4);
+    for (let j = 0; j < k; j++) { const pr = .28 + r() * .32, p = sph(pr, 'cloud', (r() - .5) * 1.3, (r() - .3) * .25, (r() - .5) * .9, 12); p.scale.y = .72; c.add(p); }
+    c.rotation.y = r() * 3; g.add(at(c, x, y, z, r() * 3)); }
+  return g;
+}
+
+/* ---------- 16 Taipei: Taipei 101, a stalk of green glass bamboo in eight flared sections ---------- */
+function taipei() {
+  const g = new THREE.Group(), r = rnd(79), G = 'glassTeal', R = 9.0;
+  const H = bumpsH([[-5.4, -5.8, 3.2, 2.6], [-1.0, -7.6, 2.4, 2.2], [3.8, -6.8, 2.0, 2.0]], R);
+  g.add(field(R, H, 'hill'));
+  g.add(box(6.6, .12, 6.0, 'stone', 0, 0, .3));
+  g.add(box(6.0, 1.1, 3.4, 'concrete', 0, .12, -.9)); g.add(box(5.8, .4, .04, G, 0, .45, .82)); g.add(box(6.1, .1, 3.5, 'steel2', 0, 1.2, -.9));
+  let y = .12;
+  // the trunk, leaning in as it rises, with a gold ruyi coin on every face
+  const tH = 3.4, wB = 2.7, wT = 2.25;
+  g.add(batter(wB, wB, wT, wT, tH, G, 0, y, 0));
+  for (let k = 1; k < 9; k++) { const t = k / 9, w = wB + (wT - wB) * t; g.add(box(w + .03, .03, w + .03, 'steel2', 0, y + t * tH, 0)); }
+  for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2, t = .72, w = wB + (wT - wB) * t, o = w / 2 + .05, coin = new THREE.Group();
+    const disc = mesh(new THREE.CylinderGeometry(.36, .36, .06, seg(24, 8)), 'gold'); disc.rotation.x = Math.PI / 2; coin.add(disc); coin.add(box(.16, .16, .08, G, 0, -.08, 0));
+    coin.position.set(Math.sin(a) * o, y + t * tH, Math.cos(a) * o); coin.rotation.y = a; g.add(coin); }
+  y += tH;
+  // the eight sections of eight floors, each flaring out like a stack of bowls
+  for (let i = 0; i < 8; i++) { const h = 1.08, w0 = 1.78, w1 = 2.32;
+    g.add(batter(w0, w0, w1, w1, h, G, 0, y, 0));
+    for (let k = 1; k < 4; k++) { const t = k / 4, w = w0 + (w1 - w0) * t; g.add(box(w + .03, .025, w + .03, 'steel2', 0, y + t * h, 0)); }
+    g.add(box(w1 + .08, .07, w1 + .08, 'steel', 0, y + h, 0));
+    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([qx, qz]) => g.add(rod([qx * w0 / 2, y + .1, qz * w0 / 2], [qx * w1 / 2, y + h, qz * w1 / 2], .035, 'steel')));
+    y += h + .07; }
+  g.add(batter(1.55, 1.55, 1.25, 1.25, .8, G, 0, y, 0)); y += .8;
+  g.add(box(1.0, .45, 1.0, 'steel2', 0, y)); y += .45; g.add(box(.7, .35, .7, 'steel', 0, y)); y += .35;
+  g.add(cyl(.18, .26, .5, seg(12, 6), 'steel2', 0, y)); g.add(cyl(.03, .14, 3.0, seg(12, 5), 'steel', 0, y + .5)); g.add(sph(.07, 'light', 0, y + 3.55, 0, 8));
+  // a few lower buildings round the plaza
+  [[-4.6, -1.8, 1.5, 2.6], [-3.9, 2.6, 1.4, 1.6], [4.4, -2.4, 1.7, 3.0], [4.8, 1.4, 1.3, 1.9], [-6.0, .6, 1.2, 1.3], [2.6, -4.6, 1.6, 2.2], [-2.6, -4.6, 1.5, 1.8]].forEach(([x, z, w, h], i) => {
+    const b = new THREE.Group(); b.add(box(w, h, w, i % 2 ? 'plaster' : 'concrete'));
+    [0, Math.PI / 2].forEach(ry => b.add(windowsOn(-w / 2 + .12, w / 2 - .12, .25, h - .15, w / 2 + .01, Math.round(w / .3), Math.round(h / .38), 'window', ry, .14, .2)));
+    g.add(at(b, x, 0, z)); });
+  woods(g, r, seg(36, 16), R, H, () => false, .4);
+  return g;
+}
+
+/* ---------- 17 Hainan: Yalong Bay at Sanya, a tropical beach of white sand, palms and turquoise water ---------- */
+function palm(x, y0, z, h, lean, ry, r) {
+  const grp = new THREE.Group(), pts = [0, .33, .66, 1].map(t => new THREE.Vector3(lean * t * t, h * t, 0)), cv = new THREE.CatmullRomCurve3(pts);
+  grp.add(mesh(new THREE.TubeGeometry(cv, seg(12, 4), .075, seg(8, 5), false), 'palmTrunk'));
+  for (let k = 1; k < 6; k++) { const p = cv.getPoint(k / 6), ring = mesh(new THREE.TorusGeometry(.08, .018, 4, 10), 'palmTrunk'); ring.position.set(p.x, p.y, 0); ring.rotation.x = Math.PI / 2; grp.add(ring); }
+  const tp = pts[3], L = 1.3;
+  for (let k = 0; k < 9; k++) {
+    const fg = new THREE.PlaneGeometry(L, .34, seg(8, 3), 2); fg.translate(L / 2, 0, 0); fg.rotateX(-Math.PI / 2);
+    const p = fg.attributes.position; for (let i = 0; i < p.count; i++) { const u = p.getX(i) / L, zz = p.getZ(i) * (1 - .85 * u) * (u < .1 ? u * 10 : 1); p.setXYZ(i, p.getX(i), .3 * u - .75 * u * u - Math.abs(zz) * .5, zz); }
+    fg.computeVertexNormals(); const f = mesh(fg, 'palm', { double: true }); f.position.set(tp.x, tp.y, 0); f.rotation.y = k / 9 * Math.PI * 2 + r() * .4; f.rotation.z = (r() - .3) * .3; grp.add(f);
+  }
+  [0, 2.1, 4.2].forEach(a => grp.add(sph(.07, 'trunk', tp.x + Math.cos(a) * .1, tp.y - .1, Math.sin(a) * .1, 8)));
+  return at(grp, x, y0, z, ry);
+}
+// a white sailing boat out on the bay (on the stage, so it stays out of the map cut-out)
+function sailboat() {
+  const s = new THREE.Group(); s.add(box(1.1, .16, .34, 'boat')); s.add(cyl(.025, .025, 1.6, 6, 'wood', .05, .16, 0));
+  const sm = mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(.55, 0), new THREE.Vector2(0, 1.35)])), 'sail', { double: true }); sm.position.set(.08, .32, 0); s.add(sm);
+  const jm = mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(-.45, 0), new THREE.Vector2(0, 1.2)])), 'sail', { double: true }); jm.position.set(.02, .3, 0); s.add(jm);
+  return at(s, 3.4, .02, 5.4, -.5);
+}
+function beach() {
+  const g = new THREE.Group(), r = rnd(83), R = 9.4;
+  const shore = x => 1.0 - .045 * x * x + .4 * Math.sin(x * .55);   // the water line: a curved bay, the sea in front
+  const sandH = (x, z) => { const s = shore(x) - z; return s > 0 ? (.03 + Math.min(s, 3.5) * .06 + .05 * Math.sin(x * 1.3 + z) * Math.min(1, s / 2)) * Math.max(0, 1 - Math.pow(Math.hypot(x, z) / R, 12)) : Math.max(-.3, .03 + s * .3); };
+  g.add(field(R, sandH, 'beachSand', (x, z) => shore(x) - z > -.12));
+  const hb = bumpsH([[-5.6, -5.6, 3.6, 2.6], [-.4, -7.4, 3.0, 2.6], [5.4, -5.0, 3.2, 2.4], [-8.2, -1.2, 2.4, 1.8], [8.3, .2, 1.9, 1.6]], R), hillH = (x, z) => hb(x, z) - .3;
+  g.add(field(R, hillH, 'hill', (x, z, y) => y > Math.max(0, sandH(x, z)) - .01));
+  // the shallows: a ribbon of pale turquoise along the shore, and lines of foam
+  const N = seg(80, 20), rib = [], ri = [], cl = (x, z) => { const d = Math.hypot(x, z); return d > R - .02 ? [x * (R - .02) / d, z * (R - .02) / d] : [x, z]; };
+  for (let i = 0; i <= N; i++) { const x = -R + 2 * R * i / N, z0 = shore(x), [ax, az] = cl(x, z0 - .2), [bx, bz] = cl(x, z0 + 1.5); rib.push(ax, .012, az, bx, .012, bz); }
+  for (let i = 0; i < N; i++) { const a = i * 2; ri.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(rib, 3)); rg.setIndex(ri); rg.computeVertexNormals(); g.add(mesh(rg, 'shallow', { double: true }));
+  const foam = (off, y, rad, gap) => { let pts = []; const flush = () => { if (pts.length > 2) g.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 3, rad, 5, false), 'foam')); pts = []; };
+    for (let x = -R; x <= R; x += .3) { const z = shore(x) + off + .08 * Math.sin(x * 2.3); if (Math.hypot(x, z) > R - .25 || (gap && Math.sin(x * 1.7 + off * 3) > .55)) { flush(); continue; } pts.push(new THREE.Vector3(x, y, z)); } flush(); };
+  foam(.03, .035, .045, false); foam(.75, .02, .03, true); foam(1.6, .012, .03, true);
+  // rocks at the ends of the beach, like the boulders of Tianya Haijiao
+  [[6.0, .5, 1.1, 1.0, 1.7], [6.9, -.3, .8, .9, 1.0], [5.2, 1.0, .5, .55, .6], [7.4, .9, .6, .55, .7], [-7.0, -.6, .9, .85, 1.1], [-6.3, .2, .5, .5, .5]].forEach(([x, dz, sx, sz, sy]) => {
+    const m = mesh(new THREE.DodecahedronGeometry(1, DET ? 1 : 0), 'rock'); m.scale.set(sx, sy, sz); m.position.set(x, sy * .55, shore(x) + dz - .2); m.rotation.set(r() * .4, r() * 3, r() * .4); g.add(m); });
+  // palms along the back of the beach and up the hill, leaning to the sea
+  for (let i = 0, n = 0; i < 400 && n < 15; i++) { const x = -6.4 + r() * 12.4, s = 1.6 + r() * 2.4, z = shore(x) - s; if (Math.hypot(x, z) > R - .8) continue; n++;
+    g.add(palm(x, Math.max(sandH(x, z), hillH(x, z)), z, 1.7 + r() * 1.0, .5 + r() * .5, -Math.PI / 2 + (r() - .5) * 1.2, r)); }
+  for (let i = 0, n = 0; i < 600 && n < seg(30, 14); i++) { const x = (r() - .5) * 2 * (R - 1), z = -2 - r() * (R - 2.5), y = hillH(x, z); if (Math.hypot(x, z) > R - .7 || y < sandH(x, z) + .25) continue; n++;
+    if (r() < .45) g.add(palm(x, y, z, 1.3 + r() * .8, .3 + r() * .3, -Math.PI / 2 + (r() - .5) * 2, r)); else g.add(sph(.4 + r() * .3, 'tree', x, y + .3, z, 10)); }
+  // umbrellas and loungers on the sand, a beach bar under a thatched roof
+  const U = ['umbRed', 'umbYellow', 'umbBlue', 'white', 'umbRed', 'umbBlue'];
+  [-3.6, -2.1, -.6, .9, 2.4, 3.9].forEach((x, i) => { const z = shore(x) - 1.15 - (i % 2) * .35, y = sandH(x, z), u = new THREE.Group();
+    u.add(cyl(.02, .02, 1.0, 6, 'white')); const c = mesh(new THREE.ConeGeometry(.62, .26, seg(10, 6), 1), U[i]); c.position.y = 1.08; u.add(c); u.rotation.z = (r() - .5) * .2;
+    g.add(at(u, x, y, z));
+    [-.3, .3].forEach(dx => { const l = new THREE.Group(); l.add(box(.24, .05, .62, 'white', 0, .1, 0)); const b = box(.24, .05, .26, 'white', 0, .12, -.3); b.rotation.x = -.7; l.add(b); g.add(at(l, x + dx, y, z + .45, .1)); }); });
+  { const x = -4.6, z = shore(x) - 2.8, y = Math.max(sandH(x, z), hillH(x, z)), b = new THREE.Group();
+    [[-.5, -.4], [.5, -.4], [-.5, .4], [.5, .4]].forEach(([px, pz]) => b.add(cyl(.04, .04, .9, 6, 'wood', px, 0, pz))); b.add(box(1.0, .4, .2, 'wood', 0, 0, .45));
+    const th = mesh(new THREE.ConeGeometry(1.05, .7, 4, 1), 'thatch'); th.rotation.y = Math.PI / 4; th.position.y = 1.2; b.add(th); g.add(at(b, x, y, z, .3)); }
+  // people on the sand and in the shallows
+  const L = []; for (let i = 0; i < 26; i++) { const x = -5 + r() * 10, s = r() * 2.8 - (i < 6 ? 1.2 : -.1), z = shore(x) - s; if (Math.hypot(x, z) > R - .6) continue; L.push([x, s < 0 ? -.1 : sandH(x, z), z, r() * 6]); }
+  crowd(g, L);
+  return g;
+}
+
 export const MONUMENTS = [
   { id: 'pearl', name: 'Oriental Pearl Tower', zh: '东方明珠', city: 'Shanghai', czh: '上海', build: pearl, stage: { R: 7.5, water: 4.6, seed: 2 }, boats: [[-3, 6, .2], [3.2, 5.6, -.1]] },
   { id: 'leifeng', name: 'Leifeng Pagoda', zh: '雷峰塔', city: 'Hangzhou', czh: '杭州', build: leifeng, stage: { R: 7.5, water: 4.8, waterRole: 'lake', keep: 4.5, seed: 5 }, boats: [[2.2, 6.1, .6, .7]] },
@@ -493,6 +670,9 @@ export const MONUMENTS = [
   { id: 'dali', name: 'Three Pagodas', zh: '崇圣寺三塔', city: 'Dali', czh: '大理', build: dali, stage: { R: 8.6, water: 4.6, waterRole: 'lake', keep: 4.6, trees: 22, seed: 43 } },
   { id: 'mogao', name: 'Mogao Caves', zh: '莫高窟', city: 'Dunhuang', czh: '敦煌', build: mogao, stage: { R: 9.6, keep: 9.4, trees: 0, people: 24, ground: 'sand', seed: 47 } },
   { id: 'idkah', name: 'Id Kah Mosque', zh: '艾提尕尔清真寺', city: 'Kashgar', czh: '喀什', build: idkah, stage: { R: 9.4, keep: 8.4, trees: 10, people: 60, ground: 'sand', seed: 53 } },
+  { id: 'emei', name: 'Golden Summit of Mount Emei', zh: '峨眉山金顶', city: 'Emei Shan', czh: '峨眉山', build: emei, stage: { R: 9.4, keep: 9.5, trees: 0, people: 0, seed: 59 } },
+  { id: 'taipei', name: 'Taipei 101', zh: '台北101', city: 'Taipei', czh: '台北', build: taipei, stage: { R: 9.2, keep: 3.6, trees: 22, people: 50, seed: 61 } },
+  { id: 'beach', name: 'Yalong Bay', zh: '亚龙湾', city: 'Sanya', czh: '三亚', build: beach, stage: { R: 9.6, ground: 'sea', keep: 9.5, trees: 0, people: 0, seed: 67 }, extra: sailboat },
 ];
 
 // the whole diorama for one monument; detail 0 builds the low-poly version
@@ -501,5 +681,6 @@ export function diorama(M, detail = 1) {
   const g = new THREE.Group(), mon = M.build();
   mon.userData.monument = true; g.add(mon); g.add(stage(M.stage.R, M.stage));
   (M.boats || []).forEach(([x, z, ry, s]) => g.add(boat(x, z, ry, s || 1)));
+  if (M.extra) g.add(M.extra());
   DET = 1; return g;
 }

@@ -5964,7 +5964,8 @@ function coinRain(root, P, wait = 0) {
    Small ones are cheap and the famous ones dear: the Leifeng Pagoda 150, Hongya Cave 250, the Yellow Crane Tower 400,
    the Big Wild Goose Pagoda 500, the Three Pagodas of Dali 600, the Fujian tulou 800, St. Sophia Cathedral 900, the Id
    Kah Mosque 1,000, the Canton Tower 1,200, the Mogao Caves 1,600, the Temple of Heaven 2,000, the Potala Palace 2,500,
-   the Oriental Pearl Tower 3,500 and the Great Wall 5,000 (20,400 in all). Only the ones you own stand on the map. Each
+   the Oriental Pearl Tower 3,500 and the Great Wall 5,000; v2.73 added Yalong Bay in Sanya 700, the Golden Summit of
+   Mount Emei 1,400 and Taipei 101 3,000 (25,500 in all). Only the ones you own stand on the map. Each
    one owns price / 10 of your proven words, in the order you bought them, and those that are mastered hang its
    lanterns. Until v2.55 they unlocked in this order by proven words (cost, TRAIL_AT); that is kept only to carry what
    people had unlocked over into coins (db.monOwn), so add new ones at the end of the list. The pictures are
@@ -5990,6 +5991,9 @@ const TRAIL = [
   { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, price: 600, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201], it: [0.4642, 0.8974, 0.0204] },
   { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, price: 1600, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781], it: [0.4284, 0.6709, 0.1894] },
   { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, price: 1000, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897], it: [0.5052, 0.6831, 0.0944] },
+  { lv: 15, id: 'emei', en: 'Emei Shan', zh: '峨眉山', site: [103.35, 29.5], cost: 736, price: 1400, name: 'Golden Summit', nzh: '金顶', h: 32, w: 23, ic: [0.4994, 0.6791, 0.0574], it: [0.4942, 0.6785, 0.0646] },
+  { lv: 16, id: 'taipei', en: 'Taipei', zh: '台北', site: [121.15, 24.25], cost: 800, price: 3000, name: 'Taipei 101', nzh: '台北101', the: '', h: 46, w: 18, ic: [0.4999, 0.7655, 0.0212], it: [0.5, 0.7655, 0.0212] },
+  { lv: 17, id: 'beach', en: 'Sanya', zh: '三亚', site: [109.55, 18.45], cost: 864, price: 700, name: 'Yalong Bay', nzh: '亚龙湾', the: '', h: 11, w: 21, ic: [0.4997, 0.5241, 0.314], it: [0.4997, 0.5241, 0.314] },
 ];
 const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
@@ -6659,7 +6663,9 @@ const TRAIL_ABOUT = ['Pink spheres on a spire, high over a river full of ships.'
   'Houses on stilts stacked up a cliff, glowing where two rivers meet.', 'A white and red palace on a hill, nearer the sky than any other.',
   'A square brick pagoda, built to keep the scriptures a monk carried home from India.', 'A round blue hall on white terraces, where emperors prayed for good harvests.',
   'Stone on the mountain ridges, running further than you can see.', 'Green onion domes in a city of ice and snow.', 'Round houses of earth, each big enough for a whole village.',
-  'Three white towers between a mountain and a lake.', 'A thousand painted caves at the edge of the desert.', 'Yellow walls and two slim towers in an oasis on the Silk Road.'];
+  'Three white towers between a mountain and a lake.', 'A thousand painted caves at the edge of the desert.', 'Yellow walls and two slim towers in an oasis on the Silk Road.',
+  'A golden Buddha on four elephants, high on a cliff above a sea of clouds.', 'A green glass tower built like a stalk of bamboo, eight sections high.',
+  'White sand, palm trees and warm turquoise water on a tropical island.'];
 const earnHow = () => `<div class="shop-how"><b>How to earn coins</b><ul>
   <li><span>Prove a word</span><em>${coinSvg()}+${PAY.word}</em></li><li><span>Master a word</span><em>${coinSvg()}+${PAY.mast}</em></li>
   <li><span>Finish a lesson or a story</span><em>${coinSvg()}+${PAY.les}</em></li><li><span>Beat a unit boss</span><em>${coinSvg()}+${PAY.unit}</em></li></ul>
@@ -8763,7 +8769,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.72';
+const APP_VERSION = '2.73';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
