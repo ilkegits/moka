@@ -845,6 +845,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-cta{position:relative;z-index:1;display:flex;justify-content:center;margin:-25px 0 0}
 .mp-cta .btn{min-width:68%;--halo:0 0 0 4px var(--paper)}
 .mp-cta .qa-glyph{width:26px;height:26px;font-size:16px;transform:none;background:var(--seal-ink);color:var(--seal)}
+.mp-info+.mp-cta{margin-top:16px}
 .mp-hint{margin:10px 12px 0;text-align:center;font-size:13px;color:var(--muted)}
 .mp-hint .mp-more{display:block;margin:2px auto 0;padding:6px 2px;font-size:14px;font-weight:600}
 .mp-lant{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:11px 12px;border-radius:12px;background:var(--card);box-shadow:var(--ring);font-size:13px;line-height:1.4;color:var(--ink-2)}
@@ -867,6 +868,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-seg i{display:block;height:8px;border-radius:4px;background:var(--fill);overflow:hidden}
 .mp-seg b{display:block;height:100%;background:var(--seal);border-radius:4px}
 .mp-seg i.full b{background:var(--jade)}
+.mp-seg.one{grid-template-columns:1fr}.mp-seg.one i{height:10px;border-radius:5px}
+.mp-veil{filter:blur(16px) saturate(.5) brightness(.8)}
+.mp-q{font:700 90px var(--display);fill:#FFF3E2;opacity:.9}
 .mp-next{margin:10px 0 0;font-size:14px;color:var(--ink-2)}
 .mp-steps{margin:24px 2px 8px}
 .mp-steps h3{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--muted)}
@@ -2176,6 +2180,7 @@ db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("
 // streak freezes: have = how many are saved up (at most 2), days = the days a freeze covered, run/given = the 7-day rewards of the current streak
 db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze);
 db.mapSeen = db.mapSeen && typeof db.mapSeen === 'object' ? db.mapSeen : {};   // Map: { HSK level: temple pieces you have seen built }
+db.monOpen = db.monOpen && typeof db.monOpen === 'object' ? db.monOpen : {};   // Map: { monument: 1 } once you have seen it unlocked
 /* v2.35: temples are built by proven words (w.pf, see proveWord), no longer by every word in the word bank. Once, for
    phones that already have words: a word you got right on a later day than you first met it counts as proven, and every
    piece already standing stays standing (db.mapKeep = { HSK level: pieces }), so nobody loses what they built. */
@@ -2213,8 +2218,8 @@ function parse() {
   if (p[0] === 'course' && p[1] === '1' && p[2] === 'unit') return { view: 'course', deckId: null, unit: Math.min(LES_UNITS.length, Math.max(1, +p[3] || 1)) };   // a unit's campaign
   if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
-  if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(5, Math.max(0, +p[1] || 0)) || null };
-  if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(5, Math.max(1, +p[1] || 1)) };
+  if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(TRAIL.length, Math.max(0, +p[1] || 0)) || null };
+  if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(TRAIL.length, Math.max(1, +p[1] || 1)) };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
@@ -5645,42 +5650,49 @@ function coinMoment() {   // a new piece for the collection, full screen, once; 
     ${moDock('Continue', 'mo-close', '<button class="ob-link" data-act="mo-coll">See my collection</button>')}`, 'mo');
   return true;
 }
-/* ---------- Map: a temple in five cities ----------
-   The Map tab: China with a route through five cities, one temple for each HSK level: HSK 1 Chengdu, 2 Guangzhou,
-   3 Shanghai, 4 Xi'an, 5 Beijing. Your first word of a level in the word bank breaks ground in its city; then the temple
-   goes up a piece at a time as more of that level's words come in, eight pieces at 6, 15, 27, 40, 54, 68, 84 and 100% of
-   the level's list. What is not built yet stays a secret: a level you have not reached is not on the map at all, the one
-   you are on is only a hovering marker until its first word, and a monument under way shows only the pieces that stand,
-   never an outline or the name of the next one. Tap a monument and the map flies to it and a card names it; Visit opens
-   its page (the big picture, Continue building: HSK 1 the next lesson, the other levels the HSK list). Along the bottom,
-   as in a game, sit your progress on the monument you are on and one big button that goes on building it.
-   db.mapSeen = { level: pieces you have seen }, so a piece built since your last look goes up in front of you the next
-   time you open that page. */
-const TRAIL_TH = [.06, .15, .27, .40, .54, .68, .84, 1];
+/* ---------- Map: a trail of monuments across China ----------
+   The Map tab: China with a trail of famous monuments, unlocked one after another by the words you prove (any level:
+   they are not tied to HSK levels, so learning keeps paying off as it slows down). Each costs more proven words than
+   the one before: the Oriental Pearl Tower 24, the Leifeng Pagoda 40, the Yellow Crane Tower 64, the Canton Tower 96,
+   Hongya Cave 128, the Potala Palace 176, the Big Wild Goose Pagoda 224 and the Temple of Heaven 288 (about 1,040 in
+   all, so more monuments can join the end of the list). A monument unlocks whole once its words are proven; the words
+   that unlocked it are its own, and those that are mastered hang its lanterns. What is not unlocked stays a secret: the
+   next monument is only a marker with a question mark, the ones after it are not on the map at all. The pictures are
+   3D models in golden-hour light, baked by portfolio3d/bake.html: mon/<id>.webp for its page and mon/<id>-i.webp, a
+   cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map). Tap a
+   monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sit your
+   progress to the next monument and one big button that gets you there. db.monOpen = { monument: 1 } once you have
+   seen it unlocked: a new one is revealed the first time you open its page. */
 const TRAIL = [
-  { lv: 1, en: 'Chengdu', zh: '成都', lon: 104.07, lat: 30.67, name: 'Bamboo temple', nzh: '竹林寺', lab: [-1, 1],
-    pieces: ['stone terrace', 'red columns', 'lattice walls', 'grey tile roof', 'upper roof', 'name board and lanterns', 'incense and lions', 'bamboo garden'] },
-  { lv: 2, en: 'Guangzhou', zh: '广州', lon: 113.26, lat: 23.13, name: 'Banyan hall', nzh: '榕荫堂', lab: [-1, 1],
-    pieces: ['granite terrace', 'grey brick walls', 'green tile roof', 'wok-handle gables', 'great doors', 'ceramic ridge', 'banyan tree', 'river lanterns'] },
-  { lv: 3, en: 'Shanghai', zh: '上海', lon: 121.47, lat: 31.23, name: 'Golden temple', nzh: '金殿', lab: [1, 1],
-    pieces: ['marble base', 'red columns', 'lattice walls', 'golden roof', 'upper hall and name board', 'golden pagoda', 'bell tower', 'city lights'] },
-  { lv: 4, en: "Xi'an", zh: '西安', lon: 108.94, lat: 34.34, name: 'Wild goose pagoda', nzh: '雁塔', lab: [-1, -1],
-    pieces: ['brick plinth', 'floors 1 and 2', 'floors 3 and 4', 'floors 5 and 6', 'floor 7', 'golden spire', 'side halls', 'city wall'] },
-  { lv: 5, en: 'Beijing', zh: '北京', lon: 116.40, lat: 39.90, name: 'Hall of heaven', nzh: '天坛', lab: [1, -1],
-    pieces: ['first marble terrace', 'second terrace', 'third terrace', 'red round walls', 'lower blue roof', 'middle blue roof', 'top roof and gold', 'festival night'] },
+  { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02] },
+  { lv: 2, id: 'leifeng', en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, name: 'Leifeng Pagoda', nzh: '雷峰塔', h: 42, w: 17, ic: [0.4956, 0.8359, 0.0208] },
+  { lv: 3, id: 'crane', en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, name: 'Yellow Crane Tower', nzh: '黄鹤楼', h: 44, w: 21, ic: [0.5132, 0.7667, 0.0211] },
+  { lv: 4, id: 'canton', en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, name: 'Canton Tower', nzh: '广州塔', h: 54, w: 13, ic: [0.5, 0.8919, 0.02] },
+  { lv: 5, id: 'hongya', en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, name: 'Hongya Cave', the: '', nzh: '洪崖洞', h: 36, w: 24, ic: [0.3958, 0.9033, 0.0507] },
+  { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215] },
+  { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209] },
+  { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218] },
 ];
+const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
-function trailState(lv) {   // n = proven words of the level (they build), open = known ones a Fast build can prove, mast = mastered
-  const mine = db.bank.filter(w => trailLv(w) === lv), pv = mine.filter(w => w.pf?.at), n = pv.length, total = S.H?.levels[lv]?.length || HSK_COUNT[lv];
-  const need = TRAIL_TH.map(t => Math.max(2, Math.ceil(t * total))), k = Math.max(db.mapKeep?.[lv] || 0, need.filter(x => n >= x).length), now = Date.now();
-  return { lv, n, total, need, k, started: mine.length > 0, done: k === 8, seen: db.mapSeen?.[lv] ?? 0, words: (pv.length ? pv : mine).slice(0, 4),
-    open: mine.length - n, mast: pv.filter(w => w.pf.m).length, due: pv.filter(w => w.srs?.due <= now).length };
+function trailFloor() {   // the pieces of the old five temples (before v2.37, db.mapKeep) still count: each piece as an eighth of a monument's words, along this trail
+  const TH = [.06, .15, .27, .40, .54, .68, .84, 1];
+  let p = Object.values(db.mapKeep || {}).reduce((a, x) => a + (+x || 0), 0), n = 0;
+  for (const c of TRAIL) { if (p <= 0) break; if (p >= 8) { n += c.cost; p -= 8; } else { n += Math.ceil(TH[p - 1] * c.cost); p = 0; } }
+  return n;
 }
-/* the city you are building in: the first unfinished one from your own level up (an HSK 3 learner starts in Shanghai,
-   not Chengdu); once those are done, the unfinished ones below it */
-const trailStart = () => Math.min(5, Math.max(1, db.prefs.level || 1));
-const trailCur = sts => { const i = sts.findIndex(x => !x.done && x.lv >= trailStart()); return i >= 0 ? i : sts.findIndex(x => !x.done); };
-/* mastered words hang lanterns over a temple: 2 for each step of 5, 15, 30 and 50% of the level mastered */
+function trailAll() {   // your proven words in the order you proved them; open = known ones a Fast unlock can prove
+  const pv = db.bank.filter(w => w.pf?.at).sort((a, b) => a.pf.at - b.pf.at);
+  return { pv, n: Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length };
+}
+function trailState(lv, A = trailAll()) {   // n = proven words toward this monument, done = unlocked; mast = its words mastered, due = due for review
+  const c = TRAIL[lv - 1], at = TRAIL_AT[lv - 1], total = c.cost, n = Math.max(0, Math.min(total, A.n - at)), mine = A.pv.slice(at, at + total), now = Date.now();
+  return { lv, n, total, done: n >= total, seen: !!db.monOpen?.[lv], open: A.open, mast: mine.filter(w => w.pf.m).length, due: mine.filter(w => w.srs?.due <= now).length };
+}
+const trailStates = () => { const A = trailAll(); return TRAIL.map(c => trailState(c.lv, A)); };
+const trailCur = sts => sts.findIndex(x => !x.done);   // the monument you are working toward: the first one not unlocked (-1: all of them are)
+const trailOpened = sts => sts.filter(x => x.done).length;
+/* mastered words hang lanterns over a monument: 2 for each step of 5, 15, 30 and 50% of its words mastered */
 const LANT_TH = [.05, .15, .30, .50];
 const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.total))).length : 0;
 const Trail = (() => {
@@ -5747,7 +5759,7 @@ const Trail = (() => {
     [[109.6, 1.5], [111, 1.8], [113, 3.2], [115.4, 5], [116.8, 7], [118.6, 5.3], [119, 4.9], [117.9, 1.5], [116.5, -1], [114, -3.5], [110.3, -2.9], [109, -.4]],
     [[95.3, 5.6], [98, 4], [100.4, 2.2], [103.8, -1], [102.3, -4], [100.3, -1], [98.6, 1.7], [96.5, 3.8]]];
   const CHINA = [...NE, ...COAST, ...WEST];
-  const SITE = { 1: [104.1, 30.6], 2: [113.3, 23.3], 3: [121.1, 31.1], 4: [108.9, 34.4], 5: [116.4, 40] };   // where each monument stands
+  const SITE = Object.fromEntries(TRAIL.map(c => [c.lv, c.site]));   // where each monument stands
   // the kinds of country, later ones over earlier ones
   const BIOME = [
     ['plat', [[77, 36.5], [79, 32], [82, 30], [86, 28], [92, 27.6], [97, 28], [100, 28.5], [102.5, 30.5], [103.4, 33.5], [102, 36.5], [99, 38.6], [95, 39], [90, 37], [84, 36.6], [80, 37.4]]],
@@ -5963,52 +5975,22 @@ const Trail = (() => {
     }
     if (!moving) PROPS.t = 0; else if (!PROPS.raf) PROPS.raf = requestAnimationFrame(() => { PROPS.raf = 0; if (cv.isConnected) drawProps(); });   // keep drawing until the fade is done
   }
-  /* the five landmarks, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
-  const C = { r: '#B8322A', r2: '#7E1E18', door: '#5E1813', st: '#F1E8D6', st2: '#CDBDA3', gold: '#E8B44C', gold2: '#B98426', grey: '#737C84', grey2: '#555D65',
-    teal: '#2E7D7A', blue: '#2F5D8A', blue2: '#22486E', grn: '#5E8A50', grn2: '#3F643A', brick: '#C9A06E', brick2: '#9C7448', win: '#F3D58A' };
-  const roof = (w, y, h, fill) => `<path d="M${-w} ${f(y - 2.4)}Q${f(-w * .8)} ${y} ${f(-w * .55)} ${y}H${f(w * .55)}Q${f(w * .8)} ${y} ${w} ${f(y - 2.4)}Q${f(w * .72)} ${f(y - 2.8)} ${f(w * .6)} ${f(y - h)}H${f(-w * .6)}Q${f(-w * .72)} ${f(y - 2.8)} ${-w} ${f(y - 2.4)}Z" fill="${fill}"/>`;
-  const cone = (w, y, h, fill) => `<path d="M${-w} ${y}Q${f(-w * .45)} ${f(y - h * .45)} 0 ${f(y - h)}Q${f(w * .45)} ${f(y - h * .45)} ${w} ${y}Q0 ${f(y + 1.3)} ${-w} ${y}Z" fill="${fill}"/>`;
-  const box = (w, y0, y1, fill) => `<rect x="${-w}" y="${y1}" width="${w * 2}" height="${y0 - y1}" fill="${fill}"/>`;
-  const MON = [
-    { h: 34, w: 26, art: () => box(17, 0, -2.5, C.st2) + box(15, -2.5, -4.5, C.st) + box(11.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/><path d="M-9.5 -11.5H-5V-7.5H-9.5ZM5 -11.5H9.5V-7.5H5Z" fill="${C.win}"/>`
-        + roof(19, -12.5, 6.5, C.grey) + box(6.5, -18.5, -23, C.r) + roof(12.5, -22, 5.5, C.grey)
-        + `<g stroke="${C.grn2}" stroke-width="1.5" fill="none"><path d="M19 0V-27M22.5 0V-33M26 0V-22"/></g><g fill="${C.grn}"><ellipse cx="17" cy="-25" rx="3.6" ry="1.4" transform="rotate(-24 17 -25)"/><ellipse cx="25" cy="-31" rx="3.8" ry="1.4" transform="rotate(20 25 -31)"/><ellipse cx="20" cy="-17" rx="3.4" ry="1.3" transform="rotate(-18 20 -17)"/><ellipse cx="28.5" cy="-20.5" rx="3.4" ry="1.3" transform="rotate(26 28.5 -20.5)"/></g>` },
-    { h: 33, w: 30, art: () => box(18, 0, -3, C.st2) + box(14, -3, -14, '#A3A7A8') + `<path d="M-3 -3V-10.5H3V-3Z" fill="${C.door}"/><path d="M-11 -11H-6.5M6.5 -11H11" stroke="${C.grey2}"/>`
-        + `<path d="M-15 -11V-19Q-15 -25.5 -9.5 -24.5Q-12.5 -20 -11.5 -11Z" fill="${C.grey2}"/><path d="M15 -11V-19Q15 -25.5 9.5 -24.5Q12.5 -20 11.5 -11Z" fill="${C.grey2}"/>`
-        + roof(15.5, -13.5, 6, C.teal) + `<path d="M-8 -19.5H8" stroke="${C.gold}" stroke-width="1.8"/><circle cx="-5" cy="-21" r="1.1" fill="${C.r}"/><circle cx="0" cy="-21.5" r="1.1" fill="${C.gold}"/><circle cx="5" cy="-21" r="1.1" fill="${C.teal}"/>`
-        + `<path d="M-24 0V-14M-21 0V-9M-27 0V-10" stroke="${C.brick2}" stroke-width="1.3"/><circle cx="-24" cy="-22" r="8.5" fill="${C.grn}"/><circle cx="-28" cy="-18" r="5" fill="${C.grn2}"/><circle cx="-19.5" cy="-27" r="4.5" fill="${C.grn}"/>` },
-    { h: 44, w: 26, art: () => box(16, 0, -2.5, C.st) + box(14, -2.5, -4.5, C.st2) + box(10.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/>`
-        + roof(17, -12.5, 6, C.gold) + box(6, -18.5, -22.5, C.r) + roof(11.5, -21.5, 5.5, C.gold2)
-        + `<g transform="translate(21 0)">${box(3.6, 0, -6, C.r)}${roof(6.5, -5.5, 3, C.gold)}${box(2.8, -8.5, -12, C.r)}${roof(5.5, -11.5, 3, C.gold)}${box(2.2, -14.5, -17.5, C.r)}${roof(4.6, -17, 3, C.gold)}${box(1.7, -20, -22.5, C.r)}${roof(3.8, -22, 3, C.gold)}<path d="M0 -25V-31" stroke="${C.gold2}" stroke-width="1.2"/></g>` },
-    { h: 50, w: 22, art: () => { let s = box(18, 0, -2.5, C.st2) + `<g transform="translate(-17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g><g transform="translate(17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g>` + box(11, -2.5, -6, C.brick2);
-        let y = -6; for (let i = 0; i < 7; i++) { const w = 9.4 - i * 1.05, h = 5.6 - i * .3; s += box(f(w), y, f(y - h), C.brick) + `<path d="M${f(-w - 1.6)} ${f(y - h)}H${f(w + 1.6)}" stroke="${C.brick2}" stroke-width="1.6"/><circle cy="${f(y - h / 2)}" r=".9" fill="${C.door}"/>`; y -= h; }
-        return s + `<path d="M0 ${f(y)}V${f(y - 7)}" stroke="${C.gold2}" stroke-width="1.4"/><circle cy="${f(y - 4)}" r="1.4" fill="${C.gold}"/>`; } },
-    { h: 36, w: 24, art: () => box(17, 0, -3, C.st) + box(13.5, -3, -6, C.st2) + box(10.5, -6, -9, C.st) + `<path d="M-16 -1.5H16M-12.5 -4.5H12.5M-9.5 -7.5H9.5" stroke="${C.st2}" stroke-dasharray="1 1.2"/>`
-        + box(7.5, -9, -13.5, C.r) + cone(11.5, -13, 4.5, C.blue) + box(5.8, -16.5, -20, C.r) + cone(9, -19.5, 4.2, C.blue) + box(4.2, -22.5, -25, C.r) + cone(6.8, -24.5, 6.5, C.blue2)
-        + `<path d="M0 -31V-34" stroke="${C.gold2}" stroke-width="1.1"/><circle cy="-34.5" r="1.6" fill="${C.gold}"/>` },
-  ];
-  function stands(lv, k, id) {   // what stands so far and nothing more: no outline of the pieces to come
-    const M = MON[lv - 1], top = M.h * k / 8;
-    let s = `<ellipse class="tm-plot" rx="${M.w - 5}" ry="3.4" cy=".6"/>`;
-    if (!k) return s + `<path class="tm-scaf" d="M${-(M.w - 8)} .5V-5M${M.w - 8} .5V-5"/><path class="tm-tape" d="M${-(M.w - 8)} -4.2H${M.w - 8}"/>`;   // ground broken: two stakes and a tape
-    s += `<clipPath id="${id}"><rect x="-60" y="${f(k === 8 ? -80 : -top)}" width="120" height="${f(k === 8 ? 90 : top + 10)}"/></clipPath><g clip-path="url(#${id})" stroke="#3B2A20" stroke-width=".6" stroke-linejoin="round">${M.art()}</g>`;
-    if (k < 8) { const t = f(-top - 3), x = M.w - 6; s += `<path class="tm-scaf" d="M${-x} 0V${t}M${x} 0V${t}M${-x} ${f(-top)}H${x}M${-x} ${f(-top / 2)}H${x}"/>`; }
-    return s;
-  }
-  // the marker over the city you are building in: a red pin with Shi Shi in it, hovering, like the "you are here" of a game map
+  /* the monuments, small: the cut-out of its 3D picture standing on its spot (base at 0 0) */
+  const cutout = c => { const k = c.h / (c.ic[1] - c.ic[2]); return `<image href="mon/${c.id}-i.webp" x="${f(-c.ic[0] * k)}" y="${f(-c.ic[1] * k)}" width="${f(k)}" height="${f(k)}"/>`; };
+  // the marker over the next monument: a red pin with Shi Shi in it, hovering, like the "you are here" of a game map
   const beacon = y => `<g transform="translate(0 ${f(y)})"><g class="tm-hov"><path class="tm-bpin" d="M0 0C-3 -6 -11 -9 -11 -18A11 11 0 1 1 11 -18C11 -9 3 -6 0 0Z"/><circle class="tm-bface" cy="-18" r="8.2"/><image href="mascots/shi-shi.svg" x="-7.5" y="-25.5" width="15" height="15"/></g></g>`;
-  function monument(c, st, cur) {
-    const M = MON[c.lv - 1], w = st.k ? M.w : 16, top = st.k ? M.h * st.k / 8 + 4 : 0;   // nothing built yet: no pad, no stakes, only the marker over the spot
-    let s = (st.k ? `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/>` : '') + `<ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
-    if (cur || st.k > st.seen) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
-    if (st.k) s += `<g class="tm-mon">${stands(c.lv, st.k, 'tmB' + c.lv)}</g>`;
-    if (st.done) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
+  function monument(c, st, cur) {   // an unlocked monument; the next one is only its spot and the marker
+    const w = st.done ? c.w : 16, top = st.done ? c.h + 4 : 0, fresh = st.done && !st.seen;
+    let s = (st.done ? `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/>` : '') + `<ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
+    if (cur || fresh) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
+    if (st.done) s += `<g class="tm-mon">${cutout(c)}</g>`;
+    if (fresh) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-c.w + 4} ${-c.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${c.w - 3} ${-c.h + 12})"/>`;
     if (cur) s += beacon(-top - 5);
     const hi = top + (cur ? 44 : 4);
-    return s + `<rect x="${-w - 4}" y="${-hi}" width="${w * 2 + 8}" height="${hi + 10}" fill="transparent"/>`;
+    return s + `<rect x="${f(-w * .8)}" y="${-hi}" width="${f(w * 1.6)}" height="${hi + 10}" fill="transparent"/>`;   // narrow enough that neighbours (Shanghai, Hangzhou) do not steal each other's taps
   }
-  const mini = (lv, st) => st.k ? `<svg viewBox="${(M => `${-M.w - 5} ${-M.h - 3} ${M.w * 2 + 10} ${M.h + 8}`)(MON[lv - 1])}" aria-hidden="true">${stands(lv, st.k, 'tmM' + lv)}</svg>`   // the same monument, for its card
-    : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`;
+  const mini = (lv, st) => { const c = TRAIL[lv - 1]; return st.done ? `<svg viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card
+    : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
   const zHome = () => CAM.w / 400, zMin = zHome, zMax = () => CAM.w / 76;   // the view the map opens on is as far back as it goes; in, down to one city
@@ -6028,9 +6010,9 @@ const Trail = (() => {
     if (CAM.x == null) Object.assign(CAM, home());
     const [under, over] = drawn(), cur = trailCur(states), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
-      <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have built. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
-    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.k || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; a level with nothing built yet is not on the map, unless it is the one you are building
-      const say = !st.started ? `Your next monument, HSK ${c.lv}` : `${c.name}, ${c.en}, HSK ${c.lv}, ${st.done ? 'finished' : `${st.k} of 8 pieces built`}`;
+      <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have unlocked. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
+    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.done || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; one not unlocked is not on the map, unless it is the next
+      const say = !st.done ? `Your next monument: ${st.n} of ${st.total} proven words` : `${c.name}, ${c.en}, monument ${c.lv} of ${TRAIL.length}, unlocked`;
       s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
     return s + '</svg>';
   }
@@ -6103,277 +6085,6 @@ const Trail = (() => {
   const near = lv => view(...SITE[lv], cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
   const focus = lv => CAM.api?.fly(near(lv), 560);
   const dive = lv => CAM.api?.fly(view(...SITE[lv], zMax(), .56), 440);
-  /* ---- the five temples ---- */
-  const hill = (pts, fill) => `<path d="${K.smooth(pts)}V262H0Z" fill="${fill}"/>`;
-  const mist = (y, h, P, op = 1) => `<rect x="-10" y="${y}" width="380" height="${h}" fill="${P.mist}" filter="url(#wtSoft)" opacity="${op}"/>`;
-  function sky(P) {
-    let s = `<rect width="360" height="252" fill="url(#wtSky)"/>`;
-    if (P.lit) { const R = K.rng(7); for (let k = 0; k < 50; k++) s += `<circle class="wt-tw" style="animation-delay:-${f(R() * 3)}s" cx="${f(R() * 360)}" cy="${f(R() * 130)}" r="${f(.4 + R() * .9)}" fill="#FFF6DD"/>`;
-      s += `<circle cx="292" cy="46" r="34" fill="url(#wtSun)"/><circle cx="292" cy="46" r="12" fill="#F4EBCF" mask="url(#wtMoon)"/>`; }
-    else s += `<circle cx="284" cy="50" r="56" fill="url(#wtSun)"/><circle cx="284" cy="50" r="16" fill="#FFF3D2"/>`;
-    return s;
-  }
-  const birds = P => P.lit ? '' : `<g class="wt-fly"><path d="M20 52q4-4 8 0q4-4 8 0M44 44q3-3 6 0q3-3 6 0M30 38q3-3 6 0q3-3 6 0" fill="none" stroke="${INK}" stroke-width="1" opacity=".5"/></g>`;
-  function court(P, y) {
-    let s = `<path d="M0 ${y}H360V252H0Z" fill="url(#wtCourt)"/>`;
-    for (let k = 0; k < 5; k++) s += `<path d="M0 ${f(y + Math.pow(k + 1, 1.7) * 3.4)}H360" stroke="${P.flag}" stroke-width=".8"/>`;
-    for (let k = -7; k <= 7; k++) s += `<path d="M${180 + k * 26} ${y}L${180 + k * 84} ${y + 140}" stroke="${P.flag}" stroke-width=".8"/>`;
-    return s;
-  }
-  const defs = P => `<defs><linearGradient id="mpGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.lit ? '#2E5A48' : '#4E9A72'}"/><stop offset="1" stop-color="${P.lit ? '#1C3A2E' : '#2F6A4E'}"/></linearGradient>
-    <linearGradient id="mpBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.lit ? '#2E4E86' : '#3F6FC0'}"/><stop offset="1" stop-color="${P.lit ? '#1A2E58' : '#24468A'}"/></linearGradient></defs>`;
-  function lan(x, y, P, r = 5) {   // a red lantern for decoration (the hall's own lanterns carry your words)
-    const ry = f(r * 1.15);
-    return `<path d="M${x} ${f(y - r * 1.15 - 4)}V${f(y - r * 1.15)}" stroke="${INK}" stroke-width=".7"/>${P.lit ? `<circle class="wt-glow" cx="${x}" cy="${y}" r="${f(r * 2.6)}" fill="url(#wtWarm)"/>` : ''}
-      <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${ry}" fill="url(#wtLan)" stroke="${INK}" stroke-width=".8"/><rect x="${f(x - r * .5)}" y="${f(y - r * 1.15 - 1.2)}" width="${f(r)}" height="2" rx=".6" fill="${P.gold}"/>
-      <rect x="${f(x - r * .5)}" y="${f(y + r * 1.15 - .8)}" width="${f(r)}" height="2" rx=".6" fill="${P.gold}"/><path d="M${x} ${f(y + r * 1.15 + 1.2)}v5" stroke="#C9302A" stroke-width="1.3" stroke-linecap="round"/>`;
-  }
-  function lanString(a, b, sag, n, P) {
-    const mx = (a[0] + b[0]) / 2, my = Math.max(a[1], b[1]) + sag;
-    let s = `<path d="M${a[0]} ${a[1]}Q${mx} ${my} ${b[0]} ${b[1]}" fill="none" stroke="${INK}" stroke-width=".7"/>`;
-    for (let i = 1; i <= n; i++) { const t = i / (n + 1), x = (1 - t) ** 2 * a[0] + 2 * (1 - t) * t * mx + t * t * b[0], y = (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * my + t * t * b[1];
-      s += `<g class="wt-sway" style="animation-delay:-${f(i * .6)}s">${lan(f(x), f(y + 10), P, 4.2)}</g>`; }
-    return s;
-  }
-  function scaffold([x0, x1, yT, base]) {   // bamboo poles and ties at both ends while a temple is going up
-    const bam = '#C49A5A', pole = x => `<path d="M${x} ${base}V${yT}" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M${x} ${base}V${yT}" stroke="${bam}" stroke-width="2" stroke-linecap="round"/>`;
-    let s = pole(x0) + pole(x0 + 16) + pole(x1 - 16) + pole(x1);
-    for (let y = base - 20; y > yT + 6; y -= 24) [[x0 - 4, x0 + 20], [x1 - 20, x1 + 4]].forEach(([a, b]) => s += `<path d="M${a} ${y}H${b}" stroke="${INK}" stroke-width="2.8"/><path d="M${a} ${y}H${b}" stroke="${bam}" stroke-width="1.6"/>`);
-    return s;
-  }
-  function stakes([x0, x1, , base], P) {   // ground broken: pegs and a red rope round the plot, a heap of earth and a spade
-    const pts = [[x0, base + 2], [x1, base + 2], [x1 + 14, base + 22], [x0 - 14, base + 22]];
-    let s = `<path d="M${pts.map(p => p.join(' ')).join('L')}Z" fill="${P.lit ? 'rgba(0,0,0,.14)' : 'rgba(150,110,60,.16)'}" stroke="#C9302A" stroke-width="1" stroke-dasharray="3 2"/>`;
-    pts.forEach(([x, y]) => s += `<path d="M${x} ${y}v-10" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/><path d="M${x} ${y}v-10" stroke="#C49A5A" stroke-width="1.3"/><path d="M${x - 3} ${y - 8}h6" stroke="#C9302A" stroke-width="1.6"/>`);
-    return s + `<path d="M${x1 - 46} ${base + 19}q13 -16 28 0Z" fill="#9A7A52" stroke="${INK}" stroke-width=".9"/><path d="M${x1 - 26} ${base + 14}l7 -24" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><path d="M${x1 - 26} ${base + 14}l7 -24" stroke="#9A6A3E" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M${x1 - 30} ${base + 12}l5 4 4-7-5-3Z" fill="#9AA6AC" stroke="${INK}" stroke-width=".8"/>`;
-  }
-  // Chengdu: green bamboo and a panda
-  function bamboo(x, base, h, P, seed) {
-    const R = K.rng(seed), c1 = P.lit ? '#3E5A3A' : '#86A85E', c2 = P.lit ? '#2A3F28' : '#5E8240', lf = P.lit ? ['#2C452D', '#3A5A39'] : ['#6F9E4C', '#93BC68'];
-    let s = '';
-    for (let j = 0; j < 4; j++) {
-      const x0 = x + (j - 1.5) * 7 + R() * 3, top = base - h * (.72 + R() * .28), lean = (R() - .5) * 12, at = t => [x0 + lean * t * t, base - (base - top) * t];
-      const d = `M${f(x0)} ${base}Q${f(x0 + lean * .3)} ${f((base + top) / 2)} ${f(x0 + lean)} ${f(top)}`;
-      s += `<path d="${d}" fill="none" stroke="${c2}" stroke-width="3.6" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c1}" stroke-width="2.2" stroke-linecap="round"/>`;
-      for (let t = .12; t < .95; t += .14) { const [nx, ny] = at(t); s += `<path d="M${f(nx - 2)} ${f(ny)}h4" stroke="${c2}" stroke-width="1"/>`; }
-      for (let q = 0; q < 8; q++) { const [lx, ly] = at(.42 + R() * .58), dd = R() < .5 ? -1 : 1, l = 9 + R() * 7;
-        s += `<path d="M${f(lx)} ${f(ly)}Q${f(lx + dd * l * .5)} ${f(ly - 4.5)} ${f(lx + dd * l)} ${f(ly + 2 + R() * 2)}Q${f(lx + dd * l * .5)} ${f(ly + 1.2)} ${f(lx)} ${f(ly)}Z" fill="${lf[q % 2]}"/>`; }
-    }
-    return s;
-  }
-  function panda(x, y) {
-    const W = '#FBFAF6', B = '#24211F';
-    return `<ellipse cx="${x}" cy="${y + 1}" rx="18" ry="3.6" fill="#000" opacity=".16"/><path d="M${x + 12} ${y - 6}L${x + 20} ${y - 42}" stroke="#5E8240" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M${x + 19} ${y - 38}q7 -4 11 1q-6 2 -11 -1ZM${x + 18} ${y - 32}q-7 -5 -11 -1q6 3 11 1Z" fill="#7FA65A"/>
-      <ellipse cx="${x}" cy="${y - 12}" rx="13.5" ry="12.5" fill="${W}" stroke="${INK}" stroke-width="1.2"/>
-      <ellipse cx="${x - 9}" cy="${y - 3}" rx="6.2" ry="4.6" fill="${B}"/><ellipse cx="${x + 9}" cy="${y - 3}" rx="6.2" ry="4.6" fill="${B}"/>
-      <path d="M${x - 12} ${y - 20}q-6 7 0 12q4 2 7 -1q-1 -6 -7 -11Z" fill="${B}"/><path d="M${x + 5} ${y - 21}q9 -3 10 5q-1 5 -7 4q-3 -4 -3 -9Z" fill="${B}"/>
-      <circle cx="${x - 7}" cy="${y - 36}" r="3.8" fill="${B}"/><circle cx="${x + 7}" cy="${y - 36}" r="3.8" fill="${B}"/>
-      <circle cx="${x}" cy="${y - 28}" r="9.8" fill="${W}" stroke="${INK}" stroke-width="1.2"/>
-      <ellipse cx="${x - 3.7}" cy="${y - 28.6}" rx="2.6" ry="3.5" fill="${B}" transform="rotate(25 ${x - 3.7} ${y - 28.6})"/><ellipse cx="${x + 3.7}" cy="${y - 28.6}" rx="2.6" ry="3.5" fill="${B}" transform="rotate(-25 ${x + 3.7} ${y - 28.6})"/>
-      <circle cx="${x - 3.3}" cy="${y - 29.2}" r=".95" fill="#fff"/><circle cx="${x + 3.3}" cy="${y - 29.2}" r=".95" fill="#fff"/><ellipse cx="${x}" cy="${y - 24.6}" rx="1.7" ry="1.1" fill="${B}"/>
-      <path d="M${x - 1.6} ${y - 22.6}q1.6 1.2 3.2 0" fill="none" stroke="${B}" stroke-width=".7"/>`;
-  }
-  const hallLanterns = (ctx, xs) => xs.slice(0, Math.min(4, ctx.words.length)).map((x, j) => ({ k: j, big: j === 0, x, w: ctx.words[j] }));
-  const T1 = {
-    pal: P => ({ ...P, roof: P.lit ? '#5A5664' : '#8C867E', roof2: P.lit ? '#35323D' : '#5A554F', ridge: P.lit ? '#26232C' : '#3A3632' }),   // Sichuan temples wear dark grey tiles
-    back: P => sky(P) + birds(P) + K.cloud(70, 34, 1, P) + K.cloud(214, 22, .8, P)
-      + hill([[0, 112], [30, 84], [58, 96], [96, 58], [128, 90], [160, 78], [196, 100], [232, 70], [266, 92], [300, 74], [332, 96], [360, 84], [360, 84]], 'url(#wtFar)')
-      + mist(98, 24, P) + hill([[0, 140], [40, 120], [80, 132], [120, 126], [160, 142], [210, 138], [250, 128], [290, 134], [330, 120], [360, 128], [360, 128]], P.mid)
-      + hill([[0, 166], [30, 150], [70, 152], [110, 160], [250, 160], [290, 150], [330, 152], [360, 160], [360, 160]], P.near)
-      + [[20, 152, .8], [44, 156, .7], [300, 154, .8], [328, 150, .9], [346, 158, .7]].map(([x, y, k]) => K.pine(x, y, k, P)).join('') + mist(156, 14, P, .7) + court(P, 192),
-    box: [94, 266, 112, 190], board: 6,
-    draw(k, P, ctx) {
-      let s = k >= 8 ? bamboo(34, 212, 128, P, 3) + bamboo(318, 210, 136, P, 9) : '';
-      if (k >= 1) s += K.hall({ cx: 180, base: 188, w: 164, colH: 38, st: k <= 4 ? k : k === 5 ? 4 : 5, double: k >= 5, n: ctx.n, lanterns: k >= 6 ? hallLanterns(ctx, [114, 130, 230, 246]) : [] }, P);
-      if (k >= 7) s += K.incense(180, 230, P) + K.lion(104, 168, 38, true) + K.lion(218, 168, 38, false);
-      if (k >= 8) s += panda(70, 240) + bamboo(350, 232, 70, P, 5);
-      return s;
-    },
-  };
-  // Guangzhou: a Lingnan hall with wok-handle gables, a banyan and the Pearl River
-  function banyan(x, base, P) {
-    const R = K.rng(21), g = P.lit ? ['#1E3328', '#28402F', '#33503A'] : ['#4A7442', '#638E4C', '#82AA60'], tr = P.lit ? '#3A2C22' : '#6A4A34';
-    let s = `<path d="M${x - 8} ${base}C${x - 5} ${base - 30} ${x - 10} ${base - 52} ${x - 30} ${base - 74}M${x + 8} ${base}C${x + 5} ${base - 34} ${x + 12} ${base - 54} ${x + 32} ${base - 76}M${x} ${base}V${base - 86}" fill="none" stroke="${tr}" stroke-width="7" stroke-linecap="round"/>`;
-    for (let k = 0; k < 16; k++) { const rx = x - 48 + k * 6.4 + R() * 3, top = base - 70 - R() * 12; s += `<path d="M${f(rx)} ${f(top)}V${f(top + 26 + R() * 34)}" stroke="${tr}" stroke-width=".8" opacity=".75"/>`; }
-    for (let k = 0; k < 30; k++) { const a = R() * Math.PI * 2, rr = Math.sqrt(R()); s += `<ellipse cx="${f(x + Math.cos(a) * 52 * rr)}" cy="${f(base - 100 + Math.sin(a) * 24 * rr)}" rx="${f(12 + R() * 10)}" ry="${f(7 + R() * 5)}" fill="${g[k % 3]}"/>`; }
-    return s;
-  }
-  const T2 = {
-    back(P, k) {
-      const water = P.lit ? '#1C2844' : '#8FBAC2', w2 = P.lit ? '#33466A' : '#C4E0E0';
-      let s = sky(P) + birds(P) + K.cloud(60, 40, 1, P) + K.cloud(240, 24, .8, P)
-        + hill([[0, 150], [40, 128], [90, 140], [140, 124], [190, 140], [240, 130], [290, 140], [330, 126], [360, 136], [360, 136]], 'url(#wtFar)') + mist(138, 18, P);
-      if (k >= 8) { const c = P.lit ? '#D25FAE' : '#8E98AA';   // Canton Tower across the river
-        s += `${P.lit ? '<circle cx="303" cy="96" r="40" fill="url(#wtWarm)" opacity=".6"/>' : ''}<path d="M292 168Q306 112 299 62L306 62Q300 112 316 168Z" fill="${c}" opacity="${P.lit ? .9 : .6}"/><path d="M302.5 62V32" stroke="${c}" stroke-width="1.6"/>`;
-        for (let y = 72; y < 166; y += 12) s += `<path d="M${f(300 - (y - 62) * .05 - 2)} ${y}h${f(5 + (y - 62) * .12)}" stroke="${P.lit ? '#FFD0F0' : '#F2F4F8'}" stroke-width=".7" opacity=".7"/>`; }
-      s += hill([[0, 166], [60, 160], [120, 164], [200, 161], [280, 165], [360, 160], [360, 160]], P.near) + `<rect x="0" y="168" width="360" height="28" fill="${water}"/>`;
-      for (let k2 = 0; k2 < 14; k2++) s += `<path d="M${(k2 * 53) % 360} ${172 + (k2 * 7) % 20}h${10 + (k2 % 3) * 6}" stroke="${w2}" stroke-width="1" stroke-linecap="round"/>`;
-      if (k >= 8) s += `<path d="M296 184h40l-5 6h-30Z" fill="#6A4A34" stroke="${INK}" stroke-width=".8"/><path d="M306 184v-9h18v9" fill="#B8322A" stroke="${INK}" stroke-width=".8"/>` + lan(315, 168, P, 3.6);
-      return s + court(P, 196);
-    },
-    box: [96, 264, 112, 192],
-    draw(k, P) {
-      const brick = P.lit ? '#4C4A54' : '#A9A59C', plaster = P.lit ? '#6C6874' : '#F1ECE2', base = 192;
-      let s = k >= 7 ? banyan(52, 206, P) : '';
-      if (k >= 1) { s += `<ellipse cx="180" cy="${base + 10}" rx="110" ry="5" fill="#000" opacity=".12"/><rect x="90" y="${base}" width="180" height="8" fill="${P.stone}" stroke="${INK}" stroke-width="1.3"/>`;
-        for (let i = 0; i < 3; i++) s += `<rect x="${158 - i * 3}" y="${f(base + 8 + i * 3.2)}" width="${44 + i * 6}" height="3.4" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`; }
-      if (k >= 2) s += `<rect x="112" y="146" width="136" height="46" fill="${brick}" stroke="${INK}" stroke-width="1.2"/><rect x="112" y="146" width="136" height="46" fill="url(#wtBrick)"/>
-        <rect x="112" y="146" width="136" height="9" fill="${plaster}" stroke="${INK}" stroke-width=".9"/><rect x="116" y="148" width="128" height="5" fill="url(#wtCaihua)"/>`;
-      if (k >= 3) { const d = 'M106 150L121 124H239L254 150Z';
-        s += `<clipPath id="mpGr"><path d="${d}"/></clipPath><path d="${d}" fill="url(#mpGreen)"/><g clip-path="url(#mpGr)">`;
-        for (let x = 104; x < 258; x += 4.2) s += `<path d="M${f(180 + (x - 180) * .78)} 124L${f(x)} 150" stroke="${P.lit ? '#14281F' : '#245A40'}" stroke-width="1"/>`;
-        s += `</g><path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>`;
-        for (let x = 108; x <= 252; x += 4.2) s += `<circle cx="${f(x)}" cy="150" r="1.4" fill="${P.lit ? '#2E5A48' : '#3E8A62'}" stroke="${INK}" stroke-width=".5"/>`; }
-      if (k >= 4) [[96, 122], [238, 264]].forEach(([a, b]) => {
-        const g = `M${a} ${base}V138C${a} 115 ${b} 115 ${b} 138V${base}Z`, top = `M${a - 3} 140C${a - 2} 111 ${b + 2} 111 ${b + 3} 140`;
-        s += `<path d="${g}" fill="${brick}" stroke="${INK}" stroke-width="1.2"/><path d="${g}" fill="url(#wtBrick)"/><rect x="${a + 4}" y="132" width="${b - a - 8}" height="12" rx="2" fill="${plaster}" stroke="${INK}" stroke-width=".7"/>
-          <path d="M${a + 7} 138h${b - a - 14}" stroke="${P.teal}" stroke-width="1.6"/><path d="${top}" fill="none" stroke="${INK}" stroke-width="4.6" stroke-linecap="round"/><path d="${top}" fill="none" stroke="${plaster}" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M${a - 3} 140q-5 0 -4 -6M${b + 3} 140q5 0 4 -6" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`; });
-      if (k >= 5) { s += `<rect x="156" y="158" width="48" height="34" fill="${P.stone}" stroke="${INK}" stroke-width="1"/><rect x="161" y="163" width="38" height="29" fill="${P.lit ? '#14100E' : '#2A221C'}"/><path d="M180 163V192" stroke="${INK}" stroke-width=".8"/>`;
-        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) [166, 185].forEach(x0 => s += `<circle cx="${x0 + c * 3}" cy="${168 + r * 6}" r=".75" fill="${P.gold}"/>`);
-        s += `<rect x="158" y="148.5" width="44" height="9" rx="1" fill="#1D3557" stroke="${P.gold}" stroke-width=".9"/><text x="180" y="153.3" font-family="Noto Serif SC" font-weight="700" font-size="6" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">榕荫堂</text>`;
-        [126, 216].forEach(x0 => s += `<rect x="${x0}" y="162" width="18" height="16" fill="${P.lit ? '#F2A851' : P.door}" stroke="${INK}" stroke-width=".8"/><rect x="${x0}" y="162" width="18" height="16" fill="url(#wtLattice)"/>`);
-        [150, 210].forEach(x0 => s += `<rect x="${x0 - 4}" y="187" width="8" height="5" fill="${P.stone2}" stroke="${INK}" stroke-width=".7"/><circle cx="${x0}" cy="182" r="5.5" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/><circle cx="${x0}" cy="182" r="2.4" fill="none" stroke="${INK}" stroke-width=".5"/>`); }
-      if (k >= 6) { s += `<rect x="124" y="116" width="112" height="8" rx="1.5" fill="${plaster}" stroke="${INK}" stroke-width="1"/><path d="M126 120H234" stroke="${P.teal}" stroke-width="1.4"/>`;
-        const cols = [P.teal, P.gold, '#C9302A', P.blue, '#7FA65A'];
-        for (let i = 0; i < 12; i++) { const x = 133 + i * 8.6, h = 5 + (i % 3) * 2.2;
-          s += i % 2 ? `<circle cx="${f(x)}" cy="${f(116 - h / 2)}" r="${f(h / 2)}" fill="${cols[i % 5]}" stroke="${INK}" stroke-width=".6"/>` : `<rect x="${f(x - 2.4)}" y="${f(116 - h)}" width="4.8" height="${f(h)}" rx="1.6" fill="${cols[i % 5]}" stroke="${INK}" stroke-width=".6"/><circle cx="${f(x)}" cy="${f(116 - h - 1.8)}" r="1.8" fill="${P.gold}" stroke="${INK}" stroke-width=".5"/>`; }
-        s += `<path d="M126 117c-7 -1 -10 -12 -3 -17c-.5 4 2 7 6 8Z M234 117c7 -1 10 -12 3 -17c.5 4 -2 7 -6 8Z" fill="${P.teal}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`; }
-      if (k >= 8) s += `<path d="M330 214V108" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/><path d="M330 214V108" stroke="#9A6A3E" stroke-width="1.8"/>` + lanString([86, 118], [330, 112], 18, 6, P);
-      return s;
-    },
-  };
-  // Shanghai: a golden temple among the towers
-  function skyline(P, bright) {
-    const c = P.lit ? '#262A48' : '#B2BAC9', c2 = P.lit ? '#2E3354' : '#C8CEDA', R = K.rng(13);
-    let s = '', win = '';
-    const box = (x, w, h, col) => { s += `<rect x="${x}" y="${170 - h}" width="${w}" height="${h}" fill="${col}"/>`;
-      if (P.lit) for (let yy = 172 - h; yy < 166; yy += 5) for (let xx = x + 2; xx < x + w - 2; xx += 4) if (R() < (bright ? .55 : .22)) win += `<rect x="${xx}" y="${yy}" width="1.8" height="2.2" fill="#FFD27A" opacity="${f(.5 + R() * .5)}"/>`; };
-    [[6, 24, 64], [34, 16, 88], [54, 26, 58], [86, 18, 80], [112, 26, 62], [142, 14, 96], [162, 22, 72], [190, 22, 56], [338, 22, 70]].forEach(([x, w, h]) => box(x, w, h, c2));
-    s += `<path d="M212 170V58h4V46h6v12h4V170Z" fill="${c}"/><path d="M219 46V28" stroke="${c}" stroke-width="1.6"/>`;   // Jin Mao
-    s += `<path d="M238 170C238 120 244 70 248 28L256 26C258 70 262 120 264 170Z" fill="${c}"/>`;   // Shanghai Tower
-    s += `<path d="M270 170V60L288 52V170Z" fill="${c}"/><rect x="276" y="60" width="6" height="5" fill="${P.lit ? '#14182C' : '#E9EDF2'}"/>`;   // the bottle opener
-    box(292, 18, 50, c);
-    const pearl = P.lit ? (bright ? '#F07AB8' : '#B85A90') : '#C9A0B4';   // Oriental Pearl Tower
-    s += `<path d="M312 170L320 130M332 170L324 130M322 170V60" stroke="${c}" stroke-width="3"/><circle cx="322" cy="130" r="11" fill="${pearl}"/><circle cx="322" cy="88" r="7.5" fill="${pearl}"/><circle cx="322" cy="62" r="3.4" fill="${pearl}"/><path d="M322 58V36" stroke="${c}" stroke-width="1.4"/>`;
-    if (P.lit && bright) s += `<circle cx="322" cy="110" r="44" fill="url(#wtWarm)" opacity=".35"/>`;
-    return s + win;
-  }
-  const T3 = {
-    back: (P, k) => sky(P) + K.cloud(40, 30, .9, P) + K.cloud(180, 16, .7, P) + skyline(P, k >= 8) + mist(150, 26, P) + hill([[0, 178], [90, 174], [180, 177], [270, 173], [360, 177], [360, 177]], P.near) + court(P, 190),
-    box: [92, 288, 112, 188], board: 5,
-    draw(k, P, ctx) {
-      let s = '';
-      if (k >= 6) s += K.pagoda(58, 184, 32, P);
-      if (k >= 7) s += K.bellTower(318, 186, 38, P);
-      if (k >= 1) s += K.hall({ cx: 190, base: 186, w: 148, colH: 40, st: Math.min(k, 5), double: k >= 5, n: ctx.n, lanterns: k >= 5 ? hallLanterns(ctx, [127, 141, 239, 253]) : [] }, P);
-      if (k >= 8) s += lanString([58, 110], [104, 128], 14, 2, P) + lanString([276, 128], [318, 130], 12, 2, P) + K.incense(190, 228, P);
-      return s;
-    },
-  };
-  // Xi'an: the Big Wild Goose Pagoda, seven brick floors, inside the city wall
-  function goose(k, P) {
-    const brick = P.lit ? '#6E5D4C' : '#D2B587', brick2 = P.lit ? '#54473A' : '#AC8E60', cx = 180;
-    let s = '';
-    if (k >= 1) { s += `<ellipse cx="${cx}" cy="203" rx="80" ry="5" fill="#000" opacity=".12"/><rect x="118" y="178" width="124" height="20" fill="${brick2}" stroke="${INK}" stroke-width="1.2"/><rect x="118" y="178" width="124" height="20" fill="url(#wtBrick)"/>
-        <rect x="113" y="175" width="134" height="4" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/><path d="M168 198h24l4 6h-32Z" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`; }
-    const floors = k >= 5 ? 7 : k >= 2 ? (k - 1) * 2 : 0; let y = 175;
-    for (let i = 0; i < floors; i++) {
-      const w = 78 - i * 7, h = 17 - i * .9, x = cx - w / 2;
-      s += `<rect x="${f(x)}" y="${f(y - h)}" width="${f(w)}" height="${f(h)}" fill="${brick}" stroke="${INK}" stroke-width=".9"/><rect x="${f(x)}" y="${f(y - h)}" width="${f(w)}" height="${f(h)}" fill="url(#wtBrick)" opacity=".7"/>`;
-      [-.36, .36].forEach(q => s += `<path d="M${f(cx + w * q)} ${f(y - h)}V${f(y)}" stroke="${brick2}" stroke-width="1.4"/>`);
-      s += `<path d="M${cx - 3.6} ${f(y - 1.5)}v-6.5a3.6 3.6 0 0 1 7.2 0v6.5Z" fill="${P.lit ? '#FFC46E' : '#3A2A1E'}" stroke="${INK}" stroke-width=".6"/>`;
-      s += `<rect x="${f(x - 5)}" y="${f(y - h - 2.6)}" width="${f(w + 10)}" height="2.6" fill="${brick2}" stroke="${INK}" stroke-width=".7"/><rect x="${f(x - 2.5)}" y="${f(y - h - 4.6)}" width="${f(w + 5)}" height="2" fill="${brick}" stroke="${INK}" stroke-width=".6"/>`;
-      y -= h + 4.6;
-    }
-    if (k >= 6) s += `<path d="M${cx - 13} ${f(y)}Q${cx - 4} ${f(y - 3)} ${cx - 2.5} ${f(y - 13)}H${cx + 2.5}Q${cx + 4} ${f(y - 3)} ${cx + 13} ${f(y)}Z" fill="${brick2}" stroke="${INK}" stroke-width="1"/>
-      <path d="M${cx} ${f(y - 13)}V${f(y - 38)}" stroke="${INK}" stroke-width="1.4"/>${[16, 21, 26].map(d => `<ellipse cx="${cx}" cy="${f(y - d)}" rx="${f(4.4 - d * .09)}" ry="1.6" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>`).join('')}<circle cx="${cx}" cy="${f(y - 32)}" r="2.6" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/>`;
-    return s;
-  }
-  const T4 = {
-    back: P => sky(P) + birds(P) + K.cloud(80, 30, .9, P)
-      + hill([[0, 122], [30, 94], [64, 108], [100, 66], [136, 98], [170, 86], [204, 106], [240, 64], [276, 94], [310, 78], [340, 100], [360, 92], [360, 92]], 'url(#wtFar)')
-      + mist(104, 24, P) + hill([[0, 150], [50, 134], [100, 146], [150, 140], [210, 150], [260, 136], [310, 146], [360, 138], [360, 138]], P.mid)
-      + hill([[0, 176], [60, 166], [120, 172], [240, 172], [300, 164], [360, 172], [360, 172]], P.near) + court(P, 200),
-    box: [112, 248, 40, 198],
-    draw(k, P) {
-      let s = '';
-      if (k >= 7) s += K.hall({ cx: 58, base: 190, w: 58, colH: 20, st: 4 }, P) + K.hall({ cx: 302, base: 190, w: 58, colH: 20, st: 4 }, P);
-      s += goose(k, P);
-      if (k >= 8) { const br = P.lit ? '#4A3F34' : '#9C8462';
-        let w = `<rect x="-2" y="228" width="364" height="26" fill="${br}" stroke="${INK}" stroke-width="1.2"/><rect x="-2" y="228" width="364" height="26" fill="url(#wtBrick)"/>`;
-        for (let x = 0; x < 360; x += 11) w += `<rect x="${x}" y="222" width="6.5" height="6.5" fill="${br}" stroke="${INK}" stroke-width=".8"/>`;
-        s += w + `<path d="M169 252v-12a11 11 0 0 1 22 0v12Z" fill="${P.lit ? '#2A1A12' : '#4A3A2C'}" stroke="${INK}" stroke-width="1"/>`
-          + `<rect x="156" y="209" width="48" height="13" fill="${P.wall}" stroke="${INK}" stroke-width=".9"/><rect x="159" y="211" width="42" height="9" fill="url(#wtLattice)"/>${[156, 168, 180, 192, 204].map(x => `<rect x="${x - 1.5}" y="209" width="3" height="13" fill="${P.col}" stroke="${INK}" stroke-width=".5"/>`).join('')}<rect x="153" y="205" width="54" height="4" fill="url(#wtCaihua)" stroke="${INK}" stroke-width=".7"/>`
-          + K.roof(180, 205, 60, 15, P, { pearl: true }) + lan(96, 238, P, 4.6) + lan(264, 238, P, 4.6); }
-      return s;
-    },
-  };
-  // Beijing: the Hall of Prayer for Good Harvests, round with three blue roofs, on three marble terraces
-  function roundRoof(cx, yE, w, h, P, tw) {
-    const xl = cx - w / 2, xr = cx + w / 2, t = w * tw, yT = yE - h, b = w * .07;
-    const d = `M${f(xl)} ${yE}Q${f(cx - w * .34)} ${f(yE - h * .3)} ${f(cx - t)} ${f(yT)}H${f(cx + t)}Q${f(cx + w * .34)} ${f(yE - h * .3)} ${f(xr)} ${yE}A${f(w / 2)} ${f(b)} 0 0 1 ${f(xl)} ${yE}Z`;
-    let s = `<path d="${d}" fill="url(#mpBlue)" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round"/>`;
-    for (let i = -6; i <= 6; i++) { const u = i / 6.6; s += `<path d="M${f(cx + t * u)} ${f(yT + 1)}L${f(cx + w / 2 * u)} ${f(yE + b * Math.sqrt(1 - u * u) - .6)}" stroke="${P.lit ? '#12223F' : '#1E3C78'}" stroke-width=".8" opacity=".7"/>`; }
-    return s + `<path d="M${f(xr)} ${yE}A${f(w / 2)} ${f(b)} 0 0 1 ${f(xl)} ${yE}" fill="none" stroke="${P.gold}" stroke-width="1.6"/>`;
-  }
-  function drum(cx, y0, y1, w, P) {   // a round red storey: columns, lattice doors, a painted band on top
-    let s = `<rect x="${f(cx - w / 2)}" y="${y0}" width="${w}" height="${y1 - y0}" fill="url(#wtCol)" stroke="${INK}" stroke-width="1"/><rect x="${f(cx - w / 2 + 3)}" y="${y0 + 5}" width="${w - 6}" height="${y1 - y0 - 7}" fill="url(#wtLattice)"/>`;
-    for (let i = 1; i < 6; i++) { const x = cx - w / 2 + w * (1 - Math.cos(i * Math.PI / 6)) / 2; s += `<path d="M${f(x)} ${y0}V${y1}" stroke="${P.col2}" stroke-width="1.6"/>`; }
-    return s + `<rect x="${f(cx - w / 2 - 2)}" y="${y0 - 1}" width="${w + 4}" height="5" fill="url(#wtCaihua)" stroke="${INK}" stroke-width=".8"/>`;
-  }
-  function firework(x, y, r, col, delay) {
-    let s = `<g class="mp-fw" style="animation-delay:${delay}s;transform-origin:${x}px ${y}px">`;
-    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, c = Math.cos(a), sn = Math.sin(a);
-      s += `<path d="M${f(x + c * r * .4)} ${f(y + sn * r * .4)}L${f(x + c * r)} ${f(y + sn * r)}" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/><circle cx="${f(x + c * r * 1.12)}" cy="${f(y + sn * r * 1.12)}" r="1.1" fill="${col}"/>`; }
-    return s + '</g>';
-  }
-  function cypress(x, base, h, P) {
-    const g = P.lit ? ['#1C2C25', '#26392F'] : ['#3F5E44', '#5A7A55'];
-    return `<path d="M${x} ${base}v-8" stroke="#4A3524" stroke-width="2.2"/><ellipse cx="${x}" cy="${f(base - 8 - h / 2)}" rx="${f(h * .2)}" ry="${f(h / 2)}" fill="${g[0]}"/><ellipse cx="${f(x - 1.5)}" cy="${f(base - 10 - h / 2)}" rx="${f(h * .11)}" ry="${f(h * .38)}" fill="${g[1]}"/>`;
-  }
-  const T5 = {
-    back(P) {
-      const ridge = [[0, 140], [40, 120], [80, 132], [120, 112], [160, 128], [200, 118], [240, 134], [280, 112], [320, 126], [360, 118], [360, 118]];
-      let s = sky(P) + birds(P) + K.cloud(60, 34, 1, P) + K.cloud(200, 20, .8, P)
-        + hill([[0, 110], [40, 82], [90, 96], [130, 70], [170, 92], [220, 74], [260, 96], [300, 70], [340, 88], [360, 80], [360, 80]], 'url(#wtFar)') + mist(96, 20, P) + hill(ridge, P.mid);
-      const wl = K.smooth(ridge.map(([x, y]) => [x, y + 3])), wc = P.lit ? '#6A6070' : '#C8B898';   // the Great Wall along the ridge
-      s += `<path d="${wl}" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/><path d="${wl}" fill="none" stroke="${wc}" stroke-width="3"/><path d="${wl}" fill="none" stroke="${INK}" stroke-width="2" stroke-dasharray="1.6 2.4" transform="translate(0 -2.6)"/>`;
-      [[40, 123], [120, 115], [200, 121], [280, 115]].forEach(([x, y]) => s += `<rect x="${x - 4}" y="${y - 9}" width="8" height="9" fill="${wc}" stroke="${INK}" stroke-width=".8"/><path d="M${x - 5} ${y - 9}h10l-2 -3h-6Z" fill="${P.roof2}" stroke="${INK}" stroke-width=".6"/>`);
-      s += hill([[0, 170], [50, 156], [110, 162], [250, 162], [310, 154], [360, 164], [360, 164]], P.near);
-      [[14, 196, 46], [34, 200, 38], [324, 198, 44], [346, 194, 50], [56, 194, 30], [304, 196, 32]].forEach(([x, y, h]) => s += cypress(x, y, h, P));
-      return s + court(P, 196);
-    },
-    box: [92, 268, 50, 198],
-    draw(k, P) {
-      const cx = 180, mar = P.lit ? '#8E8A96' : '#F4F1EA', mar2 = P.lit ? '#625E6C' : '#D3CDBF';
-      let s = '';
-      const tier = (w, y, h) => { let t = `<rect x="${cx - w / 2}" y="${y}" width="${w}" height="${h}" fill="${mar}" stroke="${INK}" stroke-width="1"/><rect x="${cx - w / 2 + .5}" y="${y + h - 3}" width="${w - 1}" height="2.5" fill="${mar2}"/>`;
-        t += `<path d="M${cx - w / 2 + 2} ${y - 4}H${cx + w / 2 - 2}" stroke="${mar2}" stroke-width="1.2"/>`;
-        for (let x = cx - w / 2 + 3; x <= cx + w / 2 - 3; x += 6.5) t += `<rect x="${f(x - .9)}" y="${y - 6}" width="1.8" height="6" fill="${mar}" stroke="${INK}" stroke-width=".4"/>`;
-        return t + `<rect x="${cx - 13}" y="${y}" width="26" height="${h}" fill="${mar2}" stroke="${INK}" stroke-width=".7"/><path d="M${cx - 7} ${y + 1}V${y + h}M${cx + 7} ${y + 1}V${y + h}" stroke="${INK}" stroke-width=".5"/><rect x="${cx - 4.5}" y="${y + 1}" width="9" height="${h - 1.5}" fill="#C9A86A" opacity=".6"/>`; };
-      if (k >= 1) s += `<ellipse cx="${cx}" cy="214" rx="148" ry="6" fill="#000" opacity=".1"/>` + tier(282, 200, 12);
-      if (k >= 2) s += tier(228, 188, 12);
-      if (k >= 3) s += tier(174, 176, 12);
-      if (k >= 4) s += drum(cx, 136, 176, 112, P);
-      if (k >= 5) s += roundRoof(cx, 138, 170, 20, P, .29);
-      if (k >= 6) s += drum(cx, 104, 120, 92, P) + roundRoof(cx, 106, 136, 18, P, .29);
-      if (k >= 7) s += drum(cx, 74, 88, 68, P) + roundRoof(cx, 76, 106, 32, P, .03) + `<path d="M${cx} 44V32" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx}" cy="39" r="3" fill="${P.gold}" stroke="${INK}" stroke-width=".8"/><circle cx="${cx}" cy="30" r="4.6" fill="${P.gold}" stroke="${INK}" stroke-width=".9"/>`;
-      if (k >= 8) { s += firework(52, 48, 22, '#FFD15C', 0) + firework(312, 62, 17, '#FF7A6A', .9) + firework(94, 22, 13, '#9CE0FF', 1.7) + firework(270, 24, 14, '#FFD15C', 2.3);
-        [[30, 1], [330, -1]].forEach(([x, d], i) => s += `<path d="M${x} 228V146" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M${x} 228V146" stroke="${P.col}" stroke-width="2"/><path d="M${x} 150h${d * 14}" stroke="${INK}" stroke-width="2.2"/><circle cx="${x}" cy="144" r="2.4" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/><g class="wt-sway" style="animation-delay:-${i}s">${lan(x + d * 12, 166, P, 5.6)}</g>`); }
-      return s;
-    },
-  };
-  const TT = [T1, T2, T3, T4, T5];
-  function layer(T, k, P, ctx) {
-    if (!ctx.started) return '';
-    let s = k === 0 ? stakes(T.box, P) : '';   // only what stands: no outline of the next piece
-    s += T.draw(k, P, ctx);
-    if (k >= 1 && k < 8) s += scaffold(T.box);
-    return s;
-  }
   function lanterns(m, lit, night) {   // mastered words: red lanterns on a rope across the sky; dim while proven words wait for review
     if (!m) return '';
     const pt = t => [(1 - t) * (1 - t) * -6 + 2 * t * (1 - t) * 180 + t * t * 366, (1 - t) * (1 - t) * 26 + 2 * t * (1 - t) * 84 + t * t * 26];
@@ -6389,15 +6100,13 @@ const Trail = (() => {
     }
     return s + `</g><defs><radialGradient id="mpLantGlow"><stop offset="0" stop-color="#FFD98A" stop-opacity="${night ? .75 : .45}"/><stop offset="1" stop-color="#FFD98A" stop-opacity="0"/></radialGradient></defs>`;
   }
-  function scene(lv, st, night, from) {
-    const T = TT[lv - 1], P0 = K.pal(night), P = T.pal ? T.pal(P0) : P0, ctx = { n: st.n, started: st.started, words: st.words };
-    K.reset();
-    let s = `<svg viewBox="0 0 360 252" aria-hidden="true" style="--plan:${P.plan}">${K.defs(P)}${defs(P)}${T.back(P, st.k)}`;
-    const rev = from != null && from < st.k;
-    s += rev ? `<g class="mp-old">${layer(T, from, P, ctx)}</g><g class="mp-new">${layer(T, st.k, P, ctx)}</g>` : layer(T, st.k, P, ctx);
-    if (st.started) s += lanterns(trailLanterns(st), !st.due, night);
-    if (st.k < Math.min(8, T.board || 8)) s += K.sign(42, 246, st.n, P);
-    if (rev) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
+  function scene(lv, st, night, reveal) {   // its 3D picture with the lanterns of its mastered words; reveal: the first look once unlocked
+    const c = TRAIL[lv - 1], img = cls => `<image class="${cls}" href="mon/${c.id}.webp" width="360" height="252" preserveAspectRatio="xMidYMid slice"/>`;
+    if (!st.done) return `<svg viewBox="0 0 360 252" aria-hidden="true">${img('mp-veil')}<text class="mp-q" x="180" y="150" text-anchor="middle">?</text></svg>`;   // still a secret
+    let s = `<svg viewBox="0 0 360 252" aria-hidden="true">`;
+    s += reveal ? `<g class="mp-old">${img('mp-veil')}</g><g class="mp-new">${img('')}</g>` : img('');
+    s += lanterns(trailLanterns(st), !st.due, night);
+    if (reveal) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
   }
   return { map, mount, mini, scene, CAM, focus, dive };
@@ -6407,66 +6116,64 @@ function MapView() {
   if (!S.H) loadHsk().then(() => { if (S.view === 'map') { S.instant = true; render(); } }, () => {});
   return S.mapLv ? CityView(S.mapLv) : TrailView();
 }
-const trailSeg = st => TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = i < st.k ? 1 : Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
-  return `<i class="${p >= 1 ? 'full' : p > 0 ? 'part' : ''}"><b style="width:${(p * 100).toFixed(1)}%"></b></i>`; }).join('');
+const trailBar = st => `<div class="mp-seg one" aria-hidden="true"><i class="${st.done ? 'full' : 'part'}"><b style="width:${Math.max(st.n ? 3 : 0, st.n / st.total * 100).toFixed(1)}%"></b></i></div>`;
 function TrailView() {
-  const sts = TRAIL.map(c => trailState(c.lv)), built = sts.reduce((a, x) => a + x.k, 0), C = Trail.CAM;
+  const sts = trailStates(), opened = trailOpened(sts), C = Trail.CAM;
   if (S.mapFrom) C.sel = S.mapFrom;   // back from a monument's page: its card is open again
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head"><h2>Temple map <span class="cal-zh">地图</span></h2><span class="mp-sum">${plural(built, 'piece')} built</span></div>
+      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="mp-sum">${opened} of ${TRAIL.length} unlocked</span></div>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
     </div>
   </div>`;
 }
-function mapHud() {   // along the bottom, as in a game: how far the monument you are on has come, and one big button that goes on building it
-  const sts = TRAIL.map(c => trailState(c.lv)), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv;
-  return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="HSK ${lv}: ${st.k} of 8 pieces built. Show it on the map">
-      <span class="tm-now-t"><small>HSK ${lv}</small><span class="tm-now-bar"><i style="width:${(st.k / 8 * 100).toFixed(0)}%"></i><b>${st.k}/8</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
-    ${st.open && i >= 0 ? `<button class="tm-play" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>Fast build</span></button>`
-      : `<button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>${i < 0 ? 'Add more words' : st.started ? 'Continue building' : 'Build now'}</span></button>`}</div>`;
+const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">解</span>Fast unlock</button>`;
+function mapHud() {   // along the bottom, as in a game: how close the next monument is, and one big button that gets you there
+  const sts = trailStates(), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv, c = TRAIL[lv - 1];
+  return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="${i < 0 ? `${esc(c.name)}, unlocked` : `Monument ${lv}: ${st.n} of ${st.total} proven words`}. Show it on the map">
+      <span class="tm-now-t"><small>${i < 0 ? esc(c.en) : `Monument ${lv}`}</small><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${st.n}/${st.total}</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
+    ${st.open && i >= 0 ? `<button class="tm-play" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">解</span><span>Fast unlock</span></button>`
+      : `<button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span><span>${i < 0 ? 'Add more words' : 'Learn words'}</span></button>`}</div>`;
 }
-function mapCard(lv) {   // what a tap on a monument shows: its name and how far along it is; the marker of one not begun tells you only its level
+function mapCard(lv) {   // what a tap on a monument shows: its name, or for the next one how close it is (it names nothing)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
-  const med = `<div class="tm-med">${Trail.mini(lv, st)}<i class="tm-lv">${lv}</i></div>`, go = t => `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${t}</button>`;
-  if (!st.started) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="HSK ${lv}: not discovered yet">${x}${med}
-    <div class="tm-body"><small class="tm-city">HSK ${lv}</small><h3>Undiscovered <span>未知</span></h3><p>Something will stand here. Your first HSK ${lv} word breaks ground.</p></div>
-    <div class="tm-acts">${go('Build now')}</div></div>`;
-  const m = st.k < 8 ? st.need[st.k] - st.n : 0;
-  const line = st.done ? 'All 8 pieces built.' : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'proven word')}` : `Ground broken · first piece in ${plural(m, 'proven word')}`;
-  const fast = st.open && !st.done ? `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button>` : '';
-  return `<div class="tm-card tm-ui${st.done ? ' done' : ''}" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
-    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · HSK ${lv}</small><h3>${c.name} <span>${c.nzh}</span></h3><div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
-      <p>${st.k > st.seen ? '<em>New</em>' : ''}${line}</p></div>
-    <div class="tm-acts"><button class="btn btn-ghost" data-act="map-visit" data-lv="${lv}">Visit</button>${fast || go(st.done ? 'Add more words' : 'Continue building')}</div></div>`;
+  const med = `<div class="tm-med">${Trail.mini(lv, st)}<i class="tm-lv">${lv}</i></div>`;
+  if (!st.done) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="Monument ${lv}: not unlocked yet">${x}${med}
+    <div class="tm-body"><small class="tm-city">Monument ${lv} of ${TRAIL.length}</small><h3>Undiscovered <span>未知</span></h3>${trailBar(st)}<p>${st.n} of ${st.total} · unlocks in ${plural(st.total - st.n, 'more proven word')}</p></div>
+    <div class="tm-acts">${st.open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`}</div></div>`;
+  return `<div class="tm-card tm-ui done" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
+    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · ${lv} of ${TRAIL.length}</small><h3>${c.name} <span>${c.nzh}</span></h3>
+      <p>${st.seen ? '' : '<em>New</em>'}Unlocked with ${plural(st.total, 'proven word')}</p></div>
+    <div class="tm-acts"><button class="btn btn-seal" data-act="map-visit" data-lv="${lv}">Visit</button></div></div>`;
 }
 function mapPick(lv) {   // tap a monument: the map flies to it and its card comes up
   const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
   C.sel = lv; LOG.add('map-city', { lv }); const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); C.api?.mark(); Trail.focus(lv);
 }
 function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) { s.innerHTML = mapHud(); s.firstElementChild?.classList.add('in'); } Trail.CAM.api?.mark(); }
-function trailNext(lv) {   // what Continue building does, in words
-  if (lv === 1) { const due = utDue(), n = lesNext();
+const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
+function trailNext() {   // what Learn words does, in words
+  if (trailLessons()) { const due = utDue(), n = lesNext();
     if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
     if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. Its words join your word bank, and build once you get them right again on another day.`; }
-  return `Tick the HSK ${lv} words you already know, then prove them in a Fast build. Only proven words build the temple.`;
+  return `Tick the HSK ${openLevel()} words you already know, then prove them in a Fast unlock. Proven words unlock the monuments.`;
 }
 function trailGo(lv) {
   LOG.add('map-build', { lv });
-  if (lv === 1) { const due = utDue(), n = lesNext();
+  if (trailLessons()) { const due = utDue(), n = lesNext();
     if (due) { A['ut-node']({ dataset: { u: due } }); return; }
     if (n) { nav(`#/course/1/lesson/${n}`); return; } }
-  nav('#/hsk/' + lv);
+  nav('#/hsk/' + openLevel());
 }
-/* ---------- Fast build ----------
-   Prove the words you already know: up to 12 known words of one HSK level, each with four meanings to choose from. A right
-   answer proves the word at once, and proven words build that city's temple; a wrong one sends the word to your review
+/* ---------- Fast unlock (the code still calls it Fast build: S.fb, #/build) ----------
+   Prove the words you already know: up to 12 known words, the lowest HSK levels first, each with four meanings to choose
+   from. A right answer proves the word at once, and proven words unlock the monuments; a wrong one sends the word to your review
    (back in 10 minutes), so the round is practice, not a free pass. */
 const FB_N = 12;
 function fbStart(lv) {
   clearTimeout(S.fb?.timer);
-  const st = trailState(lv), pool = db.bank.filter(w => trailLv(w) === lv && !w.pf?.at && w.en);
-  S.fb = pool.length ? { lv, q: shuffle(pool).slice(0, FB_N), qi: 0, ans: null, right: 0, proven: 0, k0: st.k, opts: null } : { lv, q: [], none: true };
+  const pool = db.bank.filter(w => !w.pf?.at && w.en), lo = w => trailLv(w) || 9;   // lv: the monument to go back to
+  S.fb = pool.length ? { lv, q: shuffle(shuffle(pool).sort((a, b) => lo(a) - lo(b)).slice(0, FB_N * 3)).slice(0, FB_N), qi: 0, ans: null, right: 0, proven: 0, k0: trailOpened(trailStates()), opts: null } : { lv, q: [], none: true };
   if (!S.H) loadHsk().then(() => { if (S.view === 'build' && S.fb?.lv === lv && !S.fb.qi && S.fb.ans == null) { fbStart(lv); fbPaint(); } }, () => {});
   if (pool.length) LOG.add('fast-build-start', { lv, words: S.fb.q.length, waiting: pool.length });
 }
@@ -6484,15 +6191,15 @@ const fbPaint = () => { S.instant = true; render(); };
 function BuildView() {
   const F = S.fb, close = `<button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button>`;
   if (!F || F.none) return `<div class="screen fade-in les-scr"><div class="les-top">${close}</div><div class="les-end fb-end"><h1>Nothing to prove here</h1>
-    <p class="muted">No words you already know are waiting in HSK ${F?.lv || ''}. Tick the ones you know in the HSK lists, then come back.</p></div>
+    <p class="muted">No words you already know are waiting. Tick the ones you know in the HSK lists, then come back.</p></div>
     <div class="les-dock"><button class="btn btn-seal wide" data-act="map-build" data-lv="${F?.lv || 1}">Tick words I know</button></div></div>`;
   if (F.done) return fbEnd();
   const w = F.q[F.qi], done = F.ans != null; F.opts ||= fbOpts(w);
   const ok = done && F.opts[F.ans] === w.en, prog = (F.qi + (done ? 1 : 0)) / F.q.length;
   const cls = (e, i) => !done ? '' : e === w.en ? (ok ? ' ok pick' : ' ok reveal') : i === F.ans ? ' no' : '';
   return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
-      <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>砖</i><b>${F.proven}</b></span></div>
-    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast build · HSK ${F.lv}</span></p>
+      <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>证</i><b>${F.proven}</b></span></div>
+    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast unlock${trailLv(w) ? ` · HSK ${trailLv(w)}` : ''}</span></p>
       <div class="les-big"><span class="les-hz" style="font-size:${lesHz(w.hanzi)}px">${esc(w.hanzi)}</span><button class="les-snd" data-act="say" data-h="${esc(w.hanzi)}" aria-label="Hear it">${I.sound}</button></div>
       <div class="les-opts list${done ? ' answered' : ''}">${F.opts.map((e, i) => `<button class="les-opt${cls(e, i)}" data-act="fb-opt" data-i="${i}"${done ? ' disabled' : ''}><span class="lo-en">${esc(e)}</span>${ok && e === w.en ? '<span class="lo-stamp" aria-hidden="true">对</span>' : ''}</button>`).join('')}</div>
       ${done ? `<p class="fb-note ${ok ? 'ok' : 'no'}" role="status">${ok ? `<b>Proven</b> ${esc(w.pinyin || '')}` : `<b>${esc(w.hanzi)} · ${esc(w.pinyin || '')}</b> means “${esc(w.en)}”. It goes to your review.`}</p>` : ''}</div>
@@ -6511,53 +6218,50 @@ function fbNext() {
   clearTimeout(F.timer); F.ans = null; F.opts = null;
   if (++F.qi >= F.q.length) {
     F.done = true; const day = db.days[dayKey(Date.now())] ||= { decks: {} }; day.fb = (day.fb || 0) + 1; save();   // counts for the streak
-    const st = trailState(F.lv); LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, pieces: st.k - F.k0 });
+    LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, unlocked: trailOpened(trailStates()) - F.k0 });
     setTimeout(() => { if (S.view === 'build' && S.fb === F) coinMoment(); }, 900);   // a new piece for the collection: celebrated over the end of the round
   }
   fbPaint();
 }
 function fbEnd() {
-  const F = S.fb, c = TRAIL[F.lv - 1], st = trailState(F.lv), add = st.k - F.k0, miss = F.q.length - F.right;
-  const what = st.done ? `Every piece of the ${c.name} is built.` : add > 0 ? `${add > 1 ? `${add} new pieces stand` : 'A new piece stands'} in ${esc(c.en)}.`
-    : `Next piece in ${plural(st.need[st.k] - st.n, 'proven word')}.`;
+  const F = S.fb, sts = trailStates(), i = trailCur(sts), add = trailOpened(sts) - F.k0, miss = F.q.length - F.right, now = i < 0 ? null : sts[i];
+  F.lv = add > 0 ? (i < 0 ? sts.length : i) : 0;   // See it: the monument just unlocked; 0: back to the map
+  const c = TRAIL[F.lv - 1];
+  const what = add > 0 ? `You unlocked ${c.the ?? 'the '}${c.name} in ${esc(c.en)}!` : !now ? 'Every monument is unlocked. More are on the way.'
+    : `Monument ${now.lv} unlocks in ${plural(now.total - now.n, 'more proven word')}.`;
   return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button></div>
     <div class="les-end fb-end"><span class="les-end-shi">${shiFace(miss ? 'cheer' : 'star')}</span>
       <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>
       <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
-      <div class="fb-seg"><span class="mp-seg" aria-hidden="true">${trailSeg(st)}</span><small>${st.n} of ${st.total} HSK ${F.lv} words proven · ${st.open} waiting</small></div></div>
-    <div class="les-dock fb-acts">${add > 0 || st.done ? `<button class="btn btn-seal wide" data-act="fb-see"><span class="qa-glyph">建</span>See it built</button>` : ''}
-      ${st.open ? `<button class="btn ${add > 0 ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
-      ${!(add > 0 || st.done) ? `<button class="btn btn-ghost wide" data-act="fb-see">Back to ${esc(c.en)}</button>` : ''}</div></div>`;
+      ${now ? `<div class="fb-seg">${trailBar(now)}<small>${now.n} of ${now.total} words for monument ${now.lv} · ${now.open} waiting</small></div>` : ''}</div>
+    <div class="les-dock fb-acts">${add > 0 ? `<button class="btn btn-seal wide" data-act="fb-see"><span class="qa-glyph">解</span>See it</button>` : ''}
+      ${now?.open ? `<button class="btn ${add > 0 ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
+      ${add > 0 ? '' : `<button class="btn btn-ghost wide" data-act="fb-see">Back to the map</button>`}</div></div>`;
 }
-function CityView(lv) {
-  const c = TRAIL[lv - 1], st = trailState(lv), from = st.k > st.seen ? st.seen : null;
-  if ((db.mapSeen ||= {})[lv] !== st.k) { db.mapSeen[lv] = st.k; save(); }
-  const label = !st.started ? 'Start building' : st.done ? 'Add more words' : 'Continue building';
-  const m = st.k < 8 ? st.need[st.k] - st.n : 0, cap = s => s[0].toUpperCase() + s.slice(1);
-  const next = !st.started ? `Your first HSK ${lv} word breaks ground here.` : st.done ? `Every piece is built. ${esc(c.en)} is finished.`
-    : `Next piece in ${plural(m, 'more proven word')}.`;
-  const built = from != null ? c.pieces.slice(from, st.k) : [];
-  const step = (name, i) => { const need = i < 0 ? 1 : st.need[i], done = i < 0 ? st.started : i < st.k, cur = !done && (i < 0 || st.k === i);
-    return `<li class="${done ? 'done' : cur ? 'cur' : ''}"><span class="mp-tick">${done ? I.check : ''}</span><span class="mp-st-n">${done ? cap(name) : cur ? 'Next piece' : '???'}</span><small>${done ? 'Built' : cur ? `${need - st.n} more` : plural(need, 'word')}</small></li>`; };
+function CityView(lv) {   // a monument's page: its big picture once unlocked (revealed the first time), or the secret one you are working toward
+  const c = TRAIL[lv - 1], st = trailState(lv), reveal = st.done && !st.seen;
+  if (reveal) { (db.monOpen ||= {})[lv] = 1; save(); LOG.add('map-unlock-seen', { lv }); }
+  const sts = trailStates(), i = trailCur(sts), now = i < 0 ? null : sts[i], nc = now && TRAIL[now.lv - 1];
+  const act = n => n.open ? `<div class="mp-cta">${FAST(n.lv)}</div>
+    <p class="mp-hint">${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${n.lv}">${trailLessons() ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
+    : `<div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${n.lv}"><span class="qa-glyph">学</span>Learn words</button></div><p class="mp-hint">${trailNext()}</p>`;
   const enter = S.mapZoomIn; S.mapZoomIn = false;
-  return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">
-    <header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.started ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `HSK ${lv}`}</div><div style="width:42px"></div></header>
-    <div class="mp-scene${from != null ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), from)}
-      <span class="mp-chip"><i>${lv}</i>HSK ${lv}</span>
-      ${built.length ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Built</b>${esc(built.length > 1 ? `${built.length} new pieces, last the ${built.at(-1)}` : built[0])}</span></div>` : ''}</div>
-    ${st.open && !st.done ? `<div class="mp-cta"><button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button></div>
-    <p class="mp-hint">${plural(st.open, 'word')} you already know ${st.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${lv}">${lv === 1 ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
-    : `<div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${label}</button></div>
-    <p class="mp-hint">${trailNext(lv)}</p>`}
+  const head = `<header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.done ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `Monument ${lv}`}</div><div style="width:42px"></div></header>`;
+  const pic = `<div class="mp-scene${reveal ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), reveal)}<span class="mp-chip"><i>${lv}</i>of ${TRAIL.length}</span>
+      ${reveal ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Unlocked</b>${esc(c.name)}</span></div>` : ''}</div>`;
+  if (!st.done) return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}${act(st)}
+    <section class="mp-info"><h2>Undiscovered <span class="cal-zh">未知</span></h2>
+      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} proven words</p>${trailBar(st)}
+      <p class="mp-next">${lv === 1 || sts[lv - 2].done ? `It unlocks in ${plural(st.total - st.n, 'more proven word')}. What it is stays a secret until then.` : `It comes after the monument before it.`}</p></section></div>`;
+  return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}
     <section class="mp-info">
-      <h2>${st.started ? c.name : 'Undiscovered'} <span class="cal-zh">${st.started ? c.nzh : '未知'}</span></h2>
-      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} HSK ${lv} words proven</p>
-      <div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
-      <p class="mp-next">${next}</p>
-      ${st.started ? `<p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the temple.'
-        : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>` : ''}
+      <h2>${c.name} <span class="cal-zh">${c.nzh}</span></h2>
+      <p class="mp-count">Unlocked with <b>${st.total.toLocaleString('en')}</b> proven words</p>
+      <p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the monument.'
+        : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>
     </section>
-    <section class="mp-steps"><h3>The pieces</h3><ol>${step('ground broken', -1)}${c.pieces.map(step).join('')}</ol></section>
+    ${now ? `<section class="mp-info"><h2>Next: monument ${now.lv} <span class="cal-zh">未知</span></h2><p class="mp-count"><b>${now.n}</b> of ${now.total} proven words</p>${trailBar(now)}</section>${act(now)}`
+      : `<section class="mp-info"><p class="mp-next">Every monument is unlocked. More are on the way.</p></section>`}
   </div>`;
 }
 function mapZoom(lv) {   // Visit: the map dives into the city, then the monument's page opens
@@ -6650,7 +6354,7 @@ function srsGrade(c, g) {
   proveWord(c.hanzi, g === 2);
   save();
 }
-/* ---------- proven words: what builds the temples on the Map ----------
+/* ---------- proven words: what builds the monuments on the Map ----------
    A word in the word bank is known (you ticked it, onboarding placed it, or you added it), proven (you got it right in
    practice on two different days) or mastered (still right three weeks or more after it was proven). Only proven words
    build the temples, so ticking a list builds nothing by itself. In a Fast build a known word is proven with one right
@@ -8035,7 +7739,7 @@ function BankView() {
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
     ${n ? `<section class="bank-stages" aria-label="Your words by stage">${[['known', 'Known', 'Ticked or placed'], ['proven', 'Proven', 'Right on two days'], ['mastered', 'Mastered', 'Still right 3 weeks on']]
       .map(([k, t, d]) => `<div class="bs bs-${k}"><b>${cnt[k].toLocaleString('en')}</b><span><i class="w-dot ${k}"></i>${t}</span><small>${d}</small></div>`).join('')}
-      <p>Proven words build the temples on the Map and earn pieces for your collection. Prove the ones you know in a Fast build there.</p></section>
+      <p>Proven words unlock the monuments on the Map and earn pieces for your collection. Prove the ones you know in a Fast unlock there.</p></section>
     ${CollectionHtml()}` : ''}
     <div class="group"><button class="row" data-act="open-hsk" style="--sep:58px"><span class="icon-sq">汉</span>
       <span class="row-main"><span class="row-t">HSK word lists</span><span class="row-s">Tick the words you already know</span></span><span class="chev">${I.chev}</span></button></div>
@@ -8297,7 +8001,7 @@ function HskView() {
   const inBank = new Set(db.bank.map(w => w.hanzi));
   if (!lv) return `<div class="screen fade-in">${head}
     <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
-      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast build on the Map to build that city's temple.</div></section>
+      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast unlock on the Map to unlock its monuments.</div></section>
     <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
       const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
@@ -8427,7 +8131,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.50';
+const APP_VERSION = '2.51';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9131,7 +8835,7 @@ const A = {
   'fb-opt': t => fbPick(+t.dataset.i),
   'fb-next': () => fbNext(),
   'fb-again': () => { fbStart(S.fb.lv); render(); window.scrollTo(0, 0); },
-  'fb-see': () => { const lv = S.fb?.lv || 1; history.replaceState(history.state, '', '#/map/' + lv); route(); },
+  'fb-see': () => { const lv = S.fb?.lv; history.replaceState(history.state, '', lv ? '#/map/' + lv : '#/map'); route(); },
   'fb-quit': () => goBack('#/map/' + (S.fb?.lv || 1)),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
@@ -9266,7 +8970,7 @@ document.addEventListener('click', e => {
   let g = null, noClickUntil = 0;
   const targets = () => {
     if (S.view === 'deck' || S.view === 'bank') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
-    if (S.view === 'map' && S.mapLv) return null;   // inside a temple: no swiping to the next tab
+    if (S.view === 'map' && S.mapLv) return null;   // inside a monument: no swiping to the next tab
     const order = ['home', 'learn', 'map', 'read', 'profile'], views = [Home, LearnView, MapView, ReadView, ProfileView], i = order.indexOf(S.view);
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
