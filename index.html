@@ -852,6 +852,44 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-buy-near,#tmSvg.near .tm-buy-far{display:none}
 #tmSvg.near .tm-buy-near{display:inline}
 .tm-tag{fill:var(--card);stroke:#3B2A20;stroke-width:.7}
+/* the daily chest on its island (chestInner) and its pop-up (chestSheet) */
+.tm-chest{cursor:pointer;outline:none}
+.ch-tag>rect,.ch-tag>path{fill:var(--card);stroke:#3B2A20;stroke-width:.7}
+.ch-tag text{font:700 8.4px var(--ui);fill:#2E241B}
+.tm-chest.ready .ch-tag>rect,.tm-chest.ready .ch-tag>path{fill:#FFC21F;stroke:#8A4A06}
+.tm-chest.ready .ch-tag text{fill:#4A2E03}
+.tm-chest.done .ch-tag text{fill:#6B5E52}
+.tm-chest:focus-visible .ch-tag>rect{stroke:var(--ink);stroke-width:1.6}
+.ch-rays{transform-box:fill-box;transform-origin:center;animation:chSpin 14s linear infinite}
+.tm-chest.ready .ch-hop{transform-box:fill-box;transform-origin:50% 100%;animation:chHop 2.4s cubic-bezier(.3,1.4,.5,1) infinite}
+@keyframes chSpin{to{transform:rotate(1turn)}}
+@keyframes chHop{0%,62%,100%{transform:none}70%{transform:translateY(-3px) rotate(-5deg)}78%{transform:rotate(4deg)}86%{transform:rotate(-2deg)}}
+.chs{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 4px 14px}
+.chs-h{font-size:22px}
+.chs-h span{margin-left:7px;font-family:var(--hanzi);font-weight:600;color:var(--seal)}
+.chs-art{position:relative;width:200px;height:150px;margin:20px 0 0;display:grid;place-items:center}
+.chs-box{position:relative;width:150px;height:136px;overflow:visible}
+.chs-art.open .chs-box{animation:chPop .5s cubic-bezier(.3,1.6,.5,1)}
+.chs-rays{position:absolute;left:5px;top:-20px;width:190px;height:190px;overflow:visible}
+.chs-c{position:absolute;left:50%;top:44%;width:24px;height:24px;margin:-12px;opacity:0;animation:chFly .9s cubic-bezier(.2,.8,.3,1) forwards}
+.chs-c .coin{width:100%;height:100%}
+@keyframes chPop{0%{transform:scale(.6)}60%{transform:scale(1.08)}}
+@keyframes chFly{0%{opacity:0;transform:translate(0,10px) scale(.4)}20%{opacity:1}100%{opacity:1;transform:translate(var(--x),var(--y)) rotate(200deg)}}
+.chs-gain{display:flex;align-items:center;gap:8px;margin:4px 0 0;font:700 32px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
+.chs-gain .coin{width:30px;height:30px}
+.chs-gain.done b{animation:cpPop .42s cubic-bezier(.3,1.6,.5,1)}
+.chs-why{margin:2px 0 0;font-size:14px;color:var(--ink-2)}
+.chs-why b{color:var(--ink)}
+.chs-week{display:flex;align-items:flex-end;justify-content:space-between;gap:2px;width:100%;max-width:360px;margin:18px 0 0;padding:10px 8px 8px;border-radius:16px;background:var(--fill)}
+.chs-d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;font:700 10.5px var(--ui);color:var(--muted)}
+.chs-d svg{width:32px;height:29px;overflow:visible}
+.chs-d.past svg{opacity:.45}
+.chs-d.now{color:var(--seal)}
+.chs-d.now svg{width:38px;height:34px}
+.chs-d.seven{color:#8A4A06}
+.chs-d.seven svg{width:44px;height:40px}
+.chs-note{margin:10px 0 16px;max-width:22em;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.ch-rays,.tm-chest.ready .ch-hop,.chs-art.open .chs-box{animation:none}.chs-c{animation:none;opacity:1;transform:translate(var(--x),var(--y))}}
 .tm-tagp{fill:#3B2A20}
 .tm-tagt{font:700 7px var(--ui);fill:#4A3A2C;font-variant-numeric:tabular-nums}
 .tm-buy.can .tm-tag{fill:#FFD43B}
@@ -5851,7 +5889,8 @@ function coinEarned() {
   const from = db.mapFrom || 0, pv = db.bank.filter(w => w.pf?.at > from);   // Developer levels reset: only what came after it
   const les = Object.values(db.lessons || {}).filter(r => r?.done > from).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
   const story = new Set((db.readDone || []).filter(x => x.done > from).map(x => x.zh)).size;
-  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit;
+  const chest = (db.chests || []).reduce((a, c) => a + (c.t > from ? c.n : 0), 0);   // the daily chest (chestTap)
+  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest;
 }
 const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0);
 const coinBal = () => Math.max(0, coinEarned() + (db.coinAdj || 0) - coinSpent());
@@ -5993,6 +6032,89 @@ function coinToday() {
   return e - db.coinDay.e;
 }
 coinToday();
+/* ---------- The daily chest (宝箱) ----------
+   A red lacquer chest on a little island in the empty South China Sea. Play once a day (anything that earns coins: a
+   lesson, a story, a proven word) and it can be opened. Days in a row pay more and day 7 is the big chest; miss a day
+   and the week starts again. db.chests = [{ t: when it was opened, d: its day of the week 1-7, n: coins }], counted
+   into coinEarned like everything else. */
+const CHEST_PAY = [30, 30, 60, 60, 90, 90, 500];
+function chestState() {   // s: 'wait' (nothing played today), 'ready' or 'done' (opened today); day: today's place in the week
+  const L = (db.chests || []).at(-1), y = new Date(); y.setDate(y.getDate() - 1);
+  if (L && dayKey(L.t) === dayKey(Date.now())) return { s: 'done', day: L.d };
+  const day = L && dayKey(L.t) === dayKey(y) ? L.d % 7 + 1 : 1;
+  return { s: coinToday() > 0 ? 'ready' : 'wait', day };
+}
+function chestArt(kind) {   // in a 120 x 100 box: 'closed', 'glow' (ready), 'open' (empty) or 'heap' (full of coins)
+  const K = '#4A140B', G = '#FFC21F', open = kind === 'open' || kind === 'heap';
+  const coin = (x, y, d) => coinSvg().replace('<svg class="coin"', `<svg x="${x}" y="${y}" width="${d}" height="${d}"`);
+  const lid = open ? `<path d="M16 44L24 8Q60-2 96 8L104 44Z" fill="#8E1A12" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/><path d="M30 40L35 14Q60 7 85 14L90 40Z" fill="#6E120C"/>` : '';
+  const body = `<rect x="14" y="46" width="92" height="42" rx="6" fill="#C8241E"/><path d="M14 74H106V82a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6Z" fill="#A11912"/>`
+    + `<path d="M29 46h10v42H29ZM81 46h10v42H81Z" fill="${G}"/><rect x="14" y="46" width="92" height="42" rx="6" fill="none" stroke="${K}" stroke-width="3.5"/>`;
+  const top = open ? `<rect x="10" y="41" width="100" height="9" rx="3.5" fill="#3A0D07" stroke="${K}" stroke-width="3"/>`
+    : `<path d="M14 47Q14 18 60 16Q106 18 106 47Z" fill="#DE3A2C"/><path d="M29 22.7L39 18.9V47H29ZM81 18.9L91 22.7V47H81Z" fill="${G}"/>`
+      + `<path d="M14 47Q14 18 60 16Q106 18 106 47Z" fill="none" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/><path d="M46 24Q52 21 62 21" stroke="#FF8E7A" stroke-width="4" stroke-linecap="round" fill="none"/>`
+      + `<rect x="10" y="42" width="100" height="9" rx="3.5" fill="${G}" stroke="${K}" stroke-width="3"/>`;
+  const clasp = `<circle cx="60" cy="62" r="12" fill="${G}" stroke="${K}" stroke-width="3"/><rect x="55.5" y="57.5" width="9" height="9" rx="1.5" fill="#A11912" stroke="${K}" stroke-width="2"/>`
+    + (open ? '' : `<path d="M52.5 56.5a8 8 0 0 1 5-3.5" stroke="#FFF3B0" stroke-width="2" stroke-linecap="round" fill="none"/>`);
+  const heap = kind === 'heap' ? [[22, 28, 18], [38, 22, 20], [56, 20, 20], [73, 25, 19], [46, 31, 16], [64, 31, 16]].map(a => coin(...a)).join('') : '';
+  return (kind === 'glow' ? '<ellipse cx="60" cy="46" rx="58" ry="13" fill="#FFE27A" opacity=".75"/>' : '')
+    + `<ellipse cx="60" cy="93" rx="47" ry="6" fill="rgba(60,30,5,.22)"/>${lid}${body}${top}${clasp}${heap}`
+    + (kind === 'glow' ? '<path d="M16 44.5H104" stroke="#FFF6C8" stroke-width="2.4" stroke-linecap="round"/>' : '');
+}
+const chestRays = (r, cy = 0) => `<g class="ch-rays"><path fill="#FFE27A" opacity=".55" d="${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6, b = .12;
+  return `M0 ${cy}L${(Math.sin(a - b) * r).toFixed(1)} ${(cy - Math.cos(a - b) * r).toFixed(1)}L${(Math.sin(a + b) * r).toFixed(1)} ${(cy - Math.cos(a + b) * r).toFixed(1)}Z`; }).join('')}"/><circle cy="${cy}" r="${(r * .42).toFixed(1)}" fill="#FFF3B0" opacity=".55"/></g>`;
+function chestSay(C) {   // what the chest says, on the map and to a screen reader
+  return C.s === 'ready' ? 'Tap to open!' : C.s === 'wait' ? 'Play to open' : C.day === 7 ? 'New week tomorrow' : `Day ${C.day + 1} chest tomorrow`;
+}
+function chestInner(C) {   // the island, the palm, the chest and its tag, base at 0 0, in map units
+  const t = chestSay(C), lock = C.s === 'wait', W = t.length * 4.75 + (lock ? 19 : 12), x0 = -W / 2;
+  return `<ellipse rx="35" ry="11.5" cy="1.5" fill="#DDF6F5" opacity=".5"/><ellipse rx="30" ry="9" cy=".5" fill="#DDF6F5"/><ellipse rx="26.5" ry="7.2" fill="#F5E6B8"/>`
+    + `<g transform="translate(8.4 -28.8) scale(.4)"><path d="M24 72Q20 40 26 20" stroke="#8C6A3A" stroke-width="4.5" fill="none" stroke-linecap="round"/>`
+    + `<path d="M26 20Q12 10 2 18Q14 14 24 22ZM26 20Q38 8 44 16Q34 14 27 22ZM26 20Q22 4 10 2Q22 8 25 21ZM26 20Q34 2 42 4Q32 10 27 21Z" fill="#6DB24E" stroke="#3E7A2C" stroke-width="1.5" stroke-linejoin="round"/></g>`
+    + (C.s === 'ready' ? chestRays(34, -14) : '')
+    + `<g class="ch-hop"><g transform="translate(-21 -33) scale(.35)">${chestArt(C.s === 'ready' ? 'glow' : C.s === 'done' ? 'open' : 'closed')}</g></g>`
+    + `<g class="ch-tag"><path d="M-2.8 -32.5L0 -28.5L2.8 -32.5Z"/><rect x="${x0.toFixed(1)}" y="-46" width="${W.toFixed(1)}" height="13.6" rx="4.2"/>`
+    + (lock ? `<g transform="translate(${(x0 + 5).toFixed(1)} -43.6) scale(.62)"><rect x="2" y="6" width="10" height="7.5" rx="2" fill="#C8241E"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="#C8241E" stroke-width="1.8"/></g>` : '')
+    + `<text x="${(x0 + (lock ? 14 : 6)).toFixed(1)}" y="-36.4">${t}</text></g><rect x="-30" y="-48" width="60" height="54" fill="transparent"/>`;
+}
+const chestPin = T => { const C = chestState();
+  return `<g class="tm-chest ${C.s}" id="tmChest" data-act="chest" role="button" tabindex="0" aria-label="Daily chest: ${chestSay(C)}" transform="${T}"><g class="tm-up">${chestInner(C)}</g></g>`; };
+function chestRepaint() {   // after opening: the chest on the map, and the coins in the wallet
+  const g = $('#tmChest'), C = chestState(), w = $('.tm-wallet b');
+  if (g) { g.setAttribute('class', `tm-chest ${C.s}`); g.setAttribute('aria-label', `Daily chest: ${chestSay(C)}`); g.querySelector('.tm-up').innerHTML = chestInner(C); }
+  if (w) w.textContent = coinFmt(coinBal());
+}
+function chestTap() {
+  if (performance.now() < Trail.CAM.noClick) return;   // the end of a drag, not a tap
+  const C = chestState();
+  if (C.s !== 'ready') { LOG.add('chest-look', { s: C.s, day: C.day }); chestSheet(C); return; }
+  const n = CHEST_PAY[C.day - 1];
+  (db.chests ||= []).push({ t: Date.now(), d: C.day, n });
+  if (db.coinShown != null) db.coinShown += n;   // shown here, so not poured into the bag again at the next payoff
+  save(); LOG.add('chest', { day: C.day, n, bal: coinBal() });
+  chestSheet({ s: 'open', day: C.day }, n); chestRepaint();
+}
+function chestSheet(C, n = 0) {   // C.s: 'open' (just opened: the coins burst out), 'wait' or 'done'
+  const day = C.day, open = C.s === 'open', base = CHEST_PAY[0];
+  const title = open ? (day === 7 ? 'The big chest!' : day > 1 ? `Day ${day} in a row` : 'Daily chest') : C.s === 'done' ? 'Opened today' : 'Daily chest';
+  const fly = open ? [[-88, -40, 0], [84, -50, 60], [10, -66, 120], [100, 12, 180], [-104, 24, 90], [-46, -62, 150], [52, -24, 30]]
+    .map(([x, y, d]) => `<i class="chs-c" style="--x:${x}px;--y:${y}px;animation-delay:${d}ms">${coinSvg()}</i>`).join('') : '';
+  const art = `<div class="chs-art${open ? ' open' : ''}">${open ? `<svg class="chs-rays" viewBox="-60 -60 120 120" aria-hidden="true">${chestRays(60)}</svg>` : ''}`
+    + `<svg class="chs-box" viewBox="0 -8 120 108" aria-hidden="true">${chestArt(open ? 'heap' : C.s === 'done' ? 'open' : 'closed')}</svg>${fly}</div>`;
+  const why = open ? `<p class="cp-gain chs-gain" role="status">${coinSvg()}<b>+${coinFmt(n)}</b></p><p class="chs-why">${day === 7 ? 'Seven days in a row' : n > base ? `${base} coins × <b>${n / base} for day ${day}</b>` : day === 1 ? 'Come back tomorrow for day 2' : `Day ${day} in a row`}</p>` : '';
+  const week = Array.from({ length: 7 }, (_, k) => { const i = k + 1, past = i < day || (i === day && C.s === 'done'), now = i === day;
+    const kind = now && open ? 'heap' : past ? 'open' : i === 7 ? 'glow' : 'closed';
+    return `<span class="chs-d${past && !now ? ' past' : ''}${now ? ' now' : ''}${i === 7 ? ' seven' : ''}"><svg viewBox="0 -8 120 108" aria-hidden="true">${chestArt(kind)}</svg><b>${now ? 'Today' : i < day ? `Day ${i}` : coinFmt(CHEST_PAY[k])}</b></span>`; }).join('');
+  const left = 7 - day, note = C.s === 'wait' ? `Play once today and it opens: ${coinFmt(CHEST_PAY[day - 1])} coins. Miss a day and the week starts again.`
+    : day === 7 ? 'That was the big one. Tomorrow a new week starts.' : `${left} more ${left === 1 ? 'day' : 'days'} in a row and the big chest is yours: ${coinFmt(CHEST_PAY[6])} coins.`;
+  const btn = open ? `<button class="btn btn-seal wide" data-act="close-sheet">Collect</button>`
+    : `<button class="btn btn-seal wide" data-act="map-build" data-lv="1">${C.s === 'wait' ? 'Play' : 'Keep playing'}</button>`;
+  openSheet(`<div class="chs"><h3 class="chs-h">${title}<span>宝箱</span></h3>${art}${why}<div class="chs-week" aria-label="This week's chests">${week}</div><p class="chs-note">${note}</p>${btn}</div>`, sh => {
+    if (!open) return; const b = sh.querySelector('.chs-gain b'); if (!b || stillMotion()) return;
+    const t0 = performance.now() + 260, step = now => { const k = Math.max(0, Math.min(1, (now - t0) / 700)); b.textContent = '+' + coinFmt(Math.round(n * k)); if (k < 1) requestAnimationFrame(step); else { b.closest('.chs-gain').classList.add('done'); clink(2); } };
+    b.textContent = '+0'; requestAnimationFrame(step);
+  });
+}
 /* mastered words hang lanterns over a monument: 2 for each step of 5, 15, 30 and 50% of its words mastered */
 const LANT_TH = [.05, .15, .30, .50];
 const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.words))).length : 0;
@@ -6316,6 +6438,8 @@ const Trail = (() => {
   const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
   const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
+  const CHEST = [115.5, 13];   // the daily chest's island, in the open South China Sea
+  const chestT = () => { const [x, y] = wp(...CHEST); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   const nearby = () => CAM.z >= zHome() * 1.5;   // close enough for the price tags; from further away each is only a coin
   const landing = states => {   // where the camera comes down when the map opens: a monument you just bought
     const fresh = states.find(x => x.done && !x.seen);
@@ -6328,14 +6452,14 @@ const Trail = (() => {
     TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st }) => {   // northern ones first, so nearer ones overlap them
       const say = st.done ? `${c.name}, ${c.en}, yours` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
       s += `<g class="tm-pin${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st)}</g>`; });
-    return s + '</svg></div>';
+    return s + chestPin(chestT()) + '</svg></div>';
   }
   function mount(from) {   // the map answers your fingers; back from a monument's page, it pulls out of that city
     const svg = $('#tmSvg'), stage = svg?.closest('.tm-stage'); if (!svg || !stage) return;
     if (!PROPS.cv) { PROPS.cv = document.createElement('canvas'); PROPS.cv.id = 'tmProps'; PROPS.c = PROPS.cv.getContext('2d'); }
-    const cams = [...stage.querySelectorAll('.tm-cam')], pins = [...svg.querySelectorAll('.tm-pin')], pts = new Map();
+    const cams = [...stage.querySelectorAll('.tm-cam')], pins = [...svg.querySelectorAll('.tm-pin')], pts = new Map(), chest = svg.querySelector('#tmChest');
     let raf = 0, anim = 0, g = null, tap = null;
-    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps(); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); svg.classList.toggle('near', nearby()); upright(); };
+    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps(); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); chest?.setAttribute('transform', chestT()); svg.classList.toggle('near', nearby()); upright(); };
     const ups = [...svg.querySelectorAll('.tm-up,.tm-buy')], world = stage.querySelector('.tm-world');
     function upright() {   // while the ground is tilted and turned (CAM.tilt), each monument and price tag turns back and stands up straight on it
       const T = CAM.tilt, u = T ? `rotate(${T.r.toFixed(2)}) scale(1 ${(1 / Math.cos(T.a * Math.PI / 180)).toFixed(4)})` : null;
@@ -8639,7 +8763,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.71';
+const APP_VERSION = '2.72';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9375,6 +9499,7 @@ const A = {
   'quick-add': () => quickAddSheet(),
   'open-bank': () => nav('#/bank'),
   'map-city': t => mapPick(+t.dataset.lv),
+  chest: () => chestTap(),
   'map-visit': t => mapZoom(+t.dataset.lv),
   'map-close': () => mapClose(),
   'map-back': () => { S.instant = true; goBack('#/map'); },
