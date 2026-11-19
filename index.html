@@ -437,6 +437,17 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .deck-plus{color:var(--seal)}
 .deck-plus::after{display:none}
 .deck-plus svg.i{width:22px;height:22px}
+/* Home: making a deck is the first thing under "Your decks", a blank stack waiting to be filled */
+.deck-new{display:flex;align-items:center;gap:14px;width:100%;padding:13px 12px 13px 16px;margin-bottom:10px;text-align:left;border-radius:14px;
+  background:var(--seal-soft);border:1.5px dashed color-mix(in srgb,var(--seal) 42%,transparent);transition:background .25s}
+.deck-new:active{background:color-mix(in srgb,var(--seal) 16%,transparent);transition:none}
+.deck-new:not(:has(+ .decks)){margin-bottom:22px}
+.deck-new .deck-face{color:var(--seal);border-color:color-mix(in srgb,var(--seal) 35%,transparent)}
+.deck-new .deck-face::after{display:none}
+.deck-new .deck-name{color:var(--seal)}
+.deck-new-go{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--seal);color:var(--seal-ink)}
+.deck-new-go svg.i{width:20px;height:20px;stroke-width:2.4}
+.sh-n{font-size:14px;color:var(--muted)}
 .deck-meta{flex:1;min-width:0}
 .deck-name{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .deck-count{font-size:13.5px;color:var(--muted);margin-top:1px}
@@ -4259,6 +4270,12 @@ function Home() {
     <header class="bar bar-home">${MenuBtn()}<span class="logo-mid">ShiCards</span>
       ${StreakBtn()}</header>
     ${HotdStack()}
+    <div class="section-head"><h2>Your decks</h2>${db.decks.length ? `<span class="sh-n">${plural(db.decks.length, 'deck')}</span>` : ''}</div>
+    <button class="deck-new" data-act="new-deck">
+      <div class="deck-stack"><span></span><span></span><div class="deck-face">新</div></div>
+      <div class="deck-meta"><div class="deck-name">${db.decks.length ? 'New deck' : 'Make your first deck'}</div><div class="deck-count">Cards with your own words</div></div>
+      <span class="deck-new-go">${I.plus}</span></button>
+    ${db.decks.length ? `<div class="decks">${db.decks.map(DeckTile).join('')}</div>` : ''}
     <div class="section-head cal-head"><h2>My word temple <span class="cal-zh">字庙</span></h2></div>
     ${TempleTile()}
     <div class="section-head"><h2>Pick up where you left off</h2></div>
@@ -4266,9 +4283,6 @@ function Home() {
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
     ${HskShelf()}
     <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
-    <div class="section-head"><h2>Your decks</h2></div>
-    <div class="decks">${db.decks.map(DeckTile).join('') || `<div class="empty"><div class="big">空</div><p>No decks yet — make your first one.</p></div>`}</div>
-    <div class="dock"><button class="btn btn-ghost wide" data-act="new-deck">${I.plus} New deck</button></div>
   </div>`;
 }
 /* ---------- Hanzi of the day ----------
@@ -7512,7 +7526,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.29';
+const APP_VERSION = '2.30';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
