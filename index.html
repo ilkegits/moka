@@ -6281,7 +6281,7 @@ const Trail = (() => {
   /* the monuments, small: the cut-out of its 3D picture standing on its spot (base at 0 0) */
   const cutout = c => { const k = c.h / (c.ic[1] - c.ic[2]); return `<image href="mon/${c.id}-i.webp" x="${f(-c.ic[0] * k)}" y="${f(-c.ic[1] * k)}" width="${f(k)}" height="${f(k)}"/>`; };
   // the marker over the next monument: a red pin with Shi Shi in it, hovering, like the "you are here" of a game map
-  const beacon = y => `<g transform="translate(0 ${f(y)})"><g class="tm-hov"><path class="tm-bpin" d="M0 0C-3 -6 -11 -9 -11 -18A11 11 0 1 1 11 -18C11 -9 3 -6 0 0Z"/><circle class="tm-bface" cy="-18" r="8.2"/><image href="mascots/shi-shi.svg" x="-7.5" y="-25.5" width="15" height="15"/></g></g>`;
+  const beacon = y => `<g transform="translate(0 ${f(y)})"><g class="tm-hov"><path class="tm-bpin" d="M0 0C-3 -6 -11 -9 -11 -18A11 11 0 1 1 11 -18C11 -9 3 -6 0 0Z"/><circle class="tm-bface" cy="-18" r="8.2"/><image href="icons/logo.svg" x="-7.5" y="-25.5" width="15" height="15"/></g></g>`;
   const coin = (x, y, d) => coinSvg().replace('<svg class="coin"', `<svg x="${f(x)}" y="${f(y)}" width="${d}" height="${d}"`);
   const girth = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));   // how long an ellipse's edge is, near enough
   /* What stands on a monument's spot. Yours: the monument. The one you are saving for (wish): its ghost, a ring on the
@@ -8643,7 +8643,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.63';
+const APP_VERSION = '2.64';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
