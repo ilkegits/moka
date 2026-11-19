@@ -3156,7 +3156,8 @@ const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the cha
    of slanted panels on a dark sheet, drawn with the Learn tab's scene kit (CRS.kit) on a 360 by 600 canvas, and is
    played one panel per tap (comicPlay): a tap anywhere brings the next panel, and after the last one a button
    appears. Part 1 plays the first time you tap the unit, ends on the cliffhanger and says nothing of a part 2; its
-   button starts the unit. Part 2, the happy ending, plays once the boss is beaten.
+   button starts the unit. Part 2, the happy ending, plays when the boss is beaten. Redoing a unit you have won plays
+   both again: part 1 on the tap, the ending after the boss.
    db.comic = { unit: { p1, p2 } } is when you watched each part; db.unitAt = { unit: n } is where on the path you
    last saw Shi Shi. Only Unit 1 has a comic for now. */
 const { COMIC, bossFace } = (() => {
@@ -3287,11 +3288,11 @@ const unitLessons = un => LESSONS.filter(L => L.u === un - 1);
 const unitOpen = un => un === 1 || utPassed(un - 1) || unitLessons(un).some(L => lesDone(L.n));
 /* where a unit stands. at = the place on its path: 0 to n-1 the lesson you are on, n the boss, n+1 won */
 function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = utPassed(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
-function unitGo(un) {   // tap a unit: its comic first (once), whose Start button opens the campaign
+function unitGo(un) {   // tap a unit: its comic first (the first time, and again each time you come back to a unit you have won), whose Start button opens the campaign
   if (!LES_UNITS[un - 1]) return;
   if (!unitOpen(un)) { toast(`Beat the Unit ${un - 1} boss first`); return; }
   const go = () => nav(`#/course/1/unit/${un}`);
-  if (COMIC[un] && !comicSeen(un).p1) comicPlay(un, 0, go); else go();
+  if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go();
 }
 /* the lessons page: every unit as a level. Its picture is a panel of its comic (or its name in hanzi), the dots are
    its lessons and the diamond its boss */
@@ -3680,8 +3681,8 @@ function lesAct(k, b) {
     else confirmSheet(E.test ? 'Quit the test?' : 'Quit this lesson?', E.test ? 'You can take it again any time.' : 'You will start it again from the beginning next time.', 'Quit', leave);
     return;
   }
-  if (k === 'end') { const un = E.test, back = () => goBack('#/course/1');   // a boss beaten: the comic's ending plays before you go back
-    if (un && E.pass && COMIC[un] && comicSeen(un).p1 && !comicSeen(un).p2) comicPlay(un, 1, back); else back(); return; }
+  if (k === 'end') { const un = E.test, back = () => goBack('#/course/1');   // a boss beaten, the first time or again: the comic's ending plays before you go back
+    if (un && E.pass && COMIC[un] && comicSeen(un).p1) comicPlay(un, 1, back); else back(); return; }
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test); lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
@@ -8140,7 +8141,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.53';
+const APP_VERSION = '2.54';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
