@@ -1380,6 +1380,68 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ld-cap b{font-size:13.5px;font-weight:700;line-height:1.25;color:var(--ink)}
 .ld-cap small{font-size:12px;font-weight:600;color:var(--muted)}
 .ld-item.locked .ld-cap b{color:var(--ink-2)}
+/* ---------- unit stories: a comic about Shi Shi for a unit; his face walks a road to a finish flag ---------- */
+.cm-card{margin:0 0 18px;padding:12px 12px 6px;border-radius:20px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);cursor:pointer}
+.cm-card:active{transform:translateY(2px)}
+.cm-open{display:flex;align-items:center;gap:13px;width:100%;padding:0;text-align:left}
+.cm-open > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
+.cm-thumb{flex:none;width:108px;aspect-ratio:12/7;border-radius:10px;overflow:hidden;background:#3B1A12;box-shadow:0 0 0 2px #3B1A12,0 3px 0 #3B1A12;transform:rotate(-2deg)}
+.cm-thumb svg{display:block;width:100%;height:100%}
+.cm-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cm-meta small{font-size:12.5px;font-weight:700;color:var(--seal)}
+.cm-meta b{font:600 18px/1.15 var(--display);letter-spacing:-.01em;color:var(--ink)}
+.cm-meta span{font-size:12.5px;line-height:1.3;color:var(--muted)}
+.cm-track{position:relative;height:62px;margin-top:4px}
+.cm-road{position:absolute;left:0;right:22px;top:37px;height:12px;border-radius:6px;background:var(--fill);box-shadow:inset 0 0 0 1.5px rgba(59,26,18,.12);overflow:hidden}
+.cm-road::after{content:"";position:absolute;left:8px;right:8px;top:5px;border-top:2px dashed rgba(59,26,18,.2)}
+.cm-road i{position:absolute;z-index:1;left:0;top:0;bottom:0;width:calc(20px + var(--p)*(100% - 34px));border-radius:6px;background:#F4C14E;box-shadow:inset 0 0 0 1.5px rgba(59,26,18,.4)}
+.cm-lane{position:absolute;left:20px;right:36px;top:0;bottom:0}
+.cm-stop{position:absolute;top:38px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--card);box-shadow:0 0 0 2px #3B1A12}
+.cm-stop.on{background:#FFD15C}
+.cm-flag{position:absolute;left:100%;top:1px;width:30px;height:46px;margin-left:-5px}
+.cm-flag svg{display:block;width:100%;height:100%;transform-origin:5px 44px}
+.cm-shi{position:absolute;left:calc(var(--p)*100%);top:20px;width:42px;height:42px;margin-left:-21px;filter:drop-shadow(0 2px 0 rgba(59,26,18,.28))}
+.cm-shi .shi-face{display:block;width:100%;height:100%}
+.cm-track.walk .cm-shi{animation:cmWalk 1.5s .5s cubic-bezier(.45,0,.3,1) both}
+.cm-track.walk .cm-road i{animation:cmFill 1.5s .5s cubic-bezier(.45,0,.3,1) both}
+.cm-track.walk .cm-shi .shi-face{animation:cmHop .3s .5s 5 ease-in-out}
+.cm-track.walk.done .cm-flag svg{animation:cmFlag .5s 2s 2 ease-in-out}
+@keyframes cmWalk{from{left:calc(var(--from)*100%)}}
+@keyframes cmFill{from{width:calc(20px + var(--from)*(100% - 34px))}}
+@keyframes cmHop{50%{transform:translateY(-6px) rotate(-7deg)}}
+@keyframes cmFlag{50%{transform:rotate(9deg)}}
+/* the comic, full screen */
+#ob.cm .ob-dock{z-index:3}
+.cm-top span{font-size:13.5px;font-weight:700;color:var(--muted)}
+.cm-head small{font-size:13.5px;font-weight:700;color:var(--seal)}
+.cm-head h2{margin:2px 0 0;font:600 30px/1.08 var(--display);letter-spacing:-.02em;text-wrap:balance}
+.cm-head h2 span{margin-left:4px;font-family:var(--hanzi);font-weight:600;font-size:.74em;letter-spacing:0;color:var(--seal);white-space:nowrap}
+.cm-way{margin:16px 0 0;padding:4px 14px 14px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+.cm-way p{margin:8px 0 0;font-size:13.5px;line-height:1.42;color:var(--ink-2)}
+.cm-way p b{color:var(--ink)}
+.cm-way .cm-count{margin-top:6px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.cm-pages{display:flex;flex-direction:column;gap:26px;margin:24px 0 10px}
+.cm-page{margin:0}
+.cm-art{position:relative;border-radius:14px;background:#3B1A12;box-shadow:0 0 0 2.5px #3B1A12,0 5px 0 #3B1A12;transform:rotate(-.7deg)}
+.cm-page:nth-child(even) .cm-art{transform:rotate(.6deg)}
+.cm-art svg{display:block;width:100%;height:auto;border-radius:14px}
+.cm-art em{position:absolute;right:-6px;top:-10px;padding:4px 11px 5px;border-radius:9px;background:#FFD15C;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12,0 3px 0 #3B1A12;font:600 13px/1 var(--display);font-style:normal;transform:rotate(7deg)}
+.cm-page figcaption{position:relative;z-index:1;margin:-11px 8px 0 14px}
+.cm-cap{display:inline-block;margin:0;padding:9px 13px 10px;border-radius:5px;background:#FFF1B8;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12,3px 4px 0 #3B1A12;font:500 15px/1.36 var(--display);transform:rotate(-.5deg)}
+.cm-page:nth-child(even) .cm-cap{transform:rotate(.4deg)}
+.cm-says{display:flex;flex-wrap:wrap;gap:4px 16px;margin:13px 0 0 2px;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.cm-says b{margin-right:6px;font-family:var(--hanzi);font-weight:600;font-size:17px;color:var(--ink)}
+.cm-says i{margin-right:6px;font-style:normal;font-weight:700;color:var(--seal)}
+.cm-page.new .cm-art{animation:cmPop .6s calc(2.1s + var(--k,0)*.3s) cubic-bezier(.2,.9,.3,1.25) both}
+.cm-page.new figcaption{animation:fadeIn .4s calc(2.5s + var(--k,0)*.3s) both}
+@keyframes cmPop{from{opacity:0;transform:translateY(26px) scale(.9) rotate(-3deg)}}
+.cm-lock{display:flex;align-items:center;justify-content:center;gap:8px;height:74px;border-radius:14px;border:2.5px dashed var(--line-2);color:var(--muted);font-size:14px}
+.cm-lock svg.i{width:20px;height:20px}
+.cm-lock b{font-weight:700}
+.cm-lock span::before{content:"· "}
+.cm-end{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 6px;font:600 17px var(--display);color:var(--ink)}
+.cm-end i{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--seal);color:#fff;font:600 20px var(--hanzi);font-style:normal;transform:rotate(-6deg)}
+@media (prefers-reduced-motion:reduce){.cm-track.walk .cm-shi,.cm-track.walk .cm-road i,.cm-track.walk .cm-shi .shi-face,.cm-track.walk.done .cm-flag svg,.cm-page.new .cm-art,.cm-page.new figcaption{animation:none}}
 /* the unit test: a wide card after the unit's lessons */
 .ld-test{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:10px 16px 10px 10px;border-radius:16px;background:var(--card);text-align:left;
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
@@ -2734,6 +2796,7 @@ const CRS = (() => {
       + paw(140, 54, -10) + paw(220, 54, 10)
       + lion(180, 104, .44, 'cheer')],
   };
+  S.kit = { red, gold, gold2, ln, fl, ml, wood, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, bg, karst, roof, pagoda, xcloud, pine, lantern, burst, bubble };   // for the unit comics (COMIC)
   return S;
 })();
 /* the highest HSK level you can open: where onboarding placed you (db.prefs.level). Finishing a level's lessons will
@@ -3046,11 +3109,196 @@ function ldNext(next, due) {   // Up next: the lesson (or unit test) you're on, 
     <p class="ld-plan"><b>${esc(L.words.join(' '))}</b><br>${lesPlan(L)}</p>
     <button class="btn btn-seal wide" data-act="les-go" data-n="${L.n}">Start lesson</button></section>`;
 }
+/* ---------- Unit stories ----------
+   A unit can have a short comic about Shi Shi: COMIC[unit] = a title and 4 to 6 pages, drawn with the Learn tab's scene kit
+   (CRS.kit). The story moves with the unit's words: Shi Shi takes one step for every word of the unit that is in the word
+   bank and one more when that word is proven, so a unit of 36 words is 72 steps. His face walks along a road to a finish
+   flag; each page opens at its own share of the way (at: 0 to 1) and the last one, the happy ending, at the flag.
+   The unit's card on the lessons page shows the newest open page and the road; a tap opens the comic. A page that has
+   just opened is shown once by itself when you come back to the lessons. db.comic = { unit: { open, p } } is what you
+   have already seen: how many pages, and how far along the road. Only Unit 1 has a story for now. */
+const COMIC = (() => {
+  const { red, gold, gold2, ln, fl, wood, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, bg, karst, roof, pagoda, xcloud, lantern, burst, bubble } = CRS.kit;
+  const say = (x, y, txt, size, tx, ty, col) => bubble(x, y, [...txt].length * size * 1.02 + 22, size + 15, tx, ty, txt, size, col);
+  const pave = (y, fill, seam) => `<path d="M-10 ${y}H370V220H-10Z" fill="${fill}"/><path d="M-10 ${y}H370" stroke="${ln}" stroke-width="3"/><path d="M30 ${y + 16}h34M120 ${y + 30}h40M214 ${y + 14}h30M286 ${y + 34}h38M70 ${y + 44}h30M180 ${y + 50}h36" stroke="${seam}" stroke-width="3" stroke-linecap="round"/>`;
+  const house = (x, w, top, base, wall, rf) => `<rect x="${x - w / 2}" y="${top}" width="${w}" height="${base - top}" fill="${wall}" stroke="${ln}" stroke-width="3"/>`
+    + `<path d="M${x - 11} ${base}V${base - 28}A11 11 0 0 1 ${x + 11} ${base - 28}V${base}Z" fill="#7A4A2A" stroke="${ln}" stroke-width="2.5"/>`
+    + [-1, 1].map(k => { const wx = x + k * w * .31; return `<rect x="${wx - 8}" y="${top + 16}" width="16" height="16" rx="2" fill="#FFE9A8" stroke="${ln}" stroke-width="2.5"/><path d="M${wx} ${top + 16}v16M${wx - 8} ${top + 24}h16" stroke="${ln}" stroke-width="1.6"/>`; }).join('')
+    + roof(x, top, w + 6, 13, rf);
+  const shade = (x, y, rx) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx * .17}" fill="#000" opacity=".13"/>`;
+  const orange = (x, y, r = 7) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#F7A03C" stroke="${ln}" stroke-width="2.5"/><path d="M${x - 1} ${y - r}q2 -4 5 -4" fill="none" stroke="#2E9466" stroke-width="2.5" stroke-linecap="round"/>`;
+  const string = (d, col, ls) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="2"/>` + ls.map(([x, y, g]) => lantern(x, y, .5, g)).join('');
+  const drum = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#D9443A" stroke="${ln}" stroke-width="3.5"/><circle cx="${x}" cy="${y}" r="${r * .74}" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/>`
+    + Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<circle cx="${(x + r * .87 * Math.cos(a)).toFixed(1)}" cy="${(y + r * .87 * Math.sin(a)).toFixed(1)}" r="2.2" fill="${gold}"/>`; }).join('');
+
+  const pages = [
+    /* 1. Lost for words: the street behind the gate. Everyone greets everyone; Shi Shi stands alone in the middle */
+    { at: 0, cap: 'Shi Shi is new in town. Everybody says the same two characters to each other, and he has no idea what they mean.', says: [],
+      art: () => bg('#CFEBE4', '#9FD2C2')
+        + xcloud(74, 24, .7, '#EEF9F5') + xcloud(290, 30, .55, '#EEF9F5')
+        + karst(150, '#A9D8C8', [[24, 78, 34], [118, 50, 36], [338, 84, 34]]) + pagoda(244, 92, .5, '#A9D8C8')
+        + house(50, 90, 86, 150, '#FFF6E6', '#3F5F6B') + house(180, 106, 72, 150, '#FBEBD0', '#2C5A4F') + house(310, 90, 88, 150, '#FFF6E6', '#3F5F6B')
+        + string('M-4 44Q90 66 180 52T364 44', '#5A3520', [[112, 76], [250, 74]])
+        + pave(150, '#E9D7AE', '#D3BD8C')
+        + friend('rabbit', 40, 154, .25) + friend('tiger', 100, 158, .22, 0, true)
+        + friend('panda', 266, 158, .23) + friend('dragon', 324, 154, .25, 0, true)
+        + say(70, 102, '你好!', 15, 50, 128) + say(296, 102, '你好!', 15, 312, 128)
+        + shade(184, 189, 36) + lion(184, 150, .42, 'lost', -4) + sweat(218, 132, .9)
+        + hzO(226, 108, '?', 28, 14) + hzO(146, 114, '?', 19, -16) },
+
+    /* 2. The first word: at the tea house Shi Shi tries 你好 on Gun Gun, who says it back */
+    { at: .08, cap: 'He tries his very first word on Gun Gun at the tea house. And Gun Gun says it right back!', says: [['你好', 'nǐ hǎo', 'hello']],
+      art: () => bg('#FFE7B0', '#FFCB7A')
+        + xcloud(52, 28, .7, '#FFF6DC') + star(150, 30, 6, '#fff') + star(26, 84, 5, '#fff')
+        + karst(162, '#F3C06A', [[10, 64, 40], [84, 46, 34]])
+        + `<rect x="168" y="64" width="200" height="98" fill="#FFF3DC" stroke="${ln}" stroke-width="3"/><rect x="184" y="74" width="184" height="56" fill="#6B4428"/>`
+        + `<path d="M196 96H360" stroke="#8A5A2E" stroke-width="4"/>${[204, 226, 300, 322, 344].map((x, i) => `<rect x="${x}" y="82" width="13" height="14" rx="3" fill="${['#8FD3C0', '#FFD15C', '#FF9A8A', '#8FD3C0', '#FFD15C'][i]}" stroke="${ln}" stroke-width="2"/>`).join('')}`
+        + friend('panda', 262, 114, .3, 0, false, true)
+        + `<rect x="170" y="64" width="13" height="98" fill="#D9443A" stroke="${ln}" stroke-width="3"/>`
+        + `<rect x="183" y="130" width="186" height="32" fill="${wood}" stroke="${ln}" stroke-width="3"/><path d="M183 140H369" stroke="${woodD}" stroke-width="2"/>`
+        + `<path d="M306 118q-12 -6 -12 6M338 112q12 0 10 12" fill="none" stroke="${ln}" stroke-width="3" stroke-linecap="round"/><ellipse cx="322" cy="118" rx="16" ry="12" fill="#8FD3C0" stroke="${ln}" stroke-width="3"/><rect x="315" y="103" width="14" height="5" rx="2" fill="#5FB8A2" stroke="${ln}" stroke-width="2.5"/><path d="M318 96q-4 -6 0 -10M326 96q4 -6 0 -10" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>`
+        + `<rect x="196" y="121" width="12" height="9" rx="2" fill="#fff" stroke="${ln}" stroke-width="2.2"/><rect x="214" y="121" width="12" height="9" rx="2" fill="#fff" stroke="${ln}" stroke-width="2.2"/>`
+        + roof(268, 64, 204, 18, '#2C5A4F')
+        + `<path d="M150 74H172" stroke="${ln}" stroke-width="3"/><rect x="140" y="76" width="24" height="46" rx="3" fill="${gold2}" stroke="${ln}" stroke-width="3"/>${hz(152, 99, '茶', 17, 0, fl)}`
+        + pave(162, '#EBCF96', '#D4B575')
+        + shade(88, 183, 38) + arm(112, 130, 132, 104) + lion(88, 140, .46, 'cheer') + paw(134, 101, 24)
+        + say(82, 50, '你好!', 21, 92, 100) + say(218, 92, '你好!', 14, 243, 108) },
+
+    /* 3. Sorry: Shi Shi runs into Hu Hu's fruit cart and the oranges fly; 对不起 and 没关系 */
+    { at: .25, cap: 'Crash! Hu Hu’s oranges roll all over the street. Lucky that Shi Shi can say sorry now.', says: [['对不起', 'duìbuqǐ', 'sorry'], ['没关系', 'méi guānxi', 'it’s OK']],
+      art: () => bg('#A8E0F7', '#DDF3F4')
+        + xcloud(300, 22, .7) + xcloud(150, 16, .5) + pagoda(34, 92, .55, '#8CCBE6')
+        + `<rect x="-10" y="98" width="380" height="60" fill="#FFF6E6" stroke="${ln}" stroke-width="3"/><rect x="-10" y="88" width="380" height="11" fill="#3F5F6B" stroke="${ln}" stroke-width="2.5"/>`
+        + `<circle cx="30" cy="128" r="17" fill="#BFE7D2" stroke="${ln}" stroke-width="3"/><path d="M30 111V145M13 128H47" stroke="${ln}" stroke-width="2"/>`
+        + pave(158, '#E7D3A7', '#CDB684')
+        /* the cart, knocked askew */
+        + `<g transform="rotate(5 220 150)"><path d="M178 78V150M262 78V150" stroke="${woodD}" stroke-width="5" stroke-linecap="round"/>`
+        + `<path d="M166 56H274L284 82H156Z" fill="#fff" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M184 56H202L199 82H178ZM220 56H238L241 82H220ZM256 56H274L284 82H262Z" fill="${red}"/><path d="M166 56H274L284 82H156Z" fill="none" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+        + orange(196, 112) + orange(212, 110) + orange(230, 112) + orange(246, 110) + orange(204, 100) + orange(222, 99) + orange(239, 100)
+        + `<rect x="170" y="116" width="100" height="34" rx="4" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="196" y="123" width="48" height="20" rx="3" fill="#2E9466" stroke="${ln}" stroke-width="2.5"/>${hz(220, 133.5, '水果', 13, 0, '#fff')}`
+        + `<circle cx="192" cy="158" r="15" fill="#8A5A2E" stroke="${ln}" stroke-width="3"/><circle cx="192" cy="158" r="4" fill="${gold2}"/><circle cx="250" cy="158" r="15" fill="#8A5A2E" stroke="${ln}" stroke-width="3"/><circle cx="250" cy="158" r="4" fill="${gold2}"/></g>`
+        + shade(322, 180, 26) + friend('tiger', 322, 150, .31, 0, true)
+        + burst(148, 128, 17, '#fff')
+        + orange(150, 88) + orange(126, 76, 6) + orange(170, 70, 6) + orange(142, 188) + orange(118, 196, 6) + orange(206, 192) + orange(268, 186, 6)
+        + shade(84, 187, 36) + lion(84, 146, .44, 'oops', -12) + sweat(52, 122, .9)
+        + say(84, 44, '对不起!', 18, 88, 96) + say(312, 82, '没关系!', 15, 322, 124, '#2E9E6B') },
+
+    /* 4. A name: on the old stone bridge Yu Tu asks 你叫什么名字 and Shi Shi can answer */
+    { at: .45, cap: 'On the old bridge, Yu Tu asks who he is. This time he has an answer.', says: [['你叫什么名字？', 'nǐ jiào shénme míngzi', 'what’s your name?'], ['我叫狮狮', 'wǒ jiào Shīshi', 'my name is Shi Shi']],
+      art: () => bg('#BDE8F5', '#FBE9BE')
+        + xcloud(190, 60, .5, '#fff') + xcloud(340, 44, .5, '#fff')
+        + karst(152, '#9ED3C0', [[16, 56, 36], [336, 80, 36], [276, 50, 30]]) + pagoda(318, 112, .5, '#7FBFA8')
+        + `<path d="M-10 150H370V176H-10Z" fill="#6FBF94"/><path d="M-10 170H370V220H-10Z" fill="#69BBD6"/>`
+        + `<path d="M20 190h40M286 196h44M150 204h60M66 208h28" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>`
+        /* willow */
+        + `<path d="M22 176Q14 124 30 86" fill="none" stroke="#6B4428" stroke-width="7" stroke-linecap="round"/><path d="M30 86Q4 92 2 136M30 86Q18 100 20 150M30 86Q44 96 44 142M30 86Q60 90 64 128M30 86Q34 76 52 78" fill="none" stroke="#4FA873" stroke-width="5" stroke-linecap="round"/>`
+        /* the bridge: far rail, then the stone */
+        + `<path d="M-10 158Q180 48 370 158" fill="none" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M-10 158Q180 48 370 158" fill="none" stroke="#F4EEDF" stroke-width="3.5"/>`
+        + [[40, 146], [86, 127], [136, 112], [180, 106], [224, 112], [274, 127], [320, 146]].map(([x, y]) => `<rect x="${x - 3.5}" y="${y - 6}" width="7" height="24" rx="2" fill="#F4EEDF" stroke="${ln}" stroke-width="2.5"/>`).join('')
+        + `<path d="M-10 172Q180 62 370 172V214H-10Z" fill="#E4DCCB" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M110 214A70 64 0 0 1 250 214Z" fill="#4E9DB8" stroke="${ln}" stroke-width="3"/><path d="M60 170h22M290 176h22M40 196h20M300 200h24" stroke="#C9BFA8" stroke-width="3" stroke-linecap="round"/>`
+        + friend('rabbit', 114, 102, .28, 0, false, true)
+        + arm(258, 94, 276, 72) + lion(236, 86, .42, 'cheer') + paw(278, 69, 22)
+        + say(92, 40, '你叫什么名字?', 14, 110, 76) + say(262, 22, '我叫狮狮!', 15, 244, 52) },
+
+    /* 5. The drum: sunset in the temple courtyard; Long Long counts Shi Shi in for the lion dance */
+    { at: .7, cap: 'Tonight is the lantern festival, and the town needs a lion. Long Long counts him in.', says: [['一、二、三', 'yī, èr, sān', 'one, two, three']],
+      art: () => bg('#FFC27A', '#F58A5B')
+        + `<circle cx="64" cy="60" r="32" fill="#FFE58A" opacity=".9"/>` + xcloud(250, 26, .6, '#FFE3B8')
+        + `<rect x="-10" y="94" width="380" height="64" fill="#C43A2F" stroke="${ln}" stroke-width="3"/>${[28, 96, 264, 332].map(x => `<rect x="${x - 4}" y="96" width="8" height="60" fill="#A42A22"/>`).join('')}`
+        + `<path d="M150 158V126A30 30 0 0 1 210 126V158Z" fill="#7A1C16" stroke="${ln}" stroke-width="3"/><path d="M180 98V158" stroke="${ln}" stroke-width="2"/>${[164, 196].map(x => [128, 142].map(y => `<circle cx="${x}" cy="${y}" r="2.4" fill="${gold}"/>`).join('')).join('')}`
+        + roof(180, 94, 330, 20, '#E8A33C', ln, '#E8A33C')
+        + lantern(18, 126, .5, gold) + lantern(346, 126, .5, gold)
+        + pave(158, '#E8C48E', '#CFA76B')
+        + `<path d="M228 190L242 152M280 190L266 152" stroke="${ln}" stroke-width="9" stroke-linecap="round"/><path d="M228 190L242 152M280 190L266 152" stroke="${woodD}" stroke-width="5" stroke-linecap="round"/>`
+        + drum(254, 126, 37)
+        + `<path d="M206 102l-11 -7M201 126h-13M206 150l-11 7" stroke="${ln}" stroke-width="3.5" stroke-linecap="round"/>`
+        + shade(322, 176, 24) + friend('dragon', 322, 148, .3, 0, true)
+        + `<path d="M304 146L282 122" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M304 146L282 122" stroke="${wood}" stroke-width="3.5" stroke-linecap="round"/><circle cx="281" cy="121" r="5" fill="${red}" stroke="${ln}" stroke-width="2.5"/>`
+        + bubble(292, 50, 112, 32, 318, 124, '一, 二, 三!', 18)
+        + shade(92, 185, 38) + arm(68, 134, 52, 112) + arm(116, 134, 132, 112) + lion(92, 142, .46, 'fire', 3) + paw(50, 109, -22) + paw(134, 109, 22) },
+
+    /* 6. The happy ending: festival night, fireworks, the whole town greets the lion on the drum */
+    { at: 1, cap: 'Shi Shi dances for the whole town. Now everybody says hello to him.', says: [['你好，狮狮！', 'nǐ hǎo, Shīshi', 'hello, Shi Shi!']],
+      art: () => bg('#2A1E5E', '#7A3F9E')
+        + burst(52, 62, 28, gold) + burst(308, 66, 32, '#FFB4A6') + burst(340, 128, 16, gold) + burst(20, 124, 15, '#FFB4A6')
+        + star(118, 62, 4, '#FFE58A') + star(250, 66, 4, gold) + star(86, 112, 3, '#fff') + star(282, 116, 3, '#fff')
+        + `<path d="M-10 152H34V124H104V152H126V110H234V152H258V126H326V152H370V220H-10Z" fill="#3B2A78"/>` + roof(69, 124, 70, 10, '#2F2168', '#2F2168') + roof(180, 110, 108, 12, '#2F2168', '#2F2168') + roof(292, 126, 68, 10, '#2F2168', '#2F2168')
+        + [[58, 134], [84, 134], [146, 124], [214, 124], [280, 136], [306, 136]].map(([x, y]) => `<rect x="${x - 6}" y="${y}" width="12" height="10" fill="#FFD98A" opacity=".85"/>`).join('')
+        + string('M-4 64Q90 92 180 78T364 64', '#1B1340', [[40, 100, gold], [112, 110, gold], [250, 110, gold], [322, 100, gold]])
+        + `<path d="M-10 172H370V220H-10Z" fill="#4A3589"/><path d="M-10 172H370" stroke="${ln}" stroke-width="3"/>`
+        + friend('dragon', 46, 164, .27, -6) + friend('tiger', 106, 172, .22, 0, true) + friend('panda', 256, 172, .23, 0, false, true) + friend('rabbit', 314, 164, .27, 6, false, true)
+        + `<rect x="146" y="154" width="68" height="36" rx="8" fill="${red}" stroke="${ln}" stroke-width="3.5"/><path d="M148 164H212M148 180H212" stroke="${gold}" stroke-width="3"/>${[160, 180, 200].map(x => `<circle cx="${x}" cy="172" r="2.4" fill="${gold}"/>`).join('')}<ellipse cx="180" cy="154" rx="34" ry="7" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/>`
+        + arm(156, 104, 136, 74) + arm(204, 104, 224, 74) + lion(180, 110, .48, 'star') + paw(134, 71, -22) + paw(226, 71, 22)
+        + [[104, 50, 20, red], [262, 52, -30, gold], [150, 66, 40, '#8FD3C0'], [222, 62, -15, '#FF9AA6'], [78, 88, 60, gold], [290, 92, 10, '#8FD3C0'], [128, 92, -40, '#FF9AA6'], [240, 96, 30, red]].map(([x, y, r, c]) => `<rect x="${x}" y="${y}" width="7" height="4" rx="1" fill="${c}" transform="rotate(${r} ${x} ${y})"/>`).join('')
+        + `<path d="M84 12H276L288 29L276 46H84L72 29Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M90 18H270" stroke="#fff" stroke-width="2" opacity=".6"/>${hz(180, 30, '你好,狮狮!', 20, 0, fl)}` },
+  ];
+  return { 1: { title: 'Shi Shi says hello', zh: '你好', pages } };
+})();
+const comicSvg = pg => `<svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${pg.art()}</svg>`;
+/* how far a unit's story has come: steps = words of the unit in the word bank + those of them that are proven */
+function comicState(un) {
+  const St = COMIC[un], ws = [...new Set(LESSONS.filter(L => L.u === un - 1).flatMap(L => L.words))];
+  let inBank = 0, proven = 0;
+  for (const h of ws) { const w = bankHas(h); if (w) { inBank++; if (w.pf?.at) proven++; } }
+  const total = ws.length * 2, steps = inBank + proven;
+  const need = St.pages.map(pg => Math.ceil(pg.at * total - 1e-9));   // the step each page opens at
+  return { ws, inBank, proven, steps, total, p: steps / total, need, open: need.filter(n => steps >= n).length, done: steps >= total };
+}
+const comicSeen = un => db.comic?.[un] || { open: 1, p: 0 };   // what you have already seen of a unit's story
+const ST_FLAG = `<svg viewBox="0 0 30 46" aria-hidden="true"><defs><clipPath id="cmFlagC"><path d="M5 5H27L23 12.5L27 20H5Z"/></clipPath></defs><path d="M5 4V44" stroke="#3B1A12" stroke-width="3.5" stroke-linecap="round"/><path d="M5 5H27L23 12.5L27 20H5Z" fill="#fff"/><g clip-path="url(#cmFlagC)" fill="#3B1A12">${[0, 1, 2, 3].flatMap(i => [0, 1, 2].filter(j => (i + j) % 2 === 0).map(j => `<rect x="${5 + i * 5.5}" y="${5 + j * 5}" width="5.5" height="5"/>`)).join('')}</g><path d="M5 5H27L23 12.5L27 20H5Z" fill="none" stroke="#3B1A12" stroke-width="2.5" stroke-linejoin="round"/><circle cx="5" cy="4" r="3" fill="#F4C14E" stroke="#3B1A12" stroke-width="2"/></svg>`;
+/* the road: Shi Shi's face stands as far along as the steps taken, a dot marks where each page opens, the flag is the end.
+   from: where you last saw him (0 to 1); given, he walks from there to where he is now */
+function comicTrack(st, from) {
+  const mood = st.done ? 'star' : st.p >= .7 ? 'fire' : st.steps ? 'happy' : 'lost', walk = from != null && from < st.p;
+  return `<div class="cm-track${walk ? ' walk' : ''}${st.done ? ' done' : ''}" role="img" aria-label="Shi Shi has taken ${st.steps} of ${st.total} steps to the finish flag" style="--p:${st.p.toFixed(4)}${walk ? `;--from:${from.toFixed(4)}` : ''}">
+    <span class="cm-road"><i></i></span>
+    <span class="cm-lane">${st.need.slice(1, -1).map(n => `<i class="cm-stop${st.steps >= n ? ' on' : ''}" style="left:${(n / st.total * 100).toFixed(1)}%"></i>`).join('')}<span class="cm-flag">${ST_FLAG}</span><span class="cm-shi">${shiFace(mood)}</span></span></div>`;
+}
+function ComicCard(un) {   // on the lessons page, at the top of the unit: the newest page, the title and the road
+  const St = COMIC[un], st = comicState(un), n = St.pages.length;
+  return `<div class="cm-card" data-act="comic-open" data-u="${un}">
+    <button class="cm-open" aria-label="Shi Shi’s comic: ${esc(St.title)}, page ${st.open} of ${n}"><span class="cm-thumb">${comicSvg(St.pages[st.open - 1])}</span>
+      <span class="cm-meta"><small>Shi Shi’s comic</small><b>${esc(St.title)}</b><span>${st.done ? `All ${n} pages are open` : `Page ${st.open} of ${n} · ${plural(st.need[st.open] - st.steps, 'step')} to page ${st.open + 1}`}</span></span>${I.chev}</button>
+    ${comicTrack(st)}</div>`;
+}
+/* the comic, full screen: the road on top (Shi Shi walks on from where you last saw him), the open pages with what is
+   said in them, and the ones still to come. demo: the whole story, for a look at it (nothing is saved) */
+function comicOpen(un, demo) {
+  const St = COMIC[un], real = comicState(un), n = St.pages.length;
+  const st = demo ? { ...real, inBank: real.ws.length, proven: real.ws.length, steps: real.total, p: 1, open: n, done: true } : real;
+  const was = demo ? { open: 1, p: 0 } : comicSeen(un), fresh = st.open > was.open;
+  if (!demo) { (db.comic ||= {})[un] = { open: st.open, p: st.p }; save(); }
+  LOG.add('comic', { unit: un, page: st.open, steps: st.steps, fresh, demo: !!demo });
+  const pages = St.pages.map((pg, i) => {
+    if (i >= st.open) return `<div class="cm-page locked"><div class="cm-lock">${LOCK_I}<b>Page ${i + 1}</b>${i === st.open ? `<span>${plural(st.need[i] - st.steps, 'more step')}</span>` : ''}</div></div>`;
+    const isNew = fresh && i >= was.open;
+    return `<figure class="cm-page${isNew ? ' new' : ''}"${isNew ? ` style="--k:${i - was.open}"` : ''}><div class="cm-art">${comicSvg(pg)}${isNew ? '<em>New</em>' : ''}</div>
+      <figcaption><p class="cm-cap">${pg.cap}</p>${pg.says.length ? `<p class="cm-says">${pg.says.map(([zh, py, en]) => `<span><b lang="zh">${zh}</b><i>${py}</i>${en}</span>`).join('')}</p>` : ''}</figcaption></figure>`;
+  }).join('');
+  layer(`<div class="ob-top cm-top"><button class="icon-btn" data-act="mo-close" aria-label="Close">${I.close}</button><span>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</span></div>
+    <header class="cm-head"><small>${fresh ? st.done ? 'The last page is open' : st.open - was.open > 1 ? 'New pages' : 'A new page' : 'Shi Shi’s comic'}</small><h2>${esc(St.title)} <span lang="zh">${St.zh}</span></h2></header>
+    <div class="cm-way">${comicTrack(st, was.p)}
+      <p><b>${st.steps} of ${st.total} steps.</b> ${st.done ? 'Every word of this unit is proven. Shi Shi made it to the flag.' : 'Shi Shi takes a step for each word of this unit that goes into your word bank, and one more when you prove it: right again on a later day.'}</p>
+      <p class="cm-count">${st.inBank} of ${st.ws.length} words in your word bank · ${st.proven} proven</p></div>
+    <div class="cm-pages">${pages}</div>
+    ${st.done ? '<p class="cm-end"><i lang="zh">完</i>The end</p>' : ''}
+    ${moDock(st.done ? 'Close' : 'Keep going')}`, 'cm');
+  if (fresh) {
+    try { (st.done ? fanfare : chime)(); } catch (_) {}
+    const still = stillMotion();
+    setTimeout(() => $('#ob.cm .cm-page.new')?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' }), still ? 0 : 2200);
+  }
+}
+function comicMoment() {   // back on the lessons page with a page you have not seen yet: the comic opens on it, once
+  if ($('#ob') || S.ob || $('#sheet-root.open')) return false;
+  for (const un in COMIC) if (comicState(+un).open > comicSeen(un).open) { comicOpen(+un); return true; }
+  return false;
+}
 function LessonDeck() {
   const next = lesNext(), due = utDue();
   return ldNext(next, due) + LES_UNITS.map(([en, zh], u) => {
     const ls = LESSONS.filter(L => L.u === u), nd = ls.filter(L => lesDone(L.n)).length;
-    return `<section class="ld-unit"><div class="ld-head"><h3><small>Unit ${u + 1}</small>${esc(en)}<span>${zh}</span></h3><span>${nd} of ${ls.length}</span></div>
+    return `<section class="ld-unit"><div class="ld-head"><h3><small>Unit ${u + 1}</small>${esc(en)}<span>${zh}</span></h3><span>${nd} of ${ls.length}</span></div>${COMIC[u + 1] ? ComicCard(u + 1) : ''}
     <div class="ld-grid">${ls.map(L => {
       const done = lesDone(L.n), cur = L.n === next && !due, open = done || cur;
       return `<button class="ld-item${open ? '' : ' locked'}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${L.n}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
@@ -3642,6 +3890,7 @@ function StrokesView() {
 function mountCourse() {
   const P = S.cPart;
   if (P !== 'tones') S.ear = null;   // the ear test starts over when you come back to it
+  if (!P && !S.cBasics) setTimeout(() => { if (S.view === 'course' && !S.cPart && !S.cBasics) comicMoment(); }, 420);   // a new page of the unit's story
   if (!S.H) loadHsk().then(() => { if (S.view === 'course' && S.cPart === P && (!P || P === 'strokes')) { S.instant = true; render(); } }, () => {});
   if (P === 'tones') mountTones();
   else if (P === 'radicals') mountRadicals();
@@ -7959,7 +8208,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.42';
+const APP_VERSION = '2.43';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8023,6 +8272,7 @@ function devSheet() {
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
+      ${p('devComic', 'Show: Unit 1 comic, all pages', 'The whole comic with Shi Shi at the flag. Your own progress stays as it is')}
     </div>
     <div class="day-h" style="margin-top:20px">Start over</div>
     <button class="btn btn-danger wide" id="devReset">${I.trash}Reset all progress</button>
@@ -8037,6 +8287,7 @@ function devSheet() {
     sh.querySelector('#devMile').onclick = play(function milestone() { const { n } = practiceStreak(); momentMile(MILES.includes(n) ? n : 7); });
     sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
+    sh.querySelector('#devComic').onclick = play(function comicPreview() { comicOpen(1, true); });
     const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; delete X.done; delete X.top; };
     const go = (what, prep, then) => () => {
       LOG.add('dev', what); prep(); save(); closeSheet();
@@ -8670,6 +8921,7 @@ const A = {
   'ut-go': t => { closeSheet(true); nav(`#/course/1/test/${t.dataset.u}`); },
   'les-node': t => loadHsk().then(() => lesSheet(+t.dataset.n), () => toast('Lessons need the internet the first time')),
   'les-go': t => { closeSheet(true); nav(`#/course/1/lesson/${t.dataset.n}`); },
+  'comic-open': t => comicOpen(+t.dataset.u),
   'basics-open': () => nav('#/basics'),
   'crs-low': () => { S.lowOpen = !S.lowOpen; S.instant = true; render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
