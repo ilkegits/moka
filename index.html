@@ -1173,7 +1173,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
 .rw{border-radius:6px;padding:0 1px;font:inherit;line-height:inherit;transition:background .2s}
 .rg{display:inline-flex;align-items:flex-start}
-.rw.mine{background:radial-gradient(circle,color-mix(in srgb,var(--seal) 80%,transparent) 0.8px,transparent 1.1px) left calc(100% - 2px)/4px 4px repeat-x}
+.rw.new{background:radial-gradient(circle,color-mix(in srgb,var(--seal) 80%,transparent) 0.8px,transparent 1.1px) left calc(100% - 2px)/4px 4px repeat-x}
 .rw.hl{background:rgba(255,209,92,.6);transition:none}
 .ry{display:none;font-family:var(--ui);font-size:14px;font-weight:500;color:var(--seal);line-height:1.1;margin:-3px 0 5px;white-space:nowrap}
 .story.py .ry{display:block}
@@ -4444,9 +4444,9 @@ function readStory() {
 }
 const shortDate = t => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 function StoryCard(s, foot) {
-  const on = !!db.prefs.readPy, inBank = new Set(db.bank.map(w => w.hanzi));
+  const on = !!db.prefs.readPy, fresh = new Set(storyNewWords(s).map(w => w.h));   // new for you: the words the end of the story asks and offers for your word bank
   const word = (t, li, wi) => READ_PUNCT.test(t.h) ? `<span class="rp">${esc(t.h)}</span>`
-    : `<button class="rw${inBank.has(t.h) ? ' mine' : ''}" data-act="rw" data-k="${li}.${wi}"><span class="rh">${esc(t.h)}</span><span class="ry">${esc(t.p)}</span></button>`;
+    : `<button class="rw${fresh.has(t.h) ? ' new' : ''}" data-act="rw" data-k="${li}.${wi}"><span class="rh">${esc(t.h)}</span><span class="ry">${esc(t.p)}</span></button>`;
   return `<article class="story${on ? ' py' : ''}">
       <div class="story-head"><h3 class="story-zh">${esc(s.zh)}</h3><span class="story-en">${esc(s.en)}</span></div>
       ${storyTokens(s).map((l, li) => `<p class="story-line">${readGroups(l).map(g => `<span class="rg">${g.map(wi => word(l[wi], li, wi)).join('')}</span>`).join('')}</p>`).join('')}
@@ -4455,11 +4455,12 @@ function StoryCard(s, foot) {
 }
 /* you can read a word when you know it, or know each of its characters as a word of its own (喝茶 from 喝 and 茶) */
 const knowsTok = (k, h) => k.has(h) || [...h].every(c => k.has(c));
-/* how much of a story you can already read: its different words (no punctuation, not Shi Shi's name) against the words you know */
+/* how much of a story you can already read: its different words (no punctuation, not Shi Shi's name) less its new
+   words, the same ones that are underlined in the story and asked at the end */
 function storyKnow(s) {
-  const k = knownWords(), all = new Set();
+  const all = new Set();
   for (const l of s.lines) for (const h of l) if (!READ_PUNCT.test(h) && h !== '狮狮') all.add(h);
-  const mine = [...all].filter(h => knowsTok(k, h));
+  const fresh = new Set(storyNewWords(s).map(w => w.h)), mine = [...all].filter(h => !fresh.has(h));
   return { n: all.size, mine, f: all.size ? mine.length / all.size : 0 };
 }
 /* a thread-bound book (线装书): the title down a paper slip, the stitching along the right edge. A story you have not
@@ -4522,7 +4523,7 @@ function ReadView() {
     <div class="rd-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
     ${readToday ? `<p class="rd-today"><i>${I.check}</i><span><b>You read today.</b> ${st.n > 1 ? `Day ${st.n} of your streak.` : 'Your streak starts here.'}</span></p>` : ''}
     ${!s ? '' : s.opened ? `<div class="read-tools" style="margin-top:0">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
-        ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>' : empty}
+        ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are new: not in your word bank yet.</p>' : empty}
         ${StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>')}`
       : StoryCover(s, st, readToday) + (db.bank.length ? '' : empty)}
     ${ShelfHtml()}
@@ -4551,7 +4552,7 @@ function StoryCover(s, st, readToday) {
   const K = storyKnow(s), fresh = K.n - K.mine.length;
   const fit = K.f >= .9 ? 'Easy read' : K.f >= .7 ? 'Good fit' : K.f >= .4 ? 'A stretch' : 'Lots of new words';
   const hint = st.today ? '' : st.n ? `Finish it to keep your ${st.n}-day streak` : 'Finish it to start a streak';
-  return `<article class="rd-hero">${readScene(s, K.mine)}
+  return `<article class="rd-hero">${readScene(s, K.mine.filter(h => bankHas(h)))}
       <div class="rd-body"><div class="rd-eye">${readToday ? 'Another story' : 'Today’s story'}</div>
         <div class="rd-title"><h3>${esc(s.zh)}</h3><span>${esc(s.en)}</span></div>
         ${db.bank.length ? `<div class="rd-know"><div class="rd-know-top"><span>You know <b>${K.mine.length} of ${K.n}</b> words</span><em>${fit}</em></div>
@@ -4567,13 +4568,13 @@ function mountRead() {
   loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded, and for the cover
     let ch = false; for (const s of db.readDone) if (!s.hsk) { const l = storyLevel(s); if (l) { s.hsk = l; ch = true; } }
     if (ch) save();
-    if (S.view === 'read' && ch) { S.instant = true; render(); }
+    if (S.view === 'read' && (ch || $('.rd-hero') || $('.story'))) { S.instant = true; render(); }   // the new words of a story are only all known once the HSK lists are in
   }, () => {});
 }
 /* the quick check: every new word of the story (the ones not in your word bank yet, the same ones the next step
    offers for it), each with three meanings to pick from, in the order they come in the story. A story with no new word
-   asks one word you know, so there is always a question. The wrong meanings come from words of the same kind, never
-   one that means the same. A word whose meaning can't be asked (了, 的) is left out */
+   has no check: words in your word bank are not asked again. The wrong meanings come from words of the same kind,
+   never one that means the same. A word whose meaning can't be asked (了, 的) is left out */
 const RC_TWINS = [['pretty', 'good-looking'], ['small', 'little', 'a little', 'a bit'], ['to study', 'to learn'], ['happy', 'cheerful'], ['good', 'nice', 'not bad'],
   ['very', 'really'], ['to want to', 'to want', 'would like'], ['home', 'at home'], ['to say', 'to tell'], ['still', 'also'], ['then', 'later'],
   ['and', 'with', 'and also'], ['in', 'at', 'inside'], ['to make', 'to do', 'to finish making'], ['weekend', 'at the weekend'], ['saturday', 'on saturday'],
@@ -4597,15 +4598,7 @@ function storyChecks(s) {
     const opts = shuffle([w.en, ...wrong]);
     return { h: w.h, p: w.p, en: w.en, opts, ok: opts.indexOf(w.en) };
   };
-  const fresh = storyNewWords(s).map(ask).filter(Boolean);
-  if (fresh.length) return fresh;
-  const seen = new Set(), known = [];
-  for (const t of storyTokens(s).flat()) {
-    if (READ_PUNCT.test(t.h) || t.h === '狮狮' || seen.has(t.h)) continue; seen.add(t.h);
-    known.push({ h: t.h, p: t.p, en: RL.home[t.h] ?? RL.gloss[t.h] ?? readMeaning(t.h) });   // what it means in the story
-  }
-  const one = shuffle(known).sort((a, b) => (kindOf(a.h) ? 0 : 1) - (kindOf(b.h) ? 0 : 1)).map(ask).find(Boolean);   // a thing, a place, something to do first
-  return one ? [one] : [];
+  return storyNewWords(s).map(ask).filter(Boolean);
 }
 /* finishing, in two steps on one pop-up: the quick check, then the new words you learned: tick them and they go into
    the word bank, and the story is filed on your shelf */
@@ -4745,7 +4738,7 @@ function addReadWord(t) {   // "Add to my words" in the word bubble
   db.bank.unshift({ id: uid(), hanzi: w.h, pinyin: w.p, en: readMeaning(w.h), added: Date.now(), hsk: S.H ? S.H.byHz.get(w.h)?.lv || 0 : undefined }); save();
   LOG.add('read-add', { hz: w.h });
   t.outerHTML = '<div class="rpop-tag">Added to your word bank ✓</div>';
-  $$('.rw').forEach(x => { const [a, b] = x.dataset.k.split('.').map(Number); if (storyTokens(s)[a]?.[b]?.h === w.h) x.classList.add('mine'); });
+  $$('.rw').forEach(x => { const [a, b] = x.dataset.k.split('.').map(Number); if (storyTokens(s)[a]?.[b]?.h === w.h) x.classList.remove('new'); });
 }
 
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -8383,7 +8376,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.47';
+const APP_VERSION = '2.48';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
