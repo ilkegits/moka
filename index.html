@@ -697,56 +697,60 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .temple-add .btn{min-width:64%;box-shadow:0 0 0 4px var(--paper),0 10px 20px -8px rgba(120,30,20,.55)}
 .temple-add .qa-glyph{width:26px;height:26px;font-size:17px;transform:none;background:var(--seal-ink);color:var(--seal)}   /* upright: a tilted small glyph renders jagged on phones */
 /* ---------- Map: a temple in five cities (Trail draws the map and the temples) ---------- */
-.mp-map{--mp-sea:#C4D9D2;--mp-wave:#9FC0B6;--mp-near:#E4DAC8;--mp-land:#F7EACB;--mp-ink:#5A4636;--mp-river:#5E93A6;--mp-mtn:#E6D3A6;--mp-label:#7A6A58;
-  position:relative;border-radius:14px;overflow:hidden;background:var(--mp-near);box-shadow:var(--ring),0 14px 28px -18px rgba(60,30,10,.45);isolation:isolate}
-:root[data-theme="dark"] .mp-map{--mp-sea:#172728;--mp-wave:#24403E;--mp-near:#211D18;--mp-land:#3A3125;--mp-ink:#C9B48F;--mp-river:#5F9AAA;--mp-mtn:#56493A;--mp-label:#A8987E}
+/* the globe: full width, its sky fading into the page at the top and the land at the bottom */
+.mp-map{--gb-sea:#BCD6D0;--gb-sea2:#93B9B4;--gb-far:#DCDCC9;--gb-land:#F8EBCB;--gb-ink:#5A4636;--gb-river:#5E93A6;--gb-mtn:#E3CFA0;--gb-plan:#3F6A9A;
+  position:relative;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+  -webkit-mask-image:linear-gradient(transparent,#000 9%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 9%,#000 88%,transparent)}
+:root[data-theme="dark"] .mp-map{--gb-sea:#1B3134;--gb-sea2:#122224;--gb-far:#262722;--gb-land:#433829;--gb-ink:#CDB894;--gb-river:#6AA6B6;--gb-mtn:#5E5040;--gb-plan:#9CC0F0}
 .mp-map svg{display:block;width:100%;height:auto}
 .mp-zoom{transform-origin:50% 50%;transition:transform .6s cubic-bezier(.55,0,.25,1)}
 .mp-zoom.mp-zooming,.mp-zoom.mp-zin{transform:scale(4.2)}
 .mp-map::after{content:"";position:absolute;inset:0;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .2s .24s}
 .mp-map.mp-going::after{opacity:1}
-.mp-near{fill:var(--mp-near)}
-.mp-edge{stroke:var(--mp-ink);stroke-width:.5;stroke-opacity:.35}
-.mp-sea{fill:var(--mp-sea)}
-.mp-wv{fill:none;stroke:var(--mp-wave);stroke-width:.7}
-.mp-land{fill:var(--mp-land);stroke:var(--mp-ink);stroke-width:1.1;stroke-linejoin:round}
-.mp-halo-l{fill:none;stroke:var(--mp-ink);stroke-width:7;stroke-opacity:.08;stroke-linejoin:round}
-.mp-dot{fill:var(--mp-ink);opacity:.28}
-.mp-mtn{fill:var(--mp-mtn);stroke:var(--mp-ink);stroke-width:.7;stroke-linejoin:round}
-.mp-snow{fill:#FFFDF6}
-:root[data-theme="dark"] .mp-snow{fill:#D9D2C4}
-.mp-river{fill:none;stroke:var(--mp-river);stroke-width:1.4;stroke-linecap:round;opacity:.85}
-.mp-wall{fill:none;stroke:var(--mp-ink);stroke-width:2.4;stroke-dasharray:1.6 1.1;opacity:.6}
-.mp-fl{font:600 8px var(--hanzi);fill:var(--mp-label);letter-spacing:.12em}
-.mp-fl-r{fill:var(--mp-river)}
-.mp-fl-s{fill:var(--mp-wave);font-size:10px;letter-spacing:.3em}
-:root[data-theme="dark"] .mp-fl-s{fill:#4F7A74}
-.mp-big{font:700 30px var(--hanzi);fill:var(--mp-ink);opacity:.09;letter-spacing:.5em}
-.mp-rose circle{fill:none;stroke:var(--mp-ink);stroke-width:.6;opacity:.6}
-.mp-rose path{fill:var(--mp-land);stroke:var(--mp-ink);stroke-width:.6}
-.mp-rose .mp-rose-n{fill:var(--seal)}
-.mp-rose text{font:700 7px var(--hanzi);fill:var(--mp-ink)}
-.mp-route{fill:none;stroke:var(--mp-ink);stroke-width:1.3;stroke-dasharray:3 3;opacity:.55}
-.mp-route.on{stroke:var(--seal);stroke-dasharray:none;stroke-width:1.9;opacity:1}
-.mp-pin{cursor:pointer;outline:none}
-.mp-trk{fill:var(--card);stroke:var(--mp-ink);stroke-width:1.1}
-.mp-arc{fill:none;stroke:#E2AE45;stroke-width:3.2;stroke-linecap:round}
-.mp-disc{fill:var(--seal)}
-.mp-pin.off .mp-disc{fill:#A99C88}
-.mp-pin.done .mp-disc{fill:#C9952E}
-.mp-roof{fill:#FFF6E8}
-.mp-door{fill:var(--seal)}
-.mp-pin.off .mp-door{fill:#A99C88}
-.mp-pin.done .mp-door{fill:#C9952E}
-.mp-num{fill:var(--ink);stroke:var(--card);stroke-width:1.2}
-.mp-num-t{font:700 6.6px var(--ui);fill:var(--paper)}
-.mp-lab{font:700 10px var(--hanzi);fill:var(--ink);paint-order:stroke;stroke:var(--mp-land);stroke-width:3px;stroke-linejoin:round}
-.mp-lab-en{font:700 7px var(--ui);fill:var(--mp-label)}
-.mp-ping{fill:none;stroke:var(--seal);stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
-.mp-pin.ready .mp-ping{stroke:#E2AE45;stroke-width:2.2}
-@keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.9);opacity:0}}
-.mp-glow{animation:wtGlow 1.4s ease-in-out infinite alternate}
-.mp-pin:focus-visible .mp-trk{stroke:var(--seal);stroke-width:2.6}
+.gb-grat{fill:none;stroke:#fff;stroke-width:.6;opacity:.38}
+:root[data-theme="dark"] .gb-grat{opacity:.1}
+.gb-far{fill:var(--gb-far);stroke:var(--gb-ink);stroke-width:.5;stroke-opacity:.3;stroke-linejoin:round}
+.gb-lift{fill:var(--gb-ink);opacity:.28}
+.gb-land{fill:var(--gb-land);stroke:var(--gb-ink);stroke-width:1.1;stroke-linejoin:round}
+.gb-mtn{fill:var(--gb-mtn);stroke:var(--gb-ink);stroke-width:.65;stroke-linejoin:round}
+.gb-snow{fill:#FFFDF6}
+:root[data-theme="dark"] .gb-snow{fill:#D9D2C4}
+.gb-river{fill:none;stroke:var(--gb-river);stroke-width:1.4;stroke-linecap:round;opacity:.85}
+.gb-wall{fill:none;stroke:var(--gb-ink);stroke-width:2.2;stroke-dasharray:1.6 1.1;opacity:.55}
+.gb-big{font:700 26px var(--hanzi);fill:var(--gb-ink);opacity:.1;letter-spacing:.5em}
+.gb-route{fill:none;stroke:var(--gb-ink);stroke-width:1.2;stroke-dasharray:3 3;opacity:.5}
+.gb-route.on{stroke:var(--seal);stroke-dasharray:none;stroke-width:1.8;opacity:.95}
+.gb-cloud{fill:#fff;opacity:.85}
+.gb-low{opacity:.7}
+:root[data-theme="dark"] .gb-cloud{fill:#8C8FB0;opacity:.18}
+.gb-pin{cursor:pointer;outline:none}
+.gb-shade{fill:#3B2A20;opacity:.2}
+.gb-plot{fill:#E2D2B2;stroke:#9C7448;stroke-width:.5}
+.gb-ghost *{fill:none!important;stroke:var(--gb-plan)!important;stroke-width:.6!important;stroke-dasharray:1.6 1.2}
+.gb-ghost{opacity:.75}
+.gb-lot{fill:none;stroke:var(--gb-plan);stroke-width:.8;stroke-dasharray:2 1.6}
+.gb-flag{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
+.gb-pin.off .gb-flag{fill:#B5A88F}
+.gb-scaf{fill:none;stroke:#8A5A2B;stroke-width:1.1;stroke-linecap:round}
+.gb-tape{fill:none;stroke:#D9A53A;stroke-width:.8;stroke-dasharray:2 1.2}
+.gb-spark{fill:#F4C95A;animation:wtTw 1.6s ease-in-out infinite alternate}
+.gb-ping{fill:none;stroke:#E2AE45;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
+@keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.7);opacity:0}}
+.gb-chip{fill:var(--card);stroke:var(--gb-ink);stroke-width:.6;stroke-opacity:.4}
+.gb-n{fill:var(--ink)}
+.gb-n-t{font:700 6.6px var(--ui);fill:var(--paper)}
+.gb-name{font:700 8.6px var(--hanzi);fill:var(--ink)}
+.gb-k{font:700 6.6px var(--ui);fill:var(--muted)}
+.gb-lab.cur .gb-chip{fill:var(--seal);stroke:none}
+.gb-lab.cur .gb-name,.gb-lab.cur .gb-k{fill:var(--seal-ink)}
+.gb-lab.cur .gb-n{fill:var(--seal-ink)}
+.gb-lab.cur .gb-n-t{fill:var(--seal)}
+.gb-lab.done .gb-chip{fill:#C9952E;stroke:none}
+.gb-lab.done .gb-name,.gb-lab.done .gb-k{fill:#FFF8E8}
+.gb-lab.off .gb-name{fill:var(--muted)}
+.gb-pin:focus-visible .gb-shade{fill:var(--seal);opacity:.55}
+.gb-lab{cursor:pointer}
+.mp-map.gb-grab{cursor:grabbing}
 .mp-sum{font-size:13px;font-weight:600;color:var(--ink-2)}
 .mp-note{margin:12px 4px 18px;font-size:13.5px;color:var(--muted);line-height:1.45}
 .mp-list{display:flex;flex-direction:column;gap:8px}
@@ -812,7 +816,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.mp-zoom{transition:none}.mp-ping,.mp-glow,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.mp-zoom{transition:none}.gb-ping,.gb-spark,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -5010,14 +5014,6 @@ function trailState(lv) {
 }
 const Trail = (() => {
   const K = Temple.kit, f = K.f, INK = K.INK;
-  const MAP_H = 266, MX = lon => 10 + (lon - 73.5) * 5.526, MY = lat => 10 + (53.6 - lat) * 6.83;
-  const pt = ([lon, lat]) => [f(MX(lon)), f(MY(lat))];
-  const loop = pts => {   // a smooth closed outline through the points
-    const p = pts.map(pt), n = p.length, mid = (a, b) => `${f((a[0] + b[0]) / 2)} ${f((a[1] + b[1]) / 2)}`;
-    let d = `M${mid(p[n - 1], p[0])}`; for (let i = 0; i < n; i++) d += `Q${p[i][0]} ${p[i][1]} ${mid(p[i], p[(i + 1) % n])}`;
-    return d + 'Z';
-  };
-  const line = pts => K.smooth(pts.map(pt));
   /* China, clockwise from the far north (lon, lat): the Amur and Ussuri, North Korea, the coast, Vietnam, Laos, Myanmar,
      the Himalaya, the Pamirs, Central Asia and Mongolia. Rough on purpose: a painted map, not a survey */
   const NE = [[122.3, 53.5], [124, 53.2], [125.6, 53], [126.6, 51.9], [127.5, 50.2], [128.8, 49.6], [130.6, 48.9], [131.5, 47.7], [132.6, 47.7], [134.7, 48.3],
@@ -5038,11 +5034,6 @@ const Trail = (() => {
   const TAIWAN = [[121, 25.1], [121.9, 25], [121.5, 23.6], [120.9, 22], [120.3, 22.6], [120.1, 23.4], [120.7, 24.6]];
   const KOREA = [[124.4, 40], [125.3, 40.6], [126.9, 41.8], [128, 41.6], [129, 42], [130.6, 42.4], [129.7, 40.9], [128.6, 40.1], [127.5, 39.6], [128.4, 38.6], [129.4, 37],
     [129.4, 35.5], [129, 35.1], [127.5, 34.6], [126.4, 34.5], [126.5, 35.8], [126.8, 36.9], [126.1, 37.7], [125.2, 38], [124.7, 38.6], [125.3, 39.5]];
-  const JAPAN = [[[129.8, 33.4], [130.9, 33.9], [131.9, 33.2], [131.4, 31.4], [130.3, 31.2], [130.1, 32.6]],
-    [[130.9, 34.2], [132.5, 35.4], [134.5, 35.6], [136.8, 35.8], [136.8, 34.1], [134.6, 34.6], [133, 34.3], [131.9, 33.9]]];
-  // the sea: the coast pulled a little inland (China is drawn on top), on down the Vietnamese coast, round the map's edge and back by Vladivostok
-  const SEA = [...COAST.map(([x, y]) => { const dx = 112 - x, dy = 32 - y, l = Math.hypot(dx, dy) || 1; return [x + dx / l * .7, y + dy / l * .7]; }),
-    [107.2, 21], [106.6, 20.4], [105.9, 19.3], [106.3, 18], [107, 16.4], [137.5, 16.4], [137.5, 44.6], [135, 43.5], [133.2, 42.8], [131.9, 43.1], [130.7, 42.4]];
   const YANGTZE = [[91.5, 33.6], [95, 33], [97.5, 32.4], [99, 30.8], [99.4, 28.4], [100.2, 26.8], [102.6, 26.3], [104.6, 28.8], [106.5, 29.6], [108.4, 30.8], [111.3, 30.7],
     [112.8, 30], [114.3, 30.6], [116, 29.7], [117.6, 31], [118.8, 32], [120.3, 31.9], [121.8, 31.5]];
   const YELLOW = [[96.5, 35], [100, 36], [103.8, 36.1], [105.7, 37.5], [106.7, 39.5], [108.5, 40.8], [111, 40.7], [111.3, 39.4], [110.6, 37.5], [110.3, 35.5], [110.4, 34.6],
@@ -5052,51 +5043,187 @@ const Trail = (() => {
   const PEAKS = [[81, 33.4], [84, 32.2], [87, 33.2], [90, 32.4], [93, 33.6], [96, 31.6], [86, 30.4], [89, 30.8], [92.2, 30.4], [83.4, 30.5], [80.6, 35], [84.5, 35.2],
     [88.5, 35.6], [92.5, 35.4], [99.6, 28.6], [100.8, 31.2], [82.8, 42.6], [85.6, 43.2], [88.4, 43.3], [106.2, 33.7], [108.6, 33.8], [113.3, 37.6]];
   const SNOW = new Set([0, 1, 2, 3, 4, 6, 7, 8, 9]);
-  function chinaMap(states) {
-    const R = K.rng(4); let s = `<svg viewBox="0 0 360 ${MAP_H}" role="img" aria-label="Map of China with a temple in five cities">
-      <defs><pattern id="mpWave" width="16" height="9" patternUnits="userSpaceOnUse"><path class="mp-wv" d="M0 7q4-4.5 8 0t8 0"/></pattern>
-        <radialGradient id="mpGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE7A8" stop-opacity=".9"/><stop offset="1" stop-color="#FFE7A8" stop-opacity="0"/></radialGradient></defs>
-      <rect class="mp-near" width="360" height="${MAP_H}"/>
-      <path class="mp-sea" d="${loop(SEA)}"/><path d="${loop(SEA)}" fill="url(#mpWave)"/>
-      <path class="mp-near mp-edge" d="${loop(KOREA)}"/>${JAPAN.map(j => `<path class="mp-near mp-edge" d="${loop(j)}"/>`).join('')}`;
-    const china = loop([...NE, ...COAST, ...WEST]);
-    s += `<path class="mp-halo-l" d="${china}"/><path class="mp-land" d="${china}"/><path class="mp-land" d="${loop(HAINAN)}"/><path class="mp-land" d="${loop(TAIWAN)}"/>`;
-    for (let k = 0; k < 120; k++) { const lon = 78 + R() * 10, lat = 37.6 + R() * 2.8; s += `<circle class="mp-dot" cx="${f(MX(lon))}" cy="${f(MY(lat))}" r=".55"/>`; }   // Taklamakan
-    for (let k = 0; k < 60; k++) { const lon = 100 + R() * 8, lat = 40.5 + R() * 1; s += `<circle class="mp-dot" cx="${f(MX(lon))}" cy="${f(MY(lat))}" r=".55"/>`; }   // Gobi
-    PEAKS.forEach(([lon, lat], i) => { const x = MX(lon), y = MY(lat), w = 5 + (i % 3);
-      s += `<path class="mp-mtn" d="M${f(x - w)} ${f(y)}L${f(x)} ${f(y - w * 1.1)}L${f(x + w)} ${f(y)}"/>`;
-      if (SNOW.has(i)) s += `<path class="mp-snow" d="M${f(x - w * .36)} ${f(y - w * .7)}L${f(x)} ${f(y - w * 1.1)}L${f(x + w * .36)} ${f(y - w * .7)}Z"/>`; });
-    s += `<path class="mp-river" d="${line(YANGTZE)}"/><path class="mp-river" d="${line(YELLOW)}"/><path class="mp-wall" d="${line(WALL)}"/>`;
-    const lbl = (zh, lon, lat, cls = '') => `<text class="mp-fl${cls}" x="${f(MX(lon))}" y="${f(MY(lat))}" text-anchor="middle">${zh}</text>`;
-    s += `<text class="mp-big" x="${f(MX(97.4))}" y="${f(MY(36.4))}" text-anchor="middle">中国</text>`;
-    s += lbl('长江', 114.6, 29.2, ' mp-fl-r') + lbl('黄河', 114.9, 36.6, ' mp-fl-r') + lbl('长城', 101.6, 40.1) + lbl('东海', 124.6, 25.4, ' mp-fl-s') + lbl('南海', 116.8, 19.4, ' mp-fl-s');
-    // a compass rose in the sea
-    const cx = MX(131.2), cy = MY(22.4);
-    s += `<g class="mp-rose" transform="translate(${f(cx)} ${f(cy)})"><circle r="11"/><path d="M0 -15L2.6 -2.6L15 0L2.6 2.6L0 15L-2.6 2.6L-15 0L-2.6 -2.6Z"/><path class="mp-rose-n" d="M0 -15L2.6 -2.6L0 0L-2.6 -2.6Z"/><text y="-18" text-anchor="middle">北</text></g>`;
-    // the route, city to city: red once the temple you leave from is finished
-    const P = TRAIL.map(c => [MX(c.lon), MY(c.lat)]);
-    for (let i = 0; i < P.length - 1; i++) {
-      const [a, b] = [P[i], P[i + 1]], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy);
-      s += `<path class="mp-route${states[i].done ? ' on' : ''}" d="M${f(a[0])} ${f(a[1])}Q${f(mx - dy / l * 22)} ${f(my + dx / l * 22)} ${f(b[0])} ${f(b[1])}"/>`;
+  /* ---- the planet: China on top of a small round world ----
+     The Map tab's picture. A globe seen from straight above 5°N 104°E, so big that only its northern cap fits: China sits in
+     the middle, the rest of Asia curves away to a horizon with sky above it. Each city's temple stands upright on the land,
+     leaning with the curve, and rises out of the ground a piece at a time (the rest waits as a dashed outline). Drag sideways
+     to spin the world; let go and it springs back to China. GS.off = how far it is turned (degrees of longitude). */
+  const GW = 360, GH = 412, GR = 430, GCX = 180, GCY = 470, LAT0 = 5, LON0 = 104, D = Math.PI / 180;
+  const GS = { off: 0, noClick: 0, spun: false };
+  function gp(lon, lat, off = GS.off) {   // [x, y, c]: c > 0 on the side facing you; behind it, pinned to the horizon
+    const l = (lon - LON0 + off) * D, p = lat * D, p0 = LAT0 * D;
+    const c = Math.sin(p0) * Math.sin(p) + Math.cos(p0) * Math.cos(p) * Math.cos(l);
+    let x = Math.cos(p) * Math.sin(l), y = Math.cos(p0) * Math.sin(p) - Math.sin(p0) * Math.cos(p) * Math.cos(l);
+    if (c < 0) { const m = Math.hypot(x, y) || 1; x /= m; y /= m; }
+    return [GCX + GR * x, GCY - GR * y, c];
+  }
+  const gloop = (pts, off) => { const p = pts.map(q => gp(q[0], q[1], off)), n = p.length, m = (a, b) => `${f((a[0] + b[0]) / 2)} ${f((a[1] + b[1]) / 2)}`;
+    let d = `M${m(p[n - 1], p[0])}`; for (let i = 0; i < n; i++) d += `Q${f(p[i][0])} ${f(p[i][1])} ${m(p[i], p[(i + 1) % n])}`; return d + 'Z'; };
+  const gline = (pts, off) => K.smooth(pts.map(q => gp(q[0], q[1], off)).map(([x, y]) => [f(x), f(y)]));
+  // the rest of Asia, rough on purpose: Siberia's Arctic coast, the Pacific coast past Korea and China, Indochina, India, Iran
+  const ASIA = [[38, 68], [55, 69], [68, 72.5], [80, 73.5], [100, 77], [113, 74], [130, 72], [142, 72], [160, 70], [178, 67], [179, 63], [172, 60.5], [163, 59],
+    [162, 56], [160, 52.5], [157, 51.3], [156, 55], [155.5, 58], [151, 59.5], [143, 59.3], [138, 55], [140.5, 52], [141, 48.5], [139, 46], [137, 44], [133.2, 42.8], [131.9, 43.1],
+    ...KOREA.slice(6), ...COAST,
+    [107.2, 21], [106.6, 20.4], [105.9, 19.3], [106.3, 18], [107, 16.4], [108.8, 15.4], [109.3, 12.9], [109.2, 11.6], [107, 10.4], [105, 8.6], [104.8, 10.3], [103.5, 10.6],
+    [102.3, 12.2], [100.9, 12.7], [100, 13.4], [99.2, 10.8], [99.8, 9.2], [100.5, 7.2], [102.1, 6.2], [103.4, 4.8], [103.4, 2.8], [104.2, 1.4], [101.3, 2.8], [100.3, 6.4],
+    [98.6, 8.2], [98.3, 10], [98.6, 12.8], [97.8, 16.5], [95, 15.8], [94.2, 16], [94.5, 18.5], [92.3, 20.7], [91.8, 22.4], [90.5, 22], [89, 21.7], [87, 21.5], [86.9, 20.2],
+    [85, 19.4], [82.3, 16.6], [80.3, 15.8], [80.2, 13.4], [79.9, 10.3], [77.5, 8.1], [76.5, 8.9], [75.4, 11.8], [74.5, 14.8], [72.8, 19.3], [72.6, 21.4], [70.4, 20.9],
+    [68.4, 23.6], [66, 25.4], [62, 25.2], [57.3, 25.8], [56.4, 27.1], [51.4, 27.9], [48.6, 30], [44, 31], [42, 37], [40, 41], [44, 42], [48, 42], [50, 45], [47, 47], [41, 48], [40, 55]];
+  const ISLES = [[[129.8, 33.4], [130.9, 33.9], [131.9, 33.2], [131.4, 31.4], [130.3, 31.2], [130.1, 32.6]],
+    [[130.9, 34.2], [132.5, 35.4], [134.5, 35.6], [136.8, 37.4], [138.5, 38], [139.9, 40], [140, 41.4], [141.5, 41.3], [142, 39.4], [141, 38], [140.9, 36.9], [140.6, 35.2],
+      [139.8, 35], [138.8, 34.6], [137, 34.6], [135.2, 33.8], [133, 34.3], [131.9, 33.9]],
+    [[140, 41.6], [141.2, 41.8], [143.3, 42], [145.5, 43.3], [145, 44.2], [141.9, 45.5], [141.4, 43.4], [140, 42.8]],
+    [[142, 46], [143.5, 46.8], [143, 49], [144.6, 49], [143, 54.3], [142.4, 53.5], [142, 51], [142, 48]],
+    [[120.6, 18.5], [122.2, 18.5], [122, 16.8], [121.6, 15.8], [122.5, 14], [124, 13.8], [124, 12.5], [122.5, 13], [121, 13.8], [120.6, 14.5], [120.2, 16]],
+    [[122, 7], [126.3, 6.3], [126.6, 8], [125.4, 9.8], [123.5, 8.6], [122, 8]],
+    [[109.6, 1.5], [111, 1.8], [113, 3.2], [115.4, 5], [116.8, 7], [118.6, 5.3], [119, 4.9], [117.9, 1.5], [116.5, -1], [114, -3.5], [110.3, -2.9], [109, -.4]],
+    [[95.3, 5.6], [98, 4], [100.4, 2.2], [103.8, -1], [102.3, -4], [100.3, -1], [98.6, 1.7], [96.5, 3.8]]];
+  const CHINA = [...NE, ...COAST, ...WEST];
+  function grat(off) {   // the globe's lines of latitude and longitude, faint on the sea
+    let d = ''; const run = pts => { let on = false; for (const [lon, lat] of pts) { const [x, y, c] = gp(lon, lat, off);
+      if (c < .03) { on = false; continue; } d += `${on ? 'L' : 'M'}${f(x)} ${f(y)}`; on = true; } };
+    for (let lat = 0; lat <= 75; lat += 15) run(Array.from({ length: 61 }, (_, i) => [LON0 - off - 90 + i * 3, lat]));
+    for (let lon = 0; lon < 360; lon += 20) run(Array.from({ length: 31 }, (_, i) => [lon, i * 3]));
+    return d;
+  }
+  // where each temple stands: a little off its city where two would crowd each other
+  const SHI = { 1: -1, 2: -1, 3: 1, 4: -1, 5: -1 };
+  const SITE = { 1: [101.6, 28.9], 2: [112.6, 23.6], 3: [121.4, 30.4], 4: [106.6, 36.2], 5: [118.6, 42.2] };
+  function world(states, off) {
+    let s = `<path class="gb-far" d="${gloop(ASIA, off)}"/>` + ISLES.map(p => `<path class="gb-far" d="${gloop(p, off)}"/>`).join('');
+    s += `<path class="gb-grat" d="${grat(off)}"/>`;
+    const china = gloop(CHINA, off);
+    s += `<path class="gb-lift" d="${china}" transform="translate(0 3.2)"/><path class="gb-land" d="${china}"/>`;
+    s += `<path class="gb-land" d="${gloop(HAINAN, off)}"/><path class="gb-land" d="${gloop(TAIWAN, off)}"/>`;
+    s += `<path class="gb-river" d="${gline(YANGTZE, off)}"/><path class="gb-river" d="${gline(YELLOW, off)}"/><path class="gb-wall" d="${gline(WALL, off)}"/>`;
+    PEAKS.forEach(([lon, lat], i) => { const [x, y] = gp(lon, lat, off), w = 4.4 + (i % 3), a = lean(x, y);
+      s += `<g transform="translate(${f(x)} ${f(y)}) rotate(${a})"><path class="gb-mtn" d="M${-w} 0L0 ${f(-w * 1.15)}L${w} 0Z"/>${SNOW.has(i) ? `<path class="gb-snow" d="M${f(-w * .36)} ${f(-w * .74)}L0 ${f(-w * 1.15)}L${f(w * .36)} ${f(-w * .74)}Z"/>` : ''}</g>`; });
+    const [zx, zy] = gp(96.5, 36.2, off);
+    s += `<text class="gb-big" x="${f(zx)}" y="${f(zy)}" text-anchor="middle" transform="rotate(${lean(zx, zy)} ${f(zx)} ${f(zy)})">中国</text>`;
+    for (let i = 0; i < TRAIL.length - 1; i++) {   // flight paths, city to city, lifted off the ground: red once the temple you leave from is finished
+      const a = gp(...SITE[i + 1], off), b = gp(...SITE[i + 2], off), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = mx - GCX, dy = my - GCY, l = Math.hypot(dx, dy);
+      s += `<path class="gb-route${states[i].done ? ' on' : ''}" d="M${f(a[0])} ${f(a[1])}Q${f(mx + dx / l * 30)} ${f(my + dy / l * 30)} ${f(b[0])} ${f(b[1])}"/>`;
     }
-    const cur = states.findIndex(x => !x.done);
-    TRAIL.forEach((c, i) => s += pin(c, states[i], i === cur));
-    return s + '</svg>';
+    return s;
   }
-  function pin(c, st, cur) {
-    const x = MX(c.lon), y = MY(c.lat), C = 2 * Math.PI * 12.5, [lx, ly] = c.lab;
-    const cls = st.done ? 'done' : st.started ? 'on' : 'off', ready = st.k > st.seen;
-    const tx = lx * 16, ty = ly > 0 ? 27 : -22, anchor = lx < 0 ? 'end' : lx > 0 ? 'start' : 'middle';
-    const say = st.done ? 'finished' : st.started ? `${st.k} of 8 pieces built` : 'not started';
-    return `<g class="mp-pin ${cls}${ready ? ' ready' : ''}${cur ? ' cur' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${c.en}, HSK ${c.lv} temple, ${say}" transform="translate(${f(x)} ${f(y)})">
-      <circle r="24" fill="transparent"/>${ready ? '<circle class="mp-glow" r="22" fill="url(#mpGlow)"/><circle class="mp-ping" r="13"/>' : cur ? '<circle class="mp-ping" r="13"/>' : ''}
-      <circle class="mp-trk" r="12.5"/>${st.k ? `<circle class="mp-arc" r="12.5" stroke-dasharray="${f(st.k / 8 * C)} ${f(C)}" transform="rotate(-90)"/>` : ''}
-      <circle class="mp-disc" r="9.4"/><path class="mp-roof" d="M-7 -.6Q-3 -1.4 0 -6.4Q3 -1.4 7 -.6Z M-4.4 .4H4.4V5.4H-4.4Z"/><path class="mp-door" d="M-1.3 5.4V2.4H1.3V5.4Z"/>
-      <g transform="translate(9.5 -9.5)"><circle class="mp-num" r="5.4"/><text class="mp-num-t" y="2.3" text-anchor="middle">${c.lv}</text></g>
-      <text class="mp-lab" x="${tx}" y="${ty}" text-anchor="${anchor}">${c.zh}<tspan class="mp-lab-en" dx="3">${esc(c.en)}</tspan></text>
-      ${cur ? '<image href="mascots/shi-shi.svg" x="-48" y="-15" width="30" height="30"/>' : ''}</g>`;
+  const lean = (x, y) => f(Math.atan2(x - GCX, GCY - y) / D * .75);   // upright on a curved world leans outward
+  /* the five landmarks, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
+  const C = { r: '#B8322A', r2: '#7E1E18', door: '#5E1813', st: '#F1E8D6', st2: '#CDBDA3', gold: '#E8B44C', gold2: '#B98426', grey: '#737C84', grey2: '#555D65',
+    teal: '#2E7D7A', blue: '#2F5D8A', blue2: '#22486E', grn: '#5E8A50', grn2: '#3F643A', brick: '#C9A06E', brick2: '#9C7448', win: '#F3D58A' };
+  const roof = (w, y, h, fill) => `<path d="M${-w} ${f(y - 2.4)}Q${f(-w * .8)} ${y} ${f(-w * .55)} ${y}H${f(w * .55)}Q${f(w * .8)} ${y} ${w} ${f(y - 2.4)}Q${f(w * .72)} ${f(y - 2.8)} ${f(w * .6)} ${f(y - h)}H${f(-w * .6)}Q${f(-w * .72)} ${f(y - 2.8)} ${-w} ${f(y - 2.4)}Z" fill="${fill}"/>`;
+  const cone = (w, y, h, fill) => `<path d="M${-w} ${y}Q${f(-w * .45)} ${f(y - h * .45)} 0 ${f(y - h)}Q${f(w * .45)} ${f(y - h * .45)} ${w} ${y}Q0 ${f(y + 1.3)} ${-w} ${y}Z" fill="${fill}"/>`;
+  const box = (w, y0, y1, fill) => `<rect x="${-w}" y="${y1}" width="${w * 2}" height="${y0 - y1}" fill="${fill}"/>`;
+  const MON = [
+    { h: 34, w: 26, art: () => box(17, 0, -2.5, C.st2) + box(15, -2.5, -4.5, C.st) + box(11.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/><path d="M-9.5 -11.5H-5V-7.5H-9.5ZM5 -11.5H9.5V-7.5H5Z" fill="${C.win}"/>`
+        + roof(19, -12.5, 6.5, C.grey) + box(6.5, -18.5, -23, C.r) + roof(12.5, -22, 5.5, C.grey)
+        + `<g stroke="${C.grn2}" stroke-width="1.5" fill="none"><path d="M19 0V-27M22.5 0V-33M26 0V-22"/></g><g fill="${C.grn}"><ellipse cx="17" cy="-25" rx="3.6" ry="1.4" transform="rotate(-24 17 -25)"/><ellipse cx="25" cy="-31" rx="3.8" ry="1.4" transform="rotate(20 25 -31)"/><ellipse cx="20" cy="-17" rx="3.4" ry="1.3" transform="rotate(-18 20 -17)"/><ellipse cx="28.5" cy="-20.5" rx="3.4" ry="1.3" transform="rotate(26 28.5 -20.5)"/></g>` },
+    { h: 33, w: 30, art: () => box(18, 0, -3, C.st2) + box(14, -3, -14, '#A3A7A8') + `<path d="M-3 -3V-10.5H3V-3Z" fill="${C.door}"/><path d="M-11 -11H-6.5M6.5 -11H11" stroke="${C.grey2}"/>`
+        + `<path d="M-15 -11V-19Q-15 -25.5 -9.5 -24.5Q-12.5 -20 -11.5 -11Z" fill="${C.grey2}"/><path d="M15 -11V-19Q15 -25.5 9.5 -24.5Q12.5 -20 11.5 -11Z" fill="${C.grey2}"/>`
+        + roof(15.5, -13.5, 6, C.teal) + `<path d="M-8 -19.5H8" stroke="${C.gold}" stroke-width="1.8"/><circle cx="-5" cy="-21" r="1.1" fill="${C.r}"/><circle cx="0" cy="-21.5" r="1.1" fill="${C.gold}"/><circle cx="5" cy="-21" r="1.1" fill="${C.teal}"/>`
+        + `<path d="M-24 0V-14M-21 0V-9M-27 0V-10" stroke="${C.brick2}" stroke-width="1.3"/><circle cx="-24" cy="-22" r="8.5" fill="${C.grn}"/><circle cx="-28" cy="-18" r="5" fill="${C.grn2}"/><circle cx="-19.5" cy="-27" r="4.5" fill="${C.grn}"/>` },
+    { h: 44, w: 26, art: () => box(16, 0, -2.5, C.st) + box(14, -2.5, -4.5, C.st2) + box(10.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/>`
+        + roof(17, -12.5, 6, C.gold) + box(6, -18.5, -22.5, C.r) + roof(11.5, -21.5, 5.5, C.gold2)
+        + `<g transform="translate(21 0)">${box(3.6, 0, -6, C.r)}${roof(6.5, -5.5, 3, C.gold)}${box(2.8, -8.5, -12, C.r)}${roof(5.5, -11.5, 3, C.gold)}${box(2.2, -14.5, -17.5, C.r)}${roof(4.6, -17, 3, C.gold)}${box(1.7, -20, -22.5, C.r)}${roof(3.8, -22, 3, C.gold)}<path d="M0 -25V-31" stroke="${C.gold2}" stroke-width="1.2"/></g>` },
+    { h: 50, w: 22, art: () => { let s = box(18, 0, -2.5, C.st2) + `<g transform="translate(-17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g><g transform="translate(17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g>` + box(11, -2.5, -6, C.brick2);
+        let y = -6; for (let i = 0; i < 7; i++) { const w = 9.4 - i * 1.05, h = 5.6 - i * .3; s += box(f(w), y, f(y - h), C.brick) + `<path d="M${f(-w - 1.6)} ${f(y - h)}H${f(w + 1.6)}" stroke="${C.brick2}" stroke-width="1.6"/><circle cy="${f(y - h / 2)}" r=".9" fill="${C.door}"/>`; y -= h; }
+        return s + `<path d="M0 ${f(y)}V${f(y - 7)}" stroke="${C.gold2}" stroke-width="1.4"/><circle cy="${f(y - 4)}" r="1.4" fill="${C.gold}"/>`; } },
+    { h: 36, w: 24, art: () => box(17, 0, -3, C.st) + box(13.5, -3, -6, C.st2) + box(10.5, -6, -9, C.st) + `<path d="M-16 -1.5H16M-12.5 -4.5H12.5M-9.5 -7.5H9.5" stroke="${C.st2}" stroke-dasharray="1 1.2"/>`
+        + box(7.5, -9, -13.5, C.r) + cone(11.5, -13, 4.5, C.blue) + box(5.8, -16.5, -20, C.r) + cone(9, -19.5, 4.2, C.blue) + box(4.2, -22.5, -25, C.r) + cone(6.8, -24.5, 6.5, C.blue2)
+        + `<path d="M0 -31V-34" stroke="${C.gold2}" stroke-width="1.1"/><circle cy="-34.5" r="1.6" fill="${C.gold}"/>` },
+  ];
+  function monument(c, st, cur) {
+    const M = MON[c.lv - 1], k = st.k, built = M.h * k / 8;
+    let s = `<ellipse class="gb-shade" rx="${M.w}" ry="4.6" cy="1"/>`;
+    if (st.k > st.seen) s += `<ellipse class="gb-ping" rx="${M.w - 2}" ry="5" cy="1"/>`;
+    if (st.started) s += `<ellipse class="gb-plot" rx="${M.w - 5}" ry="3.4" cy=".6"/>`;
+    if (!st.started) s += `<ellipse class="gb-lot" rx="${M.w - 6}" ry="3.6" cy=".6"/><path class="gb-scaf" d="M-2 1V-17"/><path class="gb-flag" d="M-1.6 -17L9 -14L-1.6 -11Z"/>`;   // not started: an empty plot with a surveyor's flag
+    else if (k >= 2 && k < 8) s += `<g class="gb-ghost">${M.art()}</g>`;   // like the temple page: no plan until two pieces stand
+    if (k) s += `<clipPath id="gbB${c.lv}"><rect x="-60" y="${f(k === 8 ? -80 : -built)}" width="120" height="${f(k === 8 ? 90 : built + 10)}"/></clipPath>
+      <g clip-path="url(#gbB${c.lv})" stroke="#3B2A20" stroke-width=".6" stroke-linejoin="round">${M.art()}</g>`;
+    if (k > 0 && k < 8) { const t = f(-built - 3), x = M.w - 6; s += `<path class="gb-scaf" d="M${-x} 0V${t}M${x} 0V${t}M${-x} ${f(-built)}H${x}M${-x} ${f(-built / 2)}H${x}"/>`; }
+    if (st.started && !k) s += `<path class="gb-scaf" d="M${-(M.w - 8)} .5V-5M${M.w - 8} .5V-5"/><path class="gb-tape" d="M${-(M.w - 8)} -4.2H${M.w - 8}"/>`;
+    if (st.done) s += `<path class="gb-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="gb-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
+    const side = SHI[c.lv];   // Shi Shi stands beside the temple you are building, on whichever side is open land
+    if (cur) s += `<image class="gb-shi" href="mascots/shi-shi.svg" x="${side < 0 ? -M.w - 22 : M.w}" y="-22" width="22" height="22"/>`;
+    return s + `<rect x="${-M.w - (cur && side < 0 ? 24 : 2)}" y="${-M.h - 4}" width="${M.w * 2 + (cur ? 26 : 4)}" height="${M.h + 10}" fill="transparent"/>`;
   }
-
+  function gpin(c, st, cur) {
+    const t = pinAt(c.lv, GS.off);
+    const cls = st.done ? 'done' : st.started ? 'on' : 'off', say = st.done ? 'finished' : st.started ? `${st.k} of 8 pieces built` : 'not started';
+    const w = st.started ? 52 : 40;
+    return [`<g class="gb-pin ${cls}${cur ? ' cur' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${c.en}, HSK ${c.lv} temple, ${say}" transform="${t.up}">${monument(c, st, cur)}</g>`,
+      `<g class="gb-lab ${cls}${cur ? ' cur' : ''}" data-act="map-city" data-lv="${c.lv}" aria-hidden="true" transform="${t.lab}"><rect class="gb-chip" x="${-w / 2}" y="5" width="${w}" height="15" rx="7.5"/><circle class="gb-n" cx="${-w / 2 + 7.5}" cy="12.5" r="5.2"/><text class="gb-n-t" x="${-w / 2 + 7.5}" y="14.8" text-anchor="middle">${c.lv}</text>
+        <text class="gb-name" x="${-w / 2 + 17.5}" y="16.2">${c.zh}</text><text class="gb-k" x="${w / 2 - 5}" y="15.6" text-anchor="end">${st.done ? '✓' : st.started ? st.k + '/8' : ''}</text></g>`];
+  }
+  const pinAt = (lv, off) => {   // a temple stands on its spot, leaning with the curve; its name chip stays upright under it
+    const [x, y, c] = gp(...SITE[lv], off), sc = .62 + .4 * Math.max(0, c);
+    return { y, hide: c < .05, up: `translate(${f(x)} ${f(y)}) rotate(${lean(x, y)}) scale(${f(sc * 1.45)})`, lab: `translate(${f(x)} ${f(y + 3)}) scale(${f(sc)})` };
+  };
+  const placePin = (g, lab, off) => { const t = pinAt(g.dataset.lv, off);
+    g.setAttribute('transform', t.up); lab.setAttribute('transform', t.lab); g.style.display = lab.style.display = t.hide ? 'none' : ''; return t.y; };
+  function globe(states) {
+    const night = Temple.night(), P = K.pal(night), cur = states.findIndex(x => !x.done);
+    let s = `<svg id="gbSvg" viewBox="0 0 ${GW} ${GH}" role="group" aria-label="China on a small globe, with a temple in five cities">
+      <defs><linearGradient id="gbSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.sky[0]}"/><stop offset=".6" stop-color="${P.sky[1]}"/><stop offset="1" stop-color="${P.sky[2]}"/></linearGradient>
+        <radialGradient id="gbAir" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY}" r="${GR + 26}"><stop offset="${f(GR / (GR + 26) * 100) / 100}" stop-color="${night ? '#8FA6E0' : '#FFFFFF'}" stop-opacity="${night ? .45 : .85}"/><stop offset="1" stop-color="${night ? '#8FA6E0' : '#FFFFFF'}" stop-opacity="0"/></radialGradient>
+        <radialGradient id="gbSea" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY - 120}" r="${GR + 40}"><stop offset="0" style="stop-color:var(--gb-sea)"/><stop offset=".75" style="stop-color:var(--gb-sea)"/><stop offset="1" style="stop-color:var(--gb-sea2)"/></radialGradient>
+        <radialGradient id="gbLimb" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY}" r="${GR}"><stop offset=".8" stop-color="#1E2A33" stop-opacity="0"/><stop offset=".965" stop-color="#1E2A33" stop-opacity=".16"/><stop offset="1" stop-color="#1E2A33" stop-opacity=".34"/></radialGradient>
+        <clipPath id="gbBall"><circle cx="${GCX}" cy="${GCY}" r="${GR}"/></clipPath></defs>
+      <rect width="${GW}" height="${GH}" fill="url(#gbSky)"/>`;
+    if (night) { const R = K.rng(11); for (let k = 0; k < 46; k++) s += `<circle class="wt-tw" style="animation-delay:-${f(R() * 3)}s" cx="${f(R() * GW)}" cy="${f(R() * 110)}" r="${f(.4 + R() * .8)}" fill="#FFF6DD"/>`;
+      s += `<circle cx="300" cy="34" r="22" fill="#F4EBCF" opacity=".16"/><circle cx="300" cy="34" r="9" fill="#F4EBCF"/><circle cx="304" cy="31" r="8" fill="${P.sky[0]}"/>`; }
+    else s += `<circle cx="296" cy="36" r="30" fill="#FFF1C8" opacity=".55"/><circle cx="296" cy="36" r="11" fill="#FFF5D8"/>`;
+    s += `<g class="gb-cloud wt-drift"><ellipse cx="44" cy="58" rx="22" ry="6"/><ellipse cx="58" cy="53" rx="13" ry="7"/></g><g class="gb-cloud wt-drift" style="animation-duration:60s;animation-direction:alternate-reverse"><ellipse cx="236" cy="70" rx="18" ry="4.6"/><ellipse cx="226" cy="66" rx="9" ry="5"/></g>`;
+    s += `<circle cx="${GCX}" cy="${GCY}" r="${GR + 26}" fill="url(#gbAir)"/><circle cx="${GCX}" cy="${GCY}" r="${GR}" fill="url(#gbSea)"/>
+      <g class="gb-world" clip-path="url(#gbBall)">${world(states, GS.off)}</g>
+      <circle cx="${GCX}" cy="${GCY}" r="${GR}" fill="url(#gbLimb)" pointer-events="none"/>
+      <g class="gb-cloud gb-low wt-drift" style="animation-duration:52s"><ellipse cx="70" cy="128" rx="26" ry="5.5"/><ellipse cx="84" cy="123" rx="14" ry="6"/><ellipse cx="300" cy="118" rx="22" ry="5"/><ellipse cx="290" cy="114" rx="11" ry="5"/></g>
+      <g class="gb-pins">`;
+    const pins = TRAIL.map((c, i) => ({ y: gp(...SITE[c.lv], GS.off)[1], h: gpin(c, states[i], i === cur) })).sort((a, b) => a.y - b.y);
+    s += pins.map(p => p.h[0]).join('') + '</g><g class="gb-labs">' + pins.map(p => p.h[1]).join('') + '</g></svg>';   // name chips above every temple
+    return s;
+  }
+  function globeAt(lv) { const [x, y] = gp(...SITE[lv]); return [x / GW * 100, (y - 16) / GH * 100]; }
+  function globeMount(states) {
+    const svg = $('#gbSvg'), stage = svg?.closest('.gb-stage'); if (!svg || !stage) return;
+    const wl = svg.querySelector('.gb-world'), layer = svg.querySelector('.gb-pins'), pins = [...layer.children], labs = svg.querySelector('.gb-labs');
+    let raf = 0, pend = 0, v = 0, g = null, order = pins.map(p => p.dataset.lv).join('');
+    const draw = () => {
+      if (!svg.isConnected) { cancelAnimationFrame(raf); return false; }
+      wl.innerHTML = world(states, GS.off);
+      const at = pins.map(p => [placePin(p, labs.querySelector(`[data-lv="${p.dataset.lv}"]`), GS.off), p]).sort((a, b) => a[0] - b[0]), o = at.map(a => a[1].dataset.lv).join('');
+      if (o !== order && !layer.contains(document.activeElement)) { order = o; at.forEach(a => layer.appendChild(a[1])); }
+      return true;
+    };
+    const pxDeg = () => stage.clientWidth / GW * GR * Math.cos(33 * D) * D;   // screen pixels per degree of spin, around China
+    const band = x => Math.abs(x) <= 32 ? x : Math.sign(x) * (32 + (Math.abs(x) - 32) * .3);   // past 32° it pulls harder
+    const settle = () => {   // a spring back to China (with the flick's speed carried in)
+      cancelAnimationFrame(raf);
+      if (stillMotion()) { GS.off = 0; draw(); return; }
+      let t = performance.now();
+      const step = now => { const dt = Math.min(32, now - t); t = now; const w = .0085, z = .78;
+        v += (-w * w * GS.off - 2 * z * w * v) * dt; GS.off += v * dt;
+        if (Math.abs(GS.off) < .03 && Math.abs(v) < .0006) { GS.off = 0; v = 0; draw(); return; }
+        if (draw()) raf = requestAnimationFrame(step); };
+      raf = requestAnimationFrame(step);
+    };
+    stage.addEventListener('pointerdown', e => { if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      g = { id: e.pointerId, x: e.clientX, y: e.clientY, o: GS.off, hist: [[e.clientX, e.timeStamp]], on: false }; });
+    stage.addEventListener('pointermove', e => {
+      if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
+      if (!g.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } if (Math.abs(dx) < 8) return;
+        g.on = true; cancelAnimationFrame(raf); g.o = GS.off; g.x = e.clientX; try { stage.setPointerCapture(e.pointerId); } catch (_) {} stage.classList.add('gb-grab'); }
+      GS.off = band(g.o + (e.clientX - g.x) / pxDeg()); g.hist.push([e.clientX, e.timeStamp]); if (g.hist.length > 6) g.hist.shift();
+      if (!pend) pend = requestAnimationFrame(() => { pend = 0; draw(); });   // at most one redraw a frame
+    });
+    const up = e => { if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return;
+      cancelAnimationFrame(pend); pend = 0; stage.classList.remove('gb-grab'); GS.noClick = performance.now() + 350;
+      const [x0, t0] = G.hist[0], dt = e.timeStamp - t0; v = e.type === 'pointerup' && dt > 0 && dt < 160 ? (e.clientX - x0) / dt / pxDeg() : 0;
+      v = Math.max(-.25, Math.min(.25, v)); LOG.add('map-spin', { deg: Math.round(GS.off) }); settle(); };
+    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+    if (!GS.spun && !stillMotion()) { GS.spun = true; GS.off = -26; v = 0; draw(); settle(); }   // the first look of the session: the world turns China into view
+    else if (GS.off) { draw(); settle(); }   // redrawn mid-turn (the HSK lists arrived): carry on turning back
+  }
   /* ---- the five temples ---- */
   const hill = (pts, fill) => `<path d="${K.smooth(pts)}V262H0Z" fill="${fill}"/>`;
   const mist = (y, h, P, op = 1) => `<rect x="-10" y="${y}" width="380" height="${h}" fill="${P.mist}" filter="url(#wtSoft)" opacity="${op}"/>`;
@@ -5386,7 +5513,7 @@ const Trail = (() => {
     if (rev) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
   }
-  return { chinaMap, scene, MX, MY, MAP_H };
+  return { globe, globeAt, globeMount, scene, GS };
 })();
 
 function MapView() {
@@ -5402,7 +5529,7 @@ function TrailView() {
   return `<div class="screen fade-in mp-page">
     <div class="top-gap"></div>
     <div class="section-head cal-head"><h2>Temple map <span class="cal-zh">地图</span></h2><span class="mp-sum">${built} of 40 pieces</span></div>
-    <div class="mp-map" id="mpMap"><div class="mp-zoom">${Trail.chinaMap(sts)}</div></div>
+    <div class="mp-map gb-stage" id="mpMap"><div class="mp-zoom">${Trail.globe(sts)}</div></div>
     <p class="mp-note">Each HSK level builds a temple in its own city. Your first word of a level breaks ground there, and every word after it brings the next piece closer.</p>
     <div class="mp-list">${TRAIL.map((c, i) => row(c, sts[i])).join('')}</div>
   </div>`;
@@ -5450,22 +5577,24 @@ function CityView(lv) {
   </div>`;
 }
 function mapZoom(lv) {   // tap a temple: the map dives into its city, then the temple opens
-  const z = $('#mpMap .mp-zoom'), c = TRAIL[lv - 1]; LOG.add('map-city', { lv });
+  if (performance.now() < Trail.GS.noClick) return;   // the end of a spin, not a tap
+  const z = $('#mpMap .mp-zoom'); LOG.add('map-city', { lv });
   if (!z || stillMotion()) { nav('#/map/' + lv); return; }
-  z.style.transformOrigin = `${(Trail.MX(c.lon) / 3.6).toFixed(2)}% ${(Trail.MY(c.lat) / Trail.MAP_H * 100).toFixed(2)}%`;
+  const [ox, oy] = Trail.globeAt(lv); z.style.transformOrigin = `${ox.toFixed(2)}% ${oy.toFixed(2)}%`;
   $('#mpMap').classList.add('mp-going'); z.classList.add('mp-zooming');
   setTimeout(() => { S.instant = true; S.mapZoomIn = true; nav('#/map/' + lv); }, 440);
 }
-function mountMap() {   // back from a temple: the map pulls out of that city
-  const lv = S.mapFrom; S.mapFrom = 0;
-  const z = $('#mpMap .mp-zoom'); if (S.mapLv || !z || !lv || stillMotion()) return;
-  const c = TRAIL[lv - 1];
-  z.style.transformOrigin = `${(Trail.MX(c.lon) / 3.6).toFixed(2)}% ${(Trail.MY(c.lat) / Trail.MAP_H * 100).toFixed(2)}%`;
+function mountMap() {   // the globe spins under your finger; back from a temple, it pulls out of that city
+  if (S.mapLv) return;
+  const lv = S.mapFrom; S.mapFrom = 0; if (lv) Trail.GS.spun = true;
+  Trail.globeMount(TRAIL.map(c => trailState(c.lv)));
+  const z = $('#mpMap .mp-zoom'); if (!z || !lv || stillMotion()) return;
+  const [ox, oy] = Trail.globeAt(lv); z.style.transformOrigin = `${ox.toFixed(2)}% ${oy.toFixed(2)}%`;
   z.style.transition = 'none'; z.classList.add('mp-zin'); z.offsetWidth; z.style.transition = '';
   setTimeout(() => z.classList.remove('mp-zin'), 30);
 }
 document.addEventListener('keydown', e => {   // a temple on the map opens with Enter or Space too
-  const p = e.target.closest?.('.mp-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapZoom(+p.dataset.lv); }
+  const p = e.target.closest?.('.gb-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapZoom(+p.dataset.lv); }
 });
 /* the last thing you used: the story you are reading, or your last deck; with neither, a button to make a deck */
 function LastTile() {
@@ -7294,7 +7423,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.25';
+const APP_VERSION = '2.26';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8161,7 +8290,7 @@ document.addEventListener('click', e => {
   };
   app.addEventListener('pointerdown', e => {
     if (g || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf,.hd-stack')) return;
+    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf,.hd-stack,.gb-stage')) return;
     const T = targets(); if (!T) return;
     g = { id: e.pointerId, sx: e.clientX, sy: e.clientY, hist: [[e.clientX, e.timeStamp]], v: 0, x0: 0, T, on: false };
   });
