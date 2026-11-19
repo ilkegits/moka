@@ -1,1 +1,1 @@
-{"version": "2.54", "notes": "Redoing a unit you have won plays its comic again: the first part when you tap the unit, the ending when you beat the boss again"}
+{"version": "2.55", "notes": "Can't listen now: a button under \"Which one do you hear?\" in a unit test. Tap it and the listening questions left ask \"Which one means…\" instead, and the test stops speaking by itself"}

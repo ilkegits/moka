@@ -3523,7 +3523,7 @@ function lesWriteDone(Q, miss) {
   E.praise = clean ? 'Every stroke right!' : E.hinted ? 'Written, with a hint' : `Written · ${plural(miss, 'slip')}`;
   LOG.add('lesson-write', { n: E.n, hz: Q.ch, mode: Q.mode, mistakes: miss, hint: !!E.hinted });
   E.hinted = false; E.writer = null; chime();
-  setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 300);
+  setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 300);
   // keep the finished character on screen: swap in the stamp, the top bar and the answer strip, not the whole page
   const scr = $('#lesScr'); if (!scr) return;
   const swap = (el, html) => { if (!el) return; const t = document.createElement('template'); t.innerHTML = html; el.replaceWith(t.content); };
@@ -3540,6 +3540,14 @@ function lesDropWrites(quiet) {   // "Can't write now", or no internet: no more 
   if (!quiet) toast(`No more writing in this ${E.test ? 'test' : 'lesson'}`);
   LOG.add('lesson-write-skip', { n: E.n, test: E.test || undefined, left, quiet: !!quiet });
   if (E.qi >= E.q.length) lesLast();
+  lesPaint(true);
+}
+function lesDropEars() {   // "Can't listen now": the listening questions left ask "Which one means…" instead (same four answers), and nothing is said aloud by itself any more
+  const E = S.les; let left = 0;
+  for (const x of E.q.slice(E.qi)) if (x.t === 'ear') { x.t = 'en2hz'; left++; }
+  E.quiet = true; try { speechSynthesis.cancel(); } catch (_) {}
+  toast(`No more listening in this ${E.test ? 'test' : 'lesson'}`);
+  LOG.add('lesson-listen-skip', { n: E.n, test: E.test || undefined, left });
   lesPaint(true);
 }
 function lesOpts(Q) {   // the answer and three others that can't be mistaken for it
@@ -3597,7 +3605,7 @@ function lesInner() {
   const cls = (w, i) => !done ? '' : w === a ? (E.ok ? ' ok pick' : ' ok reveal') : i === E.ans ? ' no' : '';
   return `${top}<div class="les-body"><p class="les-ask">${ask[0]}</p><div class="les-big">${ask[1]}</div>
     <div class="les-opts${Q.t === 'hz2en' ? ' list' : ''}${done ? ' answered' : ''}">${Q.opts.map((w, i) => `<button class="les-opt${cls(w, i)}" data-les="opt" data-i="${i}"${done ? ' disabled' : ''}>${lab(w)}${done && E.ok && w === a ? `<span class="lo-stamp" aria-hidden="true">${E.seal}</span>` : ''}</button>`).join('')}</div></div>
-    ${done ? lesFb() : ''}`;
+    ${done ? lesFb() : Q.t === 'ear' ? '<div class="les-dock"><button class="btn btn-ghost wide" data-les="lskip">Can’t listen now</button></div>' : ''}`;
 }
 /* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
@@ -3671,7 +3679,7 @@ function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerH
 function lesAuto() {   // say each new word, the word in "what does this mean" and "which one do you hear", and the word you are about to write
   const E = S.les; if (!E) return;
   const h = E.step === 'quiz' && ['meet', 'hz2en', 'ear', 'write'].includes(E.q[E.qi]?.t) ? E.q[E.qi].w.h : null;
-  if (h) setTimeout(() => { if (S.les === E) sayZh(h); }, 150);
+  if (h) setTimeout(() => { if (S.les === E && !E.quiet) sayZh(h); }, 150);
 }
 function lesAct(k, b) {
   const E = S.les; if (!E) return;
@@ -3699,7 +3707,7 @@ function lesAct(k, b) {
         if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); if (!E.test) E.q.push({ t: Q.t, w: Q.w, again: true }); }
       }
       if (E.ok || Q.again || E.test) E.settled++;
-      if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 350);
+      if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 350);
       if (!Q.again) proveWord(Q.w.h, E.ok);   // a word already in your word bank, right again on another day
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
       lesPaint(); if (E.ok) lesAutoNext(); return;
@@ -3722,6 +3730,7 @@ function lesAct(k, b) {
       return;
     }
     if (k === 'wskip' && Q.t === 'write' && E.ans == null) { lesDropWrites(); return; }
+    if (k === 'lskip' && Q.t === 'ear' && E.ans == null) { lesDropEars(); return; }
     if (k === 'whint' && E.writer && E.ans == null) {   // play the strokes once, then write it again (no clean-writing bonus)
       const W = E.writer; E.hinted = true; b.disabled = true; W.cancelQuiz();
       W.animateCharacter({ onComplete: () => { if (E.writer !== W || E.ans != null) return; W.hideCharacter(); E.wq(); b.disabled = false; } });
@@ -8141,7 +8150,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.54';
+const APP_VERSION = '2.55';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
