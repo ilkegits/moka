@@ -1168,6 +1168,21 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .rc-n{margin-left:6px;font-size:14px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
 .rc-in{animation:fadeIn .25s both}
 @media (prefers-reduced-motion:reduce){.rc-in{animation:none}}
+/* a new story: the pages of Shi Shi's book riffle over from right to left and stop on the new one. Five loose pages
+   turn about the spine one after another; the old characters go as the first page lands, the new ones show as the last
+   page lifts and lands. The words around him pop back in and the title below fades in with them */
+.pg-fly{opacity:0;transform-origin:0 0;animation:pgFlip .36s cubic-bezier(.45,0,.55,1) calc(var(--i)*85ms) forwards}
+@keyframes pgFlip{0%{opacity:1;transform:none}45%{opacity:1;transform:translateY(-7px) skewY(-14deg) scaleX(.12)}55%{opacity:1;transform:translateY(-7px) skewY(14deg) scaleX(-.12)}96%{opacity:1;transform:scaleX(-1)}100%{opacity:0;transform:scaleX(-1)}}
+.pg-old{animation:pgOff 1ms .33s forwards}
+.pg-ride{animation:pgOff .08s .08s forwards}
+.pg-new{opacity:0;animation:pgOn 1ms .34s forwards}
+.pg-new.pg-l{animation:pgOn 90ms .69s forwards}
+@keyframes pgOff{to{opacity:0}}
+@keyframes pgOn{to{opacity:1}}
+.rd-pop{transform-box:fill-box;transform-origin:center;animation:rdPop .4s cubic-bezier(.2,.9,.3,1.3) calc(.45s + var(--i)*70ms) both}
+@keyframes rdPop{from{opacity:0;transform:scale(.3)}}
+.rd-hero.flip .rd-body{animation:fadeIn .35s .2s both}
+@media (prefers-reduced-motion:reduce){.pg-fly,.pg-old,.pg-ride{display:none}.pg-new,.pg-new.pg-l{opacity:1;animation:none}.rd-pop,.rd-hero.flip .rd-body{animation:none}}
 @media (prefers-reduced-motion:reduce){.mo-book{animation:none}.bk-art{transition:none}}
 .story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:28px;line-height:1.6;color:var(--ink)}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
@@ -2574,16 +2589,20 @@ function shiFace(mood, fill = 1) {
     + face[0] + '<ellipse cx="60" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/><ellipse cx="140" cy="105.5" rx="9.2" ry="5.5" fill="#FF9AA6" opacity=".72"/>'
     + face[1] + face[2] + '<circle cx="100" cy="110" r="9" fill="#FF8A7E" stroke="#7E1D19" stroke-width="3"/><circle cx="97" cy="107" r="2.6" fill="#fff" opacity=".8"/></svg>';
 }
-/* Shi Shi peeking over an open thread-bound book; the story's first two characters are printed on its pages */
-function shiReads([a = '读', b = '书'] = []) {
-  const pg = (x, r, c) => `<text x="${x}" y="152" font-size="31" fill="#2A0E0C" transform="rotate(${r} ${x} 152)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`;
+/* Shi Shi peeking over an open thread-bound book; the story's first two characters are printed on its pages.
+   from: the characters that were on the pages before. Then the book riffles from them to the new ones (.pg-* in the CSS) */
+function shiReads([a = '读', b = '书'] = [], from) {
+  const pg = (x, r, c, cls) => `<text${cls ? ` class="${cls}"` : ''} x="${x}" y="152" font-size="31" fill="#2A0E0C" transform="rotate(${r} ${x} 152)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`;
+  // a loose page: the right-hand page drawn from the spine (100,150), so it can turn about it. The first one carries the old right-hand character away
+  const ride = from ? `<text class="pg-ride" x="38" y="2" font-size="31" fill="#2A0E0C" transform="rotate(5 38 2)" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(from[1] || '')}</text>` : '';
+  const fly = i => `<g transform="translate(100 150)"><g class="pg-fly" style="--i:${i}"><path d="M74 -36Q36 -48 0 -32L0 38Q36 24 72 32Z" fill="#FFF8EE" stroke="#7E1D19" stroke-width="3.5" stroke-linejoin="round"/><path d="M12 22Q36 14 60 20" fill="none" stroke="#E8D9C4" stroke-width="3" stroke-linecap="round"/>${i ? '' : ride}</g></g>`;
   return '<svg class="shi-read" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
     + shiFace('read').replace('<svg class="shi-face"', '<svg x="22" y="2" width="156" height="156"')
     + '<path d="M18 120Q60 108 100 124Q140 108 182 120L180 192Q140 182 100 198Q60 182 20 192Z" fill="#2E4A7D" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>'
     + '<path d="M26 114Q64 102 100 118L100 188Q64 174 28 182Z" fill="#FFF8EE" stroke="#7E1D19" stroke-width="3.5" stroke-linejoin="round"/>'
     + '<path d="M174 114Q136 102 100 118L100 188Q136 174 172 182Z" fill="#FFF8EE" stroke="#7E1D19" stroke-width="3.5" stroke-linejoin="round"/>'
     + '<path d="M100 120V186" stroke="#E8D9C4" stroke-width="5"/><path d="M40 170Q64 164 88 172M112 172Q136 164 160 170" fill="none" stroke="#E8D9C4" stroke-width="3" stroke-linecap="round"/>'
-    + pg(62, -5, a) + pg(138, 5, b)
+    + (from ? pg(62, -5, from[0] || '', 'pg-old') + pg(62, -5, a, 'pg-new pg-l') + pg(138, 5, b, 'pg-new') + [0, 1, 2, 3, 4].map(fly).join('') : pg(62, -5, a) + pg(138, 5, b))
     + [26, 174].map(x => `<ellipse cx="${x}" cy="142" rx="11" ry="14" fill="#E5483F" stroke="#7E1D19" stroke-width="4"/><path d="M${x - 4} 134v6M${x + 4} 134v6" stroke="#7E1D19" stroke-width="2.5" stroke-linecap="round"/>`).join('')
     + '</svg>';
 }
@@ -4469,32 +4488,44 @@ function storyKnow(s) {
   return { n: all.size, mine, f: all.size ? mine.length / all.size : 0 };
 }
 /* a thread-bound book (线装书): the title down a paper slip, the stitching along the right edge. A story you have not
-   finished is a pale book with an empty slip */
-const BK_INK = ['#2E4A7D', '#3F7A5F', '#B23A2C', '#B8791F', '#5B4A8A'];
-function bookArt(zh, i, on) {
+   finished is a pale book with an empty slip; one you have read twice is gold */
+const BK_INK = ['#2E4A7D', '#3F7A5F', '#B23A2C', '#22737A', '#5B4A8A'];
+function bookArt(zh, i, on, gold) {
   const ch = hanChars(zh.replace(/^狮狮的?/, '') || zh).slice(0, 4), n = ch.length, fs = n <= 2 ? 15 : n === 3 ? 13.5 : 11, step = n <= 2 ? 18 : n === 3 ? 15 : 12, y0 = 32 - (n - 1) * step / 2;   // 狮狮的本子 is 本子 on the slip
-  const ink = on ? '#3B1A12' : '#B5A891';
+  const ink = !on ? '#B5A891' : gold ? '#7A4A08' : '#3B1A12';
   return `<svg viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <rect x="3" y="3" width="54" height="72" rx="3.5" fill="${on ? BK_INK[i % BK_INK.length] : '#E4DBCA'}" stroke="${ink}" stroke-width="2.5"/>
-    <path d="M49 5V73" stroke="${on ? '#fff' : ink}" stroke-width="1.2" opacity=".35"/>
-    <path d="M49 13H56M49 30H56M49 48H56M49 65H56" stroke="${on ? '#FFF8EE' : ink}" stroke-width="1.7" stroke-linecap="round" opacity="${on ? .9 : .6}"/>
+    <rect x="3" y="3" width="54" height="72" rx="3.5" fill="${!on ? '#E4DBCA' : gold ? '#F4C14E' : BK_INK[i % BK_INK.length]}" stroke="${ink}" stroke-width="2.5"/>
+    ${gold ? '<path d="M31 5L46 5 20 73 8 73Z" fill="#FFE9A8" opacity=".55"/>' : ''}
+    <path d="M49 5V73" stroke="${!on ? ink : gold ? '#B23A2C' : '#fff'}" stroke-width="1.2" opacity="${gold ? .5 : .35}"/>
+    <path d="M49 13H56M49 30H56M49 48H56M49 65H56" stroke="${!on ? ink : gold ? '#B23A2C' : '#FFF8EE'}" stroke-width="1.7" stroke-linecap="round" opacity="${on ? .9 : .6}"/>
     <rect x="9" y="7" width="19" height="50" rx="1.5" fill="${on ? '#FFF8EE' : '#F1EADC'}" stroke="${ink}" stroke-width="1.6"/>
-    ${ch.map((c, k) => `<text x="18.5" y="${(y0 + k * step).toFixed(1)}" font-size="${fs}" fill="${on ? '#2A0E0C' : '#9C8F78'}" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`).join('')}</svg>`;
+    ${ch.map((c, k) => `<text x="18.5" y="${(y0 + k * step).toFixed(1)}" font-size="${fs}" fill="${on ? '#2A0E0C' : '#9C8F78'}" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`).join('')}
+    ${gold ? '<path d="M39 53Q40.3 59.7 47 61Q40.3 62.3 39 69Q37.7 62.3 31 61Q37.7 59.7 39 53Z" fill="#fff" stroke="#7A4A08" stroke-width="1.2" stroke-linejoin="round"/>' : ''}</svg>`;
+}
+/* where the shelf stands: found = stories read at least once, gold = read at least twice */
+function shelfState() {
+  const n = {}; for (const s of db.readDone) n[s.zh] = (n[s.zh] || 0) + 1;
+  const total = RL.T.length, found = RL.T.filter(t => n[t[0]]).length, gold = RL.T.filter(t => n[t[0]] > 1).length;
+  return { n, total, found, gold, full: found === total };
 }
 /* the shelf: one book for each of the stories there are. Finished ones stand in colour (tap to read again), the story
-   you are on is named, the rest stay a secret */
+   you are on is named, the rest stay a secret. Once every story is found the shelf goes on: a story read again, with
+   new words, turns its book gold, and the count becomes how many are gold */
 function ShelfHtml() {
   const by = {}; for (const s of db.readDone) (by[s.zh] ||= []).push(s);
-  const cur = db.readCur, total = RL.T.length, got = RL.T.filter(t => by[t[0]]).length;
+  const cur = db.readCur, { total, found: got, gold, full } = shelfState();
   const book = (t, i) => {
     const L = by[t[0]], on = !!L, now = !on && cur?.zh === t[0];
-    return `<button class="bk${on ? '' : ' off'}${now ? ' now' : ''}"${on ? ` data-act="shelf-open" data-zh="${esc(t[0])}"` : now ? ' data-act="shelf-now"' : ' disabled'} aria-label="${on ? `${esc(t[1])}, read ${L.length === 1 ? 'once' : L.length + ' times'}` : now ? `${esc(t[1])}, the story you are on` : 'A story you have not found yet'}">
-      <span class="bk-art">${bookArt(on || now ? t[0] : '', i, on)}${on && L.length > 1 ? `<em>${L.length}</em>` : ''}</span>
+    return `<button class="bk${on ? '' : ' off'}${now ? ' now' : ''}"${on ? ` data-act="shelf-open" data-zh="${esc(t[0])}"` : now ? ' data-act="shelf-now"' : ' disabled'} aria-label="${on ? `${esc(t[1])}, read ${L.length === 1 ? 'once' : L.length === 2 ? 'twice, a gold book' : L.length + ' times, a gold book'}` : now ? `${esc(t[1])}, the story you are on` : 'A story you have not found yet'}">
+      <span class="bk-art">${bookArt(on || now ? t[0] : '', i, on, on && L.length > 1)}${on && L.length > 2 ? `<em>${L.length}</em>` : ''}</span>
       <span class="bk-name">${on ? esc(t[1]) : now ? (cur.opened ? 'Reading now' : 'Up next') : ''}</span></button>`;
   };
   const other = db.readDone.filter(s => !RL.T.some(t => t[0] === s.zh));   // stories from before a title changed
-  return `<div class="section-head cal-head"><h2>Your shelf <span class="cal-zh">书架</span></h2><span class="sh-n">${got} of ${total}</span></div>
-    <p class="read-note">${!got ? 'Every story you finish becomes a book on your shelf, to read again any time.' : got < total ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find. Tap a book to read it again.` : `All ${total} stories found. Tap a book to read it again.`}</p>
+  return `<div class="section-head cal-head"><h2>Your shelf <span class="cal-zh">书架</span></h2><span class="sh-n">${full ? `${gold} of ${total} gold` : `${got} of ${total}`}</span></div>
+    <p class="read-note">${!got ? 'Every story you finish becomes a book on your shelf, to read again any time.'
+      : !full ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find. Tap a book to read it again.`
+      : gold < total ? `All ${total} stories found. Read one again, with new words, and its book turns gold.`
+      : 'A golden shelf: every story read twice. Tap a book to read it again.'}</p>
     <div class="rd-shelf">${RL.T.map(book).join('')}</div>
     ${other.length ? `<div class="section-head"><h2>More finished stories</h2></div>
       <div class="group" style="margin-bottom:26px">${other.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
@@ -4534,12 +4565,14 @@ function ReadView() {
     ${ShelfHtml()}
   </div>`;
 }
-/* the cover picture: Shi Shi reading by lantern light; words of yours that are in the story float around him */
-function readScene(s, mine) {
-  const ch = hanChars((s.zh || '').replace(/^狮狮的?/, '')).slice(0, 2), at = [[84, 96, -10], [280, 92, 9], [58, 144, 7], [304, 140, -8]];
+/* the cover picture: Shi Shi reading by lantern light; words of yours that are in the story float around him.
+   from: the characters of the story before this one, when this one has just been made: the book riffles over to it */
+const coverChars = s => hanChars((s?.zh || '').replace(/^狮狮的?/, '')).slice(0, 2);
+function readScene(s, mine, from) {
+  const at = [[84, 96, -10], [280, 92, 9], [58, 144, 7], [304, 140, -8]];
   const star = (x, y, r) => `<path d="M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="#F4C14E"/>`;
-  const tile = (h, [x, y, r]) => { const w = 30 + ([...h].length - 1) * 20;
-    return `<g transform="rotate(${r} ${x} ${y})"><rect x="${x - w / 2}" y="${y - 15}" width="${w}" height="30" rx="6" fill="#FFF8EE" stroke="#141D36" stroke-width="3"/><text x="${x}" y="${y + 1}" font-size="19" fill="#2A0E0C" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(h)}</text></g>`; };
+  const tile = (h, [x, y, r], i) => { const w = 30 + ([...h].length - 1) * 20;
+    return `<g${from ? ` class="rd-pop" style="--i:${i}"` : ''}><g transform="rotate(${r} ${x} ${y})"><rect x="${x - w / 2}" y="${y - 15}" width="${w}" height="30" rx="6" fill="#FFF8EE" stroke="#141D36" stroke-width="3"/><text x="${x}" y="${y + 1}" font-size="19" fill="#2A0E0C" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(h)}</text></g></g>`; };
   return `<svg class="rd-scene" viewBox="0 0 360 176" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <rect width="360" height="176" fill="#27385F"/><circle cx="180" cy="126" r="116" fill="#30457A"/><circle cx="180" cy="126" r="80" fill="#FFD98A" opacity=".2"/>
     <circle cx="320" cy="34" r="15" fill="#FFE9B0"/><circle cx="327" cy="29" r="13" fill="#27385F"/>
@@ -4549,12 +4582,18 @@ function readScene(s, mine) {
     <ellipse cx="38" cy="45" rx="17" ry="20" fill="#E5483F" stroke="#7E1D19" stroke-width="3"/><path d="M38 27V63M29 30Q24 45 29 60M47 30Q52 45 47 60" fill="none" stroke="#7E1D19" stroke-width="1.6" opacity=".55"/>
     <rect x="31" y="63" width="14" height="5" rx="2" fill="#F4C14E" stroke="#7A4A08" stroke-width="2"/><path d="M38 69V84" stroke="#F4C14E" stroke-width="3" stroke-linecap="round"/>
     <ellipse cx="180" cy="172" rx="118" ry="9" fill="#141D36" opacity=".35"/>
-    ${[...new Set(mine)].filter(h => [...h].length <= 2).slice(0, 4).map((h, i) => tile(h, at[i])).join('')}
-    ${shiReads(ch).replace('<svg class="shi-read"', '<svg x="100" y="18" width="160" height="160"')}</svg>`;
+    ${[...new Set(mine)].filter(h => [...h].length <= 2).slice(0, 4).map((h, i) => tile(h, at[i], i)).join('')}
+    ${shiReads(coverChars(s), from).replace('<svg class="shi-read"', '<svg x="100" y="18" width="160" height="160"')}</svg>`;
+}
+/* a new story on the cover (Different story, or the one that follows a finished story): riffle the book over to it */
+function riffleBook(from) {
+  const s = db.readCur, el = $('.rd-scene'), hero = $('.rd-hero'); if (!s || !el || !hero || !from || stillMotion()) return;
+  el.outerHTML = readScene(s, storyKnow(s).mine.filter(h => bankHas(h)), from);
+  hero.classList.remove('flip'); hero.offsetWidth; hero.classList.add('flip');
 }
 /* the next story waits behind a cover: the picture, its title, how much of it you can read already, and one button */
 function StoryCover(s, st, readToday) {
-  const K = storyKnow(s), fresh = K.n - K.mine.length;
+  const K = storyKnow(s), fresh = K.n - K.mine.length, reads = db.readDone.filter(x => x.zh === s.zh).length;
   const fit = K.f >= .9 ? 'Easy read' : K.f >= .7 ? 'Good fit' : K.f >= .4 ? 'A stretch' : 'Lots of new words';
   const hint = st.today ? '' : st.n ? `Finish it to keep your ${st.n}-day streak` : 'Finish it to start a streak';
   return `<article class="rd-hero">${readScene(s, K.mine.filter(h => bankHas(h)))}
@@ -4562,7 +4601,7 @@ function StoryCover(s, st, readToday) {
         <div class="rd-title"><h3>${esc(s.zh)}</h3><span>${esc(s.en)}</span></div>
         ${db.bank.length ? `<div class="rd-know"><div class="rd-know-top"><span>You know <b>${K.mine.length} of ${K.n}</b> words</span><em>${fit}</em></div>
           <span class="rd-bar"><i style="width:${Math.max(4, Math.round(K.f * 100))}%"></i></span></div>` : ''}
-        <p class="rd-meta">${plural(s.lines.length, 'sentence')}${fresh && db.bank.length ? ` · ${plural(fresh, 'new word')}` : ''}</p>
+        <p class="rd-meta">${plural(s.lines.length, 'sentence')}${fresh && db.bank.length ? ` · ${plural(fresh, 'new word')}` : ''}${reads === 1 ? ' · read it again and its book turns gold' : ''}</p>
         ${hint ? `<p class="rd-keep">${FLAME}${hint}</p>` : ''}
         <button class="btn btn-seal wide" data-act="read-start">${I.read}Start reading</button>
         <button class="link-btn rd-other" data-act="read-new">Different story</button></div>
@@ -4664,23 +4703,30 @@ function finishStory(words, offered) {
   const lv = storyLevel(s);
   db.bank = [...add, ...db.bank];
   db.readDone.unshift({ id: s.id, zh: s.zh, en: s.en, lines: s.lines, hsk: lv, started: s.started, done: now, learned: add.map(w => w.hanzi) });
+  S.readFrom = coverChars(s);   // the book riffles from this story to the next once the finish page is closed
   db.readCur = makeStory(s.zh); save();
   LOG.add('read-finish', { story: s.zh, level: lv ? HSK_NAME(lv) : 'none', new_words: offered, added: add.length });
   render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
   momentRead(s, add.length, was, isNew);
 }
-/* the page after a story: its book goes on the shelf; the first practice of the day also shows the streak moving on */
+/* the page after a story: its book goes on the shelf; the first practice of the day also shows the streak moving on.
+   The story that fills the shelf, and the one that turns the last book gold, get their own words */
 function momentRead(s, added, was, isNew) {
-  const { n } = practiceStreak(), i = Math.max(0, RL.T.findIndex(t => t[0] === s.zh)), total = RL.T.length;
-  const got = RL.T.filter(t => db.readDone.some(x => x.zh === t[0])).length, kept = !was.today;
+  const { n } = practiceStreak(), i = Math.max(0, RL.T.findIndex(t => t[0] === s.zh)), kept = !was.today;
+  const { n: reads, total, found: got, gold, full } = shelfState(), mine = reads[s.zh] || 1, toGold = !isNew && mine === 2;
+  const fullNow = isNew && full, goldNow = toGold && gold === total, en = `“${esc(s.en)}”`;
   const chip = (t, v) => `<span class="ob-sig"><small>${t}</small><b>${v}</b></span>`;
-  LOG.add('moment', { what: 'story', story: s.zh, added, streak: n, kept, shelf: got });
-  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div><div class="mo-book">${bookArt(s.zh, i, true)}</div></div>
-    <p class="mo-kicker">${isNew ? 'New on your shelf' : 'Read again'}</p>
-    <h2 class="mo-title">读完了！ Story finished</h2>
-    <p class="mo-text">${kept ? (n > 1 ? `That keeps your streak going: day ${n}.` : 'That starts your streak: day 1.') : isNew ? (got < total ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find for your shelf.` : `Your shelf is full: all ${total} stories.`) : `“${esc(s.en)}” is back on your shelf.`}</p>
+  LOG.add('moment', { what: fullNow ? 'shelf-full' : goldNow ? 'shelf-gold' : 'story', story: s.zh, added, streak: n, kept, shelf: got, gold });
+  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div><div class="mo-book">${bookArt(s.zh, i, true, mine > 1)}</div></div>
+    <p class="mo-kicker">${fullNow ? 'Shelf complete' : goldNow ? 'Golden shelf' : isNew ? 'New on your shelf' : toGold ? 'Gold book' : 'Read again'}</p>
+    <h2 class="mo-title">${fullNow ? `书架满了！ All ${total} stories` : goldNow ? '金书架！ Every story, twice' : '读完了！ Story finished'}</h2>
+    <p class="mo-text">${fullNow ? 'Every story is on your shelf. Read one again, with new words, and its book turns gold.'
+      : goldNow ? `You read all ${total} stories twice. Your whole shelf is gold.`
+      : kept ? (n > 1 ? `That keeps your streak going: day ${n}.` : 'That starts your streak: day 1.')
+      : isNew ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find for your shelf.`
+      : toGold ? `${en} turned gold.` : `${en} is back on your shelf.`}</p>
     ${kept ? weekDots(n) : ''}
-    <div class="ob-sigs">${chip('Word bank', added ? `+${plural(added, 'word')}` : 'No new words')}${chip('Your shelf', `${got} of ${total}`)}</div>
+    <div class="ob-sigs">${chip('Word bank', added ? `+${plural(added, 'word')}` : 'No new words')}${chip('Your shelf', full ? `${gold} of ${total} gold` : `${got} of ${total}`)}</div>
     ${moDock('Continue', 'read-done-ok')}`, 'mo');
 }
 /* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
@@ -8381,7 +8427,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.49';
+const APP_VERSION = '2.50';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9130,14 +9176,14 @@ const A = {
   'hotd-open': () => hotdOpen(),
   'rpop-add': t => addReadWord(t),
   'read-py': t => { db.prefs.readPy = !db.prefs.readPy; save(); closeReadPop(); t.classList.toggle('on', db.prefs.readPy); t.setAttribute('aria-pressed', db.prefs.readPy); $('.story')?.classList.toggle('py', db.prefs.readPy); },
-  'read-new': () => { db.readCur = makeStory(db.readCur?.zh); save(); render(); toast('New story'); },
+  'read-new': () => { const from = coverChars(db.readCur); db.readCur = makeStory(db.readCur?.zh); save(); S.instant = true; render(); riffleBook(from); },
   'read-start': () => { if (!db.readCur) return; db.readCur.opened = Date.now(); db.last = { t: 'read' }; save(); LOG.add('read-start', db.readCur.zh); render(); },
   'read-finish': () => finishSheet(),
   'read-open': t => nav('#/read/' + t.dataset.id),
   'read-back': () => goBack('#/read'),
   'shelf-open': t => shelfOpen(t.dataset.zh),
   'shelf-now': () => { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
-  'read-done-ok': () => closeLayer(() => moments()),
+  'read-done-ok': () => closeLayer(() => { riffleBook(S.readFrom); S.readFrom = null; moments(); }),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
