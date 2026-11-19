@@ -913,17 +913,17 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-play.tm-go{flex:0 0 auto;min-width:164px;min-height:60px;margin:0 6px 22px 0;padding:0 28px 4px;border-radius:20px;
   background:linear-gradient(#E2392E,var(--seal-btn) 55%);font:700 23px/1 var(--display);letter-spacing:.01em;text-align:center;white-space:nowrap;
   text-shadow:0 2px 0 rgba(90,10,5,.45);
-  box-shadow:0 0 0 4px #5E100B,inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
-.tm-play.tm-go:active{transform:translateY(3px);box-shadow:0 0 0 4px #5E100B,inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
+  box-shadow:inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
+.tm-play.tm-go:active{transform:translateY(3px);box-shadow:inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
 .tm-tr{display:flex;align-items:center;gap:8px}
 /* the Shop: a round red badge under the coins, gold coins spilling over its top, its name on a ribbon across the bottom */
 .tm-shopb{position:absolute;z-index:2;right:18px;top:68px;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tm-shopb-d{position:absolute;left:4px;top:8px;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 50% 30%,#E8463A,#B41D17 70%);
-  box-shadow:0 0 0 3px #5E100B,inset 0 -4px 0 rgba(90,10,5,.3),0 10px 16px -8px rgba(60,10,5,.7)}
+  box-shadow:inset 0 -4px 0 rgba(90,10,5,.3),0 10px 16px -8px rgba(60,10,5,.7)}
 .tm-shopb svg{position:absolute;left:2px;top:-11px;width:60px;height:58px;overflow:visible;filter:drop-shadow(0 2px 0 rgba(90,10,5,.35))}
 .tm-shopb-t{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);padding:3px 11px 4px;border-radius:9px;background:var(--seal-ink);
-  box-shadow:0 0 0 2.5px #5E100B;font:700 13px/1 var(--display);color:#9E1A14}
+  box-shadow:0 3px 6px -2px rgba(60,10,5,.45);font:700 13px/1 var(--display);color:#9E1A14}
 .tm-shopb:active{transform:scale(.94)}
 .tm-shopb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
 .tm-showing .tm-shopb{opacity:0;pointer-events:none}
@@ -8632,7 +8632,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.69';
+const APP_VERSION = '2.70';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
