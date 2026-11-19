@@ -5654,8 +5654,10 @@ function coinMoment() {   // a new piece for the collection, full screen, once; 
    The Map tab: China with a trail of famous monuments, unlocked one after another by the words you prove (any level:
    they are not tied to HSK levels, so learning keeps paying off as it slows down). Each costs more proven words than
    the one before: the Oriental Pearl Tower 24, the Leifeng Pagoda 40, the Yellow Crane Tower 64, the Canton Tower 96,
-   Hongya Cave 128, the Potala Palace 176, the Big Wild Goose Pagoda 224 and the Temple of Heaven 288 (about 1,040 in
-   all, so more monuments can join the end of the list). A monument unlocks whole once its words are proven; the words
+   Hongya Cave 128, the Potala Palace 176, the Big Wild Goose Pagoda 224, the Temple of Heaven 288, then out to every
+   corner of the country: the Great Wall 352, St. Sophia Cathedral in Harbin 416, the Fujian tulou 480, the Three Pagodas
+   of Dali 544, the Mogao Caves in Dunhuang 608 and the Id Kah Mosque in Kashgar 672 (about 4,100 in all; more can
+   join the end of the list, never in the middle, or unlocked monuments would change). A monument unlocks whole once its words are proven; the words
    that unlocked it are its own, and those that are mastered hang its lanterns. What is not unlocked stays a secret: the
    next monument is only a marker with a question mark, the ones after it are not on the map at all. The pictures are
    3D models in golden-hour light, baked by portfolio3d/bake.html: mon/<id>.webp for its page and mon/<id>-i.webp, a
@@ -5672,6 +5674,12 @@ const TRAIL = [
   { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215] },
   { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209] },
   { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218] },
+  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187] },
+  { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305] },
+  { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608] },
+  { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201] },
+  { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781] },
+  { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897] },
 ];
 const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
@@ -5994,7 +6002,7 @@ const Trail = (() => {
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
   const zHome = () => CAM.w / 400, zMin = zHome, zMax = () => CAM.w / 76;   // the view the map opens on is as far back as it goes; in, down to one city
-  const CORE = [[82, 33], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [111, 24], [104, 25], [99, 29], [90, 31]];   // China's heartland
+  const CORE = [[82, 33], [77, 39.4], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [126.4, 45.6], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [117.5, 25.0], [111, 24], [104, 25], [100.3, 25.8], [99, 29], [90, 31]];   // China's heartland, reaching out to the far monuments
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
     let lon = o.x / UX + LON_A, lat = LAT_A - o.y / UY;
     if (!pip(lon, lat, CORE)) { const n = nearest(lon, lat, CORE); lon = n[1]; lat = n[2]; }
@@ -8131,7 +8139,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.51';
+const APP_VERSION = '2.52';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
