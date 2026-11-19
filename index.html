@@ -6603,7 +6603,7 @@ function TrailView() {
   </div>`;
 }
 const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
-  return due ? `Unit ${due} test` : n ? `Lesson ${n}` : `HSK ${openLevel()} words`; };
+  return due ? `Unit ${due} test` : n ? `Lesson ${n}` : 'Learn new words'; };   // the HSK list: named by what you get, not by the list
 const shopPile = () => {   // a little market stall: a striped awning, its scalloped edge poking out over the disc, above a shop front
   const K = '#7A2410', G = '#FFC21F', C = '#FFF6E6', top = [15, 39], bot = [7, 47], y0 = 11, y1 = 24, n = 6;
   const at = (e, k) => e[0] + (e[1] - e[0]) * k / n, w = (bot[1] - bot[0]) / n;
@@ -8751,7 +8751,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.76';
+const APP_VERSION = '2.77';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
