@@ -2062,7 +2062,6 @@ db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("
 // streak freezes: have = how many are saved up (at most 2), days = the days a freeze covered, run/given = the 7-day rewards of the current streak
 db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze);
 db.mapSeen = db.mapSeen && typeof db.mapSeen === 'object' ? db.mapSeen : {};   // Map: { HSK level: temple pieces you have seen built }
-db.monSeen = db.monSeen && typeof db.monSeen === 'object' ? db.monSeen : {};   // Map (v2.40): { monument: pieces you have seen built }
 /* v2.35: temples are built by proven words (w.pf, see proveWord), no longer by every word in the word bank. Once, for
    phones that already have words: a word you got right on a later day than you first met it counts as proven, and every
    piece already standing stays standing (db.mapKeep = { HSK level: pieces }), so nobody loses what they built. */
@@ -2099,8 +2098,8 @@ function parse() {
   if (p[0] === 'course' && p[1] === '1' && p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0 };
   if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
-  if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(TRAIL.length, Math.max(0, +p[1] || 0)) || null };
-  if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(TRAIL.length, Math.max(1, +p[1] || 1)) };
+  if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(5, Math.max(0, +p[1] || 0)) || null };
+  if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(5, Math.max(1, +p[1] || 1)) };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
@@ -5178,59 +5177,42 @@ function coinMoment() {   // a new piece for the collection, full screen, once; 
     ${moDock('Continue', 'mo-close', '<button class="ob-link" data-act="mo-coll">See my collection</button>')}`, 'mo');
   return true;
 }
-/* ---------- Map: a trail of monuments across China ----------
-   The Map tab: China with a trail of famous monuments, built one after another by the words you prove (any level: they
-   are no longer tied to HSK levels, so learning keeps paying off as it slows down). Each costs more proven words than
-   the one before: the Oriental Pearl Tower 24, the Leifeng Pagoda 40, the Yellow Crane Tower 64, the Canton Tower 96,
-   Hongya Cave 128, the Potala Palace 176, the Big Wild Goose Pagoda 224 and the Temple of Heaven 288 (about 1,040 in
-   all, so more monuments can join the end of the list). Each goes up in eight pieces, at 6, 15, 27, 40, 54, 68, 84 and
-   100% of its words; the words that built a monument are its own (the ones proven while it went up), and those that
-   are mastered hang its lanterns. What is not built yet stays a secret: a monument you have not reached is not on the
-   map at all, and one under way shows only the pieces that stand, never an outline or the name of the next one. Tap a
-   monument and the map flies to it and a card names it; Visit opens its page (the big picture, Continue building).
-   Along the bottom, as in a game, sit your progress on the monument you are on and one big button that goes on
-   building it. db.monSeen = { monument: pieces you have seen }, so a piece built since your last look goes up in
-   front of you the next time you open that page. */
+/* ---------- Map: a temple in five cities ----------
+   The Map tab: China with a route through five cities, one temple for each HSK level: HSK 1 Chengdu, 2 Guangzhou,
+   3 Shanghai, 4 Xi'an, 5 Beijing. Your first word of a level in the word bank breaks ground in its city; then the temple
+   goes up a piece at a time as more of that level's words come in, eight pieces at 6, 15, 27, 40, 54, 68, 84 and 100% of
+   the level's list. What is not built yet stays a secret: a level you have not reached is not on the map at all, the one
+   you are on is only a hovering marker until its first word, and a monument under way shows only the pieces that stand,
+   never an outline or the name of the next one. Tap a monument and the map flies to it and a card names it; Visit opens
+   its page (the big picture, Continue building: HSK 1 the next lesson, the other levels the HSK list). Along the bottom,
+   as in a game, sit your progress on the monument you are on and one big button that goes on building it.
+   db.mapSeen = { level: pieces you have seen }, so a piece built since your last look goes up in front of you the next
+   time you open that page. */
 const TRAIL_TH = [.06, .15, .27, .40, .54, .68, .84, 1];
 const TRAIL = [
-  { lv: 1, en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, name: 'Oriental Pearl Tower', nzh: '东方明珠',
-    pieces: ['three legs', 'lower pearl', 'three columns', 'little pearls', 'upper pearl', 'space pearl', 'spire', 'river lights'] },
-  { lv: 2, en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, name: 'Leifeng Pagoda', nzh: '雷峰塔',
-    pieces: ['stone terrace', 'first floor', 'second floor', 'third floor', 'fourth floor', 'top floor', 'golden spire', 'evening glow'] },
-  { lv: 3, en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, name: 'Yellow Crane Tower', nzh: '黄鹤楼',
-    pieces: ['stone terrace', 'first floor', 'second floor', 'third floor', 'fourth floor', 'top floor', 'golden gourd', 'the yellow crane'] },
-  { lv: 4, en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, name: 'Canton Tower', nzh: '广州塔',
-    pieces: ['foundation', 'lower lattice', 'the slim waist', 'upper lattice', 'sky deck', 'mast', 'needle', 'rainbow lights'] },
-  { lv: 5, en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, name: 'Hongya Cave', nzh: '洪崖洞',
-    pieces: ['stilts in the cliff', 'lower houses', 'middle houses', 'upper houses', 'towers on top', 'lanterns', 'cable car', 'city lights'] },
-  { lv: 6, en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, name: 'Potala Palace', nzh: '布达拉宫',
-    pieces: ['hill and stairs', 'great white wall', 'west white palace', 'east white palace', 'red palace', 'windows and curtains', 'golden roofs', 'prayer flags'] },
-  { lv: 7, en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, name: 'Big Wild Goose Pagoda', nzh: '大雁塔',
+  { lv: 1, en: 'Chengdu', zh: '成都', lon: 104.07, lat: 30.67, name: 'Bamboo temple', nzh: '竹林寺', lab: [-1, 1],
+    pieces: ['stone terrace', 'red columns', 'lattice walls', 'grey tile roof', 'upper roof', 'name board and lanterns', 'incense and lions', 'bamboo garden'] },
+  { lv: 2, en: 'Guangzhou', zh: '广州', lon: 113.26, lat: 23.13, name: 'Banyan hall', nzh: '榕荫堂', lab: [-1, 1],
+    pieces: ['granite terrace', 'grey brick walls', 'green tile roof', 'wok-handle gables', 'great doors', 'ceramic ridge', 'banyan tree', 'river lanterns'] },
+  { lv: 3, en: 'Shanghai', zh: '上海', lon: 121.47, lat: 31.23, name: 'Golden temple', nzh: '金殿', lab: [1, 1],
+    pieces: ['marble base', 'red columns', 'lattice walls', 'golden roof', 'upper hall and name board', 'golden pagoda', 'bell tower', 'city lights'] },
+  { lv: 4, en: "Xi'an", zh: '西安', lon: 108.94, lat: 34.34, name: 'Wild goose pagoda', nzh: '雁塔', lab: [-1, -1],
     pieces: ['brick plinth', 'floors 1 and 2', 'floors 3 and 4', 'floors 5 and 6', 'floor 7', 'golden spire', 'side halls', 'city wall'] },
-  { lv: 8, en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, name: 'Temple of Heaven', nzh: '天坛',
+  { lv: 5, en: 'Beijing', zh: '北京', lon: 116.40, lat: 39.90, name: 'Hall of heaven', nzh: '天坛', lab: [1, -1],
     pieces: ['first marble terrace', 'second terrace', 'third terrace', 'red round walls', 'lower blue roof', 'middle blue roof', 'top roof and gold', 'festival night'] },
 ];
-const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
-function trailFloor() {   // the pieces of the old five temples (before v2.37, db.mapKeep) stay built: as many pieces, counted along this trail
-  let p = Object.values(db.mapKeep || {}).reduce((a, x) => a + (+x || 0), 0), n = 0;
-  for (const c of TRAIL) { if (p <= 0) break; if (p >= 8) { n += c.cost; p -= 8; } else { n += Math.ceil(TRAIL_TH[p - 1] * c.cost); p = 0; } }
-  return n;
+function trailState(lv) {   // n = proven words of the level (they build), open = known ones a Fast build can prove, mast = mastered
+  const mine = db.bank.filter(w => trailLv(w) === lv), pv = mine.filter(w => w.pf?.at), n = pv.length, total = S.H?.levels[lv]?.length || HSK_COUNT[lv];
+  const need = TRAIL_TH.map(t => Math.max(2, Math.ceil(t * total))), k = Math.max(db.mapKeep?.[lv] || 0, need.filter(x => n >= x).length), now = Date.now();
+  return { lv, n, total, need, k, started: mine.length > 0, done: k === 8, seen: db.mapSeen?.[lv] ?? 0, words: (pv.length ? pv : mine).slice(0, 4),
+    open: mine.length - n, mast: pv.filter(w => w.pf.m).length, due: pv.filter(w => w.srs?.due <= now).length };
 }
-function trailAll() {   // your proven words in the order you proved them; open = known ones a Fast build can prove
-  const pv = db.bank.filter(w => w.pf?.at).sort((a, b) => a.pf.at - b.pf.at);
-  return { pv, n: Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length };
-}
-function trailState(lv, A = trailAll()) {   // n = proven words that went into this monument, mast = those mastered, due = those due for review
-  const c = TRAIL[lv - 1], at = TRAIL_AT[lv - 1], total = c.cost, n = Math.max(0, Math.min(total, A.n - at)), mine = A.pv.slice(at, at + total), now = Date.now();
-  const need = TRAIL_TH.map(t => Math.max(1, Math.ceil(t * total))), k = need.filter(x => n >= x).length;
-  return { lv, n, total, need, k, started: A.n >= at && (lv > 1 || db.bank.length > 0), done: k === 8, seen: db.monSeen?.[lv] ?? 0, words: mine.slice(0, 4),
-    open: A.open, mast: mine.filter(w => w.pf.m).length, due: mine.filter(w => w.srs?.due <= now).length };
-}
-const trailStates = () => { const A = trailAll(); return TRAIL.map(c => trailState(c.lv, A)); };
-const trailCur = sts => sts.findIndex(x => !x.done);   // the monument you are building: the first one not finished (-1: all of them are)
-const trailPieces = sts => sts.reduce((a, x) => a + x.k, 0);
-/* mastered words hang lanterns over a monument: 2 for each step of 5, 15, 30 and 50% of its words mastered */
+/* the city you are building in: the first unfinished one from your own level up (an HSK 3 learner starts in Shanghai,
+   not Chengdu); once those are done, the unfinished ones below it */
+const trailStart = () => Math.min(5, Math.max(1, db.prefs.level || 1));
+const trailCur = sts => { const i = sts.findIndex(x => !x.done && x.lv >= trailStart()); return i >= 0 ? i : sts.findIndex(x => !x.done); };
+/* mastered words hang lanterns over a temple: 2 for each step of 5, 15, 30 and 50% of the level mastered */
 const LANT_TH = [.05, .15, .30, .50];
 const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.total))).length : 0;
 const Trail = (() => {
@@ -5297,7 +5279,7 @@ const Trail = (() => {
     [[109.6, 1.5], [111, 1.8], [113, 3.2], [115.4, 5], [116.8, 7], [118.6, 5.3], [119, 4.9], [117.9, 1.5], [116.5, -1], [114, -3.5], [110.3, -2.9], [109, -.4]],
     [[95.3, 5.6], [98, 4], [100.4, 2.2], [103.8, -1], [102.3, -4], [100.3, -1], [98.6, 1.7], [96.5, 3.8]]];
   const CHINA = [...NE, ...COAST, ...WEST];
-  const SITE = Object.fromEntries(TRAIL.map(c => [c.lv, c.site]));   // where each monument stands
+  const SITE = { 1: [104.1, 30.6], 2: [113.3, 23.3], 3: [121.1, 31.1], 4: [108.9, 34.4], 5: [116.4, 40] };   // where each monument stands
   // the kinds of country, later ones over earlier ones
   const BIOME = [
     ['plat', [[77, 36.5], [79, 32], [82, 30], [86, 28], [92, 27.6], [97, 28], [100, 28.5], [102.5, 30.5], [103.4, 33.5], [102, 36.5], [99, 38.6], [95, 39], [90, 37], [84, 36.6], [80, 37.4]]],
@@ -5513,39 +5495,23 @@ const Trail = (() => {
     }
     if (!moving) PROPS.t = 0; else if (!PROPS.raf) PROPS.raf = requestAnimationFrame(() => { PROPS.raf = 0; if (cv.isConnected) drawProps(); });   // keep drawing until the fade is done
   }
-  /* the monuments, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
+  /* the five landmarks, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
   const C = { r: '#B8322A', r2: '#7E1E18', door: '#5E1813', st: '#F1E8D6', st2: '#CDBDA3', gold: '#E8B44C', gold2: '#B98426', grey: '#737C84', grey2: '#555D65',
-    teal: '#2E7D7A', blue: '#2F5D8A', blue2: '#22486E', grn: '#5E8A50', grn2: '#3F643A', brick: '#C9A06E', brick2: '#9C7448', win: '#F3D58A',
-    pink: '#D9659A', bronze: '#8A6A3E', steel: '#C9D2DC', steel2: '#7E8A9E', rock: '#A8988A', wood: '#9A6A3E', ochre: '#B8986A' };
+    teal: '#2E7D7A', blue: '#2F5D8A', blue2: '#22486E', grn: '#5E8A50', grn2: '#3F643A', brick: '#C9A06E', brick2: '#9C7448', win: '#F3D58A' };
   const roof = (w, y, h, fill) => `<path d="M${-w} ${f(y - 2.4)}Q${f(-w * .8)} ${y} ${f(-w * .55)} ${y}H${f(w * .55)}Q${f(w * .8)} ${y} ${w} ${f(y - 2.4)}Q${f(w * .72)} ${f(y - 2.8)} ${f(w * .6)} ${f(y - h)}H${f(-w * .6)}Q${f(-w * .72)} ${f(y - 2.8)} ${-w} ${f(y - 2.4)}Z" fill="${fill}"/>`;
   const cone = (w, y, h, fill) => `<path d="M${-w} ${y}Q${f(-w * .45)} ${f(y - h * .45)} 0 ${f(y - h)}Q${f(w * .45)} ${f(y - h * .45)} ${w} ${y}Q0 ${f(y + 1.3)} ${-w} ${y}Z" fill="${fill}"/>`;
   const box = (w, y0, y1, fill) => `<rect x="${-w}" y="${y1}" width="${w * 2}" height="${y0 - y1}" fill="${fill}"/>`;
   const MON = [
-    { h: 47, w: 16, art: () => { const pk = (y, r) => `<circle cy="${y}" r="${r}" fill="${C.pink}"/>${r > 3 ? `<ellipse cx="${f(-r * .35)}" cy="${f(y - r * .4)}" rx="${f(r * .3)}" ry="${f(r * .18)}" fill="#fff" opacity=".6" stroke="none"/>` : ''}`;   // Oriental Pearl Tower
-        return `<path d="M-12 0L-3.6 -11.5L-1.6 -10.5L-8.4 0Z M12 0L3.6 -11.5L1.6 -10.5L8.4 0Z" fill="${C.st}"/>` + `<path d="M-3.4 0V-32H-1.6V0Z M1.6 0V-32H3.4V0Z" fill="${C.st}"/>` + pk(-1.4, 1.8)
-          + pk(-15, 7) + pk(-23.4, 1.3) + pk(-25.8, 1.3) + pk(-28.2, 1.3) + pk(-33.5, 4.6) + `<rect x="-.8" y="-40" width="1.6" height="3" fill="${C.st}"/>` + pk(-41, 1.9) + `<path d="M0 -43V-47" stroke="${C.st2}" stroke-width="1"/>`; } },
-    { h: 42, w: 17, art: () => { let s = box(14, 0, -2.5, C.st2) + box(12, -2.5, -4.5, C.st), y = -4.5;   // Leifeng Pagoda
-        for (let i = 0; i < 5; i++) { const w = 8.4 - i * .9; s += box(f(w), y, f(y - 4.2), C.r) + `<path d="M-1 ${f(y)}V${f(y - 2.6)}H1V${f(y)}Z" fill="${C.door}"/>` + (i < 4 ? roof(f(w + 3.2), f(y - 3.8), 2.4, C.bronze) : cone(f(w + 3.6), f(y - 3.8), 6, C.bronze)); y -= 6.2; }
-        return s + `<path d="M0 ${f(y + 4)}V${f(y - 2)}" stroke="${C.gold2}" stroke-width="1.2"/><circle cy="${f(y - 2)}" r="1.2" fill="${C.gold}"/>`; } },
-    { h: 44, w: 23, art: () => { let s = box(19, 0, -2.5, C.st2) + box(16.5, -2.5, -4.5, C.st), y = -4.5;   // Yellow Crane Tower
-        for (let i = 0; i < 5; i++) { const w = 13 - i * 1.6; s += box(f(w), y, f(y - 4.4), C.r) + `<g transform="translate(${f(-w)} 0)">${roof(3.4, f(y - 1.6), 2, C.gold)}</g><g transform="translate(${f(w)} 0)">${roof(3.4, f(y - 1.6), 2, C.gold)}</g>`
-          + roof(f(w + 4.4), f(y - 4), i < 4 ? 2.6 : 4.4, C.gold) + (i < 4 ? roof(3, f(y - 5.6), 2, C.gold2) : ''); y -= 6.6; }
-        return s + `<path d="M0 ${f(y + 2)}V${f(y - 2.4)}" stroke="${C.gold2}" stroke-width="1"/><circle cy="${f(y - 1)}" r="1.6" fill="${C.gold}"/><circle cy="${f(y - 3.4)}" r="1.1" fill="${C.gold}"/>`; } },
-    { h: 54, w: 14, art: () => { const H = 38, hw = t => Math.sqrt(19.4 + 171 * (t - .6) * (t - .6)), L = [], R = [];   // Canton Tower
-        for (let i = 0; i <= 12; i++) { const t = i / 12, y = f(-2 - H * t), dx = 1.2 * (t - .5); L.push(`${f(dx - hw(t))} ${y}`); R.unshift(`${f(dx + hw(t))} ${y}`); }
-        let s = box(11, 0, -2, C.st2) + `<path d="M${L.join('L')}L${R.join('L')}Z" fill="${C.steel}"/><g stroke="${C.steel2}" stroke-width=".7" fill="none">`;
-        for (let i = -3; i <= 3; i++) s += `<path d="M${f(i * 2.6)} -2L${f(-i * 1.8 + .6)} -40"/>`;
-        return s + `</g><ellipse cx=".6" cy="-40" rx="7.2" ry="1.4" fill="${C.st}"/><rect x="-4.4" y="-43" width="10" height="3" rx="1" fill="${C.win}"/><path d="M.6 -43V-54" stroke="${C.st2}" stroke-width="1.4"/><circle cx=".6" cy="-54" r=".9" fill="${C.r}" stroke="none"/>`; } },
-    { h: 34, w: 27, art: () => { let s = `<path d="M-27 0V-15Q-25 -25 -14 -28Q0 -32 14 -28Q25 -25 27 -15V0Z" fill="${C.rock}"/><path d="M-27 -15Q-25 -25 -14 -28Q0 -32 14 -28Q25 -25 27 -15" fill="none" stroke="${C.grn}" stroke-width="1.6"/>` + box(23, 0, -2, C.wood);   // Hongya Cave
-        [[22, -2, -8.5], [19.5, -8.5, -14.5], [17, -14.5, -20], [14, -20, -25]].forEach(([w, y0, y1]) => { s += box(w, y0, y1, C.st);
-          for (let x = -w + 2; x < w - 2; x += 3.4) s += `<rect x="${f(x)}" y="${f(y1 + 1.6)}" width="2" height="${f(y0 - y1 - 3)}" fill="${C.win}" stroke="none"/>`;
-          s += roof(w + 1.6, f(y1 + .6), 2.2, C.grey2); });
-        return s + box(3.2, -25, -29, C.st) + cone(5.4, -28.6, 5, C.grey2); } },
-    { h: 30, w: 29, art: () => { const W = '#F6F2EA', dots = (x0, x1, y0, n) => { let d = ''; for (let r = 0; r < n; r++) for (let x = x0; x <= x1; x += 2.6) d += `<rect x="${f(x)}" y="${f(y0 - r * 2.8)}" width="1.1" height="1.4" fill="#2A221C" stroke="none"/>`; return d; };   // Potala Palace
-        return `<path d="M-28 0Q-16 -6 -8 -6.5H8Q16 -6 28 0Z" fill="${C.ochre}"/><path d="M-22 -1L-14 -4L-20 -5M22 -1L14 -4L20 -5" stroke="${W}" stroke-width="1.2" fill="none"/>`
-          + `<path d="M-19 -5H19L18 -12H-18Z" fill="${W}"/>` + dots(-16, 16, -7.2, 2) + `<path d="M-17 -12H-6L-6.4 -20H-16.4Z M5 -12H17L16.4 -21H5.6Z" fill="${W}"/>` + dots(-15, -8, -14, 2) + dots(7, 15, -14, 2)
-          + `<path d="M-6.4 -12H6.4L5.8 -25.6H-5.8Z" fill="${C.r}"/>` + dots(-4, 4, -14.4, 4) + `<rect x="-5.8" y="-26.4" width="11.6" height="1.4" fill="${C.r2}"/>`
-          + `<g transform="translate(-3 0)">${roof(2.6, -26.4, 2.6, C.gold)}</g><g transform="translate(3 0)">${roof(2.6, -26.4, 2.6, C.gold)}</g>${roof(3, -27, 3, C.gold)}`; } },
+    { h: 34, w: 26, art: () => box(17, 0, -2.5, C.st2) + box(15, -2.5, -4.5, C.st) + box(11.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/><path d="M-9.5 -11.5H-5V-7.5H-9.5ZM5 -11.5H9.5V-7.5H5Z" fill="${C.win}"/>`
+        + roof(19, -12.5, 6.5, C.grey) + box(6.5, -18.5, -23, C.r) + roof(12.5, -22, 5.5, C.grey)
+        + `<g stroke="${C.grn2}" stroke-width="1.5" fill="none"><path d="M19 0V-27M22.5 0V-33M26 0V-22"/></g><g fill="${C.grn}"><ellipse cx="17" cy="-25" rx="3.6" ry="1.4" transform="rotate(-24 17 -25)"/><ellipse cx="25" cy="-31" rx="3.8" ry="1.4" transform="rotate(20 25 -31)"/><ellipse cx="20" cy="-17" rx="3.4" ry="1.3" transform="rotate(-18 20 -17)"/><ellipse cx="28.5" cy="-20.5" rx="3.4" ry="1.3" transform="rotate(26 28.5 -20.5)"/></g>` },
+    { h: 33, w: 30, art: () => box(18, 0, -3, C.st2) + box(14, -3, -14, '#A3A7A8') + `<path d="M-3 -3V-10.5H3V-3Z" fill="${C.door}"/><path d="M-11 -11H-6.5M6.5 -11H11" stroke="${C.grey2}"/>`
+        + `<path d="M-15 -11V-19Q-15 -25.5 -9.5 -24.5Q-12.5 -20 -11.5 -11Z" fill="${C.grey2}"/><path d="M15 -11V-19Q15 -25.5 9.5 -24.5Q12.5 -20 11.5 -11Z" fill="${C.grey2}"/>`
+        + roof(15.5, -13.5, 6, C.teal) + `<path d="M-8 -19.5H8" stroke="${C.gold}" stroke-width="1.8"/><circle cx="-5" cy="-21" r="1.1" fill="${C.r}"/><circle cx="0" cy="-21.5" r="1.1" fill="${C.gold}"/><circle cx="5" cy="-21" r="1.1" fill="${C.teal}"/>`
+        + `<path d="M-24 0V-14M-21 0V-9M-27 0V-10" stroke="${C.brick2}" stroke-width="1.3"/><circle cx="-24" cy="-22" r="8.5" fill="${C.grn}"/><circle cx="-28" cy="-18" r="5" fill="${C.grn2}"/><circle cx="-19.5" cy="-27" r="4.5" fill="${C.grn}"/>` },
+    { h: 44, w: 26, art: () => box(16, 0, -2.5, C.st) + box(14, -2.5, -4.5, C.st2) + box(10.5, -4.5, -13, C.r) + `<path d="M-2.6 -4.5V-10.5H2.6V-4.5Z" fill="${C.door}"/>`
+        + roof(17, -12.5, 6, C.gold) + box(6, -18.5, -22.5, C.r) + roof(11.5, -21.5, 5.5, C.gold2)
+        + `<g transform="translate(21 0)">${box(3.6, 0, -6, C.r)}${roof(6.5, -5.5, 3, C.gold)}${box(2.8, -8.5, -12, C.r)}${roof(5.5, -11.5, 3, C.gold)}${box(2.2, -14.5, -17.5, C.r)}${roof(4.6, -17, 3, C.gold)}${box(1.7, -20, -22.5, C.r)}${roof(3.8, -22, 3, C.gold)}<path d="M0 -25V-31" stroke="${C.gold2}" stroke-width="1.2"/></g>` },
     { h: 50, w: 22, art: () => { let s = box(18, 0, -2.5, C.st2) + `<g transform="translate(-17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g><g transform="translate(17 0)">${box(4.5, -2.5, -7, C.r)}${roof(7, -6.5, 3.5, C.grey)}</g>` + box(11, -2.5, -6, C.brick2);
         let y = -6; for (let i = 0; i < 7; i++) { const w = 9.4 - i * 1.05, h = 5.6 - i * .3; s += box(f(w), y, f(y - h), C.brick) + `<path d="M${f(-w - 1.6)} ${f(y - h)}H${f(w + 1.6)}" stroke="${C.brick2}" stroke-width="1.6"/><circle cy="${f(y - h / 2)}" r=".9" fill="${C.door}"/>`; y -= h; }
         return s + `<path d="M0 ${f(y)}V${f(y - 7)}" stroke="${C.gold2}" stroke-width="1.4"/><circle cy="${f(y - 4)}" r="1.4" fill="${C.gold}"/>`; } },
@@ -5571,7 +5537,7 @@ const Trail = (() => {
     if (st.done) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
     if (cur) s += beacon(-top - 5);
     const hi = top + (cur ? 44 : 4);
-    return s + `<rect x="${f(-w * .8)}" y="${-hi}" width="${f(w * 1.6)}" height="${hi + 10}" fill="transparent"/>`;   // narrow enough that neighbours (Shanghai, Hangzhou) do not steal each other's taps
+    return s + `<rect x="${-w - 4}" y="${-hi}" width="${w * 2 + 8}" height="${hi + 10}" fill="transparent"/>`;
   }
   const mini = (lv, st) => st.k ? `<svg viewBox="${(M => `${-M.w - 5} ${-M.h - 3} ${M.w * 2 + 10} ${M.h + 8}`)(MON[lv - 1])}" aria-hidden="true">${stands(lv, st.k, 'tmM' + lv)}</svg>`   // the same monument, for its card
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`;
@@ -5596,7 +5562,7 @@ const Trail = (() => {
     let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have built. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
     TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.k || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; a level with nothing built yet is not on the map, unless it is the one you are building
-      const say = !st.started ? 'Your next monument' : `${c.name}, ${c.en}, monument ${c.lv} of ${TRAIL.length}, ${st.done ? 'finished' : `${st.k} of 8 pieces built`}`;
+      const say = !st.started ? `Your next monument, HSK ${c.lv}` : `${c.name}, ${c.en}, HSK ${c.lv}, ${st.done ? 'finished' : `${st.k} of 8 pieces built`}`;
       s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
     return s + '</svg>';
   }
@@ -5669,7 +5635,7 @@ const Trail = (() => {
   const near = lv => view(...SITE[lv], cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
   const focus = lv => CAM.api?.fly(near(lv), 560);
   const dive = lv => CAM.api?.fly(view(...SITE[lv], zMax(), .56), 440);
-  /* ---- the eight monuments ---- */
+  /* ---- the five temples ---- */
   const hill = (pts, fill) => `<path d="${K.smooth(pts)}V262H0Z" fill="${fill}"/>`;
   const mist = (y, h, P, op = 1) => `<rect x="-10" y="${y}" width="380" height="${h}" fill="${P.mist}" filter="url(#wtSoft)" opacity="${op}"/>`;
   function sky(P) {
@@ -5687,11 +5653,7 @@ const Trail = (() => {
     return s;
   }
   const defs = P => `<defs><linearGradient id="mpGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.lit ? '#2E5A48' : '#4E9A72'}"/><stop offset="1" stop-color="${P.lit ? '#1C3A2E' : '#2F6A4E'}"/></linearGradient>
-    <linearGradient id="mpBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.lit ? '#2E4E86' : '#3F6FC0'}"/><stop offset="1" stop-color="${P.lit ? '#1A2E58' : '#24468A'}"/></linearGradient>
-    <radialGradient id="mpPearl" cx=".38" cy=".34" r=".7"><stop offset="0" stop-color="${P.lit ? '#FFD1E8' : '#F9C2DA'}"/><stop offset=".55" stop-color="${P.lit ? '#F0589E' : '#D9659A'}"/><stop offset="1" stop-color="${P.lit ? '#7A1C55' : '#9C2E64'}"/></radialGradient>
-    <radialGradient id="mpPinkGlow"><stop offset="0" stop-color="#FF7AC0" stop-opacity=".55"/><stop offset="1" stop-color="#FF7AC0" stop-opacity="0"/></radialGradient>
-    <linearGradient id="mpConc" x1="0" x2="1"><stop offset="0" stop-color="${P.lit ? '#544C66' : '#BFB3C6'}"/><stop offset=".4" stop-color="${P.lit ? '#7B7290' : '#F2EDF2'}"/><stop offset="1" stop-color="${P.lit ? '#544C66' : '#C9BFD0'}"/></linearGradient>
-    <linearGradient id="mpRain" gradientUnits="userSpaceOnUse" x1="0" y1="200" x2="0" y2="54"><stop offset="0" stop-color="#FF5A5A"/><stop offset=".22" stop-color="#FFB040"/><stop offset=".42" stop-color="#F6E05A"/><stop offset=".62" stop-color="#5AD08A"/><stop offset=".82" stop-color="#4A9CFF"/><stop offset="1" stop-color="#B46AFF"/></linearGradient></defs>`;
+    <linearGradient id="mpBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.lit ? '#2E4E86' : '#3F6FC0'}"/><stop offset="1" stop-color="${P.lit ? '#1A2E58' : '#24468A'}"/></linearGradient></defs>`;
   function lan(x, y, P, r = 5) {   // a red lantern for decoration (the hall's own lanterns carry your words)
     const ry = f(r * 1.15);
     return `<path d="M${x} ${f(y - r * 1.15 - 4)}V${f(y - r * 1.15)}" stroke="${INK}" stroke-width=".7"/>${P.lit ? `<circle class="wt-glow" cx="${x}" cy="${y}" r="${f(r * 2.6)}" fill="url(#wtWarm)"/>` : ''}
@@ -5718,302 +5680,128 @@ const Trail = (() => {
     return s + `<path d="M${x1 - 46} ${base + 19}q13 -16 28 0Z" fill="#9A7A52" stroke="${INK}" stroke-width=".9"/><path d="M${x1 - 26} ${base + 14}l7 -24" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><path d="M${x1 - 26} ${base + 14}l7 -24" stroke="#9A6A3E" stroke-width="1.4" stroke-linecap="round"/>
       <path d="M${x1 - 30} ${base + 12}l5 4 4-7-5-3Z" fill="#9AA6AC" stroke="${INK}" stroke-width=".8"/>`;
   }
-  function water(y0, y1, P, seed = 3) {   // a river or a lake, with a few ripples
-    const R = K.rng(seed), c = P.lit ? '#1C2844' : '#8FBAC2', c2 = P.lit ? '#33466A' : '#C4E0E0';
-    let s = `<rect x="0" y="${y0}" width="360" height="${y1 - y0}" fill="${c}"/>`;
-    for (let i = 0; i < 16; i++) s += `<path d="M${f(R() * 350)} ${f(y0 + 3 + R() * (y1 - y0 - 6))}h${f(8 + R() * 14)}" stroke="${c2}" stroke-width="1" stroke-linecap="round"/>`;
+  // Chengdu: green bamboo and a panda
+  function bamboo(x, base, h, P, seed) {
+    const R = K.rng(seed), c1 = P.lit ? '#3E5A3A' : '#86A85E', c2 = P.lit ? '#2A3F28' : '#5E8240', lf = P.lit ? ['#2C452D', '#3A5A39'] : ['#6F9E4C', '#93BC68'];
+    let s = '';
+    for (let j = 0; j < 4; j++) {
+      const x0 = x + (j - 1.5) * 7 + R() * 3, top = base - h * (.72 + R() * .28), lean = (R() - .5) * 12, at = t => [x0 + lean * t * t, base - (base - top) * t];
+      const d = `M${f(x0)} ${base}Q${f(x0 + lean * .3)} ${f((base + top) / 2)} ${f(x0 + lean)} ${f(top)}`;
+      s += `<path d="${d}" fill="none" stroke="${c2}" stroke-width="3.6" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c1}" stroke-width="2.2" stroke-linecap="round"/>`;
+      for (let t = .12; t < .95; t += .14) { const [nx, ny] = at(t); s += `<path d="M${f(nx - 2)} ${f(ny)}h4" stroke="${c2}" stroke-width="1"/>`; }
+      for (let q = 0; q < 8; q++) { const [lx, ly] = at(.42 + R() * .58), dd = R() < .5 ? -1 : 1, l = 9 + R() * 7;
+        s += `<path d="M${f(lx)} ${f(ly)}Q${f(lx + dd * l * .5)} ${f(ly - 4.5)} ${f(lx + dd * l)} ${f(ly + 2 + R() * 2)}Q${f(lx + dd * l * .5)} ${f(ly + 1.2)} ${f(lx)} ${f(ly)}Z" fill="${lf[q % 2]}"/>`; }
+    }
     return s;
   }
-  function rail(y, P) {   // the riverside railing you look out from
-    let s = `<rect x="0" y="${y}" width="360" height="${252 - y}" fill="${P.stone2}"/><path d="M0 ${y - 7}H360" stroke="${INK}" stroke-width="2.6"/><path d="M0 ${y - 7}H360" stroke="${P.stone}" stroke-width="1.4"/>`;
-    for (let x = 6; x < 360; x += 14) s += `<path d="M${x} ${y}V${y - 7}" stroke="${INK}" stroke-width="1.6"/>`;
-    return s + `<path d="M0 ${y}H360" stroke="${INK}" stroke-width="1"/>`;
+  function panda(x, y) {
+    const W = '#FBFAF6', B = '#24211F';
+    return `<ellipse cx="${x}" cy="${y + 1}" rx="18" ry="3.6" fill="#000" opacity=".16"/><path d="M${x + 12} ${y - 6}L${x + 20} ${y - 42}" stroke="#5E8240" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M${x + 19} ${y - 38}q7 -4 11 1q-6 2 -11 -1ZM${x + 18} ${y - 32}q-7 -5 -11 -1q6 3 11 1Z" fill="#7FA65A"/>
+      <ellipse cx="${x}" cy="${y - 12}" rx="13.5" ry="12.5" fill="${W}" stroke="${INK}" stroke-width="1.2"/>
+      <ellipse cx="${x - 9}" cy="${y - 3}" rx="6.2" ry="4.6" fill="${B}"/><ellipse cx="${x + 9}" cy="${y - 3}" rx="6.2" ry="4.6" fill="${B}"/>
+      <path d="M${x - 12} ${y - 20}q-6 7 0 12q4 2 7 -1q-1 -6 -7 -11Z" fill="${B}"/><path d="M${x + 5} ${y - 21}q9 -3 10 5q-1 5 -7 4q-3 -4 -3 -9Z" fill="${B}"/>
+      <circle cx="${x - 7}" cy="${y - 36}" r="3.8" fill="${B}"/><circle cx="${x + 7}" cy="${y - 36}" r="3.8" fill="${B}"/>
+      <circle cx="${x}" cy="${y - 28}" r="9.8" fill="${W}" stroke="${INK}" stroke-width="1.2"/>
+      <ellipse cx="${x - 3.7}" cy="${y - 28.6}" rx="2.6" ry="3.5" fill="${B}" transform="rotate(25 ${x - 3.7} ${y - 28.6})"/><ellipse cx="${x + 3.7}" cy="${y - 28.6}" rx="2.6" ry="3.5" fill="${B}" transform="rotate(-25 ${x + 3.7} ${y - 28.6})"/>
+      <circle cx="${x - 3.3}" cy="${y - 29.2}" r=".95" fill="#fff"/><circle cx="${x + 3.3}" cy="${y - 29.2}" r=".95" fill="#fff"/><ellipse cx="${x}" cy="${y - 24.6}" rx="1.7" ry="1.1" fill="${B}"/>
+      <path d="M${x - 1.6} ${y - 22.6}q1.6 1.2 3.2 0" fill="none" stroke="${B}" stroke-width=".7"/>`;
   }
-  function boat(x, y, P, lit) {   // a river boat; at night its cabin is lit
-    return `<path d="M${x - 22} ${y}h44l-6 7h-32Z" fill="${P.lit ? '#3A3040' : '#F2EEE6'}" stroke="${INK}" stroke-width=".9"/><rect x="${x - 13}" y="${y - 7}" width="24" height="7" fill="${lit ? '#FFC46E' : P.lit ? '#4A4052' : '#C9D6DE'}" stroke="${INK}" stroke-width=".8"/>
-      <rect x="${x - 8}" y="${y - 12}" width="13" height="5" fill="${P.lit ? '#3A3040' : '#F2EEE6'}" stroke="${INK}" stroke-width=".7"/><path d="M${x + 1} ${y - 12}v-6" stroke="${INK}" stroke-width=".9"/><path d="M${x + 1} ${y - 18}l7 2-7 2Z" fill="#C9302A"/>`
-      + (lit ? `<circle cx="${x}" cy="${y - 3}" r="20" fill="url(#wtWarm)" opacity=".7"/>` : '');
-  }
-  function glowAt(x, y, r, P, op = .6) { return P.lit ? `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#wtWarm)" opacity="${op}"/>` : ''; }
-  // Shanghai: the Oriental Pearl Tower across the Huangpu, the towers of Lujiazui behind it
-  function lujiazui(P, bright) {
-    const c = P.lit ? '#262A48' : '#B2BAC9', c2 = P.lit ? '#2E3354' : '#C8CEDA', R = K.rng(13);
-    let s = '', win = '';
-    const box = (x, w, h, col) => { s += `<rect x="${x}" y="${176 - h}" width="${w}" height="${h}" fill="${col}"/>`;
-      if (P.lit) for (let yy = 178 - h; yy < 172; yy += 5) for (let xx = x + 2; xx < x + w - 2; xx += 4) if (R() < (bright ? .55 : .22)) win += `<rect x="${xx}" y="${yy}" width="1.8" height="2.2" fill="#FFD27A" opacity="${f(.5 + R() * .5)}"/>`; };
-    [[6, 24, 64], [34, 16, 88], [54, 26, 58], [86, 18, 80], [112, 22, 62], [298, 18, 60], [320, 16, 84], [338, 22, 70]].forEach(([x, w, h]) => box(x, w, h, c2));
-    s += `<path d="M232 176V64h4V52h6v12h4V176Z" fill="${c}"/><path d="M239 52V34" stroke="${c}" stroke-width="1.6"/>`;   // Jin Mao
-    s += `<path d="M256 176C256 126 262 76 266 34L274 32C276 76 280 126 282 176Z" fill="${c}"/>`;   // Shanghai Tower
-    s += `<path d="M284 176V66L300 58V176Z" fill="${c}"/><rect x="289" y="66" width="6" height="5" fill="${P.lit ? '#14182C' : '#E9EDF2'}"/>`;   // the bottle opener
-    return s + win;
-  }
-  function pearl(x, y, r, P, lit) {   // a pink glass sphere with bands of windows
-    let s = (lit ? `<circle cx="${x}" cy="${y}" r="${f(r * 2.4)}" fill="url(#mpPinkGlow)"/>` : '') + `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#mpPearl)" stroke="${INK}" stroke-width="${r > 8 ? 1.3 : .9}"/>`;
-    if (r > 8) [-.45, 0, .45].forEach(q => { const yy = y + r * q, hw = r * Math.sqrt(1 - q * q); s += `<path d="M${f(x - hw + 1)} ${f(yy)}Q${x} ${f(yy + r * .14)} ${f(x + hw - 1)} ${f(yy)}" fill="none" stroke="${lit ? '#FFE3F0' : '#FBE3EE'}" stroke-width="${f(r * .07)}" opacity=".6"/>`; });
-    return s + `<ellipse cx="${f(x - r * .38)}" cy="${f(y - r * .42)}" rx="${f(r * .26)}" ry="${f(r * .17)}" fill="#fff" opacity=".55" transform="rotate(-30 ${f(x - r * .38)} ${f(y - r * .42)})"/>`;
-  }
+  const hallLanterns = (ctx, xs) => xs.slice(0, Math.min(4, ctx.words.length)).map((x, j) => ({ k: j, big: j === 0, x, w: ctx.words[j] }));
   const T1 = {
-    back: (P, k) => sky(P) + K.cloud(46, 30, .9, P) + K.cloud(168, 18, .7, P) + lujiazui(P, k >= 8) + mist(156, 24, P)
-      + hill([[0, 190], [90, 186], [180, 188], [270, 185], [360, 189], [360, 189]], P.near) + `<rect x="0" y="200" width="360" height="24" fill="${P.lit ? '#2A2F3A' : '#D8CFBF'}"/>` + water(224, 244, P, 5) + rail(246, P),
-    box: [140, 220, 14, 200],
-    draw(k, P) {
-      const lit = k >= 8 && P.lit, cx = 180;
-      let s = '';
-      if (k >= 1) s += `<ellipse cx="${cx}" cy="203" rx="56" ry="4" fill="#000" opacity=".14"/><rect x="118" y="198" width="124" height="5" rx="1" fill="${P.stone}" stroke="${INK}" stroke-width="1"/>`;
-      if (k >= 3) [171, 180, 189].forEach((x, i) => s += `<rect x="${x - 2.6}" y="74" width="5.2" height="124" fill="url(#mpConc)" stroke="${INK}" stroke-width=".9"${i === 1 ? ' opacity=".85"' : ''}/>`);
-      if (k >= 1) { s += `<path d="M132 198L144 198L176 150L168 146Z" fill="url(#mpConc)" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"/><path d="M228 198L216 198L184 150L192 146Z" fill="url(#mpConc)" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"/>`;
-        [[150, 4.6], [210, 4.6], [cx, 5.6]].forEach(([x, r]) => s += pearl(x, 198 - r * .5, r, P, false)); }
-      if (k >= 2) s += pearl(cx, 138, 21, P, lit) + `<rect x="${cx - 21}" y="136" width="42" height="4" fill="${P.lit ? '#FFC9E2' : '#F6D9E7'}" opacity=".55"/>`;
-      if (k >= 4) [112.5, 107, 101.5, 96, 90.5].forEach((y, i) => s += pearl(cx + (i % 2 ? 2.6 : -2.6), y, 3.2, P, false));
-      if (k >= 5) s += pearl(cx, 72, 13, P, lit);
-      if (k >= 6) s += `<rect x="${cx - 2.4}" y="40" width="4.8" height="21" fill="url(#mpConc)" stroke="${INK}" stroke-width=".8"/>` + pearl(cx, 36, 6, P, lit);
-      if (k >= 7) s += `<path d="M${cx - 1.8} 30L${cx - .5} 6H${cx + .5}L${cx + 1.8} 30Z" fill="${P.lit ? '#9A90AA' : '#E9E3EE'}" stroke="${INK}" stroke-width=".9"/><rect x="${cx - 2.6}" y="22" width="5.2" height="2" fill="${P.stone2}" stroke="${INK}" stroke-width=".5"/><rect x="${cx - 2}" y="14" width="4" height="1.8" fill="${P.stone2}" stroke="${INK}" stroke-width=".5"/>`
-        + `<circle class="${P.lit ? 'wt-tw' : ''}" cx="${cx}" cy="5.5" r="1.6" fill="#E8463A"/>`;
-      if (k >= 8) { s += boat(84, 232, P, P.lit) + boat(286, 238, P, P.lit);
-        if (P.lit) for (let x = 6; x < 360; x += 12) s += `<circle cx="${x}" cy="198" r="1.3" fill="#FFD27A"/><circle cx="${x}" cy="206" r="4" fill="url(#wtWarm)" opacity=".5"/>`;
-        else s += `<path d="M${cx} 30L120 196M${cx} 30L240 196" stroke="#E04A8C" stroke-width=".8" stroke-dasharray="1 3" opacity=".6"/>`; }
+    pal: P => ({ ...P, roof: P.lit ? '#5A5664' : '#8C867E', roof2: P.lit ? '#35323D' : '#5A554F', ridge: P.lit ? '#26232C' : '#3A3632' }),   // Sichuan temples wear dark grey tiles
+    back: P => sky(P) + birds(P) + K.cloud(70, 34, 1, P) + K.cloud(214, 22, .8, P)
+      + hill([[0, 112], [30, 84], [58, 96], [96, 58], [128, 90], [160, 78], [196, 100], [232, 70], [266, 92], [300, 74], [332, 96], [360, 84], [360, 84]], 'url(#wtFar)')
+      + mist(98, 24, P) + hill([[0, 140], [40, 120], [80, 132], [120, 126], [160, 142], [210, 138], [250, 128], [290, 134], [330, 120], [360, 128], [360, 128]], P.mid)
+      + hill([[0, 166], [30, 150], [70, 152], [110, 160], [250, 160], [290, 150], [330, 152], [360, 160], [360, 160]], P.near)
+      + [[20, 152, .8], [44, 156, .7], [300, 154, .8], [328, 150, .9], [346, 158, .7]].map(([x, y, k]) => K.pine(x, y, k, P)).join('') + mist(156, 14, P, .7) + court(P, 192),
+    box: [94, 266, 112, 190], board: 6,
+    draw(k, P, ctx) {
+      let s = k >= 8 ? bamboo(34, 212, 128, P, 3) + bamboo(318, 210, 136, P, 9) : '';
+      if (k >= 1) s += K.hall({ cx: 180, base: 188, w: 164, colH: 38, st: k <= 4 ? k : k === 5 ? 4 : 5, double: k >= 5, n: ctx.n, lanterns: k >= 6 ? hallLanterns(ctx, [114, 130, 230, 246]) : [] }, P);
+      if (k >= 7) s += K.incense(180, 230, P) + K.lion(104, 168, 38, true) + K.lion(218, 168, 38, false);
+      if (k >= 8) s += panda(70, 240) + bamboo(350, 232, 70, P, 5);
       return s;
     },
   };
-  // Hangzhou: the Leifeng Pagoda on its hill above West Lake, willows and the Broken Bridge
-  function willow(x, base, P) {
-    const R = K.rng(31), tr = P.lit ? '#3A2C22' : '#6A4A34', g = P.lit ? ['#22402F', '#2E5038'] : ['#8DB86A', '#A9CC7E'];
-    let s = `<path d="M${x} ${base}C${x + 2} ${base - 40} ${x - 4} ${base - 70} ${x + 10} ${base - 104}" fill="none" stroke="${tr}" stroke-width="6" stroke-linecap="round"/><path d="M${x + 2} ${base - 60}Q${x + 22} ${base - 84} ${x + 44} ${base - 92}" fill="none" stroke="${tr}" stroke-width="3" stroke-linecap="round"/>`;
-    for (let i = 0; i < 26; i++) { const sx = x - 26 + i * 3.6 + R() * 3, sy = base - 104 + Math.abs(i - 10) * 1.6 + R() * 6, l = 40 + R() * 44;
-      s += `<path d="M${f(sx)} ${f(sy)}q${f(4 + R() * 4)} ${f(l * .5)} ${f(1 + R() * 3)} ${f(l)}" fill="none" stroke="${g[i % 2]}" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 1.4"/>`; }
+  // Guangzhou: a Lingnan hall with wok-handle gables, a banyan and the Pearl River
+  function banyan(x, base, P) {
+    const R = K.rng(21), g = P.lit ? ['#1E3328', '#28402F', '#33503A'] : ['#4A7442', '#638E4C', '#82AA60'], tr = P.lit ? '#3A2C22' : '#6A4A34';
+    let s = `<path d="M${x - 8} ${base}C${x - 5} ${base - 30} ${x - 10} ${base - 52} ${x - 30} ${base - 74}M${x + 8} ${base}C${x + 5} ${base - 34} ${x + 12} ${base - 54} ${x + 32} ${base - 76}M${x} ${base}V${base - 86}" fill="none" stroke="${tr}" stroke-width="7" stroke-linecap="round"/>`;
+    for (let k = 0; k < 16; k++) { const rx = x - 48 + k * 6.4 + R() * 3, top = base - 70 - R() * 12; s += `<path d="M${f(rx)} ${f(top)}V${f(top + 26 + R() * 34)}" stroke="${tr}" stroke-width=".8" opacity=".75"/>`; }
+    for (let k = 0; k < 30; k++) { const a = R() * Math.PI * 2, rr = Math.sqrt(R()); s += `<ellipse cx="${f(x + Math.cos(a) * 52 * rr)}" cy="${f(base - 100 + Math.sin(a) * 24 * rr)}" rx="${f(12 + R() * 10)}" ry="${f(7 + R() * 5)}" fill="${g[k % 3]}"/>`; }
     return s;
-  }
-  function lotus(x, y, P, bloom) {
-    const g = P.lit ? '#24402E' : '#6E9E58';
-    return `<ellipse cx="${x}" cy="${y}" rx="8" ry="2.6" fill="${g}" stroke="${INK}" stroke-width=".6"/><path d="M${x} ${y}l2.6 -1.2" stroke="${INK}" stroke-width=".5"/>`
-      + (bloom ? `<path d="M${x + 4} ${y - 1}q-3 -6 0 -9q3 3 0 9Z M${x + 4} ${y - 1}q-6 -3 -6 -7q5 1 6 7Z M${x + 4} ${y - 1}q6 -3 6 -7q-5 1 -6 7Z" fill="${P.lit ? '#C46A92' : '#F2A2C0'}" stroke="${INK}" stroke-width=".5"/>` : '');
   }
   const T2 = {
-    pal: P => ({ ...P, roof: P.lit ? '#6E5A44' : '#A5824E', roof2: P.lit ? '#3E3226' : '#664A2A', ridge: P.lit ? '#2E241A' : '#4A3420', col: P.lit ? '#7A2A1E' : '#A8402A' }),   // bronze roofs
     back(P, k) {
-      let s = sky(P);
-      if (k >= 8) s += `<rect width="360" height="200" fill="${P.lit ? '#FF8A50' : '#FF9A5A'}" opacity="${P.lit ? .12 : .22}"/><circle cx="76" cy="132" r="${P.lit ? 0 : 22}" fill="#FFB070" opacity=".75"/>`;   // the evening glow
-      s += birds(P) + K.cloud(70, 30, 1, P) + K.cloud(250, 22, .8, P)
-        + hill([[0, 150], [40, 124], [90, 138], [140, 116], [200, 132], [250, 112], [300, 130], [340, 120], [360, 128], [360, 128]], 'url(#wtFar)') + mist(132, 22, P)
-        + hill([[0, 196], [60, 186], [110, 176], [180, 168], [250, 176], [300, 186], [360, 194], [360, 194]], P.mid)
-        + [[106, 182, .9], [124, 178, .8], [244, 180, .85], [262, 184, .75], [292, 190, .7]].map(([x, y, sc]) => K.pine(x, y, sc, P)).join('');
-      s += water(200, 252, P, 9);
-      const br = P.lit ? '#5A5466' : '#E2D8C6';   // the Broken Bridge
-      s += `<path d="M262 206Q300 186 360 204V212Q306 198 262 212Z" fill="${br}" stroke="${INK}" stroke-width="1"/><path d="M300 210q10 -10 20 0" fill="${P.lit ? '#141A30' : '#6E9AA6'}" stroke="${INK}" stroke-width=".7"/>`;
-      if (k >= 8) { s += `<path d="M168 204h24M172 210h16M176 216h8" stroke="${P.lit ? '#FFC46E' : '#E8A050'}" stroke-width="2" stroke-linecap="round" opacity=".7"/>`;
-        s += `<path d="M208 232h34l-4 6h-26Z" fill="#6A4A34" stroke="${INK}" stroke-width=".8"/><path d="M214 232q11 -12 22 0" fill="none" stroke="${INK}" stroke-width="1"/><path d="M236 232l6 -16" stroke="${INK}" stroke-width="1"/>` + lan(242, 226, P, 3.4); }
-      [[150, 236, 1], [126, 222, 0], [196, 246, 1], [96, 244, 0], [330, 236, 1], [300, 226, 0]].forEach(([x, y, b]) => s += lotus(x, y, P, b && k >= 6));
-      return s + willow(30, 252, P);
+      const water = P.lit ? '#1C2844' : '#8FBAC2', w2 = P.lit ? '#33466A' : '#C4E0E0';
+      let s = sky(P) + birds(P) + K.cloud(60, 40, 1, P) + K.cloud(240, 24, .8, P)
+        + hill([[0, 150], [40, 128], [90, 140], [140, 124], [190, 140], [240, 130], [290, 140], [330, 126], [360, 136], [360, 136]], 'url(#wtFar)') + mist(138, 18, P);
+      if (k >= 8) { const c = P.lit ? '#D25FAE' : '#8E98AA';   // Canton Tower across the river
+        s += `${P.lit ? '<circle cx="303" cy="96" r="40" fill="url(#wtWarm)" opacity=".6"/>' : ''}<path d="M292 168Q306 112 299 62L306 62Q300 112 316 168Z" fill="${c}" opacity="${P.lit ? .9 : .6}"/><path d="M302.5 62V32" stroke="${c}" stroke-width="1.6"/>`;
+        for (let y = 72; y < 166; y += 12) s += `<path d="M${f(300 - (y - 62) * .05 - 2)} ${y}h${f(5 + (y - 62) * .12)}" stroke="${P.lit ? '#FFD0F0' : '#F2F4F8'}" stroke-width=".7" opacity=".7"/>`; }
+      s += hill([[0, 166], [60, 160], [120, 164], [200, 161], [280, 165], [360, 160], [360, 160]], P.near) + `<rect x="0" y="168" width="360" height="28" fill="${water}"/>`;
+      for (let k2 = 0; k2 < 14; k2++) s += `<path d="M${(k2 * 53) % 360} ${172 + (k2 * 7) % 20}h${10 + (k2 % 3) * 6}" stroke="${w2}" stroke-width="1" stroke-linecap="round"/>`;
+      if (k >= 8) s += `<path d="M296 184h40l-5 6h-30Z" fill="#6A4A34" stroke="${INK}" stroke-width=".8"/><path d="M306 184v-9h18v9" fill="#B8322A" stroke="${INK}" stroke-width=".8"/>` + lan(315, 168, P, 3.6);
+      return s + court(P, 196);
     },
-    box: [130, 230, 20, 176],
+    box: [96, 264, 112, 192],
     draw(k, P) {
-      const cx = 180; let s = '';
-      if (k >= 1) s += `<ellipse cx="${cx}" cy="178" rx="62" ry="4" fill="#000" opacity=".14"/><rect x="124" y="170" width="112" height="7" fill="${P.stone}" stroke="${INK}" stroke-width="1.1"/><rect x="134" y="164" width="92" height="6" fill="${P.stone2}" stroke="${INK}" stroke-width="1"/>
-        <path d="M168 177h24l3 6h-30Z" fill="${P.stone}" stroke="${INK}" stroke-width=".8"/>`;
-      const fl = Math.min(5, Math.max(0, k - 1)); let y = 164;
-      for (let i = 0; i < fl; i++) {
-        const w = 62 - i * 5, top = y - 15, x0 = cx - w / 2;
-        if (i) s += `<rect x="${f(x0 - 4)}" y="${y - 3}" width="${w + 8}" height="3" fill="${P.col}" stroke="${INK}" stroke-width=".6"/>`;   // the balcony
-        s += `<rect x="${f(x0)}" y="${top}" width="${w}" height="15" fill="${P.wall}" stroke="${INK}" stroke-width=".9"/><rect x="${f(x0 + 3)}" y="${top + 3}" width="${w - 6}" height="10" fill="url(#wtLattice)"/>`;
-        for (let c = 0; c <= 4; c++) s += `<rect x="${f(x0 + c * (w - 3) / 4)}" y="${top}" width="3" height="15" fill="url(#wtCol)" stroke="${INK}" stroke-width=".5"/>`;
-        s += `<path d="M${cx - 3} ${y - (i ? 3 : 0)}v-7a3 3 0 0 1 6 0v7Z" fill="${P.lit ? '#FFC46E' : '#3A1410'}" stroke="${INK}" stroke-width=".5"/>`;
-        s += `<rect x="${f(x0 - 2)}" y="${top - 3}" width="${w + 4}" height="3" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>`;
-        s += i === 4 && k >= 6 ? K.roof(cx, top - 3, w * 1.2, 18, P, { pointed: true }) : K.roof(cx, top - 3, w * 1.12, 8, P, { rx: w * .4, ridge: false });
-        if (k >= 8) [-1, 1].forEach(d => s += `<g class="wt-sway" style="animation-delay:-${i * .5}s">${lan(f(cx + d * w * .66), top + 5, P, 2.6)}</g>`);   // lanterns at the corners of the eaves
-        y -= 23;
-      }
-      if (k >= 7) s += `<path d="M${cx} 34V6" stroke="${INK}" stroke-width="2.4"/><path d="M${cx} 34V6" stroke="${P.gold}" stroke-width="1.2"/>${[30, 25, 20, 15].map((yy, i) => `<ellipse cx="${cx}" cy="${yy}" rx="${f(5.2 - i * .7)}" ry="1.6" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>`).join('')}<circle cx="${cx}" cy="9" r="2.8" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/><circle cx="${cx}" cy="4.4" r="1.6" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>`;
-      if (k >= 8) s = glowAt(cx, 110, 70, P, .5) + s;
+      const brick = P.lit ? '#4C4A54' : '#A9A59C', plaster = P.lit ? '#6C6874' : '#F1ECE2', base = 192;
+      let s = k >= 7 ? banyan(52, 206, P) : '';
+      if (k >= 1) { s += `<ellipse cx="180" cy="${base + 10}" rx="110" ry="5" fill="#000" opacity=".12"/><rect x="90" y="${base}" width="180" height="8" fill="${P.stone}" stroke="${INK}" stroke-width="1.3"/>`;
+        for (let i = 0; i < 3; i++) s += `<rect x="${158 - i * 3}" y="${f(base + 8 + i * 3.2)}" width="${44 + i * 6}" height="3.4" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`; }
+      if (k >= 2) s += `<rect x="112" y="146" width="136" height="46" fill="${brick}" stroke="${INK}" stroke-width="1.2"/><rect x="112" y="146" width="136" height="46" fill="url(#wtBrick)"/>
+        <rect x="112" y="146" width="136" height="9" fill="${plaster}" stroke="${INK}" stroke-width=".9"/><rect x="116" y="148" width="128" height="5" fill="url(#wtCaihua)"/>`;
+      if (k >= 3) { const d = 'M106 150L121 124H239L254 150Z';
+        s += `<clipPath id="mpGr"><path d="${d}"/></clipPath><path d="${d}" fill="url(#mpGreen)"/><g clip-path="url(#mpGr)">`;
+        for (let x = 104; x < 258; x += 4.2) s += `<path d="M${f(180 + (x - 180) * .78)} 124L${f(x)} 150" stroke="${P.lit ? '#14281F' : '#245A40'}" stroke-width="1"/>`;
+        s += `</g><path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>`;
+        for (let x = 108; x <= 252; x += 4.2) s += `<circle cx="${f(x)}" cy="150" r="1.4" fill="${P.lit ? '#2E5A48' : '#3E8A62'}" stroke="${INK}" stroke-width=".5"/>`; }
+      if (k >= 4) [[96, 122], [238, 264]].forEach(([a, b]) => {
+        const g = `M${a} ${base}V138C${a} 115 ${b} 115 ${b} 138V${base}Z`, top = `M${a - 3} 140C${a - 2} 111 ${b + 2} 111 ${b + 3} 140`;
+        s += `<path d="${g}" fill="${brick}" stroke="${INK}" stroke-width="1.2"/><path d="${g}" fill="url(#wtBrick)"/><rect x="${a + 4}" y="132" width="${b - a - 8}" height="12" rx="2" fill="${plaster}" stroke="${INK}" stroke-width=".7"/>
+          <path d="M${a + 7} 138h${b - a - 14}" stroke="${P.teal}" stroke-width="1.6"/><path d="${top}" fill="none" stroke="${INK}" stroke-width="4.6" stroke-linecap="round"/><path d="${top}" fill="none" stroke="${plaster}" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M${a - 3} 140q-5 0 -4 -6M${b + 3} 140q5 0 4 -6" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`; });
+      if (k >= 5) { s += `<rect x="156" y="158" width="48" height="34" fill="${P.stone}" stroke="${INK}" stroke-width="1"/><rect x="161" y="163" width="38" height="29" fill="${P.lit ? '#14100E' : '#2A221C'}"/><path d="M180 163V192" stroke="${INK}" stroke-width=".8"/>`;
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) [166, 185].forEach(x0 => s += `<circle cx="${x0 + c * 3}" cy="${168 + r * 6}" r=".75" fill="${P.gold}"/>`);
+        s += `<rect x="158" y="148.5" width="44" height="9" rx="1" fill="#1D3557" stroke="${P.gold}" stroke-width=".9"/><text x="180" y="153.3" font-family="Noto Serif SC" font-weight="700" font-size="6" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">榕荫堂</text>`;
+        [126, 216].forEach(x0 => s += `<rect x="${x0}" y="162" width="18" height="16" fill="${P.lit ? '#F2A851' : P.door}" stroke="${INK}" stroke-width=".8"/><rect x="${x0}" y="162" width="18" height="16" fill="url(#wtLattice)"/>`);
+        [150, 210].forEach(x0 => s += `<rect x="${x0 - 4}" y="187" width="8" height="5" fill="${P.stone2}" stroke="${INK}" stroke-width=".7"/><circle cx="${x0}" cy="182" r="5.5" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/><circle cx="${x0}" cy="182" r="2.4" fill="none" stroke="${INK}" stroke-width=".5"/>`); }
+      if (k >= 6) { s += `<rect x="124" y="116" width="112" height="8" rx="1.5" fill="${plaster}" stroke="${INK}" stroke-width="1"/><path d="M126 120H234" stroke="${P.teal}" stroke-width="1.4"/>`;
+        const cols = [P.teal, P.gold, '#C9302A', P.blue, '#7FA65A'];
+        for (let i = 0; i < 12; i++) { const x = 133 + i * 8.6, h = 5 + (i % 3) * 2.2;
+          s += i % 2 ? `<circle cx="${f(x)}" cy="${f(116 - h / 2)}" r="${f(h / 2)}" fill="${cols[i % 5]}" stroke="${INK}" stroke-width=".6"/>` : `<rect x="${f(x - 2.4)}" y="${f(116 - h)}" width="4.8" height="${f(h)}" rx="1.6" fill="${cols[i % 5]}" stroke="${INK}" stroke-width=".6"/><circle cx="${f(x)}" cy="${f(116 - h - 1.8)}" r="1.8" fill="${P.gold}" stroke="${INK}" stroke-width=".5"/>`; }
+        s += `<path d="M126 117c-7 -1 -10 -12 -3 -17c-.5 4 2 7 6 8Z M234 117c7 -1 10 -12 3 -17c.5 4 -2 7 -6 8Z" fill="${P.teal}" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`; }
+      if (k >= 8) s += `<path d="M330 214V108" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/><path d="M330 214V108" stroke="#9A6A3E" stroke-width="1.8"/>` + lanString([86, 118], [330, 112], 18, 6, P);
       return s;
     },
   };
-  // Wuhan: the Yellow Crane Tower on Snake Hill, the Yangtze and its great bridge behind
-  function crane(x, y, sc, P) {   // the yellow crane in flight
-    const Y = '#F2C84B', Y2 = '#C99A2E';
-    return `<g transform="translate(${x} ${y}) scale(${sc})"><path d="M-2 0Q-14 -14 -30 -12Q-18 -6 -12 2Z" fill="${Y}" stroke="${INK}" stroke-width="1"/><path d="M2 0Q12 -16 28 -18Q20 -8 10 2Z" fill="${Y2}" stroke="${INK}" stroke-width="1"/>
-      <ellipse cx="0" cy="2" rx="12" ry="4.6" fill="${Y}" stroke="${INK}" stroke-width="1"/><path d="M10 0Q18 -6 22 -10" fill="none" stroke="${INK}" stroke-width="3"/><path d="M10 0Q18 -6 22 -10" fill="none" stroke="${Y}" stroke-width="1.8"/>
-      <circle cx="23" cy="-10.5" r="2.6" fill="${Y}" stroke="${INK}" stroke-width=".8"/><circle cx="23.4" cy="-12.4" r="1.2" fill="#D9321F"/><path d="M25 -10l6 1.5-6 .8Z" fill="${INK}"/><path d="M-12 3l-12 4M-12 4l-11 6" stroke="${INK}" stroke-width="1"/></g>`;
-  }
-  function yangtzeBridge(P) {
-    const st = P.lit ? '#3A4A50' : '#7F9690', y = 150;
-    let s = `<rect x="-4" y="${y}" width="368" height="4" fill="${st}" stroke="${INK}" stroke-width=".7"/><rect x="-4" y="${y + 8}" width="368" height="3" fill="${st}" stroke="${INK}" stroke-width=".6"/><path d="M-4 ${y - 10}H364" stroke="${st}" stroke-width="1.6"/>`;
-    for (let x = -4; x < 364; x += 12) s += `<path d="M${x} ${y}L${x + 6} ${y - 10}L${x + 12} ${y}" fill="none" stroke="${st}" stroke-width="1"/>`;
-    for (let x = 20; x < 360; x += 64) s += `<rect x="${x}" y="${y + 11}" width="8" height="16" fill="${P.lit ? '#4A4452' : '#CDBDA3'}" stroke="${INK}" stroke-width=".7"/>`;
-    if (P.lit) for (let x = 2; x < 360; x += 9) s += `<circle cx="${x}" cy="${y + 5.5}" r=".9" fill="#FFD27A"/>`;
-    return s;
+  // Shanghai: a golden temple among the towers
+  function skyline(P, bright) {
+    const c = P.lit ? '#262A48' : '#B2BAC9', c2 = P.lit ? '#2E3354' : '#C8CEDA', R = K.rng(13);
+    let s = '', win = '';
+    const box = (x, w, h, col) => { s += `<rect x="${x}" y="${170 - h}" width="${w}" height="${h}" fill="${col}"/>`;
+      if (P.lit) for (let yy = 172 - h; yy < 166; yy += 5) for (let xx = x + 2; xx < x + w - 2; xx += 4) if (R() < (bright ? .55 : .22)) win += `<rect x="${xx}" y="${yy}" width="1.8" height="2.2" fill="#FFD27A" opacity="${f(.5 + R() * .5)}"/>`; };
+    [[6, 24, 64], [34, 16, 88], [54, 26, 58], [86, 18, 80], [112, 26, 62], [142, 14, 96], [162, 22, 72], [190, 22, 56], [338, 22, 70]].forEach(([x, w, h]) => box(x, w, h, c2));
+    s += `<path d="M212 170V58h4V46h6v12h4V170Z" fill="${c}"/><path d="M219 46V28" stroke="${c}" stroke-width="1.6"/>`;   // Jin Mao
+    s += `<path d="M238 170C238 120 244 70 248 28L256 26C258 70 262 120 264 170Z" fill="${c}"/>`;   // Shanghai Tower
+    s += `<path d="M270 170V60L288 52V170Z" fill="${c}"/><rect x="276" y="60" width="6" height="5" fill="${P.lit ? '#14182C' : '#E9EDF2'}"/>`;   // the bottle opener
+    box(292, 18, 50, c);
+    const pearl = P.lit ? (bright ? '#F07AB8' : '#B85A90') : '#C9A0B4';   // Oriental Pearl Tower
+    s += `<path d="M312 170L320 130M332 170L324 130M322 170V60" stroke="${c}" stroke-width="3"/><circle cx="322" cy="130" r="11" fill="${pearl}"/><circle cx="322" cy="88" r="7.5" fill="${pearl}"/><circle cx="322" cy="62" r="3.4" fill="${pearl}"/><path d="M322 58V36" stroke="${c}" stroke-width="1.4"/>`;
+    if (P.lit && bright) s += `<circle cx="322" cy="110" r="44" fill="url(#wtWarm)" opacity=".35"/>`;
+    return s + win;
   }
   const T3 = {
-    back: (P, k) => sky(P) + birds(P) + K.cloud(64, 34, 1, P) + K.cloud(230, 20, .8, P)
-      + hill([[0, 132], [50, 112], [100, 124], [160, 106], [220, 122], [280, 108], [330, 120], [360, 114], [360, 114]], 'url(#wtFar)') + mist(118, 18, P)
-      + water(140, 178, P, 4) + yangtzeBridge(P)
-      + hill([[0, 200], [50, 184], [120, 178], [180, 176], [240, 178], [310, 186], [360, 196], [360, 196]], P.near)
-      + [[24, 196, 1], [52, 188, .9], [300, 190, .9], [330, 194, 1], [76, 184, .7]].map(([x, y, sc]) => K.pine(x, y, sc, P)).join('') + court(P, 204),
-    box: [104, 256, 16, 196],
-    draw(k, P) {
-      const cx = 180; let s = '';
-      if (k >= 1) s += `<ellipse cx="${cx}" cy="199" rx="86" ry="5" fill="#000" opacity=".14"/><rect x="98" y="190" width="164" height="8" fill="${P.stone}" stroke="${INK}" stroke-width="1.2"/><rect x="110" y="184" width="140" height="6" fill="${P.stone2}" stroke="${INK}" stroke-width="1"/>
-        ${[0, 1, 2].map(i => `<rect x="${163 - i * 3}" y="${198 + i * 3}" width="${34 + i * 6}" height="3" fill="${P.stone}" stroke="${INK}" stroke-width=".7"/>`).join('')}`;
-      const fl = Math.min(5, Math.max(0, k - 1)); let y = 184;
-      for (let i = 0; i < fl; i++) {
-        const w = 112 - i * 12, top = y - 16, x0 = cx - w / 2, last = i === 4 && k >= 6;
-        s += `<rect x="${f(x0)}" y="${top}" width="${w}" height="16" fill="${P.wall}" stroke="${INK}" stroke-width=".9"/><rect x="${f(x0 + 3)}" y="${top + 3}" width="${w - 6}" height="11" fill="url(#wtLattice)"/>`;
-        const nc = Math.round(w / 14); for (let c = 0; c <= nc; c++) s += `<rect x="${f(x0 + c * (w - 3) / nc)}" y="${top}" width="3" height="16" fill="url(#wtCol)" stroke="${INK}" stroke-width=".5"/>`;
-        if (!i) s += `<rect x="${cx - 7}" y="${top + 3}" width="14" height="13" fill="${P.lit ? 'url(#wtDoorLit)' : P.door}" stroke="${INK}" stroke-width=".7"/>`;
-        s += `<rect x="${f(x0 - 2)}" y="${top - 3}" width="${w + 4}" height="3" fill="url(#wtCaihua)" stroke="${INK}" stroke-width=".6"/>`;
-        [-1, 1].forEach(d => s += K.roof(cx + d * w * .5, top + 2, w * .28, 7, P, { rx: w * .06, ridge: false }));   // the wings that stick out on every side
-        s += K.roof(cx, top - 3, w * 1.08, last ? 15 : 9, P, last ? { rx: w * .22 } : { rx: w * .38, ridge: false });
-        if (!last) s += K.roof(cx, top - 6, w * .3, 8, P, { rx: 1.5, ridge: false });   // a little gable at the front
-        if (k >= 8 && i < 4) [-1, 1].forEach(d => s += `<g class="wt-sway" style="animation-delay:-${i * .5}s">${lan(f(cx + d * w * .6), top + 6, P, 3)}</g>`);
-        if (i === 2) s += `<rect x="${cx - 13}" y="${top + 4}" width="26" height="9" rx="1" fill="#1D3557" stroke="${P.gold}" stroke-width=".9"/><text x="${cx}" y="${top + 8.8}" font-family="Noto Serif SC" font-weight="700" font-size="6" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">黄鹤楼</text>`;
-        y -= 25;
-      }
-      if (k >= 7) s += `<path d="M${cx} 49V40" stroke="${INK}" stroke-width="1.4"/><circle cx="${cx}" cy="38" r="4.2" fill="${P.gold}" stroke="${INK}" stroke-width=".9"/><circle cx="${cx}" cy="31.5" r="2.8" fill="${P.gold}" stroke="${INK}" stroke-width=".8"/><path d="M${cx} 28.6V24" stroke="${INK}" stroke-width="1.2"/>`;
-      if (k >= 8) s += `<g class="wt-fly">${crane(74, 50, 1.1, P)}${crane(286, 36, .6, P)}</g>`;
-      return s;
-    },
-  };
-  // Guangzhou: the Canton Tower, a twisted lattice with a slim waist, over the Pearl River
-  function cantonLines(cx, yB, yT, rB, rT) {   // the tower is a ruled surface: straight columns from the bottom ring to a turned top ring
-    const tw = 2.36, out = [];
-    for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, b = a + tw;
-      out.push({ x0: cx + rB * Math.cos(a), x1: cx + rT * Math.cos(b), front: Math.sin(a + tw / 2) > 0 }); }
-    return out.map(o => ({ ...o, yB, yT }));
-  }
-  function cantonHw(t, rB, rT) {   // half the width of the tower t of the way up (the envelope of the columns)
-    const tw = 2.36, c = Math.cos(tw); return Math.sqrt((1 - t) * (1 - t) * rB * rB + t * t * rT * rT + 2 * t * (1 - t) * rB * rT * c);
-  }
-  const T4 = {
-    back(P, k) {
-      let s = sky(P) + K.cloud(60, 36, 1, P) + K.cloud(250, 22, .8, P)
-        + hill([[0, 150], [60, 136], [120, 146], [180, 132], [240, 144], [300, 134], [360, 142], [360, 142]], 'url(#wtFar)') + mist(140, 18, P);
-      const c = P.lit ? '#262A48' : '#B8C0CC', c2 = P.lit ? '#2E3354' : '#CAD0DA', R = K.rng(17);
-      [[4, 18, 50], [26, 14, 66], [44, 20, 40], [252, 18, 44], [276, 14, 58], [296, 20, 38], [322, 16, 52], [342, 18, 34]].forEach(([x, w, h]) => {
-        s += `<rect x="${x}" y="${184 - h}" width="${w}" height="${h}" fill="${c2}"/>`;
-        if (P.lit) for (let yy = 186 - h; yy < 180; yy += 5) for (let xx = x + 2; xx < x + w - 2; xx += 4) if (R() < (k >= 8 ? .5 : .2)) s += `<rect x="${xx}" y="${yy}" width="1.8" height="2.2" fill="#FFD27A" opacity=".8"/>`; });
-      s += `<path d="M70 184V70l6 -8l6 8V184Z" fill="${c}"/><path d="M90 184V54h4V46h8v8h4V184Z" fill="${c}"/><path d="M98 46V30" stroke="${c}" stroke-width="1.4"/>`;   // the IFC and the CTF Finance Centre
-      return s + hill([[0, 196], [80, 192], [180, 194], [280, 191], [360, 195], [360, 195]], P.near) + `<rect x="0" y="202" width="360" height="22" fill="${P.lit ? '#2A2F3A' : '#D8CFBF'}"/>` + water(224, 244, P, 7) + rail(246, P);
-    },
-    box: [140, 220, 20, 202],
-    draw(k, P) {
-      const cx = 180, yB = 200, yT = 54, rB = 30, rT = 20, H = yB - yT;
-      const cut = [yB, yB, 166, 112, 66, yT - 6][Math.min(k, 5)];
+    back: (P, k) => sky(P) + K.cloud(40, 30, .9, P) + K.cloud(180, 16, .7, P) + skyline(P, k >= 8) + mist(150, 26, P) + hill([[0, 178], [90, 174], [180, 177], [270, 173], [360, 177], [360, 177]], P.near) + court(P, 190),
+    box: [92, 288, 112, 188], board: 5,
+    draw(k, P, ctx) {
       let s = '';
-      if (k >= 1) s += `<ellipse cx="${cx}" cy="205" rx="60" ry="4.6" fill="#000" opacity=".14"/><path d="M134 204L142 196H218L226 204Z" fill="${P.stone}" stroke="${INK}" stroke-width="1.1"/><rect x="${cx - 26}" y="192" width="52" height="5" fill="${P.stone2}" stroke="${INK}" stroke-width=".8"/>`;
-      if (k >= 2) {
-        const pts = []; for (let i = 0; i <= 24; i++) { const t = i / 24; pts.push([cx - cantonHw(t, rB, rT) + 3 * (t - .5), yB - H * t]); }
-        for (let i = 24; i >= 0; i--) { const t = i / 24; pts.push([cx + cantonHw(t, rB, rT) + 3 * (t - .5), yB - H * t]); }
-        const d = 'M' + pts.map(p => `${f(p[0])} ${f(p[1])}`).join('L') + 'Z', id = 'mpCt' + k, rain = k >= 8;
-        s += `<clipPath id="${id}"><rect x="100" y="${cut}" width="160" height="${yB - cut + 2}"/></clipPath><g clip-path="url(#${id})">`;
-        s += `<path d="${d}" fill="${P.lit ? '#20263A' : '#E6EBF0'}" opacity=".55"/><rect x="${cx - 6}" y="${yT}" width="12" height="${H}" rx="5" fill="${P.lit ? '#4A4E66' : '#F2F0EA'}" stroke="${INK}" stroke-width=".8"/>`;
-        const L = cantonLines(cx, yB, yT, rB, rT), col = rain ? 'url(#mpRain)' : P.lit ? '#9AA6C8' : '#7E8A9E';
-        L.filter(o => !o.front).forEach(o => s += `<path d="M${f(o.x0 - 1.5)} ${yB}L${f(o.x1 + 1.5)} ${yT}" stroke="${col}" stroke-width=".8" opacity=".4"/>`);
-        for (let j = 1; j < 12; j++) { const t = j / 12, hw = cantonHw(t, rB, rT), yy = yB - H * t; s += `<ellipse cx="${f(cx + 3 * (t - .5))}" cy="${f(yy)}" rx="${f(hw)}" ry="${f(hw * .16)}" fill="none" stroke="${col}" stroke-width=".7" opacity=".75"/>`; }
-        L.filter(o => o.front).forEach(o => s += `<path d="M${f(o.x0 - 1.5)} ${yB}L${f(o.x1 + 1.5)} ${yT}" stroke="${col}" stroke-width="1.3"/>`);
-        s += `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/></g>`;
-        if (rain && P.lit) s = glowAt(cx, 120, 80, P, .45) + s;
-      }
-      if (k >= 5) s += `<ellipse cx="${cx + 1.5}" cy="${yT}" rx="${rT + 1}" ry="3.6" fill="${P.stone}" stroke="${INK}" stroke-width="1"/><rect x="${cx - 14}" y="${yT - 8}" width="31" height="7" rx="2" fill="${P.lit ? '#FFC46E' : '#9FB6C8'}" stroke="${INK}" stroke-width=".9"/><ellipse cx="${cx + 1.5}" cy="${yT - 8}" rx="16" ry="2.4" fill="${P.stone}" stroke="${INK}" stroke-width=".9"/>`;
-      if (k >= 6) s += `<path d="M${cx - 2} ${yT - 9}L${cx - 1} 26H${cx + 4}L${cx + 5} ${yT - 9}Z" fill="${P.lit ? '#6E7290' : '#D8DCE4'}" stroke="${INK}" stroke-width=".9"/>`;
-      if (k >= 7) s += `<path d="M${cx + .6} 26L${cx + 1.4} 4H${cx + 1.8}L${cx + 2.6} 26Z" fill="${P.lit ? '#8A8EA8' : '#E9ECF2'}" stroke="${INK}" stroke-width=".8"/><circle class="${P.lit ? 'wt-tw' : ''}" cx="${cx + 1.6}" cy="4" r="1.6" fill="#E8463A"/>`;
-      if (k >= 8) s += boat(96, 234, P, P.lit) + boat(300, 238, P, P.lit);
-      return s;
-    },
-  };
-  // Chongqing: Hongya Cave, stilted houses stacked up a cliff over the Jialing River
-  const HY = [[64, 296, 202, 180], [76, 284, 180, 160], [88, 272, 160, 142], [100, 262, 142, 124], [114, 248, 124, 107], [128, 234, 107, 92]];
-  function hyRow([x0, x1, yB, yT], P, i, glow) {
-    const wood = P.lit ? '#5A3E2C' : '#A8784A', plaster = P.lit ? '#6A6274' : '#F1EAD9', R = K.rng(41 + i), w = x1 - x0;
-    let s = `<rect x="${x0}" y="${yT}" width="${w}" height="${yB - yT}" fill="${plaster}" stroke="${INK}" stroke-width=".9"/>`;
-    for (let x = x0 + 4; x < x1 - 4; x += 9) {
-      const on = P.lit ? R() < (glow ? .95 : .6) : false;
-      s += `<rect x="${x}" y="${yT + 5}" width="6" height="${yB - yT - 9}" fill="${on ? '#FFC46E' : P.lit ? '#2A1E24' : '#5E4434'}" stroke="${wood}" stroke-width="1"/>`;
-    }
-    s += `<rect x="${x0}" y="${yB - 3}" width="${w}" height="3" fill="${wood}" stroke="${INK}" stroke-width=".6"/>`;
-    for (let x = x0; x <= x1; x += w / Math.round(w / 26)) s += `<path d="M${f(x)} ${yT}V${yB}" stroke="${wood}" stroke-width="1.8"/>`;
-    s += K.roof((x0 + x1) / 2, yT + 1, w + 6, 7, P, { rx: w * .46, ridge: false });
-    const g = Math.max(2, Math.round(w / 70));
-    for (let j = 0; j < g; j++) { const gx = x0 + w * (j + .5 + (R() - .5) * .3) / g, gw = 16 + R() * 8;
-      s += `<rect x="${f(gx - gw * .32)}" y="${yT - 6}" width="${f(gw * .64)}" height="7" fill="${plaster}" stroke="${INK}" stroke-width=".8"/><rect x="${f(gx - 3)}" y="${yT - 4.5}" width="6" height="4" fill="${P.lit ? '#FFC46E' : '#5E4434'}"/>`
-        + K.roof(f(gx), yT - 6, gw, 8, P, { rx: 2, ridge: false }); }
-    return s + (glow && P.lit ? `<rect x="${x0}" y="${yT}" width="${w}" height="${yB - yT}" fill="#FFB050" opacity=".12"/>` : '');
-  }
-  const T5 = {
-    pal: P => ({ ...P, roof: P.lit ? '#5A5664' : '#8C867E', roof2: P.lit ? '#35323D' : '#5A554F', ridge: P.lit ? '#26232C' : '#3A3632' }),   // grey tiles
-    back(P, k) {
-      let s = sky(P) + K.cloud(50, 30, .9, P) + K.cloud(280, 24, .8, P)
-        + hill([[0, 120], [50, 100], [110, 112], [170, 96], [230, 110], [290, 94], [360, 108], [360, 108]], 'url(#wtFar)') + mist(104, 18, P);
-      const c = P.lit ? '#262A48' : '#B8C0CC', R = K.rng(23);   // the city on top of the hill
-      [[30, 16, 40], [50, 20, 58], [74, 14, 46], [96, 18, 70], [240, 18, 64], [262, 14, 44], [280, 22, 76], [306, 16, 50], [326, 20, 38]].forEach(([x, w, h]) => {
-        s += `<rect x="${x}" y="${100 - h}" width="${w}" height="${h}" fill="${c}"/>`;
-        if (P.lit) for (let yy = 102 - h; yy < 96; yy += 5) for (let xx = x + 2; xx < x + w - 2; xx += 4) if (R() < (k >= 8 ? .55 : .25)) s += `<rect x="${xx}" y="${yy}" width="1.8" height="2.2" fill="#FFD27A" opacity=".8"/>`; });
-      const rock = P.lit ? '#3A3440' : '#A8988A', rock2 = P.lit ? '#2C2832' : '#8C7C6E';
-      s += `<path d="M0 98Q60 92 120 96Q180 90 240 95Q300 92 360 98V214H0Z" fill="${rock}"/><path d="M0 98Q60 92 120 96Q180 90 240 95Q300 92 360 98" fill="none" stroke="${P.lit ? '#26402E' : '#6E9A58'}" stroke-width="6"/>`;
-      for (let i = 0; i < 18; i++) { const x = (i * 47) % 350, y = 110 + (i * 29) % 96; s += `<path d="M${x} ${y}l10 6l-4 9" fill="none" stroke="${rock2}" stroke-width="1.2"/>`; }
-      return s + water(214, 252, P, 11);
-    },
-    box: [56, 304, 40, 212],
-    draw(k, P) {
-      const glow = k >= 8; let s = '';
-      if (k >= 1) { s += `<rect x="56" y="206" width="248" height="8" fill="${P.stone2}" stroke="${INK}" stroke-width="1"/>`;
-        for (let x = 66; x <= 296; x += 15) s += `<path d="M${x} 214V200" stroke="${INK}" stroke-width="3"/><path d="M${x} 214V200" stroke="#9A6A3E" stroke-width="1.6"/>`;
-        for (let x = 66; x < 296; x += 30) s += `<path d="M${x} 212L${x + 15} 202M${x + 15} 212L${x + 30} 202" stroke="#7A5232" stroke-width="1.1"/>`; }
-      const rows = k >= 4 ? 6 : k >= 3 ? 4 : k >= 2 ? 2 : 0;
-      for (let i = 0; i < rows; i++) s += hyRow(HY[i], P, i, glow);
-      if (k >= 5) { s += K.roof(150, 92, 22, 14, P, { pointed: true }) + K.roof(210, 92, 22, 14, P, { pointed: true });
-        s += `<rect x="168" y="70" width="24" height="22" fill="${P.lit ? '#FFC46E' : '#F1EAD9'}" stroke="${INK}" stroke-width=".9"/><rect x="171" y="74" width="18" height="15" fill="url(#wtLattice)"/>` + K.roof(180, 70, 34, 8, P, { rx: 11, ridge: false })
-          + `<rect x="172" y="52" width="16" height="12" fill="${P.lit ? '#FFC46E' : '#F1EAD9'}" stroke="${INK}" stroke-width=".9"/>` + K.roof(180, 52, 26, 14, P, { pointed: true }); }
-      if (k >= 6) s += lanString([64, 180], [296, 180], 8, 7, P) + lanString([88, 142], [272, 142], 7, 5, P) + lanString([114, 107], [248, 107], 6, 3, P);
-      if (k >= 7) { s += `<path d="M-4 40L364 4" stroke="${INK}" stroke-width=".9"/><path d="M-4 46L364 10" stroke="${INK}" stroke-width=".7" opacity=".7"/>`;   // the Yangtze cableway high over the roofs
-        s += `<path d="M70 33v6" stroke="${INK}" stroke-width="1"/><rect x="60" y="39" width="20" height="13" rx="2.4" fill="#C9302A" stroke="${INK}" stroke-width="1"/><rect x="63" y="42" width="14" height="5" rx="1" fill="${P.lit ? '#FFC46E' : '#E9EDF2'}"/>`; }
-      if (glow) s = (P.lit ? `<ellipse cx="180" cy="150" rx="150" ry="80" fill="url(#wtWarm)" opacity=".55"/>` : '') + s + boat(310, 236, P, P.lit) + boat(70, 244, P, P.lit);
-      return s;
-    },
-  };
-  // Lhasa: the Potala Palace, white and red on its hill under the snow mountains
-  function potWin(x0, x1, yB, yT, P, rows) {   // rows of small windows, wider at the bottom, in black frames
-    let s = ''; const lit = P.lit ? '#FFC46E' : '#2A221C';
-    for (let r = 0; r < rows; r++) { const y = yB - 6 - r * ((yB - yT - 6) / rows), inset = (yB - y) * .08;
-      for (let x = x0 + 4 + inset; x < x1 - 6 - inset; x += 7) s += `<path d="M${f(x)} ${f(y)}h3.6l-.5 -4h-2.6Z" fill="${(x * 7 + r) % 5 < 1 && P.lit ? lit : '#2A221C'}"/>`; }
-    return s;
-  }
-  function potBlock(pts, fill, P) {   // a wall that leans in as it rises
-    return `<path d="M${pts.map(p => p.join(' ')).join('L')}Z" fill="${fill}" stroke="${INK}" stroke-width="1.1" stroke-linejoin="round"/>`;
-  }
-  const T6 = {
-    back(P) {
-      let s = sky(P) + K.cloud(60, 30, .9, P) + K.cloud(250, 18, .8, P);
-      const far = [[0, 130], [40, 84], [80, 112], [130, 66], [180, 104], [230, 72], [280, 108], [320, 80], [360, 112], [360, 112]];
-      s += hill(far, 'url(#wtFar)');
-      [[40, 84], [130, 66], [230, 72], [320, 80]].forEach(([x, y]) => s += `<path d="M${x - 14} ${y + 14}L${x} ${y}L${x + 14} ${y + 14}L${x + 8} ${y + 10}L${x + 3} ${y + 15}L${x - 3} ${y + 10}L${x - 8} ${y + 15}Z" fill="${P.lit ? '#C8CCE0' : '#FFFFFF'}" opacity=".9"/>`);
-      s += mist(110, 22, P) + hill([[0, 172], [60, 156], [120, 166], [240, 166], [300, 154], [360, 168], [360, 168]], P.mid);
-      const ochre = P.lit ? '#4A3A34' : '#B8986A';   // Marpo Ri, the Red Hill
-      s += `<path d="M20 222Q70 188 108 172Q180 156 252 170Q296 186 340 222Z" fill="${ochre}" stroke="${INK}" stroke-width="1"/>`;
-      return s + court(P, 218);
-    },
-    box: [70, 290, 30, 206],
-    draw(k, P) {
-      const W = P.lit ? '#C9C4D0' : '#F7F3EA', W2 = P.lit ? '#9E98A8' : '#E2DACB', RED = P.lit ? '#6E2420' : '#9E2E2A', BAND = P.lit ? '#3A1614' : '#5E1E1A';
-      let s = '';
-      if (k >= 1) [[1, 72, 112], [-1, 288, 248]].forEach(([d, xa, xb]) => {   // zigzag stairs up both sides
-        const p = `M${xa - d * 10} 216L${xb} 204L${xa + d * 16} 194L${xb + d * 4} 184`;
-        s += `<path d="${p}" fill="none" stroke="${INK}" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/><path d="${p}" fill="none" stroke="${W}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="${p}" fill="none" stroke="${W2}" stroke-width="7" stroke-dasharray="1 2.2" stroke-linejoin="round"/>`; });
-      if (k >= 2) s += potBlock([[78, 200], [282, 200], [276, 166], [84, 166]], W, P) + potWin(84, 276, 200, 168, P, 3) + `<rect x="80" y="196" width="200" height="4" fill="${W2}"/>`;
-      const band = (x0, x1, y) => k >= 6 ? `<rect x="${x0}" y="${y}" width="${x1 - x0}" height="5" fill="${BAND}" stroke="${INK}" stroke-width=".7"/>` : '';
-      if (k >= 3) s += potBlock([[88, 167], [156, 167], [154, 118], [92, 118]], W, P) + potWin(92, 154, 166, 124, P, 4) + band(92, 154, 118);
-      if (k >= 4) s += potBlock([[204, 167], [274, 167], [270, 112], [206, 112]], W, P) + potWin(206, 270, 166, 118, P, 5) + band(206, 270, 112);
-      if (k >= 5) { s += potBlock([[150, 167], [212, 167], [208, 82], [154, 82]], RED, P) + potWin(156, 206, 164, 90, P, 7) + `<rect x="174" y="96" width="14" height="66" fill="${P.lit ? '#8A3A34' : '#C04A3A'}" stroke="${INK}" stroke-width=".7"/>`;
-        s += `<rect x="150" y="160" width="62" height="7" fill="${W}" stroke="${INK}" stroke-width=".7"/>` + band(154, 208, 82); }
-      if (k >= 6) { s += `<rect x="84" y="166" width="192" height="4" fill="${BAND}"/>`;
-        [[166, 108], [196, 108], [118, 140], [236, 136]].forEach(([x, y]) => s += `<rect x="${x - 4}" y="${y}" width="8" height="12" fill="#2A221C"/><path d="M${x - 4} ${y}h8v5h-8Z" fill="${W}" stroke="${INK}" stroke-width=".5"/>`); }
-      if (k >= 7) [[164, 82, 22], [181, 82, 26], [198, 82, 22]].forEach(([x, y, w]) => s += `<rect x="${x - w * .3}" y="${y - 6}" width="${f(w * .6)}" height="6" fill="${RED}" stroke="${INK}" stroke-width=".7"/>` + K.roof(x, y - 6, w, 9, P, { rx: w * .18 }));
-      if (k >= 7) [150, 212].forEach(x => s += `<rect x="${x - 2.5}" y="70" width="5" height="12" rx="2" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/>`);
-      if (k >= 8) { const FL = ['#3F6FC0', '#F2EEE6', '#C9302A', '#4E9A72', '#E8B44C'];
-        [[[20, 230], [150, 84]], [[340, 230], [212, 84]], [[60, 236], [92, 120]], [[300, 236], [270, 114]]].forEach(([a, b], j) => {
-          const n = 12; let p = `<path d="M${a[0]} ${a[1]}L${b[0]} ${b[1]}" stroke="${INK}" stroke-width=".6"/>`;
-          for (let i = 1; i < n; i++) { const t = i / n, x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t + Math.sin(t * Math.PI) * 6;
-            p += `<path d="M${f(x - 2.4)} ${f(y)}h4.8v5.6h-4.8Z" fill="${FL[(i + j) % 5]}" stroke="${INK}" stroke-width=".4"/>`; }
-          s += `<g class="wt-sway" style="animation-delay:-${j * .7}s">${p}</g>`; });
-        if (P.lit) s = `<ellipse cx="180" cy="140" rx="120" ry="70" fill="url(#wtWarm)" opacity=".4"/>` + s; }
+      if (k >= 6) s += K.pagoda(58, 184, 32, P);
+      if (k >= 7) s += K.bellTower(318, 186, 38, P);
+      if (k >= 1) s += K.hall({ cx: 190, base: 186, w: 148, colH: 40, st: Math.min(k, 5), double: k >= 5, n: ctx.n, lanterns: k >= 5 ? hallLanterns(ctx, [127, 141, 239, 253]) : [] }, P);
+      if (k >= 8) s += lanString([58, 110], [104, 128], 14, 2, P) + lanString([276, 128], [318, 130], 12, 2, P) + K.incense(190, 228, P);
       return s;
     },
   };
@@ -6036,7 +5824,7 @@ const Trail = (() => {
       <path d="M${cx} ${f(y - 13)}V${f(y - 38)}" stroke="${INK}" stroke-width="1.4"/>${[16, 21, 26].map(d => `<ellipse cx="${cx}" cy="${f(y - d)}" rx="${f(4.4 - d * .09)}" ry="1.6" fill="${P.gold}" stroke="${INK}" stroke-width=".6"/>`).join('')}<circle cx="${cx}" cy="${f(y - 32)}" r="2.6" fill="${P.gold}" stroke="${INK}" stroke-width=".7"/>`;
     return s;
   }
-  const T7 = {
+  const T4 = {
     back: P => sky(P) + birds(P) + K.cloud(80, 30, .9, P)
       + hill([[0, 122], [30, 94], [64, 108], [100, 66], [136, 98], [170, 86], [204, 106], [240, 64], [276, 94], [310, 78], [340, 100], [360, 92], [360, 92]], 'url(#wtFar)')
       + mist(104, 24, P) + hill([[0, 150], [50, 134], [100, 146], [150, 140], [210, 150], [260, 136], [310, 146], [360, 138], [360, 138]], P.mid)
@@ -6078,7 +5866,7 @@ const Trail = (() => {
     const g = P.lit ? ['#1C2C25', '#26392F'] : ['#3F5E44', '#5A7A55'];
     return `<path d="M${x} ${base}v-8" stroke="#4A3524" stroke-width="2.2"/><ellipse cx="${x}" cy="${f(base - 8 - h / 2)}" rx="${f(h * .2)}" ry="${f(h / 2)}" fill="${g[0]}"/><ellipse cx="${f(x - 1.5)}" cy="${f(base - 10 - h / 2)}" rx="${f(h * .11)}" ry="${f(h * .38)}" fill="${g[1]}"/>`;
   }
-  const T8 = {
+  const T5 = {
     back(P) {
       const ridge = [[0, 140], [40, 120], [80, 132], [120, 112], [160, 128], [200, 118], [240, 134], [280, 112], [320, 126], [360, 118], [360, 118]];
       let s = sky(P) + birds(P) + K.cloud(60, 34, 1, P) + K.cloud(200, 20, .8, P)
@@ -6110,7 +5898,7 @@ const Trail = (() => {
       return s;
     },
   };
-  const TT = [T1, T2, T3, T4, T5, T6, T7, T8];
+  const TT = [T1, T2, T3, T4, T5];
   function layer(T, k, P, ctx) {
     if (!ctx.started) return '';
     let s = k === 0 ? stakes(T.box, P) : '';   // only what stands: no outline of the next piece
@@ -6154,33 +5942,33 @@ function MapView() {
 const trailSeg = st => TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = i < st.k ? 1 : Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
   return `<i class="${p >= 1 ? 'full' : p > 0 ? 'part' : ''}"><b style="width:${(p * 100).toFixed(1)}%"></b></i>`; }).join('');
 function TrailView() {
-  const sts = trailStates(), built = trailPieces(sts), C = Trail.CAM;
+  const sts = TRAIL.map(c => trailState(c.lv)), built = sts.reduce((a, x) => a + x.k, 0), C = Trail.CAM;
   if (S.mapFrom) C.sel = S.mapFrom;   // back from a monument's page: its card is open again
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="mp-sum">${plural(built, 'piece')} built</span></div>
+      <div class="section-head cal-head tm-head"><h2>Temple map <span class="cal-zh">地图</span></h2><span class="mp-sum">${plural(built, 'piece')} built</span></div>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
     </div>
   </div>`;
 }
 function mapHud() {   // along the bottom, as in a game: how far the monument you are on has come, and one big button that goes on building it
-  const sts = trailStates(), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv, c = TRAIL[lv - 1];
-  return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="${esc(c.name)}, ${esc(c.en)}: ${st.k} of 8 pieces built. Show it on the map">
-      <span class="tm-now-t"><small>${esc(c.en)}</small><span class="tm-now-bar"><i style="width:${(st.k / 8 * 100).toFixed(0)}%"></i><b>${st.k}/8</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
+  const sts = TRAIL.map(c => trailState(c.lv)), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv;
+  return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="HSK ${lv}: ${st.k} of 8 pieces built. Show it on the map">
+      <span class="tm-now-t"><small>HSK ${lv}</small><span class="tm-now-bar"><i style="width:${(st.k / 8 * 100).toFixed(0)}%"></i><b>${st.k}/8</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
     ${st.open && i >= 0 ? `<button class="tm-play" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>Fast build</span></button>`
       : `<button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>${i < 0 ? 'Add more words' : st.started ? 'Continue building' : 'Build now'}</span></button>`}</div>`;
 }
-function mapCard(lv) {   // what a tap on a monument shows: its name and how far along it is; the marker of one not begun names nothing
+function mapCard(lv) {   // what a tap on a monument shows: its name and how far along it is; the marker of one not begun tells you only its level
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
   const med = `<div class="tm-med">${Trail.mini(lv, st)}<i class="tm-lv">${lv}</i></div>`, go = t => `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${t}</button>`;
-  if (!st.started) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="Monument ${lv}: not discovered yet">${x}${med}
-    <div class="tm-body"><small class="tm-city">Monument ${lv} of ${TRAIL.length}</small><h3>Undiscovered <span>未知</span></h3><p>Something will stand here. Your first proven word breaks ground.</p></div>
+  if (!st.started) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="HSK ${lv}: not discovered yet">${x}${med}
+    <div class="tm-body"><small class="tm-city">HSK ${lv}</small><h3>Undiscovered <span>未知</span></h3><p>Something will stand here. Your first HSK ${lv} word breaks ground.</p></div>
     <div class="tm-acts">${go('Build now')}</div></div>`;
   const m = st.k < 8 ? st.need[st.k] - st.n : 0;
-  const line = st.done ? `All 8 pieces built${lv < TRAIL.length ? '' : '. More monuments are on the way'}.` : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'proven word')}` : `Ground broken · first piece in ${plural(m, 'proven word')}`;
+  const line = st.done ? 'All 8 pieces built.' : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'proven word')}` : `Ground broken · first piece in ${plural(m, 'proven word')}`;
   const fast = st.open && !st.done ? `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button>` : '';
   return `<div class="tm-card tm-ui${st.done ? ' done' : ''}" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
-    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · ${lv} of ${TRAIL.length}</small><h3>${c.name} <span>${c.nzh}</span></h3><div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
+    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · HSK ${lv}</small><h3>${c.name} <span>${c.nzh}</span></h3><div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
       <p>${st.k > st.seen ? '<em>New</em>' : ''}${line}</p></div>
     <div class="tm-acts"><button class="btn btn-ghost" data-act="map-visit" data-lv="${lv}">Visit</button>${fast || go(st.done ? 'Add more words' : 'Continue building')}</div></div>`;
 }
@@ -6189,29 +5977,28 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
   C.sel = lv; LOG.add('map-city', { lv }); const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); C.api?.mark(); Trail.focus(lv);
 }
 function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) { s.innerHTML = mapHud(); s.firstElementChild?.classList.add('in'); } Trail.CAM.api?.mark(); }
-const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
-function trailNext() {   // what Continue building does, in words
-  if (trailLessons()) { const due = utDue(), n = lesNext();
+function trailNext(lv) {   // what Continue building does, in words
+  if (lv === 1) { const due = utDue(), n = lesNext();
     if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
     if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. Its words join your word bank, and build once you get them right again on another day.`; }
-  return `Tick the HSK ${openLevel()} words you already know, then prove them in a Fast build. Only proven words build monuments.`;
+  return `Tick the HSK ${lv} words you already know, then prove them in a Fast build. Only proven words build the temple.`;
 }
 function trailGo(lv) {
   LOG.add('map-build', { lv });
-  if (trailLessons()) { const due = utDue(), n = lesNext();
+  if (lv === 1) { const due = utDue(), n = lesNext();
     if (due) { A['ut-node']({ dataset: { u: due } }); return; }
     if (n) { nav(`#/course/1/lesson/${n}`); return; } }
-  nav('#/hsk/' + openLevel());
+  nav('#/hsk/' + lv);
 }
 /* ---------- Fast build ----------
-   Prove the words you already know: up to 12 known words, the lowest HSK levels first, each with four meanings to choose
-   from. A right answer proves the word at once, and proven words build the monuments; a wrong one sends the word to your review
+   Prove the words you already know: up to 12 known words of one HSK level, each with four meanings to choose from. A right
+   answer proves the word at once, and proven words build that city's temple; a wrong one sends the word to your review
    (back in 10 minutes), so the round is practice, not a free pass. */
 const FB_N = 12;
 function fbStart(lv) {
   clearTimeout(S.fb?.timer);
-  const pool = db.bank.filter(w => !w.pf?.at && w.en), lo = w => trailLv(w) || 9;   // lv: the monument to go back to
-  S.fb = pool.length ? { lv, q: shuffle(shuffle(pool).sort((a, b) => lo(a) - lo(b)).slice(0, FB_N * 3)).slice(0, FB_N), qi: 0, ans: null, right: 0, proven: 0, k0: trailPieces(trailStates()), opts: null } : { lv, q: [], none: true };
+  const st = trailState(lv), pool = db.bank.filter(w => trailLv(w) === lv && !w.pf?.at && w.en);
+  S.fb = pool.length ? { lv, q: shuffle(pool).slice(0, FB_N), qi: 0, ans: null, right: 0, proven: 0, k0: st.k, opts: null } : { lv, q: [], none: true };
   if (!S.H) loadHsk().then(() => { if (S.view === 'build' && S.fb?.lv === lv && !S.fb.qi && S.fb.ans == null) { fbStart(lv); fbPaint(); } }, () => {});
   if (pool.length) LOG.add('fast-build-start', { lv, words: S.fb.q.length, waiting: pool.length });
 }
@@ -6229,7 +6016,7 @@ const fbPaint = () => { S.instant = true; render(); };
 function BuildView() {
   const F = S.fb, close = `<button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button>`;
   if (!F || F.none) return `<div class="screen fade-in les-scr"><div class="les-top">${close}</div><div class="les-end fb-end"><h1>Nothing to prove here</h1>
-    <p class="muted">No words you already know are waiting. Tick the ones you know in the HSK lists, then come back.</p></div>
+    <p class="muted">No words you already know are waiting in HSK ${F?.lv || ''}. Tick the ones you know in the HSK lists, then come back.</p></div>
     <div class="les-dock"><button class="btn btn-seal wide" data-act="map-build" data-lv="${F?.lv || 1}">Tick words I know</button></div></div>`;
   if (F.done) return fbEnd();
   const w = F.q[F.qi], done = F.ans != null; F.opts ||= fbOpts(w);
@@ -6237,7 +6024,7 @@ function BuildView() {
   const cls = (e, i) => !done ? '' : e === w.en ? (ok ? ' ok pick' : ' ok reveal') : i === F.ans ? ' no' : '';
   return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
       <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>砖</i><b>${F.proven}</b></span></div>
-    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast build${trailLv(w) ? ` · HSK ${trailLv(w)}` : ''}</span></p>
+    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast build · HSK ${F.lv}</span></p>
       <div class="les-big"><span class="les-hz" style="font-size:${lesHz(w.hanzi)}px">${esc(w.hanzi)}</span><button class="les-snd" data-act="say" data-h="${esc(w.hanzi)}" aria-label="Hear it">${I.sound}</button></div>
       <div class="les-opts list${done ? ' answered' : ''}">${F.opts.map((e, i) => `<button class="les-opt${cls(e, i)}" data-act="fb-opt" data-i="${i}"${done ? ' disabled' : ''}><span class="lo-en">${esc(e)}</span>${ok && e === w.en ? '<span class="lo-stamp" aria-hidden="true">对</span>' : ''}</button>`).join('')}</div>
       ${done ? `<p class="fb-note ${ok ? 'ok' : 'no'}" role="status">${ok ? `<b>Proven</b> ${esc(w.pinyin || '')}` : `<b>${esc(w.hanzi)} · ${esc(w.pinyin || '')}</b> means “${esc(w.en)}”. It goes to your review.`}</p>` : ''}</div>
@@ -6256,54 +6043,50 @@ function fbNext() {
   clearTimeout(F.timer); F.ans = null; F.opts = null;
   if (++F.qi >= F.q.length) {
     F.done = true; const day = db.days[dayKey(Date.now())] ||= { decks: {} }; day.fb = (day.fb || 0) + 1; save();   // counts for the streak
-    LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, pieces: trailPieces(trailStates()) - F.k0 });
+    const st = trailState(F.lv); LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, pieces: st.k - F.k0 });
     setTimeout(() => { if (S.view === 'build' && S.fb === F) coinMoment(); }, 900);   // a new piece for the collection: celebrated over the end of the round
   }
   fbPaint();
 }
 function fbEnd() {
-  const F = S.fb, sts = trailStates(), i = trailCur(sts), add = trailPieces(sts) - F.k0, miss = F.q.length - F.right;
-  F.lv = i < 0 ? sts.length : sts[i].k || i === 0 ? i + 1 : i;   // See it built: the monument with the newest piece
-  const c = TRAIL[F.lv - 1], st = sts[F.lv - 1], now = i < 0 ? null : sts[i], fin = st.done && add > 0;
-  const what = i < 0 ? 'Every monument is built. More are on the way.' : fin ? `The ${c.name} in ${esc(c.en)} is finished!` : add > 0 ? `${add > 1 ? `${add} new pieces stand` : 'A new piece stands'} in ${esc(c.en)}.`
-    : `Next piece in ${plural(now.need[now.k] - now.n, 'proven word')}.`;
+  const F = S.fb, c = TRAIL[F.lv - 1], st = trailState(F.lv), add = st.k - F.k0, miss = F.q.length - F.right;
+  const what = st.done ? `Every piece of the ${c.name} is built.` : add > 0 ? `${add > 1 ? `${add} new pieces stand` : 'A new piece stands'} in ${esc(c.en)}.`
+    : `Next piece in ${plural(st.need[st.k] - st.n, 'proven word')}.`;
   return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button></div>
     <div class="les-end fb-end"><span class="les-end-shi">${shiFace(miss ? 'cheer' : 'star')}</span>
       <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>
       <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
-      <div class="fb-seg"><span class="mp-seg" aria-hidden="true">${trailSeg(st)}</span><small>${st.n} of ${st.total} words for the ${c.name} · ${st.open} waiting</small></div></div>
+      <div class="fb-seg"><span class="mp-seg" aria-hidden="true">${trailSeg(st)}</span><small>${st.n} of ${st.total} HSK ${F.lv} words proven · ${st.open} waiting</small></div></div>
     <div class="les-dock fb-acts">${add > 0 || st.done ? `<button class="btn btn-seal wide" data-act="fb-see"><span class="qa-glyph">建</span>See it built</button>` : ''}
       ${st.open ? `<button class="btn ${add > 0 ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
       ${!(add > 0 || st.done) ? `<button class="btn btn-ghost wide" data-act="fb-see">Back to ${esc(c.en)}</button>` : ''}</div></div>`;
 }
 function CityView(lv) {
   const c = TRAIL[lv - 1], st = trailState(lv), from = st.k > st.seen ? st.seen : null;
-  if ((db.monSeen ||= {})[lv] !== st.k) { db.monSeen[lv] = st.k; save(); }
+  if ((db.mapSeen ||= {})[lv] !== st.k) { db.mapSeen[lv] = st.k; save(); }
   const label = !st.started ? 'Start building' : st.done ? 'Add more words' : 'Continue building';
   const m = st.k < 8 ? st.need[st.k] - st.n : 0, cap = s => s[0].toUpperCase() + s.slice(1);
-  const nx = TRAIL[lv];
-  const next = !st.started ? (lv === 1 ? 'Your first proven word breaks ground here.' : `Ground breaks here once the ${TRAIL[lv - 2].name} is finished.`)
-    : st.done ? `Every piece is built. ${nx ? `Next on the trail: the ${nx.name} in ${esc(nx.en)}.` : 'More monuments are on the way.'}`
+  const next = !st.started ? `Your first HSK ${lv} word breaks ground here.` : st.done ? `Every piece is built. ${esc(c.en)} is finished.`
     : `Next piece in ${plural(m, 'more proven word')}.`;
   const built = from != null ? c.pieces.slice(from, st.k) : [];
   const step = (name, i) => { const need = i < 0 ? 1 : st.need[i], done = i < 0 ? st.started : i < st.k, cur = !done && (i < 0 || st.k === i);
     return `<li class="${done ? 'done' : cur ? 'cur' : ''}"><span class="mp-tick">${done ? I.check : ''}</span><span class="mp-st-n">${done ? cap(name) : cur ? 'Next piece' : '???'}</span><small>${done ? 'Built' : cur ? `${need - st.n} more` : plural(need, 'word')}</small></li>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
   return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">
-    <header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.started ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `Monument ${lv}`}</div><div style="width:42px"></div></header>
+    <header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.started ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `HSK ${lv}`}</div><div style="width:42px"></div></header>
     <div class="mp-scene${from != null ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), from)}
-      <span class="mp-chip"><i>${lv}</i>of ${TRAIL.length}</span>
+      <span class="mp-chip"><i>${lv}</i>HSK ${lv}</span>
       ${built.length ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Built</b>${esc(built.length > 1 ? `${built.length} new pieces, last the ${built.at(-1)}` : built[0])}</span></div>` : ''}</div>
     ${st.open && !st.done ? `<div class="mp-cta"><button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button></div>
-    <p class="mp-hint">${plural(st.open, 'word')} you already know ${st.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${lv}">${trailLessons() ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
+    <p class="mp-hint">${plural(st.open, 'word')} you already know ${st.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${lv}">${lv === 1 ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
     : `<div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${label}</button></div>
-    <p class="mp-hint">${trailNext()}</p>`}
+    <p class="mp-hint">${trailNext(lv)}</p>`}
     <section class="mp-info">
       <h2>${st.started ? c.name : 'Undiscovered'} <span class="cal-zh">${st.started ? c.nzh : '未知'}</span></h2>
-      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} proven words</p>
+      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} HSK ${lv} words proven</p>
       <div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
       <p class="mp-next">${next}</p>
-      ${st.started ? `<p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the monument.'
+      ${st.started ? `<p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the temple.'
         : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>` : ''}
     </section>
     <section class="mp-steps"><h3>The pieces</h3><ol>${step('ground broken', -1)}${c.pieces.map(step).join('')}</ol></section>
@@ -6399,7 +6182,7 @@ function srsGrade(c, g) {
   proveWord(c.hanzi, g === 2);
   save();
 }
-/* ---------- proven words: what builds the monuments on the Map ----------
+/* ---------- proven words: what builds the temples on the Map ----------
    A word in the word bank is known (you ticked it, onboarding placed it, or you added it), proven (you got it right in
    practice on two different days) or mastered (still right three weeks or more after it was proven). Only proven words
    build the temples, so ticking a list builds nothing by itself. In a Fast build a known word is proven with one right
@@ -7784,7 +7567,7 @@ function BankView() {
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
     ${n ? `<section class="bank-stages" aria-label="Your words by stage">${[['known', 'Known', 'Ticked or placed'], ['proven', 'Proven', 'Right on two days'], ['mastered', 'Mastered', 'Still right 3 weeks on']]
       .map(([k, t, d]) => `<div class="bs bs-${k}"><b>${cnt[k].toLocaleString('en')}</b><span><i class="w-dot ${k}"></i>${t}</span><small>${d}</small></div>`).join('')}
-      <p>Proven words build the monuments on the Map and earn pieces for your collection. Prove the ones you know in a Fast build there.</p></section>
+      <p>Proven words build the temples on the Map and earn pieces for your collection. Prove the ones you know in a Fast build there.</p></section>
     ${CollectionHtml()}` : ''}
     <div class="group"><button class="row" data-act="open-hsk" style="--sep:58px"><span class="icon-sq">汉</span>
       <span class="row-main"><span class="row-t">HSK word lists</span><span class="row-s">Tick the words you already know</span></span><span class="chev">${I.chev}</span></button></div>
@@ -8046,7 +7829,7 @@ function HskView() {
   const inBank = new Set(db.bank.map(w => w.hanzi));
   if (!lv) return `<div class="screen fade-in">${head}
     <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
-      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast build on the Map to build its monuments.</div></section>
+      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast build on the Map to build that city's temple.</div></section>
     <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
       const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
@@ -8176,7 +7959,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.41';
+const APP_VERSION = '2.42';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9008,7 +8791,7 @@ document.addEventListener('click', e => {
   let g = null, noClickUntil = 0;
   const targets = () => {
     if (S.view === 'deck' || S.view === 'bank') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
-    if (S.view === 'map' && S.mapLv) return null;   // inside a monument: no swiping to the next tab
+    if (S.view === 'map' && S.mapLv) return null;   // inside a temple: no swiping to the next tab
     const order = ['home', 'learn', 'map', 'read', 'profile'], views = [Home, LearnView, MapView, ReadView, ProfileView], i = order.indexOf(S.view);
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
