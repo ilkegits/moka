@@ -1569,11 +1569,13 @@ button.scene-tile:active svg{opacity:.92}
 .gopt-min small{font-size:12px;font-weight:700;color:var(--muted);margin-top:1px}
 .gopt-bar{display:block;height:8px;margin-top:7px;border-radius:5px;background:var(--fill);overflow:hidden}
 .gopt-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#E8A33C,#FFD15C)}
-.ob-opt[aria-pressed="true"] .gopt-bar i{background:var(--seal)}
+/* the minutes you pick: a calm green ring, not the alarm-red one (red reads as "wrong" in the lessons) */
+.ob-gopt[aria-pressed="true"]{background:color-mix(in srgb,var(--card) 88%,var(--jade));box-shadow:0 0 0 2.5px var(--jade),0 3px 0 var(--jade)}
+.ob-gopt[aria-pressed="true"] .gopt-bar i{background:var(--jade)}
 .gopt-when{flex:none;text-align:right;line-height:1.2}
 .gopt-when b{display:block;font-size:14px}
 .gopt-when small{display:block;font-size:12.5px;color:var(--muted)}
-.ob-opt[aria-pressed="true"] .gopt-when small{color:var(--seal);font-weight:700}
+.ob-opt[aria-pressed="true"] .gopt-when small{color:var(--jade);font-weight:700}
 .ob-note{margin:12px 2px 0;font-size:13px;color:var(--muted);text-align:center}
 /* celebration (also used by milestones and streak moments) */
 .mo-hero{position:relative;text-align:center;padding:20px 0 0}
@@ -6297,7 +6299,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.17';
+const APP_VERSION = '2.18';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

@@ -1,1 +1,1 @@
-{"version": "2.17", "notes": "Fixes the first-run setup stopping on the “You are HSK…” page: a few lines of that page had landed in the wrong part of the code, so the page couldn’t show and Continue did nothing. The level now counts up and lands on yours as intended"}
+{"version": "2.18", "notes": "The daily minutes you pick are marked in calm green instead of red, which looked like a warning"}
