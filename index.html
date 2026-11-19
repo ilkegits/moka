@@ -455,7 +455,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .deck-new .deck-face{color:var(--seal);border-color:color-mix(in srgb,var(--seal) 35%,transparent)}
 .deck-new .deck-face::after{display:none}
 .deck-new .deck-name{color:var(--seal)}
-.deck-new-go{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--seal);color:var(--seal-ink)}
+.deck-new-go{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:var(--seal);border:1.5px solid color-mix(in srgb,var(--seal) 45%,transparent)}
 .deck-new-go svg.i{width:20px;height:20px;stroke-width:2.4}
 .sh-n{font-size:14px;color:var(--muted)}
 .deck-meta{flex:1;min-width:0}
@@ -492,7 +492,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 
 /* ---------- study ---------- */
 .progress{flex:1;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
-.progress-fill{height:100%;background:var(--seal);border-radius:4px;transition:width .35s ease}
+.progress-fill{height:100%;min-width:12%;background:var(--seal);border-radius:4px;transition:width .35s ease}
 .count{font-size:13px;color:var(--muted);min-width:42px;text-align:right;font-variant-numeric:tabular-nums;padding-right:6px}
 .stage{flex:1;display:grid;place-items:center;perspective:1300px;padding:12px 0 6px;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;min-height:420px}
 .stage-shadow{position:absolute;bottom:4%;left:50%;width:70%;height:26px;margin-left:-35%;border-radius:50%;background:radial-gradient(closest-side,rgba(60,35,15,.22),transparent);filter:blur(4px)}
@@ -2746,7 +2746,7 @@ function decksSheet() {
           <div class="dk-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${n ? plural(n, 'card') : 'No cards yet'}</div></div></div>
         <div class="row-btns">${n ? `<button class="btn btn-ghost" data-act="learn-study" data-id="${d.id}">${I.flip}Flip cards</button>
           <button class="btn btn-seal" data-act="learn-write" data-id="${d.id}">${I.pen}Write</button>`
-          : `<button class="btn btn-ghost wide" data-act="open-deck" data-id="${d.id}">${I.plus}Add cards</button>`}</div></div>`;
+          : `<button class="btn btn-seal wide" data-act="open-deck" data-id="${d.id}">${I.plus}Add cards</button>`}</div></div>`;
     }).join('')}</div>`);
 }
 /* what you know: the words in your word bank (you told the app you know them) and the cards you answered Knew it
@@ -2991,7 +2991,7 @@ function CourseBlock() {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
     const foot = locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
       : !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
-      : `<span class="crs-bar"><i style="width:${Math.max(4, Math.round(f * 100))}%"></i></span><span class="crs-pct">${Math.floor(f * 100)}%</span>`;
+      : `<span class="crs-bar"><i style="width:${gBar(f)}%"></i></span><span class="crs-pct">${goLab(x.k, x.n, String, ' words')}</span>`;
     return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${locked ? 'crs-locked' : x.l === 1 ? 'c1-open' : 'hsk-level'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
       <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg>${locked ? `<span class="crs-lock">${LOCK_I}</span>` : ''}</span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
@@ -3546,7 +3546,7 @@ const lesBoxSize = () => Math.max(170, Math.min(250, (document.documentElement.c
 function lesTop() {
   const E = S.les, prog = E.test ? E.settled / E.total : (E.qi + (E.ans != null ? 1 : 0)) / E.q.length;
   const fire = E.combo >= 3 ? `<span class="les-fire on${E.flash ? E.combo === 3 ? ' new' : ' bump' : ''}" aria-label="${E.combo} in a row">${FLAME}<b>${E.combo}</b></span>` : '';
-  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
+  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar"><i style="width:${gBar(prog)}%"></i></span>
     ${fire}<span class="les-pts${E.flash ? ' bump' : ''}" aria-label="${E.pts} points"><i>分</i><b>${E.pts}</b></span></div>`;
 }
 /* the answer strip: a right answer gets a red seal stamp, the points and a timer line, and moves on by itself;
@@ -3948,7 +3948,7 @@ function earHtml() {
     <b>${E.right} of ${E.q.length} right</b><span class="muted">${E.right >= 8 ? 'Great ears!' : E.right >= 5 ? 'Good. Tones 2 and 3 are the ones most people mix up.' : 'Tones take time. Tap the tone cards above to hear each one again.'}</span>
     <button class="btn btn-seal wide" data-ear="go">Try again</button></div>`;
   const Q = E.q[E.i], done = E.ans != null;
-  return `<div class="ear-top"><span class="ear-n">${E.i + 1} of ${E.q.length}</span><span class="ear-bar"><i style="width:${E.i / E.q.length * 100}%"></i></span></div>
+  return `<div class="ear-top"><span class="ear-n">${E.i * 2 >= E.q.length ? `${E.q.length - E.i} to go` : `${E.i + 1} of ${E.q.length}`}</span><span class="ear-bar"><i style="width:${gBar(E.i / E.q.length)}%"></i></span></div>
     <div class="ear-q"><button class="ear-play" data-ear="play" aria-label="Play the sound again">${I.sound}</button>
       <div class="ear-reveal">${done ? `<b>${Q.h}</b><span style="color:${TONE_C[Q.t]}">${toneMark(Q.s, Q.t)}</span><small>${esc(Q.e)}</small>` : '<span class="muted">Which tone?</span>'}</div></div>
     <div class="ear-opts">${[1, 2, 3, 4].map(t => `<button class="ear-opt${done ? t === Q.t ? ' ok' : t === E.ans ? ' no' : '' : ''}" data-ear="${t}" style="--tc:${TONE_C[t]}"${done ? ' disabled' : ''}>
@@ -4955,6 +4955,11 @@ function addReadWord(t) {   // "Add to my words" in the word bubble
 }
 
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+/* ilkem's progress-bar rules (the car-wash trick): a bar is never empty. It starts with a head start, moves on every step and is
+   full only when the goal is reached; gBar gives its width in %. goLab writes its label: what is done while that is the smaller
+   number, then what is left ("2 to go"), and with nothing done yet the whole way to go rather than a 0. */
+const gBar = f => f >= 1 ? 100 : Math.round(12 + Math.min(1, Math.max(0, f || 0)) * 83);
+const goLab = (n, total, fmt = String, unit = '') => !n || n * 2 >= total ? `${fmt(Math.max(0, total - n))}${unit} to go` : `${fmt(n)} of ${fmt(total)}${unit}`;
 
 function Home() {
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
@@ -4970,8 +4975,8 @@ function Home() {
     ${db.decks.length ? `<div class="decks">${db.decks.map(DeckTile).join('')}</div>` : ''}
     <div class="section-head cal-head"><h2>Word bank <span class="cal-zh">词库</span></h2></div>
     ${BankTile()}
-    <div class="section-head"><h2>Pick up where you left off</h2></div>
-    <div class="decks">${LastTile()}</div>
+    ${(t => t ? `<div class="section-head"><h2>Pick up where you left off</h2></div>
+    <div class="decks">${t}</div>` : '')(LastTile())}
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
     ${HskShelf()}
     <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
@@ -5777,16 +5782,16 @@ function BankTile() {   // the word bank on the Decks page: how many words, how 
   return `<button class="wb-tile" data-act="open-bank" aria-label="Word bank: ${plural(n, 'word')}, ${pv} proven, ${got.length} of ${COINS.length} in your collection">
     <span class="wb-count"><b class="wb-num">${n.toLocaleString('en')}</b><span class="wb-lbl">${n === 1 ? 'word' : 'words'}<small>${pv.toLocaleString('en')} proven</small></span></span>
     <span class="wb-purse" aria-hidden="true">${got.slice(-3).map(c => `<span class="wb-coin">${coinArt(c)}</span>`).join('')}</span>
-    <span class="wb-next">${next ? `<span class="wb-next-art cl-off" aria-hidden="true">${coinArt(next)}</span><span class="wb-next-t">${got.length ? 'Next' : 'First'} piece for your collection at <b>${next.n.toLocaleString('en')}</b> proven</span>
-      <span class="wb-bar"><i style="width:${Math.max(4, pct)}%"></i></span>` : `<span class="wb-next-t">Your collection is complete: all ${COINS.length} pieces</span>`}</span></button>`;
+    <span class="wb-next">${next ? `<span class="wb-next-art cl-off" aria-hidden="true">${coinArt(next)}</span><span class="wb-next-t">${got.length ? 'Next' : 'First'} piece for your collection: <b>${(next.n - pv).toLocaleString('en')}</b> proven ${next.n - pv === 1 ? 'word' : 'words'} to go</span>
+      <span class="wb-bar"><i style="width:${gBar(pct / 100)}%"></i></span>` : `<span class="wb-next-t">Your collection is complete: all ${COINS.length} pieces</span>`}</span></button>`;
 }
 function CollectionHtml() {   // on the word bank page: every piece, earned or still to come (only the next one is named)
   const pv = provenCount(), next = COINS.find(c => pv < c.n), got = COINS.filter(c => pv >= c.n).length;
   return `<div class="section-head cal-head"><h2>Collection <span class="cal-zh">收藏</span></h2><span class="sh-n">${got} of ${COINS.length}</span></div>
     <div class="coll">${COINS.map((c, i) => { const on = pv >= c.n, nx = c === next, from = i ? COINS[i - 1].n : 0;
       return `<button class="cl${on ? '' : ' cl-off'}"${on ? ` data-act="coin" data-id="${c.id}"` : ' disabled'} aria-label="${on ? `${c.name}, earned` : `${nx ? c.name : 'Not yet found'}, at ${c.n} proven words`}">
-        <span class="cl-art">${coinArt(c)}</span><b>${on || nx ? c.name : '???'}</b><small>${on ? (c.badge ? 'Badge' : c.era.replace(/,.*/, '')) : `${c.n.toLocaleString('en')} proven`}</small>
-        ${nx ? `<span class="wb-bar"><i style="width:${Math.max(4, Math.round((pv - from) / (c.n - from) * 100))}%"></i></span>` : ''}</button>`; }).join('')}</div>`;
+        <span class="cl-art">${coinArt(c)}</span><b>${on || nx ? c.name : '???'}</b><small>${on ? (c.badge ? 'Badge' : c.era.replace(/,.*/, '')) : nx ? `${(c.n - pv).toLocaleString('en')} to go` : `${c.n.toLocaleString('en')} proven`}</small>
+        ${nx ? `<span class="wb-bar"><i style="width:${gBar((pv - from) / (c.n - from))}%"></i></span>` : ''}</button>`; }).join('')}</div>`;
 }
 function coinSheet(id) {
   const c = COINS.find(x => x.id === id); if (!c) return;
@@ -6472,13 +6477,13 @@ function TrailView() {
 }
 const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">证</span>Prove words</button>`;
 const EARN = lv => trailState(lv).open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`;
-const coinBarLab = st => st.n >= st.total ? 'Ready to buy' : st.n * 2 >= st.total ? `${coinFmt(st.total - st.n)} to go` : `${coinFmt(st.n)} / ${coinFmt(st.total)}`;   // past halfway, what is left is the smaller number, and it pulls harder
+const coinBarLab = st => st.n >= st.total ? 'Ready to buy' : goLab(st.n, st.total, coinFmt);   // past halfway, what is left is the smaller number, and it pulls harder
 function mapHud() {   // along the bottom, as in a game: the coins you are saving toward the monument you want next, and the Shop
   const sts = trailStates(), i = trailCur(sts), shop = `<button class="tm-play tm-shop" data-act="shop"><span class="qa-glyph">店</span><span>Shop</span></button>`;
   if (i < 0) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
   const st = sts[i], c = TRAIL[st.lv - 1], ready = st.n >= st.total, today = coinToday();
   return `<div class="tm-hud tm-ui"><button class="tm-now${ready ? ' ready' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${ready ? `You can buy the ${esc(c.name)} now` : `Saving for the ${esc(c.name)}: ${st.n} of ${st.total} coins`}${today ? `, ${today} earned today` : ''}. Open it in the shop">${today ? `<em>+${coinFmt(today)} today</em>` : ''}
-      <span class="tm-now-t"><small>${esc(c.name)}</small><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${coinBarLab(st)}</b></span></span><span class="tm-med s">${Trail.mini(st.lv, st, true)}</span></button>${shop}</div>`;
+      <span class="tm-now-t"><small>${esc(c.name)}</small><span class="tm-now-bar"><i style="width:${gBar(st.n / st.total)}%"></i><b>${coinBarLab(st)}</b></span></span><span class="tm-med s">${Trail.mini(st.lv, st, true)}</span></button>${shop}</div>`;
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
@@ -6512,7 +6517,7 @@ function shopHtml(lv) {
     const c = TRAIL[lv - 1], st = sts[lv - 1], can = !st.done && bal >= st.total, wish = db.monWish === lv;
     const act = st.done ? `<button class="btn btn-seal wide" data-act="shop-see" data-lv="${lv}">See it on your map</button>`
       : can ? `<button class="btn btn-seal wide shop-buy" data-act="shop-buy" data-lv="${lv}">Buy for ${coinSvg()}${coinFmt(st.total)}</button>`
-      : `<div class="shop-need"><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${coinFmt(st.n)} / ${coinFmt(st.total)}</b></span>
+      : `<div class="shop-need"><span class="tm-now-bar"><i style="width:${gBar(st.n / st.total)}%"></i><b>${coinBarLab(st)}</b></span>
           <p>${coinFmt(st.total - st.n)} more coins to go.${wish ? ' You are saving for this one.' : ''}</p></div>
         <div class="row-btns">${wish ? '' : `<button class="btn btn-ghost" data-act="shop-wish" data-lv="${lv}">Save for it</button>`}${EARN(lv)}</div>`;
     return `${top}<div class="shop-det"><button class="shop-back" data-act="shop-back">${I.back}<span>All monuments</span></button>
@@ -6597,7 +6602,7 @@ function BuildView() {
   const w = F.q[F.qi], done = F.ans != null; F.opts ||= fbOpts(w);
   const ok = done && F.opts[F.ans] === w.en, prog = (F.qi + (done ? 1 : 0)) / F.q.length;
   const cls = (e, i) => !done ? '' : e === w.en ? (ok ? ' ok pick' : ' ok reveal') : i === F.ans ? ' no' : '';
-  return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
+  return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${gBar(prog)}%"></i></span>
       <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>证</i><b>${F.proven}</b></span></div>
     <div class="les-body"><p class="les-ask">What does it mean?<span>Prove words${trailLv(w) ? ` · HSK ${trailLv(w)}` : ''}</span></p>
       <div class="les-big"><span class="les-hz" style="font-size:${lesHz(w.hanzi)}px">${esc(w.hanzi)}</span><button class="les-snd" data-act="say" data-h="${esc(w.hanzi)}" aria-label="Hear it">${I.sound}</button></div>
@@ -6631,10 +6636,10 @@ function fbEnd() {
     <div class="les-end fb-end"><span class="les-end-shi${P ? ' bag' : ''}">${P ? bagShi(mood) : shiFace(mood)}</span>
       <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>${P ? payLine(P) : ''}
       <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
-      ${now && !ready ? `<div class="fb-seg"><span class="tm-now-bar"><i style="width:${(now.n / now.total * 100).toFixed(0)}%"></i><b>${coinBarLab(now)}</b></span><small>${plural(now.open, 'word')} you know waiting to be proven</small></div>` : ''}</div>
+      ${now && !ready ? `<div class="fb-seg"><span class="tm-now-bar"><i style="width:${gBar(now.n / now.total)}%"></i><b>${coinBarLab(now)}</b></span>${now.open ? `<small>${plural(now.open, 'word')} you know waiting to be proven</small>` : ''}</div>` : ''}</div>
     <div class="les-dock fb-acts">${ready ? `<button class="btn btn-seal wide" data-act="shop-item" data-lv="${now.lv}"><span class="qa-glyph">店</span>Buy it in the shop</button>` : ''}
       ${now?.open ? `<button class="btn ${ready ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
-      <button class="btn btn-ghost wide" data-act="fb-see">Back to the map</button></div></div>`;
+      <button class="btn ${ready || now?.open ? 'btn-quiet' : 'btn-seal'} wide" data-act="fb-see">Back to the map</button></div></div>`;
 }
 const theName = c => (c.the ?? 'the ') + c.name;
 function CityView(lv) {   // a monument's page: its big picture (revealed the first time you see it as yours), or one still in the shop
@@ -6643,7 +6648,7 @@ function CityView(lv) {   // a monument's page: its big picture (revealed the fi
   const sts = trailStates(), i = trailCur(sts), now = i < 0 || i === lv - 1 ? null : sts[i];
   const save4 = n => { const nc = TRAIL[n.lv - 1], ready = n.n >= n.total;   // the monument you are saving for, and how to get there
     return `<section class="mp-info"><h2>${ready ? 'Ready to buy' : 'Saving for'} <span class="cal-zh">${nc.nzh}</span></h2><p class="mp-count">${nc.name} · <b>${coinFmt(n.total)}</b> coins</p>
-      <span class="tm-now-bar mp-cbar"><i style="width:${(n.n / n.total * 100).toFixed(0)}%"></i><b>${coinBarLab(n)}</b></span></section>
+      <span class="tm-now-bar mp-cbar"><i style="width:${gBar(n.n / n.total)}%"></i><b>${coinBarLab(n)}</b></span></section>
       <div class="mp-cta">${ready ? `<button class="btn btn-seal" data-act="shop-item" data-lv="${n.lv}"><span class="qa-glyph">店</span>Buy it</button>` : EARN(n.lv)}</div>
       <p class="mp-hint">${ready ? 'It is in the shop, waiting for you.' : n.open ? `${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven: ${PAY.word} coins each.` : trailNext()}</p>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
@@ -6698,12 +6703,7 @@ function LastTile() {
     <div class="deck-stack"><span></span><span></span><div class="deck-face">${esc(storyGlyph(s))}</div></div>
     <div class="deck-meta"><div class="deck-name">Continue reading…</div><div class="deck-count">${esc(s.zh)} · ${esc(s.en)}</div></div>
     <span class="chev">${I.chev}</span></button>`;
-  const d = deck || db.decks[0];
-  if (d) return DeckTile(d);
-  return `<button class="deck" data-act="new-deck" style="--accent:var(--seal)">
-    <div class="deck-stack"><span></span><span></span><div class="deck-face deck-plus">${I.plus}</div></div>
-    <div class="deck-meta"><div class="deck-name">Create a deck</div><div class="deck-count">Make your first deck of cards</div></div>
-    <span class="chev">${I.chev}</span></button>`;
+  return deck && db.decks.length > 3 ? DeckTile(deck) : '';   // every deck is already listed above; repeat one only in a long list
 }
 function DeckTile(d) {
   const first = hanChars(d.cards[0]?.hanzi)[0] || '字';
@@ -7688,7 +7688,7 @@ function WriteSummary(d) {
     <div class="dock" style="display:flex;flex-direction:column;gap:10px">
       ${missed.length ? `<button class="btn btn-seal wide" data-act="retry-missed">Practise the ${missed.length} missed</button>` : ''}
       <div class="row-btns"><button class="btn btn-ghost" data-act="write-again">Again</button>${more
-        ? `<button class="btn btn-primary" data-act="write-next">Next ${db.prefs.writeN ?? 10}</button>` : '<button class="btn btn-primary" data-act="back-deck">Done</button>'}</div>
+        ? `<button class="btn ${missed.length ? 'btn-ghost' : 'btn-primary'}" data-act="write-next">Next ${db.prefs.writeN ?? 10}</button>` : `<button class="btn ${missed.length ? 'btn-ghost' : 'btn-primary'}" data-act="back-deck">Done</button>`}</div>
     </div></div>`;
 }
 
@@ -8586,7 +8586,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.59';
+const APP_VERSION = '2.60';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8829,7 +8829,7 @@ function GoalRow(act = 'goal') {
   if (!goal) return `<button class="goal-row" data-act="${act}"><span class="goal-main"><b>Set a daily goal</b><small>How many minutes a day you want to practise</small></span><span class="goal-ch">Set</span></button>`;
   const f = Math.min(1, min / goal);
   return `<button class="goal-row" data-act="${act}"><span class="goal-main"><b>${f >= 1 ? 'Daily goal reached ✓' : 'Daily goal'}</b>
-    <small>${Math.min(min, goal)} of ${goal} min today</small><span class="goal-bar"><i style="width:${Math.round(f * 100)}%"></i></span></span><span class="goal-ch">Change</span></button>`;
+    <small>${f >= 1 ? `${min} min today` : `${goLab(min, goal, String, ' min')} today`}</small><span class="goal-bar"><i style="width:${gBar(f)}%"></i></span></span><span class="goal-ch">Change</span></button>`;
 }
 /* how long until the next level at each goal: words still to learn at that level / new words a day */
 function goalPace(lv, left) {
@@ -9272,7 +9272,7 @@ function Badges() {
     ['火', 'Week streak', best, 7], ['月', 'Month streak', best, 30], ['年', '100-day streak', best, 100],
     ['写', 'Writer', written, 25], ['书', 'First story', stories, 1], ['读', 'Bookworm', stories, 10], ['一', 'HSK 1 known', h1k, h1.length || HSK_COUNT[1]]];
   return `<div class="badges">${B.map(([g, t, v, goal]) => { const on = v >= goal;
-    return `<div class="bdg${on ? '' : ' off'}"><span class="bdg-seal">${g}</span><b>${t}</b>${on ? '<small>Earned</small>' : `<small>${Math.min(v, goal)}/${goal}</small><span class="bdg-bar"><i style="width:${Math.round(Math.min(1, v / goal) * 100)}%"></i></span>`}</div>`; }).join('')}</div>`;
+    return `<div class="bdg${on ? '' : ' off'}"><span class="bdg-seal">${g}</span><b>${t}</b>${on ? '<small>Earned</small>' : `<small>${goLab(v, goal)}</small><span class="bdg-bar"><i style="width:${gBar(v / goal)}%"></i></span>`}</div>`; }).join('')}</div>`;
 }
 
 /* ---------- the app icon's dot: on until today's practice is done (works once the app is installed) ---------- */
