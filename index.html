@@ -8805,7 +8805,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.82';
+const APP_VERSION = '2.83';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9804,7 +9804,7 @@ document.addEventListener('click', e => {
   const ARM = 100, HOLD = 104;   // how far the page has to come down (px) before letting go reloads; where it rests while reloading
   let t = null, busy = false, inset = 0, kh = 90;   // kh: the knot's height, measured once per pull
   const atTop = () => (document.scrollingElement?.scrollTop || 0) <= 0 && app.scrollTop <= 0;
-  const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root');
+  const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tm-stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root');   // the map: dragging it down looks north, never reloads
   const topInset = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden'; document.body.append(d); const h = d.offsetHeight; d.remove(); return h; };
   const pull = d => 200 * (1 - Math.exp(-Math.max(0, d) / 240));   // follows the finger at first, then gets heavier
   const place = (p, dur, curve = EASE) => {
