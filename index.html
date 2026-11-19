@@ -5366,9 +5366,10 @@ const Trail = (() => {
     },
   };
   const TT = [T1, T2, T3, T4, T5];
+  const risen = k => k >= 2;   // until the base and the first piece on it stand, the picture shows no dashed plan or next-piece label
   function layer(T, k, P, ctx) {
-    if (!ctx.started) return `<g opacity=".5">${K.ghost(T.draw(8, P, ctx))}</g>`;
-    let s = k < 8 ? K.ghost(T.draw(k + 1, P, ctx)) : '';
+    if (!ctx.started) return '';
+    let s = risen(k) && k < 8 ? K.ghost(T.draw(k + 1, P, ctx)) : '';
     if (k === 0) s += stakes(T.box, P);
     s += T.draw(k, P, ctx);
     if (k >= 1 && k < 8) s += scaffold(T.box);
@@ -5381,8 +5382,7 @@ const Trail = (() => {
     const rev = from != null && from < st.k;
     s += rev ? `<g class="mp-old">${layer(T, from, P, ctx)}</g><g class="mp-new">${layer(T, st.k, P, ctx)}</g>` : layer(T, st.k, P, ctx);
     if (st.k < Math.min(8, T.board || 8)) s += K.sign(42, 246, st.n, P);
-    if (!st.started) s += K.tag(180, 120, `your first HSK ${lv} word breaks ground`, P);
-    else if (st.k < 8) { const [x, y] = T.tags[st.k], m = st.need[st.k] - st.n; s += `<g${rev ? ' class="mp-new"' : ''}>${K.tag(x, y, `${TRAIL[lv - 1].pieces[st.k]} · ${m} more word${m === 1 ? '' : 's'}`, P)}</g>`; }
+    if (st.started && risen(st.k) && st.k < 8) { const [x, y] = T.tags[st.k], m = st.need[st.k] - st.n; s += `<g${rev ? ' class="mp-new"' : ''}>${K.tag(x, y, `${TRAIL[lv - 1].pieces[st.k]} · ${m} more word${m === 1 ? '' : 's'}`, P)}</g>`; }
     if (rev) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
   }
@@ -7294,7 +7294,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.24';
+const APP_VERSION = '2.25';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
