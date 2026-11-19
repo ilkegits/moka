@@ -5690,8 +5690,9 @@ function trailFloor() {   // the pieces of the old five temples (before v2.37, d
   return n;
 }
 function trailAll() {   // your proven words in the order you proved them; open = known ones a Fast unlock can prove
-  const pv = db.bank.filter(w => w.pf?.at).sort((a, b) => a.pf.at - b.pf.at);
-  return { pv, n: Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length };
+  // Developer test levels: db.mapMax unlocks every monument; db.mapFrom counts only words proven after a levels reset
+  const pv = db.bank.filter(w => w.pf?.at > (db.mapFrom || 0)).sort((a, b) => a.pf.at - b.pf.at);
+  return { pv, n: db.mapMax ? TRAIL_AT[TRAIL.length - 1] + TRAIL[TRAIL.length - 1].cost : Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length };
 }
 function trailState(lv, A = trailAll()) {   // n = proven words toward this monument, done = unlocked; mast = its words mastered, due = due for review
   const c = TRAIL[lv - 1], at = TRAIL_AT[lv - 1], total = c.cost, n = Math.max(0, Math.min(total, A.n - at)), mine = A.pv.slice(at, at + total), now = Date.now();
@@ -8139,7 +8140,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.52';
+const APP_VERSION = '2.53';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8181,6 +8182,33 @@ function nameSheet() {
 /* ---------- Developer ----------
    Things that normally happen once a day, on demand: put the gold foil back, pick another character, watch the
    card grow into the pop-up or fly away. Only today's Hanzi of the day and story card change, on this device. */
+/* Levels for testing: max them all out or put them back to the start, on this device. The first time either is used, your
+   real levels are kept in db.devLv (lessons, unit bosses, comics, the open HSK levels and the Map), and Restore puts them
+   back. Words, streak and decks are never touched: the Map is maxed with db.mapMax and reset with db.mapFrom (only words
+   proven after the reset count), not by changing words. */
+const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom'];
+function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
+function devLvMax() {
+  devLvKeep(); const now = Date.now();
+  LESSONS.forEach(L => { const r = db.lessons[L.n] ||= {}; r.done ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); });
+  LES_UNITS.forEach((_, i) => { const r = db.utests[i + 1] ||= {}; r.pass ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); const c = (db.comic ||= {})[i + 1] ||= {}; c.p1 ||= now; c.p2 ||= now; });
+  db.unitAt = {}; db.prefs.unlocked = 7; db.mapMax = 1; delete db.mapFrom; db.monOpen = Object.fromEntries(TRAIL.map(c => [c.lv, 1]));
+}
+function devLvZero() {
+  devLvKeep();
+  db.lessons = {}; db.utests = {}; db.comic = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
+}
+function devLvRestore() {
+  const K = db.devLv; if (!K) return;
+  DEV_LV.forEach(k => { if (K[k] == null) delete db[k]; else db[k] = K[k]; });
+  ['lessons', 'utests', 'monOpen', 'mapKeep'].forEach(k => { if (!db[k] || typeof db[k] !== 'object') db[k] = {}; });
+  if (K.unlocked == null) delete db.prefs.unlocked; else db.prefs.unlocked = K.unlocked;
+  delete db.devLv;
+}
+function devLvNow() {
+  const un = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1, mons = trailStates().filter(t => t.done).length;
+  return `Now: ${un ? `Unit ${un} of ${LES_UNITS.length}` : `every unit beaten`} · ${mons} of ${TRAIL.length} monuments${db.devLv ? ' · test levels (your real ones are kept)' : ''}`;
+}
 function devSheet() {
   const H = hotdPick();
   const now = !H ? 'Today’s character is not picked yet (the HSK list is still loading).'
@@ -8205,6 +8233,13 @@ function devSheet() {
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
       ${p('devComic', 'Play: Unit 1 comic, both parts', 'Tap through part 1 and the ending. Your own progress stays as it is')}
     </div>
+    <div class="day-h" style="margin-top:20px">Levels</div>
+    <div class="list-group">
+      ${p('devLvMax', 'Max out all levels', 'Every lesson done, every boss beaten, every HSK level open, all ' + TRAIL.length + ' monuments unlocked')}
+      ${p('devLvZero', 'Reset levels', 'Back to Unit 1 and no monuments. Your word bank, streak and decks stay')}
+      ${db.devLv ? p('devLvBack', 'Restore my real levels', 'Undo the test: your own lessons, bosses and monuments come back') : ''}
+    </div>
+    <p class="muted dev-now">${esc(devLvNow())}</p>
     <div class="day-h" style="margin-top:20px">Start over</div>
     <button class="btn btn-danger wide" id="devReset">${I.trash}Reset all progress</button>
     <p class="muted dev-now">Back to a fresh install on this device: word bank, lessons, streak, decks and settings. The activity log stays.</p>`, sh => {
@@ -8219,6 +8254,10 @@ function devSheet() {
     sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
     sh.querySelector('#devComic').onclick = play(function comicPreview() { comicReplay(1, { demo: 1, all: 1 }); });
+    const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
+    sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
+    sh.querySelector('#devLvZero').onclick = lvGo('levels reset', devLvZero, 'Levels are back to the start');
+    const lb = sh.querySelector('#devLvBack'); if (lb) lb.onclick = lvGo('levels restore', devLvRestore, 'Your real levels are back');
     const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; delete X.done; delete X.top; };
     const go = (what, prep, then) => () => {
       LOG.add('dev', what); prep(); save(); closeSheet();
