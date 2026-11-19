@@ -821,6 +821,87 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-x{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--muted)}
 .tm-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 
+/* coins: Shi Shi's money bag and the payoff, the wallet on the Map and the shop */
+.coin{display:block}
+.cp-shi{position:relative;display:block;width:100%;height:100%}
+.cp-shi>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.cp-rain{position:absolute;inset:0;pointer-events:none}
+.cp-c{position:absolute;top:calc(63% - 11px);width:22px;height:22px;margin-left:-11px;opacity:0}
+.cp-c .coin{width:100%;height:100%}
+.cp-bag{transform-box:view-box;transform-origin:184px 196px}
+.les-end-shi.bag,.done-shi.bag{width:192px;height:160px}
+.cp-big{width:228px;height:190px;margin:0 auto;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.cp-gain{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 6px;margin:8px auto 2px;color:#8A5A12}
+.cp-gain .cp-ic{width:26px;height:26px}
+.cp-gain .cp-ic .coin{width:100%;height:100%}
+.cp-gain b{display:inline-block;min-width:2.4ch;font:600 27px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.cp-gain>span:not(.cp-ic){font-size:15px;font-weight:700}
+.cp-gain small{flex-basis:100%;text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s}
+.cp-gain.done small{opacity:1;transform:none}
+.cp-gain.done b{animation:cpPop .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cpPop{40%{transform:scale(1.2)}}
+.cp-row{display:flex;align-items:center;justify-content:center;gap:2px;margin:14px auto 0;max-width:330px}
+.cp-row .cp-shi{flex:none;width:126px;height:105px}
+.cp-row .cp-gain{margin:0;justify-content:flex-start}
+.cp-row .cp-gain small{text-align:left}
+.tm-wallet{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:var(--card);
+  box-shadow:var(--ring),0 6px 14px -8px rgba(60,35,10,.5);font:600 16px var(--display);color:#6B4312;font-variant-numeric:tabular-nums}
+.tm-wallet .coin{width:22px;height:22px}
+.tm-wallet:active{transform:scale(.96)}
+.tm-wallet:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tm-now-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-now-s{font-size:12.5px;font-weight:600;color:var(--muted)}
+.tm-now.ready{box-shadow:var(--ring),0 0 0 2.5px #E2AE45,0 14px 26px -14px rgba(50,25,8,.6)}
+.tm-now.ready .tm-now-bar i{background:linear-gradient(90deg,#E2AE45,#F6D27A)}
+.tm-price{display:flex;align-items:center;gap:5px}
+.tm-price .coin{width:18px;height:18px}
+.tm-price b{font-weight:800;color:#6B4312}
+.mp-cbar{margin-top:8px}
+.fb-seg .tm-now-bar{width:100%;max-width:300px;margin:0 auto 6px}
+.shop-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shop-top h3{margin:0}
+.shop-bal{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:#FBF0D6;box-shadow:inset 0 0 0 1.5px #E8C77E;font:600 17px var(--display);color:#6B4312;font-variant-numeric:tabular-nums}
+.shop-bal .coin{width:23px;height:23px}
+.shop-sub{margin:8px 0 14px;font-size:13.5px}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.shop-it{display:flex;flex-direction:column;align-items:flex-start;min-width:0;text-align:left;padding:0 0 11px;border-radius:16px;background:var(--card);
+  box-shadow:var(--ring),0 8px 18px -14px rgba(60,35,10,.6);overflow:hidden;transition:transform .1s}
+.shop-it:active{transform:scale(.97)}
+.shop-it:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.shop-pic{position:relative;display:block;width:100%;aspect-ratio:10/7;background:#E9D3A4}
+.shop-pic img,.shop-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.shop-it b{margin:8px 10px 0;font:600 14.5px/1.2 var(--display)}
+.shop-it small{margin:1px 10px 0;font-size:12px;font-weight:600;color:var(--muted)}
+.shop-price{display:flex;align-items:center;gap:5px;margin:8px 10px 0;padding:3px 9px 3px 4px;border-radius:9px;background:var(--fill);font:700 13px var(--ui);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.shop-price .coin{width:17px;height:17px}
+.shop-it.can .shop-price{background:#F6D27A;color:#4A2E08;box-shadow:inset 0 0 0 1.5px #D9A441}
+.shop-it.own .shop-price{padding-left:0;background:none;color:var(--jade)}
+.shop-own{position:absolute;right:8px;top:8px;padding:3px 8px;border-radius:7px;background:var(--seal);color:var(--seal-ink);font:700 11.5px var(--ui);font-style:normal;transform:rotate(4deg);box-shadow:0 2px 6px rgba(80,20,10,.35)}
+.shop-how{margin:18px 0 6px;padding:12px 14px;border-radius:14px;background:var(--card-2);box-shadow:var(--ring)}
+.shop-how b{font:600 15px var(--display)}
+.shop-how ul{list-style:none;margin:8px 0 6px;padding:0}
+.shop-how li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13.5px;border-top:1px solid var(--line)}
+.shop-how li:first-child{border-top:0}
+.shop-how em{display:flex;align-items:center;gap:4px;font-style:normal;font-weight:800;color:#8A5A12}
+.shop-how em .coin{width:16px;height:16px}
+.shop-how small{display:block;font-size:12px;line-height:1.4;color:var(--muted)}
+.shop-back{display:flex;align-items:center;gap:2px;margin:12px 0 10px -6px;font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.shop-back svg{width:20px;height:20px}
+.shop-hero{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:10/7;background:#E9D3A4;box-shadow:var(--ring)}
+.shop-det .tm-city{margin-top:12px}
+.shop-det h4{margin:2px 0 4px;font:600 22px/1.15 var(--display)}
+.shop-det h4 span{font-family:var(--hanzi);font-size:17px;color:var(--seal);margin-left:4px;white-space:nowrap}
+.shop-about{margin:0 0 10px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.shop-cost{display:flex;align-items:center;gap:6px;margin:0 0 14px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.shop-cost .coin{width:22px;height:22px}
+.shop-cost b{font:600 21px var(--display);color:#6B4312}
+.shop-buy{display:flex;align-items:center;justify-content:center;gap:6px}
+.shop-buy .coin{width:20px;height:20px}
+.shop-need p{margin:6px 0 12px;font-size:13.5px;color:var(--ink-2)}
+.shop .qa-glyph{width:24px;height:24px;font-size:15px;transform:none;background:var(--seal-ink);color:var(--seal)}
+.tm-play.tm-shop{flex-basis:36%}
+@media (prefers-reduced-motion:reduce){.cp-big,.cp-gain.done b{animation:none}.cp-gain small{transition:none}}
+
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
 .mp-enter{animation:mpEnter .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes mpEnter{from{opacity:0;transform:scale(1.12)}}
@@ -2511,11 +2592,11 @@ function render() {
     if (!S.H) loadHsk().then(() => { const sh = $('#hskShelf'); if (sh) sh.outerHTML = HskShelf();
       const hd = $('#hotd[data-wait]'); if (hd) { hd.outerHTML = HotdCard(); mountHotd(); } }, () => {}); }
   else if (S.view === 'deck') { app.innerHTML = DeckView(d); }
-  else if (S.view === 'study') { app.innerHTML = StudyView(d); if (!S.study.done) mountStudy(); }
-  else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
+  else if (S.view === 'study') { app.innerHTML = StudyView(d); if (!S.study.done) mountStudy(); else setTimeout(() => coinRain($('.done-hero'), S.study?.pay), 900); }
+  else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); if (S.write?.done) setTimeout(() => coinRain($('.ws-end'), S.write?.pay), 700); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'map') { app.innerHTML = MapView(); mountMap(); }
-  else if (S.view === 'build') { app.innerHTML = BuildView(); }
+  else if (S.view === 'build') { app.innerHTML = BuildView(); if (S.fb?.done) setTimeout(() => coinRain($('.fb-end'), S.fb?.pay), 450); }
   else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
   else if (S.view === 'streak') { app.innerHTML = StreakView(); }
@@ -3612,8 +3693,9 @@ function lesEndHtml() {
   const E = S.les; if (E.test) return utEndHtml();
   const L = LESSONS[E.n - 1], add = E.added || [], chars = [...new Set(E.wroteCh)];
   const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
-  return `<div class="les-end"><span class="les-end-shi">${shiFace(E.pct === 100 ? 'star' : 'cheer')}</span>
-      <h1>Lesson done!</h1><p class="muted">Lesson ${E.n} · ${esc(L.title)}</p>
+  const mood = E.pct === 100 ? 'star' : 'cheer';
+  return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
+      <h1>Lesson done!</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${E.n} · ${esc(L.title)}</p>
       <div class="les-seals">${seals.map(([zh, en, got], i) => `<span class="les-seal${got ? ' got' : ''}" style="--d:${(.45 + i * .3).toFixed(2)}s"><i>${zh}</i><small>${en}</small></span>`).join('')}</div>
       <div class="les-tally"><span><b>${E.pts}</b><small>${E.newBest ? 'points · new best' : 'points'}</small></span><span><b>${E.pct}%</b><small>cards known</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${chars.length ? `<div class="les-wrote"><small>You wrote</small>${chars.map(miniTZG).join('')}</div>` : ''}
@@ -3627,8 +3709,9 @@ function utEndHtml() {   // a unit test's result: passed (the next unit opens) o
   const right = E.total - E.dropW - E.wrong, of = E.total - E.dropW;
   const sub = E.pass ? last ? 'All of HSK 1 done. HSK 2 is open.' : `Unit ${un + 1} · ${esc(LES_UNITS[un][0])} is open.`
     : `You need ${UT_PASS}% to ${last ? 'finish HSK 1' : `open Unit ${un + 1}`}. Go over the words below and try again.`;
-  return `<div class="les-end"><span class="les-end-shi">${shiFace(E.pass ? E.pct === 100 ? 'star' : 'cheer' : 'oops')}</span>
-      <h1>${E.pass ? `Unit ${un} passed!` : 'Not quite yet'}</h1><p class="muted">${sub}</p>
+  const mood = E.pass ? E.pct === 100 ? 'star' : 'cheer' : 'oops';
+  return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
+      <h1>${E.pass ? `Unit ${un} passed!` : 'Not quite yet'}</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">${sub}</p>
       <div class="les-tally"><span><b>${E.pct}%</b><small>${right} of ${of} right</small></span><span><b>${E.pts}</b><small>points</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${missed.length ? `<div class="les-end-box"><b class="no">Look at ${missed.length === 1 ? 'this one' : 'these'} again</b>
         <div class="les-words">${missed.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div></div>` : ''}</div>
@@ -3639,10 +3722,11 @@ function utEndHtml() {   // a unit test's result: passed (the next unit opens) o
 function lesEndShow() {
   const E = S.les, shi = $('.les-end-shi'); if (!E || E.step !== 'done' || !shi || E.cheered) return;
   E.cheered = true;
+  coinRain($('.les-end'), E.pay, stillMotion() ? 0 : 1500);   // after the hop, the coins pour into Shi Shi's bag
   if (E.test && !E.pass) return;
   fanfare(); try { navigator.vibrate?.([12, 60, 12, 60, 28]); } catch (_) {}
   if (stillMotion()) return;
-  const face = shi.querySelector('.shi-face');
+  const face = shi.querySelector('.cp-shi, .shi-face');
   face.animate([
     { transform: 'none' },
     { transform: 'translateY(-16%) rotate(-7deg) scale(.96,1.05)', offset: .22 },
@@ -3753,7 +3837,7 @@ function finishLesson() {
   const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts;
   rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct); rec.pts = Math.max(rec.pts || 0, E.pts); rec.seals = Math.max(rec.seals || 0, seals);
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
-  E.added = add; E.pct = pct; E.step = 'done'; save();
+  E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
 function finishTest() {   // passing the last unit's test finishes HSK 1 and opens HSK 2
@@ -3762,7 +3846,7 @@ function finishTest() {   // passing the last unit's test finishes HSK 1 and ope
   rec.last = now; rec.best = Math.max(rec.best || 0, pct); if (pass) rec.pass ||= now;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('u' + un);   // counts for the streak
   if (pass && un === LES_UNITS.length) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, 2);
-  E.pct = pct; E.pass = pass; E.step = 'done'; save();
+  E.pct = pct; E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('unit-test-done', { unit: un, pct, pass, pts: E.pts, run: E.best, missed: [...E.missed].join(' ') });
 }
 /* Basics: a slim row on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
@@ -4721,12 +4805,13 @@ function finishStory(words, offered) {
   S.readFrom = coverChars(s);   // the book riffles from this story to the next once the finish page is closed
   db.readCur = makeStory(s.zh); save();
   LOG.add('read-finish', { story: s.zh, level: lv ? HSK_NAME(lv) : 'none', new_words: offered, added: add.length });
+  const pay = takePay();
   render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
-  momentRead(s, add.length, was, isNew);
+  momentRead(s, add.length, was, isNew, pay);
 }
 /* the page after a story: its book goes on the shelf; the first practice of the day also shows the streak moving on.
    The story that fills the shelf, and the one that turns the last book gold, get their own words */
-function momentRead(s, added, was, isNew) {
+function momentRead(s, added, was, isNew, pay) {
   const { n } = practiceStreak(), i = Math.max(0, RL.T.findIndex(t => t[0] === s.zh)), kept = !was.today;
   const { n: reads, total, found: got, gold, full } = shelfState(), mine = reads[s.zh] || 1, toGold = !isNew && mine === 2;
   const fullNow = isNew && full, goldNow = toGold && gold === total, en = `“${esc(s.en)}”`;
@@ -4742,7 +4827,9 @@ function momentRead(s, added, was, isNew) {
       : toGold ? `${en} turned gold.` : `${en} is back on your shelf.`}</p>
     ${kept ? weekDots(n) : ''}
     <div class="ob-sigs">${chip('Word bank', added ? `+${plural(added, 'word')}` : 'No new words')}${chip('Your shelf', full ? `${gold} of ${total} gold` : `${got} of ${total}`)}</div>
+    ${pay ? payRow(pay) : ''}
     ${moDock('Continue', 'read-done-ok')}`, 'mo');
+  if (pay) setTimeout(() => coinRain($('#ob'), pay), 700);
 }
 /* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
 function readGroups(l) {
@@ -5660,36 +5747,116 @@ function coinMoment() {   // a new piece for the collection, full screen, once; 
     ${moDock('Continue', 'mo-close', '<button class="ob-link" data-act="mo-coll">See my collection</button>')}`, 'mo');
   return true;
 }
+/* ---------- Coins (铜钱): Shi Shi's money bag ----------
+   Round bronze coins with a square hole, cast with 狮狮通宝. They come from practice, never from just adding words:
+   10 for each word you prove, 20 more when it is mastered, 25 for each lesson and each story you finish (the first time)
+   and 100 for each unit boss you beat. What you have earned is counted from your data each time (coinEarned), so nothing
+   is ever paid twice; db.monOwn = { monument: when you bought it } is what you spent it on, at the prices in TRAIL.
+   db.coinAdj covers the monuments unlocked before coins came (v2.56), so nobody starts in debt. db.coinShown = the
+   earnings last poured into the bag on screen, so each payoff shows only what is new (takePay). */
+const PAY = { word: 10, mast: 20, les: 25, story: 25, unit: 100 };
+function coinEarned() {
+  const from = db.mapFrom || 0, pv = db.bank.filter(w => w.pf?.at > from);   // Developer levels reset: only what came after it
+  const les = Object.values(db.lessons || {}).filter(r => r?.done > from).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
+  const story = new Set((db.readDone || []).filter(x => x.done > from).map(x => x.zh)).size;
+  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit;
+}
+const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0);
+const coinBal = () => Math.max(0, coinEarned() + (db.coinAdj || 0) - coinSpent());
+const coinFmt = n => n.toLocaleString('en');
+function takePay() {   // what came in since the bag was last filled on screen: { n, bal }, or null
+  const t = coinEarned(), n = Math.max(0, t - (db.coinShown ?? 0));
+  if (db.coinShown !== t) { db.coinShown = t; save(); }
+  if (n) LOG.add('coins-earned', { n, bal: coinBal() });
+  return n ? { n, bal: coinBal() } : null;
+}
+function coinSvg(big) {   // a cash coin: round, a square hole, a raised rim; the big one is cast with 狮狮通宝 (read top, bottom, right, left)
+  const K = '#2A211A', B = '#E0A94A', R = '#A86F22', H = '#FCE3A2';
+  if (!big) return `<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.7 12a10.3 10.3 0 1 0 20.6 0a10.3 10.3 0 1 0-20.6 0ZM9.5 9.5h5v5h-5Z" fill-rule="evenodd" fill="${B}" stroke="${K}" stroke-width="1.7"/>`
+    + `<circle cx="12" cy="12" r="7.4" fill="none" stroke="${R}" stroke-width="1.2"/><path d="M5.2 8.6a7.6 7.6 0 0 1 3.6-3.5" fill="none" stroke="${H}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  const z = (x, y, t) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="#6B4312" style="font-family:var(--hanzi)">${t}</text>`;
+  return `<svg class="coin" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 32a27 27 0 1 0 54 0a27 27 0 1 0-54 0ZM26.5 26.5h11v11h-11Z" fill-rule="evenodd" fill="${B}" stroke="${K}" stroke-width="2.4"/>`
+    + `<circle cx="32" cy="32" r="22.5" fill="none" stroke="${R}" stroke-width="1.8"/><path d="M24 24h16v16H24Z" fill="none" stroke="${R}" stroke-width="1.8"/>`
+    + `<path d="M12.5 21a22 22 0 0 1 10.5-9.5" fill="none" stroke="${H}" stroke-width="2.6" stroke-linecap="round"/>` + z(32, 17.5, '狮') + z(32, 46.5, '狮') + z(46.5, 32, '通') + z(17.5, 32, '宝') + '</svg>';
+}
+/* Shi Shi holding his money bag open: two layers, so the coins (coinRain) fall in behind the front of the bag */
+function bagShi(mood = 'cheer') {
+  const ink = '#7E1D19', red = '#D64E45', gold = '#F6D682', paw = x => `<ellipse cx="${x}" cy="112" rx="10.5" ry="12.5" fill="#E5483F" stroke="${ink}" stroke-width="4"/><path d="M${x - 4} 104v6M${x + 4} 104v6" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/>`;
+  const back = `<svg class="cp-back" viewBox="0 0 240 200" aria-hidden="true"><ellipse cx="140" cy="194" rx="92" ry="5.5" fill="#8A6A3A" opacity=".16"/>`
+    + shiFace(mood).replace('<svg class="shi-face"', '<svg x="-4" y="10" width="164" height="164"')
+    + `<g class="cp-bag"><ellipse cx="184" cy="106" rx="37" ry="11" fill="#5A1410" stroke="${ink}" stroke-width="4"/><path d="M152 104q32-9 64 0" fill="none" stroke="#8E2A20" stroke-width="3" opacity=".7"/></g></svg>`;
+  const front = `<svg class="cp-front" viewBox="0 0 240 200" aria-hidden="true"><g class="cp-bag">`
+    + `<path d="M147 106C138 126 126 150 132 172C138 191 160 196 184 196C208 196 230 191 236 172C242 150 230 126 221 106Q184 126 147 106Z" fill="${red}" stroke="${ink}" stroke-width="4" stroke-linejoin="round"/>`
+    + `<path d="M146 136Q139 156 147 176" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".28"/>`
+    + `<path d="M150 119Q184 138 218 119" fill="none" stroke="${gold}" stroke-width="5" stroke-linecap="round"/><path d="M150 119Q184 138 218 119" fill="none" stroke="#C8901F" stroke-width="1.6" stroke-dasharray="3 4" stroke-linecap="round"/>`
+    + `<path d="M212 124q6 14 2 26M216 123q9 12 9 24" fill="none" stroke="#C8901F" stroke-width="3" stroke-linecap="round"/><circle cx="212" cy="124" r="5" fill="${gold}" stroke="${ink}" stroke-width="2.5"/>`
+    + `<circle cx="184" cy="163" r="15" fill="${gold}" stroke="${ink}" stroke-width="3"/><rect x="179" y="158" width="10" height="10" fill="${red}" stroke="${ink}" stroke-width="2.4"/>`
+    + `</g>${paw(148)}</svg>`;
+  return `<span class="cp-shi">${back}<span class="cp-rain"></span>${front}</span>`;
+}
+const payLine = P => `<p class="cp-gain${P.played ? ' done' : ''}" role="status"><span class="cp-ic">${coinSvg()}</span><b>+${coinFmt(P.played ? P.n : 0)}</b><span>coins</span>
+  <small>${coinFmt(P.bal)} in Shi Shi's bag</small></p>`;
+const payRow = P => `<div class="cp-row">${bagShi('cheer')}${payLine(P)}</div>`;   // the small one, beside a page's own picture
+function clink(i = 0) {   // a coin landing on coins: a short bright ring, a little different each time
+  try { const c = acx(), t = c.currentTime + .005, f = 2350 + (i % 4) * 170 + Math.random() * 120;
+    for (const [m, g, d] of [[1, .06, .08], [1.51, .035, .06], [2.4, .018, .04]]) {
+      const o = c.createOscillator(), v = c.createGain(); o.type = 'sine'; o.frequency.value = f * m;
+      v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(.0001, t + d + .06); o.connect(v).connect(c.destination); o.start(t); o.stop(t + d + .1); }
+  } catch (_) {}
+}
+/* the payoff: coins tumble from the sky into Shi Shi's bag, the bag bounces with each one and the number counts up. Plays
+   once per payoff (P.played); a page drawn again afterwards just shows the total */
+function coinRain(root, P, wait = 0) {
+  if (!P || P.played || !root) return; P.played = true;
+  const gain = root.querySelector('.cp-gain'), b = gain?.querySelector('b'), show = k => { if (b) b.textContent = '+' + coinFmt(k); };
+  const end = () => { show(P.n); gain?.classList.add('done'); };
+  const shi = root.querySelector('.cp-shi'), rain = shi?.querySelector('.cp-rain');
+  if (!rain || stillMotion()) { end(); return; }
+  const k = Math.max(4, Math.min(14, Math.round(P.n / 6))), bags = shi.querySelectorAll('.cp-bag'), H = shi.offsetHeight || 150;
+  let landed = 0;
+  for (let i = 0; i < k; i++) {
+    const c = document.createElement('i'); c.className = 'cp-c'; c.innerHTML = coinSvg(); rain.append(c);
+    c.style.left = `calc(76.6% + ${((Math.random() - .5) * 30).toFixed(1)}px)`;
+    const d = wait + i * 115, x0 = (Math.random() - .5) * 40;
+    c.firstChild.animate([{ transform: 'rotate(0) scaleX(1)' }, { transform: 'rotate(40deg) scaleX(.15)' }, { transform: 'rotate(80deg) scaleX(1)' }],
+      { duration: 260 + Math.random() * 120, delay: d, iterations: 3, direction: 'alternate' });
+    c.animate([{ transform: `translate(${x0}px,${-H * .78}px)`, opacity: 0 }, { opacity: 1, offset: .14 }, { transform: 'translate(0,0)', opacity: 1 }],   // from just above Shi Shi's head, so the whole fall is on screen
+      { duration: 600, delay: d, easing: 'cubic-bezier(.4,0,.8,.55)', fill: 'both' }).onfinish = () => {
+      c.remove(); landed++; show(Math.round(P.n * landed / k)); clink(landed);
+      bags.forEach(g => g.animate([{ transform: 'none' }, { transform: 'scale(1.06,.92)' }, { transform: 'none' }], { duration: 200, easing: 'ease-out' }));
+      if (landed === k) { end(); try { navigator.vibrate?.(14); } catch (_) {} }
+    };
+  }
+}
 /* ---------- Map: a trail of monuments across China ----------
-   The Map tab: China with a trail of famous monuments, unlocked one after another by the words you prove (any level:
-   they are not tied to HSK levels, so learning keeps paying off as it slows down). Each costs more proven words than
-   the one before: the Oriental Pearl Tower 24, the Leifeng Pagoda 40, the Yellow Crane Tower 64, the Canton Tower 96,
-   Hongya Cave 128, the Potala Palace 176, the Big Wild Goose Pagoda 224, the Temple of Heaven 288, then out to every
-   corner of the country: the Great Wall 352, St. Sophia Cathedral in Harbin 416, the Fujian tulou 480, the Three Pagodas
-   of Dali 544, the Mogao Caves in Dunhuang 608 and the Id Kah Mosque in Kashgar 672 (about 4,100 in all; more can
-   join the end of the list, never in the middle, or unlocked monuments would change). A monument unlocks whole once its words are proven; the words
-   that unlocked it are its own, and those that are mastered hang its lanterns. What is not unlocked stays a secret: the
-   next monument is only a marker with a question mark, the ones after it are not on the map at all. The pictures are
+   The Map tab: China with famous monuments you buy with coins (see Coins), in any order, from the shop (shopSheet).
+   Small ones are cheap and the famous ones dear: the Leifeng Pagoda 150, Hongya Cave 250, the Yellow Crane Tower 400,
+   the Big Wild Goose Pagoda 500, the Three Pagodas of Dali 600, the Fujian tulou 800, St. Sophia Cathedral 900, the Id
+   Kah Mosque 1,000, the Canton Tower 1,200, the Mogao Caves 1,600, the Temple of Heaven 2,000, the Potala Palace 2,500,
+   the Oriental Pearl Tower 3,500 and the Great Wall 5,000 (20,400 in all). Only the ones you own stand on the map. Each
+   one owns price / 10 of your proven words, in the order you bought them, and those that are mastered hang its
+   lanterns. Until v2.55 they unlocked in this order by proven words (cost, TRAIL_AT); that is kept only to carry what
+   people had unlocked over into coins (db.monOwn), so add new ones at the end of the list. The pictures are
    3D models in golden-hour light, baked by portfolio3d/bake.html: mon/<id>.webp for its page and mon/<id>-i.webp, a
    cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map). Tap a
-   monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sit your
-   progress to the next monument and one big button that gets you there. db.monOpen = { monument: 1 } once you have
-   seen it unlocked: a new one is revealed the first time you open its page. */
+   monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sit the
+   coins you are saving toward the monument you want next (db.monWish, else the cheapest one you lack) and the Shop.
+   db.monOpen = { monument: 1 } once you have seen it: a new one is revealed the first time you open its page. */
 const TRAIL = [
-  { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02] },
-  { lv: 2, id: 'leifeng', en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, name: 'Leifeng Pagoda', nzh: '雷峰塔', h: 42, w: 17, ic: [0.4956, 0.8359, 0.0208] },
-  { lv: 3, id: 'crane', en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, name: 'Yellow Crane Tower', nzh: '黄鹤楼', h: 44, w: 21, ic: [0.5132, 0.7667, 0.0211] },
-  { lv: 4, id: 'canton', en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, name: 'Canton Tower', nzh: '广州塔', h: 54, w: 13, ic: [0.5, 0.8919, 0.02] },
-  { lv: 5, id: 'hongya', en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, name: 'Hongya Cave', the: '', nzh: '洪崖洞', h: 36, w: 24, ic: [0.3958, 0.9033, 0.0507] },
-  { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215] },
-  { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209] },
-  { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218] },
-  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187] },
-  { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305] },
-  { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608] },
-  { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201] },
-  { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781] },
-  { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897] },
+  { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, price: 3500, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02] },
+  { lv: 2, id: 'leifeng', en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, price: 150, name: 'Leifeng Pagoda', nzh: '雷峰塔', h: 42, w: 17, ic: [0.4956, 0.8359, 0.0208] },
+  { lv: 3, id: 'crane', en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, price: 400, name: 'Yellow Crane Tower', nzh: '黄鹤楼', h: 44, w: 21, ic: [0.5132, 0.7667, 0.0211] },
+  { lv: 4, id: 'canton', en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, price: 1200, name: 'Canton Tower', nzh: '广州塔', h: 54, w: 13, ic: [0.5, 0.8919, 0.02] },
+  { lv: 5, id: 'hongya', en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, price: 250, name: 'Hongya Cave', the: '', nzh: '洪崖洞', h: 36, w: 24, ic: [0.3958, 0.9033, 0.0507] },
+  { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, price: 2500, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215] },
+  { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, price: 500, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209] },
+  { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, price: 2000, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218] },
+  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, price: 5000, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187] },
+  { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, price: 900, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305] },
+  { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, price: 800, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608] },
+  { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, price: 600, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201] },
+  { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, price: 1600, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781] },
+  { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, price: 1000, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897] },
 ];
 const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
@@ -5699,21 +5866,37 @@ function trailFloor() {   // the pieces of the old five temples (before v2.37, d
   for (const c of TRAIL) { if (p <= 0) break; if (p >= 8) { n += c.cost; p -= 8; } else { n += Math.ceil(TH[p - 1] * c.cost); p = 0; } }
   return n;
 }
-function trailAll() {   // your proven words in the order you proved them; open = known ones a Fast unlock can prove
+function trailAll() {   // your proven words in the order you proved them; open = known ones a Prove words round can prove
   // Developer test levels: db.mapMax unlocks every monument; db.mapFrom counts only words proven after a levels reset
   const pv = db.bank.filter(w => w.pf?.at > (db.mapFrom || 0)).sort((a, b) => a.pf.at - b.pf.at);
-  return { pv, n: db.mapMax ? TRAIL_AT[TRAIL.length - 1] + TRAIL[TRAIL.length - 1].cost : Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length };
+  return { pv, n: db.mapMax ? TRAIL_AT[TRAIL.length - 1] + TRAIL[TRAIL.length - 1].cost : Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length, bal: coinBal() };
 }
-function trailState(lv, A = trailAll()) {   // n = proven words toward this monument, done = unlocked; mast = its words mastered, due = due for review
-  const c = TRAIL[lv - 1], at = TRAIL_AT[lv - 1], total = c.cost, n = Math.max(0, Math.min(total, A.n - at)), mine = A.pv.slice(at, at + total), now = Date.now();
-  return { lv, n, total, done: n >= total, seen: !!db.monOpen?.[lv], open: A.open, mast: mine.filter(w => w.pf.m).length, due: mine.filter(w => w.srs?.due <= now).length };
+const monOwns = lv => !!(db.mapMax || db.monOwn?.[lv]);
+function trailState(lv, A = trailAll()) {   // done = yours; n of total = the coins you have toward its price; words = its share of your proven words; mast = of those mastered, due = due for review
+  const c = TRAIL[lv - 1], total = c.price, words = total / PAY.word, done = monOwns(lv), now = Date.now();
+  let at = 0;   // the words that paid for it: the monuments you own, in the order you bought them, each take their share
+  for (const x of TRAIL.filter(x => monOwns(x.lv)).sort((a, b) => (db.monOwn?.[a.lv] || a.lv) - (db.monOwn?.[b.lv] || b.lv))) { if (x.lv === lv) break; at += x.price / PAY.word; }
+  const mine = done ? A.pv.slice(at, at + words) : [];
+  return { lv, n: done ? total : Math.min(total, A.bal), total, words, done, seen: !!db.monOpen?.[lv], open: A.open, mast: mine.filter(w => w.pf.m).length, due: mine.filter(w => w.srs?.due <= now).length };
 }
 const trailStates = () => { const A = trailAll(); return TRAIL.map(c => trailState(c.lv, A)); };
-const trailCur = sts => sts.findIndex(x => !x.done);   // the monument you are working toward: the first one not unlocked (-1: all of them are)
+const trailCur = sts => {   // the monument you are saving for: the one you picked in the shop, else the cheapest you lack (-1: you own them all)
+  const w = db.monWish && sts[db.monWish - 1]; if (w && !w.done) return w.lv - 1;
+  let b = -1; sts.forEach((x, i) => { if (!x.done && (b < 0 || x.total < sts[b].total)) b = i; }); return b;
+};
 const trailOpened = sts => sts.filter(x => x.done).length;
+/* v2.56: the monuments unlocked by proven words before coins came stay yours, and the coins they would have cost are
+   forgiven (db.coinAdj) as far as you had not earned them; coins earned before today are not poured into the bag again */
+function monMigrate() {
+  if (db.monOwn && typeof db.monOwn === 'object') return;
+  const A = trailAll(), t0 = Date.now(); db.monOwn = {};
+  if (!db.mapMax) TRAIL.forEach((c, i) => { if (A.n >= TRAIL_AT[i] + c.cost) db.monOwn[c.lv] = t0; });
+  const e = coinEarned(); db.coinAdj = Math.max(0, coinSpent() - e); db.coinShown = e; save();
+}
+monMigrate();
 /* mastered words hang lanterns over a monument: 2 for each step of 5, 15, 30 and 50% of its words mastered */
 const LANT_TH = [.05, .15, .30, .50];
-const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.total))).length : 0;
+const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.words))).length : 0;
 const Trail = (() => {
   const K = Temple.kit, f = K.f, INK = K.INK;
   /* China, clockwise from the far north (lon, lat): the Amur and Ussuri, North Korea, the coast, Vietnam, Laos, Myanmar,
@@ -6008,7 +6191,7 @@ const Trail = (() => {
     const hi = top + (cur ? 44 : 4);
     return s + `<rect x="${f(-w * .8)}" y="${-hi}" width="${f(w * 1.6)}" height="${hi + 10}" fill="transparent"/>`;   // narrow enough that neighbours (Shanghai, Hangzhou) do not steal each other's taps
   }
-  const mini = (lv, st) => { const c = TRAIL[lv - 1]; return st.done ? `<svg viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card
+  const mini = (lv, st, show) => { const c = TRAIL[lv - 1]; return st.done || show ? `<svg viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -6027,11 +6210,11 @@ const Trail = (() => {
   const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   function map(states) {
     if (CAM.x == null) Object.assign(CAM, home());
-    const [under, over] = drawn(), cur = trailCur(states), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
+    const [under, over] = drawn(), cur = -1, box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have unlocked. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
-    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.done || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; one not unlocked is not on the map, unless it is the next
-      const say = !st.done ? `Your next monument: ${st.n} of ${st.total} proven words` : `${c.name}, ${c.en}, monument ${c.lv} of ${TRAIL.length}, unlocked`;
+    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.done).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; only the ones you own stand on the map
+      const say = !st.done ? `Your next monument: ${st.n} of ${st.total} proven words` : `${c.name}, ${c.en}, yours`;
       s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
     return s + '</svg>';
   }
@@ -6137,33 +6320,82 @@ function MapView() {
 }
 const trailBar = st => `<div class="mp-seg one" aria-hidden="true"><i class="${st.done ? 'full' : 'part'}"><b style="width:${Math.max(st.n ? 3 : 0, st.n / st.total * 100).toFixed(1)}%"></b></i></div>`;
 function TrailView() {
-  const sts = trailStates(), opened = trailOpened(sts), C = Trail.CAM;
+  const sts = trailStates(), C = Trail.CAM, bal = coinBal();
   if (S.mapFrom) C.sel = S.mapFrom;   // back from a monument's page: its card is open again
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="mp-sum">${opened} of ${TRAIL.length} unlocked</span></div>
+      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><button class="tm-wallet tm-ui" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></div>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
     </div>
   </div>`;
 }
-const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">解</span>Fast unlock</button>`;
-function mapHud() {   // along the bottom, as in a game: how close the next monument is, and one big button that gets you there
-  const sts = trailStates(), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv, c = TRAIL[lv - 1];
-  return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="${i < 0 ? `${esc(c.name)}, unlocked` : `Monument ${lv}: ${st.n} of ${st.total} proven words`}. Show it on the map">
-      <span class="tm-now-t"><small>${i < 0 ? esc(c.en) : `Monument ${lv}`}</small><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${st.n}/${st.total}</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
-    ${st.open && i >= 0 ? `<button class="tm-play" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">解</span><span>Fast unlock</span></button>`
-      : `<button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span><span>${i < 0 ? 'Add more words' : 'Learn words'}</span></button>`}</div>`;
+const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">证</span>Prove words</button>`;
+const EARN = lv => trailState(lv).open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`;
+const coinBarLab = st => st.n >= st.total ? 'Ready to buy' : st.n * 2 >= st.total ? `${coinFmt(st.total - st.n)} to go` : `${coinFmt(st.n)} / ${coinFmt(st.total)}`;   // past halfway, what is left is the smaller number, and it pulls harder
+function mapHud() {   // along the bottom, as in a game: the coins you are saving toward the monument you want next, and the Shop
+  const sts = trailStates(), i = trailCur(sts), shop = `<button class="tm-play tm-shop" data-act="shop"><span class="qa-glyph">店</span><span>Shop</span></button>`;
+  if (i < 0) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
+  const st = sts[i], c = TRAIL[st.lv - 1], ready = st.n >= st.total;
+  return `<div class="tm-hud tm-ui"><button class="tm-now${ready ? ' ready' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${ready ? `You can buy the ${esc(c.name)} now` : `Saving for the ${esc(c.name)}: ${st.n} of ${st.total} coins`}. Open it in the shop">
+      <span class="tm-now-t"><small>${esc(c.name)}</small><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${coinBarLab(st)}</b></span></span><span class="tm-med s">${Trail.mini(st.lv, st, true)}</span></button>${shop}</div>`;
 }
-function mapCard(lv) {   // what a tap on a monument shows: its name, or for the next one how close it is (it names nothing)
+function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
-  const med = `<div class="tm-med">${Trail.mini(lv, st)}<i class="tm-lv">${lv}</i></div>`;
-  if (!st.done) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="Monument ${lv}: not unlocked yet">${x}${med}
-    <div class="tm-body"><small class="tm-city">Monument ${lv} of ${TRAIL.length}</small><h3>Undiscovered <span>未知</span></h3>${trailBar(st)}<p>${st.n} of ${st.total} · unlocks in ${plural(st.total - st.n, 'more proven word')}</p></div>
-    <div class="tm-acts">${st.open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`}</div></div>`;
+  const med = `<div class="tm-med">${Trail.mini(lv, st, true)}</div>`;
+  const head = `<small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h3>${c.name} <span>${c.nzh}</span></h3>`;
+  if (!st.done) return `<div class="tm-card tm-ui" role="dialog" aria-label="${c.name}: ${st.total} coins">${x}${med}
+    <div class="tm-body">${head}<p class="tm-price">${coinSvg()}<b>${coinFmt(st.total)}</b> coins</p></div>
+    <div class="tm-acts"><button class="btn btn-seal" data-act="shop-item" data-lv="${lv}"><span class="qa-glyph">店</span>See it in the shop</button></div></div>`;
   return `<div class="tm-card tm-ui done" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
-    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · ${lv} of ${TRAIL.length}</small><h3>${c.name} <span>${c.nzh}</span></h3>
-      <p>${st.seen ? '' : '<em>New</em>'}Unlocked with ${plural(st.total, 'proven word')}</p></div>
+    <div class="tm-body">${head}<p>${st.seen ? '' : '<em>New</em>'}Yours · worth ${coinFmt(st.total)} coins</p></div>
     <div class="tm-acts"><button class="btn btn-seal" data-act="map-visit" data-lv="${lv}">Visit</button></div></div>`;
+}
+/* ---------- the Shop (商店): every monument, cheapest first, with its picture and its price in coins ----------
+   Tap one for a closer look: Buy it if you have the coins, or else Save for it (db.monWish: the Map's bottom bar then
+   counts toward it) and earn the rest. Bought, it is yours at once: the map dives into its city and it is revealed. */
+const TRAIL_ABOUT = ['Pink spheres on a spire, high over a river full of ships.', 'A pagoda by a still lake, where a white snake was once locked away.',
+  'A golden tower on a hill above the great river. A poet watched a crane fly from it.', 'A twisted tower, slim at the waist, taller than any other in the land.',
+  'Houses on stilts stacked up a cliff, glowing where two rivers meet.', 'A white and red palace on a hill, nearer the sky than any other.',
+  'A square brick pagoda, built to keep the scriptures a monk carried home from India.', 'A round blue hall on white terraces, where emperors prayed for good harvests.',
+  'Stone on the mountain ridges, running further than you can see.', 'Green onion domes in a city of ice and snow.', 'Round houses of earth, each big enough for a whole village.',
+  'Three white towers between a mountain and a lake.', 'A thousand painted caves at the edge of the desert.', 'Yellow walls and two slim towers in an oasis on the Silk Road.'];
+const earnHow = () => `<div class="shop-how"><b>How to earn coins</b><ul>
+  <li><span>Prove a word</span><em>${coinSvg()}+${PAY.word}</em></li><li><span>Master a word</span><em>${coinSvg()}+${PAY.mast}</em></li>
+  <li><span>Finish a lesson or a story</span><em>${coinSvg()}+${PAY.les}</em></li><li><span>Beat a unit boss</span><em>${coinSvg()}+${PAY.unit}</em></li></ul>
+  <small>A word is proven when you get it right on two different days, and mastered when you still know it three weeks later.</small></div>`;
+function shopHtml(lv) {
+  const sts = trailStates(), bal = coinBal(), own = trailOpened(sts);
+  const top = `<div class="shop-top"><h3>Shop <span class="cal-zh">商店</span></h3><span class="shop-bal" aria-label="${coinFmt(bal)} coins">${coinSvg()}<b>${coinFmt(bal)}</b></span></div>`;
+  if (lv) {
+    const c = TRAIL[lv - 1], st = sts[lv - 1], can = !st.done && bal >= st.total, wish = db.monWish === lv;
+    const act = st.done ? `<button class="btn btn-seal wide" data-act="shop-see" data-lv="${lv}">See it on your map</button>`
+      : can ? `<button class="btn btn-seal wide shop-buy" data-act="shop-buy" data-lv="${lv}">Buy for ${coinSvg()}${coinFmt(st.total)}</button>`
+      : `<div class="shop-need"><span class="tm-now-bar"><i style="width:${(st.n / st.total * 100).toFixed(0)}%"></i><b>${coinFmt(st.n)} / ${coinFmt(st.total)}</b></span>
+          <p>${coinFmt(st.total - st.n)} more coins to go.${wish ? ' You are saving for this one.' : ''}</p></div>
+        <div class="row-btns">${wish ? '' : `<button class="btn btn-ghost" data-act="shop-wish" data-lv="${lv}">Save for it</button>`}${EARN(lv)}</div>`;
+    return `${top}<div class="shop-det"><button class="shop-back" data-act="shop-back">${I.back}<span>All monuments</span></button>
+      <div class="shop-hero"><img src="mon/${c.id}.webp" alt="The ${esc(c.name)} in ${esc(c.en)}">${st.done ? '<i class="shop-own">Yours</i>' : ''}</div>
+      <small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h4>${c.name} <span>${c.nzh}</span></h4>
+      <p class="shop-about">${TRAIL_ABOUT[lv - 1]}</p>${st.done ? '' : `<p class="shop-cost">${coinSvg()}<b>${coinFmt(st.total)}</b> coins</p>`}${act}</div>`;
+  }
+  const card = st => { const c = TRAIL[st.lv - 1], can = !st.done && bal >= st.total;
+    return `<button class="shop-it${st.done ? ' own' : can ? ' can' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${c.name}, ${st.done ? 'yours' : `${st.total} coins${can ? ', you can buy it' : ''}`}">
+      <span class="shop-pic"><img src="mon/${c.id}.webp" alt="" loading="lazy">${st.done ? '<i class="shop-own">Yours</i>' : ''}</span>
+      <b>${c.name}</b><small>${esc(c.en)}</small><span class="shop-price">${st.done ? 'On your map' : `${coinSvg()}${coinFmt(st.total)}`}</span></button>`; };
+  return `${top}<p class="muted shop-sub">Buy a monument and it stands on your map. ${own ? `${own} of ${TRAIL.length} are yours.` : 'Start with a small one.'}</p>
+    <div class="shop-grid">${sts.slice().sort((a, b) => a.done - b.done || a.total - b.total).map(card).join('')}</div>${earnHow()}`;
+}
+function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to the page asked for
+  const body = $('#shopBody'); LOG.add('shop', { lv: lv || 0, coins: coinBal() });
+  if (body) { body.innerHTML = shopHtml(lv); body.closest('.sheet').scrollTop = 0; return; }
+  openSheet(`<div class="shop" id="shopBody">${shopHtml(lv)}</div>`);
+}
+function shopBuy(lv) {
+  const c = TRAIL[lv - 1]; if (!c || monOwns(lv) || coinBal() < c.price) return;
+  (db.monOwn ||= {})[lv] = Date.now(); if (db.monWish === lv) delete db.monWish; save();
+  LOG.add('shop-buy', { lv, id: c.id, price: c.price, left: coinBal() }); fanfare();
+  closeSheet(); Trail.CAM.sel = 0;
+  setTimeout(() => { if (S.view === 'map' && !S.mapLv && $('#mpMap')) mapZoom(lv); else nav('#/map/' + lv); }, 340);   // the map dives into its city, and it is revealed
 }
 function mapPick(lv) {   // tap a monument: the map flies to it and its card comes up
   const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
@@ -6174,8 +6406,8 @@ const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with
 function trailNext() {   // what Learn words does, in words
   if (trailLessons()) { const due = utDue(), n = lesNext();
     if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
-    if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. Its words join your word bank, and build once you get them right again on another day.`; }
-  return `Tick the HSK ${openLevel()} words you already know, then prove them in a Fast unlock. Proven words unlock the monuments.`;
+    if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. It pays ${PAY.les} coins, and each of its words ${PAY.word} more once you get it right again on another day.`; }
+  return `Tick the HSK ${openLevel()} words you already know, then prove them: each proven word puts ${PAY.word} coins in Shi Shi's bag.`;
 }
 function trailGo(lv) {
   LOG.add('map-build', { lv });
@@ -6184,9 +6416,9 @@ function trailGo(lv) {
     if (n) { nav(`#/course/1/lesson/${n}`); return; } }
   nav('#/hsk/' + openLevel());
 }
-/* ---------- Fast unlock (the code still calls it Fast build: S.fb, #/build) ----------
+/* ---------- Prove words (once Fast unlock; the code still calls it Fast build: S.fb, #/build) ----------
    Prove the words you already know: up to 12 known words, the lowest HSK levels first, each with four meanings to choose
-   from. A right answer proves the word at once, and proven words unlock the monuments; a wrong one sends the word to your review
+   from. A right answer proves the word at once (10 coins); a wrong one sends the word to your review
    (back in 10 minutes), so the round is practice, not a free pass. */
 const FB_N = 12;
 function fbStart(lv) {
@@ -6218,7 +6450,7 @@ function BuildView() {
   const cls = (e, i) => !done ? '' : e === w.en ? (ok ? ' ok pick' : ' ok reveal') : i === F.ans ? ' no' : '';
   return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
       <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>证</i><b>${F.proven}</b></span></div>
-    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast unlock${trailLv(w) ? ` · HSK ${trailLv(w)}` : ''}</span></p>
+    <div class="les-body"><p class="les-ask">What does it mean?<span>Prove words${trailLv(w) ? ` · HSK ${trailLv(w)}` : ''}</span></p>
       <div class="les-big"><span class="les-hz" style="font-size:${lesHz(w.hanzi)}px">${esc(w.hanzi)}</span><button class="les-snd" data-act="say" data-h="${esc(w.hanzi)}" aria-label="Hear it">${I.sound}</button></div>
       <div class="les-opts list${done ? ' answered' : ''}">${F.opts.map((e, i) => `<button class="les-opt${cls(e, i)}" data-act="fb-opt" data-i="${i}"${done ? ' disabled' : ''}><span class="lo-en">${esc(e)}</span>${ok && e === w.en ? '<span class="lo-stamp" aria-hidden="true">对</span>' : ''}</button>`).join('')}</div>
       ${done ? `<p class="fb-note ${ok ? 'ok' : 'no'}" role="status">${ok ? `<b>Proven</b> ${esc(w.pinyin || '')}` : `<b>${esc(w.hanzi)} · ${esc(w.pinyin || '')}</b> means “${esc(w.en)}”. It goes to your review.`}</p>` : ''}</div>
@@ -6236,51 +6468,51 @@ function fbNext() {
   const F = S.fb; if (!F || F.ans == null || S.view !== 'build') return;
   clearTimeout(F.timer); F.ans = null; F.opts = null;
   if (++F.qi >= F.q.length) {
-    F.done = true; const day = db.days[dayKey(Date.now())] ||= { decks: {} }; day.fb = (day.fb || 0) + 1; save();   // counts for the streak
+    F.done = true; const day = db.days[dayKey(Date.now())] ||= { decks: {} }; day.fb = (day.fb || 0) + 1; save(); F.pay = takePay();   // counts for the streak
     LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, unlocked: trailOpened(trailStates()) - F.k0 });
-    setTimeout(() => { if (S.view === 'build' && S.fb === F) coinMoment(); }, 900);   // a new piece for the collection: celebrated over the end of the round
+    setTimeout(() => { if (S.view === 'build' && S.fb === F) coinMoment(); }, F.pay ? 2800 : 900);   // a new piece for the collection: celebrated over the end of the round
   }
   fbPaint();
 }
 function fbEnd() {
-  const F = S.fb, sts = trailStates(), i = trailCur(sts), add = trailOpened(sts) - F.k0, miss = F.q.length - F.right, now = i < 0 ? null : sts[i];
-  F.lv = add > 0 ? (i < 0 ? sts.length : i) : 0;   // See it: the monument just unlocked; 0: back to the map
-  const c = TRAIL[F.lv - 1];
-  const what = add > 0 ? `You unlocked ${c.the ?? 'the '}${c.name} in ${esc(c.en)}!` : !now ? 'Every monument is unlocked. More are on the way.'
-    : `Monument ${now.lv} unlocks in ${plural(now.total - now.n, 'more proven word')}.`;
+  const F = S.fb, sts = trailStates(), i = trailCur(sts), miss = F.q.length - F.right, now = i < 0 ? null : sts[i], c = now && TRAIL[now.lv - 1], P = F.pay, mood = miss ? 'cheer' : 'star';
+  const ready = now && now.n >= now.total; F.lv = 0;   // Back to the map: the map itself
+  const what = !now ? 'Every monument is yours.' : ready ? `You can buy ${theName(c)} now.` : `${coinFmt(now.total - now.n)} more coins for ${theName(c)}.`;
   return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button></div>
-    <div class="les-end fb-end"><span class="les-end-shi">${shiFace(miss ? 'cheer' : 'star')}</span>
-      <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>
+    <div class="les-end fb-end"><span class="les-end-shi${P ? ' bag' : ''}">${P ? bagShi(mood) : shiFace(mood)}</span>
+      <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>${P ? payLine(P) : ''}
       <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
-      ${now ? `<div class="fb-seg">${trailBar(now)}<small>${now.n} of ${now.total} words for monument ${now.lv} · ${now.open} waiting</small></div>` : ''}</div>
-    <div class="les-dock fb-acts">${add > 0 ? `<button class="btn btn-seal wide" data-act="fb-see"><span class="qa-glyph">解</span>See it</button>` : ''}
-      ${now?.open ? `<button class="btn ${add > 0 ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
-      ${add > 0 ? '' : `<button class="btn btn-ghost wide" data-act="fb-see">Back to the map</button>`}</div></div>`;
+      ${now && !ready ? `<div class="fb-seg"><span class="tm-now-bar"><i style="width:${(now.n / now.total * 100).toFixed(0)}%"></i><b>${coinBarLab(now)}</b></span><small>${plural(now.open, 'word')} you know waiting to be proven</small></div>` : ''}</div>
+    <div class="les-dock fb-acts">${ready ? `<button class="btn btn-seal wide" data-act="shop-item" data-lv="${now.lv}"><span class="qa-glyph">店</span>Buy it in the shop</button>` : ''}
+      ${now?.open ? `<button class="btn ${ready ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
+      <button class="btn btn-ghost wide" data-act="fb-see">Back to the map</button></div></div>`;
 }
-function CityView(lv) {   // a monument's page: its big picture once unlocked (revealed the first time), or the secret one you are working toward
+const theName = c => (c.the ?? 'the ') + c.name;
+function CityView(lv) {   // a monument's page: its big picture (revealed the first time you see it as yours), or one still in the shop
   const c = TRAIL[lv - 1], st = trailState(lv), reveal = st.done && !st.seen;
   if (reveal) { (db.monOpen ||= {})[lv] = 1; save(); LOG.add('map-unlock-seen', { lv }); }
-  const sts = trailStates(), i = trailCur(sts), now = i < 0 ? null : sts[i], nc = now && TRAIL[now.lv - 1];
-  const act = n => n.open ? `<div class="mp-cta">${FAST(n.lv)}</div>
-    <p class="mp-hint">${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${n.lv}">${trailLessons() ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
-    : `<div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${n.lv}"><span class="qa-glyph">学</span>Learn words</button></div><p class="mp-hint">${trailNext()}</p>`;
+  const sts = trailStates(), i = trailCur(sts), now = i < 0 || i === lv - 1 ? null : sts[i];
+  const save4 = n => { const nc = TRAIL[n.lv - 1], ready = n.n >= n.total;   // the monument you are saving for, and how to get there
+    return `<section class="mp-info"><h2>${ready ? 'Ready to buy' : 'Saving for'} <span class="cal-zh">${nc.nzh}</span></h2><p class="mp-count">${nc.name} · <b>${coinFmt(n.total)}</b> coins</p>
+      <span class="tm-now-bar mp-cbar"><i style="width:${(n.n / n.total * 100).toFixed(0)}%"></i><b>${coinBarLab(n)}</b></span></section>
+      <div class="mp-cta">${ready ? `<button class="btn btn-seal" data-act="shop-item" data-lv="${n.lv}"><span class="qa-glyph">店</span>Buy it</button>` : EARN(n.lv)}</div>
+      <p class="mp-hint">${ready ? 'It is in the shop, waiting for you.' : n.open ? `${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven: ${PAY.word} coins each.` : trailNext()}</p>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
-  const head = `<header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.done ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `Monument ${lv}`}</div><div style="width:42px"></div></header>`;
-  const pic = `<div class="mp-scene${reveal ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), reveal)}<span class="mp-chip"><i>${lv}</i>of ${TRAIL.length}</span>
-      ${reveal ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Unlocked</b>${esc(c.name)}</span></div>` : ''}</div>`;
-  if (!st.done) return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}${act(st)}
-    <section class="mp-info"><h2>Undiscovered <span class="cal-zh">未知</span></h2>
-      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} proven words</p>${trailBar(st)}
-      <p class="mp-next">${lv === 1 || sts[lv - 2].done ? `It unlocks in ${plural(st.total - st.n, 'more proven word')}. What it is stays a secret until then.` : `It comes after the monument before it.`}</p></section></div>`;
+  const head = `<header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${esc(c.en)} <span class="mp-zh">${c.zh}</span></div><div style="width:42px"></div></header>`;
+  const pic = `<div class="mp-scene${reveal ? ' rv' : ''}">${Trail.scene(lv, st.done ? st : { ...st, done: true, mast: 0, due: 0 }, Temple.night(), reveal)}
+      ${reveal ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>It's yours</b>${esc(c.name)}</span></div>` : ''}</div>`;
+  if (!st.done) return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}
+    <section class="mp-info"><h2>${c.name} <span class="cal-zh">${c.nzh}</span></h2><p class="mp-next">${TRAIL_ABOUT[lv - 1]}</p>
+      <p class="mp-count tm-price">${coinSvg()}<b>${coinFmt(st.total)}</b> coins in the shop</p></section>
+    <div class="mp-cta"><button class="btn btn-seal" data-act="shop-item" data-lv="${lv}"><span class="qa-glyph">店</span>${st.n >= st.total ? 'Buy it' : 'See it in the shop'}</button></div></div>`;
   return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}
     <section class="mp-info">
       <h2>${c.name} <span class="cal-zh">${c.nzh}</span></h2>
-      <p class="mp-count">Unlocked with <b>${st.total.toLocaleString('en')}</b> proven words</p>
-      <p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the monument.'
+      <p class="mp-count">Yours · worth <b>${coinFmt(st.total)}</b> coins</p>
+      <p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? `It holds ${st.words} of your proven words. One you still know three weeks after proving it is mastered, and mastered words hang red lanterns over the monument.`
         : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>
     </section>
-    ${now ? `<section class="mp-info"><h2>Next: monument ${now.lv} <span class="cal-zh">未知</span></h2><p class="mp-count"><b>${now.n}</b> of ${now.total} proven words</p>${trailBar(now)}</section>${act(now)}`
-      : `<section class="mp-info"><p class="mp-next">Every monument is unlocked. More are on the way.</p></section>`}
+    ${now ? save4(now) : i < 0 ? `<section class="mp-info"><p class="mp-next">Every monument is yours. More are on the way.</p></section>` : ''}
   </div>`;
 }
 function mapZoom(lv) {   // Visit: the map dives into the city, then the monument's page opens
@@ -6292,6 +6524,17 @@ function mapZoom(lv) {   // Visit: the map dives into the city, then the monumen
 function mountMap() {   // the map answers your fingers; back from a monument's page, it pulls out of that city
   if (S.mapLv) return;
   const lv = S.mapFrom; S.mapFrom = 0; Trail.mount(lv);
+  if (!db.coinIntro && !$('#ob')) { db.coinIntro = 1; save(); setTimeout(() => { if (S.view === 'map' && !$('#ob')) coinIntro(); }, 450); }
+}
+function coinIntro() {   // once, the first time the Map opens with coins: what they are, and the coins you already have pour into the bag
+  const bal = coinBal(), own = trailOpened(trailStates()), P = bal ? { n: bal, bal } : null;
+  LOG.add('moment', { what: 'coins-intro', coins: bal, own });
+  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="cp-big">${bagShi('cheer')}</div></div>
+    <p class="mo-kicker">New on the Map</p><h2 class="mo-title">铜钱 Coins</h2>
+    <p class="mo-text">Monuments are now bought with coins, in any order you like. Every word you prove puts ${PAY.word} coins in Shi Shi's bag, and every lesson and story ${PAY.les}.${own ? ` The ${own === 1 ? 'monument' : `${own} monuments`} you unlocked ${own === 1 ? 'is' : 'are'} still yours.` : ''}</p>
+    ${P ? payLine(P) : ''}
+    ${moDock('Open the shop', 'coin-intro-shop', '<button class="ob-link" data-act="mo-close">Later</button>')}`, 'mo');
+  if (P) setTimeout(() => coinRain($('#ob'), P), 600);
 }
 document.addEventListener('keydown', e => {   // a monument on the map opens with Enter or Space too; Escape puts its card away
   const p = e.target.closest?.('.tm-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapPick(+p.dataset.lv); }
@@ -6488,13 +6731,14 @@ function StudySummary(d) {
   const st = S.study, ids = Object.keys(st.graded), n = ids.length, ok = ids.filter(id => st.graded[id] > 0).length;
   const fresh = st.fresh.map(id => cardById(d, id)).filter(c => c && st.graded[c.id] > 0);
   const pct = n ? ok / n : 0, { n: streak } = practiceStreak(), tmr = dueBy(dayStart(Date.now(), 2));
+  if (!('pay' in st)) st.pay = takePay(); const P = st.pay;   // words proven in this round: their coins, once
   const [hz, py, en] = pct === 1 ? ['太棒了！', 'tài bàng le', 'Great job!'] : pct >= .7 ? ['很好！', 'hěn hǎo', 'Well done!'] : ['加油！', 'jiā yóu', 'Keep going!'];
   const tm = new Date(dayStart(Date.now(), 1));
   const bits = Array.from({ length: 22 }, (_, i) => `<i style="--x:${(i % 2 ? 1 : -1) * (40 + (i * 37) % 120)}px;--y:${-(60 + (i * 53) % 110)}px;--r:${(i * 97) % 360}deg;--d:${(i % 7) * 40}ms;background:${['#E5483F', '#FFD15C', '#3F7A5F', '#E8742C', '#B23A2C'][i % 5]}"></i>`).join('');
   return `<div class="screen fade-in" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="study-done" aria-label="Close">${I.close}</button><div class="bar-title"></div><span style="width:42px"></span></header>
-    <section class="done-hero"><div class="done-burst" aria-hidden="true">${bits}</div><div class="done-shi">${shiFace('cheer')}</div>
-      <h2>${hz}</h2><div class="done-py">${py} · ${en}</div></section>
+    <section class="done-hero"><div class="done-burst" aria-hidden="true">${bits}</div><div class="done-shi${P ? ' bag' : ''}">${P ? bagShi('cheer') : shiFace('cheer')}</div>
+      <h2>${hz}</h2><div class="done-py">${py} · ${en}</div>${P ? payLine(P) : ''}</section>
     <div class="done-stats">
       <div><b>${ok}/${n}</b><span>remembered</span></div>
       <div><b>${fresh.length}</b><span>${fresh.length === 1 ? 'new word' : 'new words'}</span></div>
@@ -7241,6 +7485,7 @@ function WriteSummary(d) {
   const missed = ids.filter(id => !W.results[id]).map(id => cardById(d, id)).filter(Boolean), fixed = missed.filter(c => W.last[c.id]).length;
   const more = d.id === 'bank' && (db.prefs.writeN ?? 10) && d.cards.length > n;   // the word bank has more words than this round
   const [hz, py, en] = pct === 100 ? ['太棒了', 'tài bàng le', 'Perfect round'] : pct >= 70 ? ['很好', 'hěn hǎo', 'Well done'] : ['加油', 'jiā yóu', 'Keep going'];
+  if (!('pay' in W)) W.pay = takePay(); const P = W.pay;
   return `<div class="screen fade-in" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button><div class="bar-title">Session</div><span style="width:42px"></span></header>
     <section class="summary ws-end">
@@ -7248,7 +7493,7 @@ function WriteSummary(d) {
         <img class="ws-lion" src="mascots/shi-shi.svg" alt="Shi Shi the lion cheering"></div>
       <div class="ws-score"><b>${ok}</b>of ${n} right first time</div>
       ${fixed ? `<div class="sub">${fixed} right when ${fixed === 1 ? 'it' : 'they'} came back</div>` : ''}
-      ${missed.length ? `<div class="missed">${missed.map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}</section>
+      ${missed.length ? `<div class="missed">${missed.map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}${P ? payRow(P) : ''}</section>
     <div class="dock" style="display:flex;flex-direction:column;gap:10px">
       ${missed.length ? `<button class="btn btn-seal wide" data-act="retry-missed">Practise the ${missed.length} missed</button>` : ''}
       <div class="row-btns"><button class="btn btn-ghost" data-act="write-again">Again</button>${more
@@ -7758,7 +8003,7 @@ function BankView() {
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
     ${n ? `<section class="bank-stages" aria-label="Your words by stage">${[['known', 'Known', 'Ticked or placed'], ['proven', 'Proven', 'Right on two days'], ['mastered', 'Mastered', 'Still right 3 weeks on']]
       .map(([k, t, d]) => `<div class="bs bs-${k}"><b>${cnt[k].toLocaleString('en')}</b><span><i class="w-dot ${k}"></i>${t}</span><small>${d}</small></div>`).join('')}
-      <p>Proven words unlock the monuments on the Map and earn pieces for your collection. Prove the ones you know in a Fast unlock there.</p></section>
+      <p>Each proven word puts ${PAY.word} coins in Shi Shi's bag to buy monuments on the Map, and earns pieces for your collection. Prove the ones you know with Prove words there.</p></section>
     ${CollectionHtml()}` : ''}
     <div class="group"><button class="row" data-act="open-hsk" style="--sep:58px"><span class="icon-sq">汉</span>
       <span class="row-main"><span class="row-t">HSK word lists</span><span class="row-s">Tick the words you already know</span></span><span class="chev">${I.chev}</span></button></div>
@@ -8020,7 +8265,7 @@ function HskView() {
   const inBank = new Set(db.bank.map(w => w.hanzi));
   if (!lv) return `<div class="screen fade-in">${head}
     <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
-      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast unlock on the Map to unlock its monuments.</div></section>
+      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them with Prove words on the Map: each proven word earns coins for its monuments.</div></section>
     <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
       const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
@@ -8150,7 +8395,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.55';
+const APP_VERSION = '2.56';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8195,23 +8440,27 @@ function nameSheet() {
 /* Levels for testing: max them all out or put them back to the start, on this device. The first time either is used, your
    real levels are kept in db.devLv (lessons, unit bosses, comics, the open HSK levels and the Map), and Restore puts them
    back. Words, streak and decks are never touched: the Map is maxed with db.mapMax and reset with db.mapFrom (only words
-   proven after the reset count), not by changing words. */
-const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom'];
+   proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
+   bag at nothing; neither pours a payoff for what it changed (db.coinShown). */
+const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
   devLvKeep(); const now = Date.now();
   LESSONS.forEach(L => { const r = db.lessons[L.n] ||= {}; r.done ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); });
   LES_UNITS.forEach((_, i) => { const r = db.utests[i + 1] ||= {}; r.pass ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); const c = (db.comic ||= {})[i + 1] ||= {}; c.p1 ||= now; c.p2 ||= now; });
   db.unitAt = {}; db.prefs.unlocked = 7; db.mapMax = 1; delete db.mapFrom; db.monOpen = Object.fromEntries(TRAIL.map(c => [c.lv, 1]));
+  db.monOwn = Object.fromEntries(TRAIL.map(c => [c.lv, db.monOwn?.[c.lv] || now])); delete db.monWish; db.coinShown = coinEarned();
 }
 function devLvZero() {
   devLvKeep();
   db.lessons = {}; db.utests = {}; db.comic = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
+  db.monOwn = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
 }
 function devLvRestore() {
   const K = db.devLv; if (!K) return;
-  DEV_LV.forEach(k => { if (K[k] == null) delete db[k]; else db[k] = K[k]; });
+  DEV_LV.forEach(k => { if (K[k] == null) delete db[k]; else db[k] = K[k]; });   // kept before coins (no monOwn): worked out again from the words, as on the first start
   ['lessons', 'utests', 'monOpen', 'mapKeep'].forEach(k => { if (!db[k] || typeof db[k] !== 'object') db[k] = {}; });
+  monMigrate();
   if (K.unlocked == null) delete db.prefs.unlocked; else db.prefs.unlocked = K.unlocked;
   delete db.devLv;
 }
@@ -8245,7 +8494,7 @@ function devSheet() {
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
     <div class="list-group">
-      ${p('devLvMax', 'Max out all levels', 'Every lesson done, every boss beaten, every HSK level open, all ' + TRAIL.length + ' monuments unlocked')}
+      ${p('devLvMax', 'Max out all levels', 'Every lesson done, every boss beaten, every HSK level open, all ' + TRAIL.length + ' monuments bought')}
       ${p('devLvZero', 'Reset levels', 'Back to Unit 1 and no monuments. Your word bank, streak and decks stay')}
       ${db.devLv ? p('devLvBack', 'Restore my real levels', 'Undo the test: your own lessons, bosses and monuments come back') : ''}
     </div>
@@ -8885,15 +9134,22 @@ const A = {
   'map-visit': t => mapZoom(+t.dataset.lv),
   'map-close': () => mapClose(),
   'map-back': () => { S.instant = true; goBack('#/map'); },
-  'map-build': t => trailGo(+t.dataset.lv),
+  'map-build': t => { closeSheet(true); trailGo(+t.dataset.lv); },
+  shop: () => shopSheet(),
+  'coin-intro-shop': () => closeLayer(() => shopSheet()),
+  'shop-item': t => shopSheet(+t.dataset.lv),
+  'shop-back': () => shopSheet(),
+  'shop-buy': t => shopBuy(+t.dataset.lv),
+  'shop-wish': t => { db.monWish = +t.dataset.lv; save(); LOG.add('shop-wish', { lv: db.monWish }); shopSheet(db.monWish); const h = $('#tmSlot'); if (h && !Trail.CAM.sel) h.innerHTML = mapHud(); },
+  'shop-see': t => { closeSheet(); const lv = +t.dataset.lv; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapPick(lv), 300); else nav('#/map/' + lv); },
   'coin': t => coinSheet(t.dataset.id),
   'mo-coll': () => closeLayer(() => nav('#/bank')),
-  'fast-build': t => { LOG.add('fast-build-open', { lv: +t.dataset.lv }); nav('#/build/' + t.dataset.lv); },
+  'fast-build': t => { closeSheet(true); LOG.add('fast-build-open', { lv: +t.dataset.lv }); nav('#/build/' + t.dataset.lv); },
   'fb-opt': t => fbPick(+t.dataset.i),
   'fb-next': () => fbNext(),
   'fb-again': () => { fbStart(S.fb.lv); render(); window.scrollTo(0, 0); },
   'fb-see': () => { const lv = S.fb?.lv; history.replaceState(history.state, '', lv ? '#/map/' + lv : '#/map'); route(); },
-  'fb-quit': () => goBack('#/map/' + (S.fb?.lv || 1)),
+  'fb-quit': () => goBack('#/map'),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
   'c1-open': () => nav('#/course/1'),
