@@ -683,73 +683,120 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .temple-add .btn{min-width:64%;box-shadow:0 0 0 4px var(--paper),0 10px 20px -8px rgba(120,30,20,.55)}
 .temple-add .qa-glyph{width:26px;height:26px;font-size:17px;transform:none;background:var(--seal-ink);color:var(--seal)}   /* upright: a tilted small glyph renders jagged on phones */
 /* ---------- Map: a temple in five cities (Trail draws the map and the temples) ---------- */
-/* the globe: full width, its sky fading into the page at the top and the land at the bottom */
-.mp-map{--gb-sea:#BCD6D0;--gb-sea2:#93B9B4;--gb-far:#DCDCC9;--gb-land:#F8EBCB;--gb-ink:#5A4636;--gb-river:#5E93A6;--gb-mtn:#E3CFA0;--gb-plan:#3F6A9A;
-  position:relative;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:pan-y;user-select:none;-webkit-user-select:none;
-  -webkit-mask-image:linear-gradient(transparent,#000 9%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 9%,#000 88%,transparent)}
-.mp-map svg{display:block;width:100%;height:auto}
-.mp-zoom{transform-origin:50% 50%;transition:transform .6s cubic-bezier(.55,0,.25,1)}
-.mp-zoom.mp-zooming,.mp-zoom.mp-zin{transform:scale(4.2)}
-.mp-map::after{content:"";position:absolute;inset:0;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .2s .24s}
-.mp-map.mp-going::after{opacity:1}
-.gb-grat{fill:none;stroke:#fff;stroke-width:.6;opacity:.38}
-.gb-far{fill:var(--gb-far);stroke:var(--gb-ink);stroke-width:.5;stroke-opacity:.3;stroke-linejoin:round}
-.gb-lift{fill:var(--gb-ink);opacity:.28}
-.gb-land{fill:var(--gb-land);stroke:var(--gb-ink);stroke-width:1.1;stroke-linejoin:round}
-.gb-mtn{fill:var(--gb-mtn);stroke:var(--gb-ink);stroke-width:.65;stroke-linejoin:round}
-.gb-snow{fill:#FFFDF6}
-.gb-river{fill:none;stroke:var(--gb-river);stroke-width:1.4;stroke-linecap:round;opacity:.85}
-.gb-wall{fill:none;stroke:var(--gb-ink);stroke-width:2.2;stroke-dasharray:1.6 1.1;opacity:.55}
-.gb-big{font:700 26px var(--hanzi);fill:var(--gb-ink);opacity:.1;letter-spacing:.5em}
-.gb-route{fill:none;stroke:var(--gb-ink);stroke-width:1.2;stroke-dasharray:3 3;opacity:.5}
-.gb-route.on{stroke:var(--seal);stroke-dasharray:none;stroke-width:1.8;opacity:.95}
-.gb-cloud{fill:#fff;opacity:.85}
-.gb-low{opacity:.7}
-.gb-pin{cursor:pointer;outline:none}
-.gb-shade{fill:#3B2A20;opacity:.2}
-.gb-plot{fill:#E2D2B2;stroke:#9C7448;stroke-width:.5}
-.gb-ghost *{fill:none!important;stroke:var(--gb-plan)!important;stroke-width:.6!important;stroke-dasharray:1.6 1.2}
-.gb-ghost{opacity:.75}
-.gb-lot{fill:none;stroke:var(--gb-plan);stroke-width:.8;stroke-dasharray:2 1.6}
-.gb-flag{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
-.gb-pin.off .gb-flag{fill:#B5A88F}
-.gb-scaf{fill:none;stroke:#8A5A2B;stroke-width:1.1;stroke-linecap:round}
-.gb-tape{fill:none;stroke:#D9A53A;stroke-width:.8;stroke-dasharray:2 1.2}
-.gb-spark{fill:#F4C95A;animation:wtTw 1.6s ease-in-out infinite alternate}
-.gb-ping{fill:none;stroke:#E2AE45;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
-@keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.7);opacity:0}}
-.gb-chip{fill:var(--card);stroke:var(--gb-ink);stroke-width:.6;stroke-opacity:.4}
-.gb-n{fill:var(--ink)}
-.gb-n-t{font:700 6.6px var(--ui);fill:var(--paper)}
-.gb-name{font:700 8.6px var(--hanzi);fill:var(--ink)}
-.gb-k{font:700 6.6px var(--ui);fill:var(--muted)}
-.gb-lab.cur .gb-chip{fill:var(--seal);stroke:none}
-.gb-lab.cur .gb-name,.gb-lab.cur .gb-k{fill:var(--seal-ink)}
-.gb-lab.cur .gb-n{fill:var(--seal-ink)}
-.gb-lab.cur .gb-n-t{fill:var(--seal)}
-.gb-lab.done .gb-chip{fill:#C9952E;stroke:none}
-.gb-lab.done .gb-name,.gb-lab.done .gb-k{fill:#FFF8E8}
-.gb-lab.off .gb-name{fill:var(--muted)}
-.gb-pin:focus-visible .gb-shade{fill:var(--seal);opacity:.55}
-.gb-lab{cursor:pointer}
-.mp-map.gb-grab{cursor:grabbing}
+/* the terrain map fills the page and runs under the tab bar; the title, the zoom buttons and the monument card float on it */
+#frame.tabs .screen.mp-page{padding-bottom:0}
+.tm-stage{--tm-sea:#A9D2CC;--tm-shelf:#C6E4DC;--tm-far:#E2DDC8;--tm-far2:#BDB79E;--tm-land:#EFE2BC;--tm-side:#8E6F4E;--tm-ink:#5A4636;--tm-river:#5E9DB4;
+  --tm-plat:#DDD6C4;--tm-sand:#EDCB86;--tm-sand2:#D9B26A;--tm-grass:#CBD79A;--tm-wood:#9DBF86;--tm-south:#B5CF8C;--tm-basin:#C8DD96;--tm-plain:#EBDB9C;--tm-loess:#E7CF9C;
+  --tm-tree:#5E9A5A;--tm-tree2:#8CC07A;--tm-pine:#3F7A5F;--tm-pk:#C9BFA8;--tm-pk2:#9C917B;--tm-snow:#FFFDF6;--tm-cloud:#FFFFFF;
+  position:relative;flex:1;min-height:440px;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--tm-sea);cursor:grab}
+.tm-stage.tm-grab{cursor:grabbing}
+.tm-stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tm-stage::before{content:"";position:absolute;inset:0 0 auto;height:128px;z-index:1;pointer-events:none;background:linear-gradient(var(--paper) 38%,transparent)}
+.tm-stage::after{content:"";position:absolute;inset:0;z-index:5;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .2s .24s}
+.tm-stage.mp-going::after{opacity:1}
+.tm-head{position:absolute;z-index:2;left:22px;right:22px;top:18px;margin:0;pointer-events:none}
 .mp-sum{font-size:13px;font-weight:600;color:var(--ink-2)}
-.mp-note{margin:12px 4px 18px;font-size:13.5px;color:var(--muted);line-height:1.45}
-.mp-list{display:flex;flex-direction:column;gap:8px}
-.mp-row{display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-radius:14px;background:var(--card);box-shadow:var(--ring);text-align:left;transition:transform .15s}
-.mp-row:active{transform:scale(.985)}
-.mp-row:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
-.mp-row-zh{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:11px;background:var(--seal);color:var(--seal-ink);font:700 15px var(--hanzi);letter-spacing:.04em}
-.mp-row.off .mp-row-zh{background:var(--fill);color:var(--ink-2)}
-.mp-row.done .mp-row-zh{background:#C9952E;color:#FFF8E8}
-.mp-row-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.mp-row-mid b{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.2}
-.mp-row-mid small{font-size:12.5px;color:var(--muted)}
-.mp-row-bar{display:block;height:5px;border-radius:3px;background:var(--fill);margin-top:4px;overflow:hidden}
-.mp-row-bar i{display:block;height:100%;min-width:0;background:var(--seal);border-radius:3px}
-.mp-row.done .mp-row-bar i{background:#C9952E}
-.mp-row-end{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:12.5px;font-weight:700;color:var(--ink-2);white-space:nowrap}
-.mp-row-end em{font-style:normal;font-size:11px;padding:1px 7px;border-radius:6px;background:#E2AE45;color:#3A2508}
+.tm-ctl{position:absolute;z-index:2;right:14px;top:76px;display:flex;flex-direction:column;gap:1px;border-radius:12px;overflow:hidden;background:var(--line);box-shadow:var(--ring),0 8px 18px -10px rgba(60,30,10,.5)}
+.tm-ctl button{display:grid;place-items:center;width:42px;height:42px;background:var(--card);color:var(--ink)}
+.tm-ctl button:active{background:var(--card-2)}
+.tm-ctl button:focus-visible{outline:2px solid var(--seal);outline-offset:-2px}
+.tm-ctl svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+/* the land */
+.tm-grid{fill:none;stroke:#fff;stroke-width:.5;opacity:.3}
+.tm-wave{fill:none;stroke:#fff;stroke-width:.8;stroke-linecap:round;opacity:.6}
+.tm-shelf{fill:none;stroke:var(--tm-shelf);stroke-width:16;stroke-linejoin:round;opacity:.7}
+.tm-far2{fill:var(--tm-far2)}
+.tm-far{fill:var(--tm-far);stroke:var(--tm-ink);stroke-width:.5;stroke-opacity:.35;stroke-linejoin:round}
+.tm-farm{fill:none;stroke:var(--tm-far2);stroke-width:1;stroke-linecap:round}
+.tm-side{fill:var(--tm-side);stroke:var(--tm-ink);stroke-width:1.1;stroke-linejoin:round}
+.tm-land{fill:var(--tm-land)}
+.tm-edge{fill:none;stroke:var(--tm-ink);stroke-width:1.2;stroke-linejoin:round}
+.tm-b-plat{fill:var(--tm-plat)}.tm-b-sand{fill:var(--tm-sand)}.tm-b-loess{fill:var(--tm-loess)}.tm-b-plain{fill:var(--tm-plain)}
+.tm-b-grass{fill:var(--tm-grass)}.tm-b-wood{fill:var(--tm-wood)}.tm-b-south{fill:var(--tm-south)}.tm-b-basin{fill:var(--tm-basin)}
+.tm-lake{fill:var(--tm-river);stroke:var(--tm-ink);stroke-width:.4;stroke-opacity:.5}
+.tm-river{fill:none;stroke:var(--tm-river);stroke-width:1.6;stroke-linecap:round}
+.tm-wall{fill:none;stroke:var(--tm-ink);stroke-width:2.6;stroke-linecap:round;opacity:.8}
+.tm-wall2{fill:none;stroke:var(--tm-pk);stroke-width:1.3;stroke-dasharray:2 1.4}
+.tm-pk{fill:var(--tm-pk);stroke:var(--tm-ink);stroke-width:.6;stroke-linejoin:round}
+.tm-pk2{fill:var(--tm-pk2)}
+.tm-snow{fill:var(--tm-snow)}
+.tm-trk{fill:none;stroke:var(--tm-ink);stroke-width:.8;stroke-linecap:round}
+.tm-tr{fill:var(--tm-tree);stroke:var(--tm-ink);stroke-width:.45}
+.tm-tr2{fill:var(--tm-tree2)}
+.tm-pine{fill:var(--tm-pine);stroke:var(--tm-ink);stroke-width:.45;stroke-linejoin:round}
+.tm-dune{fill:var(--tm-sand2);stroke:var(--tm-ink);stroke-width:.4;stroke-opacity:.6;stroke-linejoin:round}
+.tm-tuft{fill:none;stroke:var(--tm-pine);stroke-width:.8;stroke-linecap:round}
+.tm-karst{fill:var(--tm-wood);stroke:var(--tm-ink);stroke-width:.5;stroke-linejoin:round}
+.tm-fd{stroke:var(--tm-ink);stroke-width:.3;stroke-opacity:.6}
+.tm-fd.a{fill:var(--tm-basin)}
+.tm-fd.b{fill:var(--tm-sand)}
+.tm-bam{fill:none;stroke:var(--tm-tree);stroke-width:1;stroke-linecap:round}
+.tm-rose{fill:none;stroke:var(--tm-ink);stroke-width:.7;stroke-linejoin:round;opacity:.5}
+.tm-rose-t{font:700 7px var(--hanzi);fill:var(--tm-ink);opacity:.6}
+.tm-hull{fill:#7A4E2C;stroke:#3B2A20;stroke-width:.5;stroke-linejoin:round}
+.tm-sail{fill:var(--seal);stroke:#3B2A20;stroke-width:.4;stroke-linejoin:round}
+.tm-bob{transform-box:fill-box;transform-origin:50% 100%;animation:tmBob 3.4s ease-in-out infinite alternate}
+@keyframes tmBob{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.tm-sky{fill:var(--tm-cloud);opacity:.5;pointer-events:none}
+/* the monuments, and the cloud over a level you have not started */
+.tm-pin{cursor:pointer;outline:none}
+.tm-shade{fill:#3B2A20;opacity:.22}
+.tm-plot{fill:#E2D2B2;stroke:#9C7448;stroke-width:.5}
+.tm-scaf{fill:none;stroke:#8A5A2B;stroke-width:1.1;stroke-linecap:round}
+.tm-tape{fill:none;stroke:#D9A53A;stroke-width:.8;stroke-dasharray:2 1.2}
+.tm-spark{fill:#F4C95A;animation:wtTw 1.6s ease-in-out infinite alternate}
+.tm-ping{fill:none;stroke:#E2AE45;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
+@keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.7);opacity:0}}
+.tm-ring{fill:none;stroke:#E2AE45;stroke-width:1.7;stroke-dasharray:4 3;opacity:0}
+.tm-pin.sel .tm-ring{opacity:1;animation:tmRing 1.1s linear infinite}
+@keyframes tmRing{to{stroke-dashoffset:-14}}
+.tm-mon{transform-box:fill-box;transform-origin:50% 100%}
+.tm-pin.sel .tm-mon{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1)}
+@keyframes tmPop{0%{transform:scale(1)}35%{transform:scale(1.14,1.2)}100%{transform:scale(1)}}
+.tm-pin:focus-visible .tm-shade{fill:var(--seal);opacity:.55}
+.tm-puff .o circle{fill:var(--tm-cloud);stroke:var(--tm-ink);stroke-width:1.4}
+.tm-puff .i circle{fill:var(--tm-cloud)}
+.tm-puff.a{animation:tmDrift 6s ease-in-out infinite alternate}
+.tm-puff.b{animation:tmDrift 7.5s ease-in-out infinite alternate-reverse}
+@keyframes tmDrift{from{transform:translateX(-2.5px)}to{transform:translateX(2.5px)}}
+.tm-q rect{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
+.tm-q text{font:700 12px var(--display);fill:var(--seal-ink)}
+#tmLabs{transition:opacity .2s}
+#tmLabs.far{opacity:0;pointer-events:none}
+.tm-lab{cursor:pointer}
+.tm-chip{fill:var(--card);stroke:var(--tm-ink);stroke-width:.8;stroke-opacity:.35}
+.tm-n{fill:var(--ink)}
+.tm-n-t{font:700 10.5px var(--ui);fill:var(--paper)}
+.tm-name{font:700 13.5px var(--hanzi);fill:var(--ink)}
+.tm-k{font:700 10.5px var(--ui);fill:var(--muted)}
+.tm-lab.cur .tm-chip{fill:var(--seal);stroke:none}
+.tm-lab.cur .tm-name,.tm-lab.cur .tm-k,.tm-lab.cur .tm-n{fill:var(--seal-ink)}
+.tm-lab.cur .tm-n-t{fill:var(--seal)}
+.tm-lab.done .tm-chip{fill:#C9952E;stroke:none}
+.tm-lab.done .tm-name,.tm-lab.done .tm-k{fill:#FFF8E8}
+/* the card a monument opens */
+.tm-slot{position:absolute;z-index:3;left:14px;right:14px;bottom:calc(var(--tabh) + 24px + env(safe-area-inset-bottom))}
+.tm-card{position:relative;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;padding:14px;border-radius:20px;background:var(--card);cursor:default;
+  box-shadow:var(--ring),0 18px 36px -16px rgba(50,25,8,.55);animation:tmCard .42s cubic-bezier(.2,1.3,.4,1)}
+@keyframes tmCard{from{opacity:0;transform:translateY(26px) scale(.96)}}
+.tm-med{position:relative;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#FFF4D6,#F3D9A4 70%,#E5C083);box-shadow:inset 0 0 0 2px var(--card),0 0 0 2px var(--line-2)}
+.tm-med svg{position:absolute;left:6px;top:8px;width:72px;height:62px;overflow:visible}
+.tm-card.done .tm-med{box-shadow:inset 0 0 0 2px var(--card),0 0 0 2.5px #C9952E}
+.tm-card.myst .tm-med{background:radial-gradient(circle at 50% 35%,#D6E9E5,#9DC3BF)}
+.tm-lv{position:absolute;right:-4px;bottom:-2px;display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--seal);color:var(--seal-ink);font:700 14px var(--display);font-style:normal;transform:rotate(-6deg);box-shadow:0 0 0 2px var(--card)}
+.tm-body{min-width:0;padding-right:24px}
+.tm-city{display:block;font-size:12.5px;font-weight:600;color:var(--muted)}
+.tm-city b{font-family:var(--hanzi);color:var(--seal)}
+.tm-card h3{margin:1px 0 8px;font-family:var(--display);font-weight:600;font-size:22px;line-height:1.1;letter-spacing:-.01em}
+.tm-card h3 span{font-family:var(--hanzi);font-size:17px;color:var(--seal);margin-left:4px;white-space:nowrap}
+.tm-card p{margin:7px 0 0;font-size:13px;line-height:1.4;color:var(--ink-2)}
+.tm-card p em{font-style:normal;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;background:#E2AE45;color:#3A2508;margin-right:6px}
+.tm-acts{grid-column:1/-1;display:flex;gap:8px;margin-top:10px}
+.tm-acts .btn{flex:1;height:46px;font-size:15px;padding:0 12px}
+.tm-acts .btn-ghost{flex:0 0 32%}
+.tm-acts .qa-glyph{width:24px;height:24px;font-size:15px;transform:none;background:var(--seal-ink);color:var(--seal)}
+.tm-x{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--muted)}
+.tm-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
 .mp-enter{animation:mpEnter .5s cubic-bezier(.2,.8,.2,1)}
@@ -798,7 +845,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.mp-zoom{transition:none}.gb-ping,.gb-spark,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-ping,.tm-spark,.tm-bob,.tm-puff,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -4977,10 +5024,11 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) temp
    The Map tab: China with a route through five cities, one temple for each HSK level: HSK 1 Chengdu, 2 Guangzhou,
    3 Shanghai, 4 Xi'an, 5 Beijing. Your first word of a level in the word bank breaks ground in its city; then the temple
    goes up a piece at a time as more of that level's words come in, eight pieces at 6, 15, 27, 40, 54, 68, 84 and 100% of
-   the level's list. Tap a temple and the map zooms in on its city: the temple as built so far, the next piece as a dashed
-   outline with how many words it still needs, and Continue building (HSK 1: the next lesson; the other levels: tick the
-   words you know on the HSK list). db.mapSeen = { level: pieces you have seen }, so a piece built since your last look
-   goes up in front of you the next time you open that temple. */
+   the level's list. What is not built yet stays a secret: a level with no words is a cloud with a question mark, and a
+   monument under way shows only the pieces that stand, never an outline or the name of the next one. Tap a monument and
+   the map flies to it and a card names it; Visit opens its page (the big picture, Continue building: HSK 1 the next
+   lesson, the other levels the HSK list). db.mapSeen = { level: pieces you have seen }, so a piece built since your last
+   look goes up in front of you the next time you open that page. */
 const TRAIL_TH = [.06, .15, .27, .40, .54, .68, .84, 1];
 const TRAIL = [
   { lv: 1, en: 'Chengdu', zh: '成都', lon: 104.07, lat: 30.67, name: 'Bamboo temple', nzh: '竹林寺', lab: [-1, 1],
@@ -5031,23 +5079,18 @@ const Trail = (() => {
   const PEAKS = [[81, 33.4], [84, 32.2], [87, 33.2], [90, 32.4], [93, 33.6], [96, 31.6], [86, 30.4], [89, 30.8], [92.2, 30.4], [83.4, 30.5], [80.6, 35], [84.5, 35.2],
     [88.5, 35.6], [92.5, 35.4], [99.6, 28.6], [100.8, 31.2], [82.8, 42.6], [85.6, 43.2], [88.4, 43.3], [106.2, 33.7], [108.6, 33.8], [113.3, 37.6]];
   const SNOW = new Set([0, 1, 2, 3, 4, 6, 7, 8, 9]);
-  /* ---- the planet: China on top of a small round world ----
-     The Map tab's picture. A globe seen from straight above 5°N 104°E, so big that only its northern cap fits: China sits in
-     the middle, the rest of Asia curves away to a horizon with sky above it. Each city's temple stands upright on the land,
-     leaning with the curve, and rises out of the ground a piece at a time (the rest waits as a dashed outline). Drag sideways
-     to spin the world; let go and it springs back to China. GS.off = how far it is turned (degrees of longitude). */
-  const GW = 360, GH = 412, GR = 430, GCX = 180, GCY = 470, LAT0 = 5, LON0 = 104, D = Math.PI / 180;
-  const GS = { off: 0, noClick: 0, spun: false };
-  function gp(lon, lat, off = GS.off) {   // [x, y, c]: c > 0 on the side facing you; behind it, pinned to the horizon
-    const l = (lon - LON0 + off) * D, p = lat * D, p0 = LAT0 * D;
-    const c = Math.sin(p0) * Math.sin(p) + Math.cos(p0) * Math.cos(p) * Math.cos(l);
-    let x = Math.cos(p) * Math.sin(l), y = Math.cos(p0) * Math.sin(p) - Math.sin(p0) * Math.cos(p) * Math.cos(l);
-    if (c < 0) { const m = Math.hypot(x, y) || 1; x /= m; y /= m; }
-    return [GCX + GR * x, GCY - GR * y, c];
-  }
-  const gloop = (pts, off) => { const p = pts.map(q => gp(q[0], q[1], off)), n = p.length, m = (a, b) => `${f((a[0] + b[0]) / 2)} ${f((a[1] + b[1]) / 2)}`;
+  /* ---- the terrain map ----
+     The Map tab's picture: China as a raised slab of painted terrain (snowy plateau, desert, grassland, forest, farmland)
+     in a sea, with the rest of Asia low and pale around it. Drag to move it; pinch, the wheel, a double tap or the + and −
+     buttons zoom. The land sits in one group that the camera moves (CAM: its centre in world units, z = pixels per unit);
+     the monuments and their name chips sit on top in screen space, so they grow more slowly than the land when you zoom.
+     A level you have no words in yet stays under cloud: no name, no outline, nothing of what will stand there. */
+  const UX = 9, UY = 10, LON_A = 62, LAT_A = 64, Z_MAX = 6;   // world units per degree; a little flatter north to south, as if the map leans away from you
+  const wp = (lon, lat) => [(lon - LON_A) * UX, (LAT_A - lat) * UY];
+  const CAM = { x: null, y: 0, z: 1.5, w: 375, h: 700, sel: 0, seen: false, noClick: 0, goal: null, api: null };
+  const loop = pts => { const p = pts.map(q => wp(q[0], q[1])), n = p.length, m = (a, b) => `${f((a[0] + b[0]) / 2)} ${f((a[1] + b[1]) / 2)}`;
     let d = `M${m(p[n - 1], p[0])}`; for (let i = 0; i < n; i++) d += `Q${f(p[i][0])} ${f(p[i][1])} ${m(p[i], p[(i + 1) % n])}`; return d + 'Z'; };
-  const gline = (pts, off) => K.smooth(pts.map(q => gp(q[0], q[1], off)).map(([x, y]) => [f(x), f(y)]));
+  const line = pts => K.smooth(pts.map(q => wp(q[0], q[1])).map(([x, y]) => [f(x), f(y)]));
   // the rest of Asia, rough on purpose: Siberia's Arctic coast, the Pacific coast past Korea and China, Indochina, India, Iran
   const ASIA = [[38, 68], [55, 69], [68, 72.5], [80, 73.5], [100, 77], [113, 74], [130, 72], [142, 72], [160, 70], [178, 67], [179, 63], [172, 60.5], [163, 59],
     [162, 56], [160, 52.5], [157, 51.3], [156, 55], [155.5, 58], [151, 59.5], [143, 59.3], [138, 55], [140.5, 52], [141, 48.5], [139, 46], [137, 44], [133.2, 42.8], [131.9, 43.1],
@@ -5067,34 +5110,66 @@ const Trail = (() => {
     [[109.6, 1.5], [111, 1.8], [113, 3.2], [115.4, 5], [116.8, 7], [118.6, 5.3], [119, 4.9], [117.9, 1.5], [116.5, -1], [114, -3.5], [110.3, -2.9], [109, -.4]],
     [[95.3, 5.6], [98, 4], [100.4, 2.2], [103.8, -1], [102.3, -4], [100.3, -1], [98.6, 1.7], [96.5, 3.8]]];
   const CHINA = [...NE, ...COAST, ...WEST];
-  function grat(off) {   // the globe's lines of latitude and longitude, faint on the sea
-    let d = ''; const run = pts => { let on = false; for (const [lon, lat] of pts) { const [x, y, c] = gp(lon, lat, off);
-      if (c < .03) { on = false; continue; } d += `${on ? 'L' : 'M'}${f(x)} ${f(y)}`; on = true; } };
-    for (let lat = 0; lat <= 75; lat += 15) run(Array.from({ length: 61 }, (_, i) => [LON0 - off - 90 + i * 3, lat]));
-    for (let lon = 0; lon < 360; lon += 20) run(Array.from({ length: 31 }, (_, i) => [lon, i * 3]));
-    return d;
-  }
-  // where each temple stands: a little off its city where two would crowd each other
+  // where each monument stands (a little off its city where two would crowd each other), and the side Shi Shi stands on
   const SHI = { 1: -1, 2: -1, 3: 1, 4: -1, 5: -1 };
-  const SITE = { 1: [101.6, 28.9], 2: [112.6, 23.6], 3: [121.4, 30.4], 4: [106.6, 36.2], 5: [118.6, 42.2] };
-  function world(states, off) {
-    let s = `<path class="gb-far" d="${gloop(ASIA, off)}"/>` + ISLES.map(p => `<path class="gb-far" d="${gloop(p, off)}"/>`).join('');
-    s += `<path class="gb-grat" d="${grat(off)}"/>`;
-    const china = gloop(CHINA, off);
-    s += `<path class="gb-lift" d="${china}" transform="translate(0 3.2)"/><path class="gb-land" d="${china}"/>`;
-    s += `<path class="gb-land" d="${gloop(HAINAN, off)}"/><path class="gb-land" d="${gloop(TAIWAN, off)}"/>`;
-    s += `<path class="gb-river" d="${gline(YANGTZE, off)}"/><path class="gb-river" d="${gline(YELLOW, off)}"/><path class="gb-wall" d="${gline(WALL, off)}"/>`;
-    PEAKS.forEach(([lon, lat], i) => { const [x, y] = gp(lon, lat, off), w = 4.4 + (i % 3), a = lean(x, y);
-      s += `<g transform="translate(${f(x)} ${f(y)}) rotate(${a})"><path class="gb-mtn" d="M${-w} 0L0 ${f(-w * 1.15)}L${w} 0Z"/>${SNOW.has(i) ? `<path class="gb-snow" d="M${f(-w * .36)} ${f(-w * .74)}L0 ${f(-w * 1.15)}L${f(w * .36)} ${f(-w * .74)}Z"/>` : ''}</g>`; });
-    const [zx, zy] = gp(96.5, 36.2, off);
-    s += `<text class="gb-big" x="${f(zx)}" y="${f(zy)}" text-anchor="middle" transform="rotate(${lean(zx, zy)} ${f(zx)} ${f(zy)})">中国</text>`;
-    for (let i = 0; i < TRAIL.length - 1; i++) {   // flight paths, city to city, lifted off the ground: red once the temple you leave from is finished
-      const a = gp(...SITE[i + 1], off), b = gp(...SITE[i + 2], off), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = mx - GCX, dy = my - GCY, l = Math.hypot(dx, dy);
-      s += `<path class="gb-route${states[i].done ? ' on' : ''}" d="M${f(a[0])} ${f(a[1])}Q${f(mx + dx / l * 30)} ${f(my + dy / l * 30)} ${f(b[0])} ${f(b[1])}"/>`;
-    }
-    return s;
+  const SITE = { 1: [103.2, 30], 2: [113.2, 23.6], 3: [121, 31], 4: [108.9, 35], 5: [116.6, 40.4] };
+  // the kinds of country, painted inside China's outline, later ones over earlier ones
+  const BIOME = [
+    ['plat', [[77, 36.5], [79, 32], [82, 30], [86, 28], [92, 27.6], [97, 28], [100, 28.5], [102.5, 30.5], [103.4, 33.5], [102, 36.5], [99, 38.6], [95, 39], [90, 37], [84, 36.6], [80, 37.4]]],
+    ['sand', [[74, 39], [77, 37.4], [82, 36.8], [88, 37.6], [93, 39.4], [98, 39.6], [103, 38.6], [107, 39.6], [110, 41], [112, 43.4], [108, 43.4], [103, 43], [97, 43.6], [92, 44], [88, 42.4], [84, 41.8], [79, 41.8], [75, 40.8]]],
+    ['loess', [[103.6, 35], [105, 38.4], [108.6, 39.6], [111.4, 39.2], [111.6, 35.6], [109, 34.2], [105.6, 34]]],
+    ['plain', [[111, 35], [113, 38.6], [116.4, 40.4], [119.6, 39.6], [121, 37.6], [122.4, 37], [119.6, 35], [120.4, 33.2], [116, 33], [112.6, 33.2]]],
+    ['grass', [[108, 41.4], [112, 40.6], [116, 41.4], [119, 42], [122, 43], [125, 45], [128, 47], [130, 49], [127, 51.5], [124, 53.6], [121, 53.6], [119.5, 50], [116, 48.6], [115, 46], [112, 45.2], [110, 43.6]]],
+    ['wood', [[121, 49], [124, 47.5], [127, 45], [129, 42.6], [131.4, 43.5], [133.6, 46], [134.8, 48.4], [131, 48.4], [128, 50], [125, 53.2], [122, 53.6]]],
+    ['south', [[98, 25], [99.4, 28.4], [103, 31.6], [107, 32.8], [111, 33], [115.5, 33.2], [119, 33.4], [122.4, 32], [122.6, 29], [120.4, 26], [117.6, 23], [114, 21.8], [110, 20.6], [106.6, 21.4], [103, 22], [99.6, 21.4], [97.6, 23.6]]],
+    ['basin', [[103.2, 30], [104.4, 32], [106.6, 32.2], [108.2, 30.8], [107, 28.8], [104.6, 28.4]]],
+  ];
+  const LAKES = [[100.2, 36.9, 1.1, .6], [116.3, 29.1, .5, .6], [112.9, 29.2, .6, .4], [120.2, 31.2, .4, .35], [90.6, 30.7, .7, .3], [87.3, 41.9, .6, .3]];
+  const TREES = [[100.5, 24], [101.8, 25.6], [103, 23.6], [104.5, 25.2], [106, 24], [107.2, 26.4], [108.6, 23.4], [109.8, 27], [111.6, 23.2], [112.4, 26.8], [114.6, 25.6], [115.2, 27.2], [116.6, 24.6],
+    [117.6, 27.6], [118.6, 26], [119.6, 28.6], [110.6, 29], [113, 28.8], [115.6, 29.6], [117.8, 30.2], [106.4, 28], [104.6, 27.2], [102.4, 27.6], [109, 31.4], [111.6, 31.6], [100.2, 26.4], [114, 31.6], [100.4, 22.4]];
+  const PINES = [[121.5, 50.5], [123.4, 51.8], [124.6, 49.4], [126.6, 48.2], [128.4, 46.6], [130.2, 46], [127, 44.2], [129, 43.6], [125.2, 46.6], [122.6, 48.2], [127.8, 49.8], [131.8, 46.8]];
+  const TUFTS = [[110, 43.2], [112.6, 43], [114.8, 44.2], [116.8, 45.2], [118.4, 44], [119.6, 46], [115, 42.2], [112, 41.6], [120.6, 43.6], [117.6, 47.2], [121, 45.4]];
+  const DUNES = [[78.5, 39.2], [81, 38.6], [83.6, 39.4], [86.2, 39], [88.6, 40], [80, 40.4], [84.8, 40.6], [98, 40.8], [101, 40.6], [103.6, 40.2], [106, 40.8], [92, 41.4], [95, 41.8], [107.6, 42.2]];
+  const KARST = [[109.6, 25.2], [110.6, 25.7], [110.2, 24.4], [111.3, 24.9]];
+  const FIELDS = [[114, 35.6], [116, 34.4], [117.8, 36.6], [115.2, 37.8], [113.6, 33.6], [118.2, 33.6], [116.6, 38.8]];
+  const BAMBOO = [[105.2, 29.2], [101.4, 29.2], [105.8, 31.2], [103.6, 31.6]];
+  const WAVES = [[124, 34], [126, 30.4], [128.4, 26], [124.4, 24], [130, 33], [134, 30], [132, 24.6], [127, 20], [119, 20.4], [116, 17.6], [112.4, 15.6], [118, 13.6], [125, 16.4], [113, 11.6], [88.6, 16],
+    [90, 12], [86, 9.6], [92.6, 7.6], [132.4, 38.6], [135.4, 40.4], [140, 30], [134.6, 17.6], [140.6, 22.6], [129, 12], [66, 18], [68.6, 13.6], [63, 9.6], [138, 12.6], [123.4, 37.4], [146, 36], [120.6, 38.6]];
+  const FARM = [[70, 48], [78, 50], [88, 52], [98, 50], [106, 47], [100, 46], [112, 50], [124, 56], [134, 54], [110, 56], [92, 58], [76, 58], [66, 42], [68, 34], [72, 28], [78, 24], [82, 20],
+    [76, 16], [86, 24], [96, 22], [100, 18], [103, 15], [96, 18], [127.6, 37], [138, 36], [64, 56], [120, 60], [140, 60], [150, 62], [104, 62], [63, 30], [84, 56], [70, 62], [114, 2], [101, 0]];
+  let TERR = '', CHINA_D = '';
+  function terrain() {   // the land, drawn once: it never changes, only the camera moves
+    if (TERR) return TERR;
+    const far = [ASIA, ...ISLES].map(loop).join(''), china = CHINA_D = [CHINA, HAINAN, TAIWAN].map(loop).join('');
+    let g = ''; for (let lon = 40; lon <= 170; lon += 10) g += `M${wp(lon, 0)[0]} -400V1100`; for (let lat = -30; lat <= 90; lat += 10) g += `M-300 ${wp(0, lat)[1]}H1300`;
+    let s = `<path class="tm-grid" d="${g}"/><path class="tm-wave" d="${WAVES.map(q => { const [x, y] = wp(q[0], q[1]); return `M${f(x - 5)} ${f(y)}q2.5 -2.4 5 0t5 0`; }).join('')}"/>`;
+    s += `<path class="tm-shelf" d="${far}${china}"/><path class="tm-far2" d="${far}" transform="translate(0 3)"/><path class="tm-far" d="${far}"/>`;
+    s += `<path class="tm-farm" d="${FARM.map(q => { const [x, y] = wp(q[0], q[1]); return `M${f(x - 3)} ${f(y)}q3 -3.6 6 0`; }).join('')}"/>`;   // low hills on the countries around
+    s += `<path class="tm-side" d="${china}" transform="translate(0 6)"/><path class="tm-land" d="${china}"/><g clip-path="url(#tmChina)">`;
+    for (const [k, pts] of BIOME) s += `<path class="tm-b-${k}" d="${loop(pts)}"/>`;
+    for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); s += `<ellipse class="tm-lake" cx="${f(x)}" cy="${f(y)}" rx="${f(rx * UX)}" ry="${f(ry * UY)}"/>`; }
+    s += `</g><path class="tm-river" d="${line(YANGTZE)}"/><path class="tm-river" d="${line(YELLOW)}"/><path class="tm-edge" d="${china}"/><path class="tm-wall" d="${line(WALL)}"/><path class="tm-wall2" d="${line(WALL)}"/>`;
+    const pr = [], add = (q, h) => { const [x, y] = wp(q[0], q[1]); pr.push([y, h(f(x), f(y))]); };   // everything that stands up, far ones first
+    PEAKS.forEach((q, i) => add(q, (x, y) => { const w = f(5.5 + (i % 3) * 1.3), h = f(w * 1.3);
+      return `<g transform="translate(${x} ${y})"><path class="tm-pk" d="M${-w} 0L0 ${-h}L${w} 0Z"/><path class="tm-pk2" d="M0 ${-h}L${w} 0H${f(w * .2)}Z"/>${SNOW.has(i) ? `<path class="tm-snow" d="M${f(-w * .36)} ${f(-h * .64)}L0 ${-h}L${f(w * .36)} ${f(-h * .64)}L${f(w * .1)} ${f(-h * .52)}L${f(-w * .12)} ${f(-h * .7)}Z"/>` : ''}</g>`; }));
+    const tree = (x, y, r) => `<path class="tm-trk" d="M${x} ${y}v${-r}"/><circle class="tm-tr" cx="${x}" cy="${f(y - r * 1.7)}" r="${r}"/><circle class="tm-tr2" cx="${f(x - r * .3)}" cy="${f(y - r * 2)}" r="${f(r * .42)}"/>`;
+    TREES.forEach((q, i) => add(q, (x, y) => tree(x, y, 2.6) + tree(f(x + 4.6), f(y + 1.6 - (i % 2) * 3.4), 2.1)));
+    const pine = (x, y) => `<path class="tm-trk" d="M${x} ${y}v-2"/><path class="tm-pine" d="M${x} ${f(y - 10)}l2.6 3.6h-1.3l2.5 3.4h-7.6l2.5 -3.4h-1.3Z"/>`;
+    PINES.forEach((q, i) => add(q, (x, y) => pine(x, y) + pine(f(x + 5), f(y + 2 - (i % 2) * 4))));
+    TUFTS.forEach(q => add(q, (x, y) => `<path class="tm-tuft" d="M${x} ${y}v-3M${f(x - 2)} ${y}l-1.2 -2.4M${f(x + 2)} ${y}l1.2 -2.4"/>`));
+    DUNES.forEach(q => add(q, (x, y) => `<path class="tm-dune" d="M${f(x - 6)} ${y}q6 -6.4 12 0q-6 -1.8 -12 0Z"/>`));
+    KARST.forEach(q => add(q, (x, y) => `<path class="tm-karst" d="M${f(x - 2.4)} ${y}q.2 -9 2.4 -9t2.4 9Z"/>`));
+    FIELDS.forEach(q => add(q, (x, y) => `<g transform="translate(${x} ${y}) skewX(-20)"><rect class="tm-fd a" x="-5" y="-3" width="5" height="3"/><rect class="tm-fd b" y="-3" width="5" height="3"/><rect class="tm-fd b" x="-5" width="5" height="3"/><rect class="tm-fd a" width="5" height="3"/></g>`));
+    BAMBOO.forEach(q => add(q, (x, y) => `<path class="tm-bam" d="M${x} ${y}v-8M${f(x + 2.2)} ${y}v-10M${f(x - 2.2)} ${y}v-6.6M${x} ${f(y - 8)}l-2.4 -1.4M${f(x + 2.2)} ${f(y - 10)}l2.6 -1M${f(x - 2.2)} ${f(y - 6.6)}l-2.2 -1.2"/>`));
+    s += pr.sort((a, b) => a[0] - b[0]).map(p => p[1]).join('');
+    [[126.5, 27.5], [115.5, 18.2], [124, 36]].forEach(([lon, lat], i) => { const [x, y] = wp(lon, lat);   // junks out at sea
+      s += `<g transform="translate(${f(x)} ${f(y)})"><g class="tm-bob" style="animation-delay:-${i * 1.3}s"><path class="tm-trk" d="M0 0V-10"/><path class="tm-sail" d="M.7 -9.6Q5.8 -6.4 5 -1.6H.7Z"/><path class="tm-sail" d="M-.7 -8.2Q-4.2 -5.6 -3.6 -1.6H-.7Z"/><path class="tm-hull" d="M-6.4 -1Q0 1.6 7.4 -1L5.4 2.4H-4.6Z"/></g></g>`; });
+    const [rx, ry] = wp(133.5, 20.5);
+    s += `<g transform="translate(${f(rx)} ${f(ry)})"><circle class="tm-rose" r="8"/><path class="tm-rose" d="M0 -12L2.2 -2.2L12 0L2.2 2.2L0 12L-2.2 2.2L-12 0L-2.2 -2.2Z"/><text class="tm-rose-t" y="-14.5" text-anchor="middle">北</text></g>`;
+    [[84, 48.5, 1], [128, 15, 1.2], [140, 44, .9]].forEach(([lon, lat, k], i) => { const [x, y] = wp(lon, lat);   // a few clouds drifting over the edges
+      s += `<g class="tm-sky wt-drift" style="animation-delay:-${i * 13}s"><ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(24 * k)}" ry="${f(6 * k)}"/><ellipse cx="${f(x - 8 * k)}" cy="${f(y - 4 * k)}" rx="${f(11 * k)}" ry="${f(6 * k)}"/><ellipse cx="${f(x + 7 * k)}" cy="${f(y - 6 * k)}" rx="${f(13 * k)}" ry="${f(8 * k)}"/></g>`; });
+    return TERR = s;
   }
-  const lean = (x, y) => f(Math.atan2(x - GCX, GCY - y) / D * .75);   // upright on a curved world leans outward
   /* the five landmarks, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
   const C = { r: '#B8322A', r2: '#7E1E18', door: '#5E1813', st: '#F1E8D6', st2: '#CDBDA3', gold: '#E8B44C', gold2: '#B98426', grey: '#737C84', grey2: '#555D65',
     teal: '#2E7D7A', blue: '#2F5D8A', blue2: '#22486E', grn: '#5E8A50', grn2: '#3F643A', brick: '#C9A06E', brick2: '#9C7448', win: '#F3D58A' };
@@ -5119,99 +5194,122 @@ const Trail = (() => {
         + box(7.5, -9, -13.5, C.r) + cone(11.5, -13, 4.5, C.blue) + box(5.8, -16.5, -20, C.r) + cone(9, -19.5, 4.2, C.blue) + box(4.2, -22.5, -25, C.r) + cone(6.8, -24.5, 6.5, C.blue2)
         + `<path d="M0 -31V-34" stroke="${C.gold2}" stroke-width="1.1"/><circle cy="-34.5" r="1.6" fill="${C.gold}"/>` },
   ];
-  function monument(c, st, cur) {
-    const M = MON[c.lv - 1], k = st.k, built = M.h * k / 8;
-    let s = `<ellipse class="gb-shade" rx="${M.w}" ry="4.6" cy="1"/>`;
-    if (st.k > st.seen) s += `<ellipse class="gb-ping" rx="${M.w - 2}" ry="5" cy="1"/>`;
-    if (st.started) s += `<ellipse class="gb-plot" rx="${M.w - 5}" ry="3.4" cy=".6"/>`;
-    if (!st.started) s += `<ellipse class="gb-lot" rx="${M.w - 6}" ry="3.6" cy=".6"/><path class="gb-scaf" d="M-2 1V-17"/><path class="gb-flag" d="M-1.6 -17L9 -14L-1.6 -11Z"/>`;   // not started: an empty plot with a surveyor's flag
-    else if (k >= 2 && k < 8) s += `<g class="gb-ghost">${M.art()}</g>`;   // like the temple page: no plan until two pieces stand
-    if (k) s += `<clipPath id="gbB${c.lv}"><rect x="-60" y="${f(k === 8 ? -80 : -built)}" width="120" height="${f(k === 8 ? 90 : built + 10)}"/></clipPath>
-      <g clip-path="url(#gbB${c.lv})" stroke="#3B2A20" stroke-width=".6" stroke-linejoin="round">${M.art()}</g>`;
-    if (k > 0 && k < 8) { const t = f(-built - 3), x = M.w - 6; s += `<path class="gb-scaf" d="M${-x} 0V${t}M${x} 0V${t}M${-x} ${f(-built)}H${x}M${-x} ${f(-built / 2)}H${x}"/>`; }
-    if (st.started && !k) s += `<path class="gb-scaf" d="M${-(M.w - 8)} .5V-5M${M.w - 8} .5V-5"/><path class="gb-tape" d="M${-(M.w - 8)} -4.2H${M.w - 8}"/>`;
-    if (st.done) s += `<path class="gb-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="gb-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
-    const side = SHI[c.lv];   // Shi Shi stands beside the temple you are building, on whichever side is open land
-    if (cur) s += `<image class="gb-shi" href="mascots/shi-shi.svg" x="${side < 0 ? -M.w - 22 : M.w}" y="-22" width="22" height="22"/>`;
-    return s + `<rect x="${-M.w - (cur && side < 0 ? 24 : 2)}" y="${-M.h - 4}" width="${M.w * 2 + (cur ? 26 : 4)}" height="${M.h + 10}" fill="transparent"/>`;
-  }
-  function gpin(c, st, cur) {
-    const t = pinAt(c.lv, GS.off);
-    const cls = st.done ? 'done' : st.started ? 'on' : 'off', say = st.done ? 'finished' : st.started ? `${st.k} of 8 pieces built` : 'not started';
-    const w = st.started ? 52 : 40;
-    return [`<g class="gb-pin ${cls}${cur ? ' cur' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${c.en}, HSK ${c.lv} temple, ${say}" transform="${t.up}">${monument(c, st, cur)}</g>`,
-      `<g class="gb-lab ${cls}${cur ? ' cur' : ''}" data-act="map-city" data-lv="${c.lv}" aria-hidden="true" transform="${t.lab}"><rect class="gb-chip" x="${-w / 2}" y="5" width="${w}" height="15" rx="7.5"/><circle class="gb-n" cx="${-w / 2 + 7.5}" cy="12.5" r="5.2"/><text class="gb-n-t" x="${-w / 2 + 7.5}" y="14.8" text-anchor="middle">${c.lv}</text>
-        <text class="gb-name" x="${-w / 2 + 17.5}" y="16.2">${c.zh}</text><text class="gb-k" x="${w / 2 - 5}" y="15.6" text-anchor="end">${st.done ? '✓' : st.started ? st.k + '/8' : ''}</text></g>`];
-  }
-  const pinAt = (lv, off) => {   // a temple stands on its spot, leaning with the curve; its name chip stays upright under it
-    const [x, y, c] = gp(...SITE[lv], off), sc = .62 + .4 * Math.max(0, c);
-    return { y, hide: c < .05, up: `translate(${f(x)} ${f(y)}) rotate(${lean(x, y)}) scale(${f(sc * 1.45)})`, lab: `translate(${f(x)} ${f(y + 3)}) scale(${f(sc)})` };
-  };
-  const placePin = (g, lab, off) => { const t = pinAt(g.dataset.lv, off);
-    g.setAttribute('transform', t.up); lab.setAttribute('transform', t.lab); g.style.display = lab.style.display = t.hide ? 'none' : ''; return t.y; };
-  function globe(states) {
-    const night = Temple.night(), P = K.pal(night), cur = states.findIndex(x => !x.done);
-    let s = `<svg id="gbSvg" viewBox="0 0 ${GW} ${GH}" role="group" aria-label="China on a small globe, with a temple in five cities">
-      <defs><linearGradient id="gbSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.sky[0]}"/><stop offset=".6" stop-color="${P.sky[1]}"/><stop offset="1" stop-color="${P.sky[2]}"/></linearGradient>
-        <radialGradient id="gbAir" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY}" r="${GR + 26}"><stop offset="${f(GR / (GR + 26) * 100) / 100}" stop-color="${night ? '#8FA6E0' : '#FFFFFF'}" stop-opacity="${night ? .45 : .85}"/><stop offset="1" stop-color="${night ? '#8FA6E0' : '#FFFFFF'}" stop-opacity="0"/></radialGradient>
-        <radialGradient id="gbSea" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY - 120}" r="${GR + 40}"><stop offset="0" style="stop-color:var(--gb-sea)"/><stop offset=".75" style="stop-color:var(--gb-sea)"/><stop offset="1" style="stop-color:var(--gb-sea2)"/></radialGradient>
-        <radialGradient id="gbLimb" gradientUnits="userSpaceOnUse" cx="${GCX}" cy="${GCY}" r="${GR}"><stop offset=".8" stop-color="#1E2A33" stop-opacity="0"/><stop offset=".965" stop-color="#1E2A33" stop-opacity=".16"/><stop offset="1" stop-color="#1E2A33" stop-opacity=".34"/></radialGradient>
-        <clipPath id="gbBall"><circle cx="${GCX}" cy="${GCY}" r="${GR}"/></clipPath></defs>
-      <rect width="${GW}" height="${GH}" fill="url(#gbSky)"/>`;
-    if (night) { const R = K.rng(11); for (let k = 0; k < 46; k++) s += `<circle class="wt-tw" style="animation-delay:-${f(R() * 3)}s" cx="${f(R() * GW)}" cy="${f(R() * 110)}" r="${f(.4 + R() * .8)}" fill="#FFF6DD"/>`;
-      s += `<circle cx="300" cy="34" r="22" fill="#F4EBCF" opacity=".16"/><circle cx="300" cy="34" r="9" fill="#F4EBCF"/><circle cx="304" cy="31" r="8" fill="${P.sky[0]}"/>`; }
-    else s += `<circle cx="296" cy="36" r="30" fill="#FFF1C8" opacity=".55"/><circle cx="296" cy="36" r="11" fill="#FFF5D8"/>`;
-    s += `<g class="gb-cloud wt-drift"><ellipse cx="44" cy="58" rx="22" ry="6"/><ellipse cx="58" cy="53" rx="13" ry="7"/></g><g class="gb-cloud wt-drift" style="animation-duration:60s;animation-direction:alternate-reverse"><ellipse cx="236" cy="70" rx="18" ry="4.6"/><ellipse cx="226" cy="66" rx="9" ry="5"/></g>`;
-    s += `<circle cx="${GCX}" cy="${GCY}" r="${GR + 26}" fill="url(#gbAir)"/><circle cx="${GCX}" cy="${GCY}" r="${GR}" fill="url(#gbSea)"/>
-      <g class="gb-world" clip-path="url(#gbBall)">${world(states, GS.off)}</g>
-      <circle cx="${GCX}" cy="${GCY}" r="${GR}" fill="url(#gbLimb)" pointer-events="none"/>
-      <g class="gb-cloud gb-low wt-drift" style="animation-duration:52s"><ellipse cx="70" cy="128" rx="26" ry="5.5"/><ellipse cx="84" cy="123" rx="14" ry="6"/><ellipse cx="300" cy="118" rx="22" ry="5"/><ellipse cx="290" cy="114" rx="11" ry="5"/></g>
-      <g class="gb-pins">`;
-    const pins = TRAIL.map((c, i) => ({ y: gp(...SITE[c.lv], GS.off)[1], h: gpin(c, states[i], i === cur) })).sort((a, b) => a.y - b.y);
-    s += pins.map(p => p.h[0]).join('') + '</g><g class="gb-labs">' + pins.map(p => p.h[1]).join('') + '</g></svg>';   // name chips above every temple
+  const puff = (cs, cls) => { const c = cs.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join(''); return `<g class="tm-puff ${cls}"><g class="o">${c}</g><g class="i">${c}</g></g>`; };
+  // a level with no words yet: a bank of cloud with a question mark on it, and nothing else
+  const fog = () => puff([[-15, -7, 9], [-3, -13, 11], [10, -9, 10], [20, -4, 7], [-23, -3, 6], [3, -4, 10]], 'a') + puff([[-8, 1, 6], [4, 2, 7], [15, 2, 5], [-18, 3, 4.5]], 'b')
+    + `<g class="tm-q" transform="rotate(-6)"><rect x="-7.5" y="-24" width="15" height="15" rx="3.4"/><text y="-12.3" text-anchor="middle">?</text></g>`;
+  function stands(lv, k, id) {   // what stands so far and nothing more: no outline of the pieces to come
+    const M = MON[lv - 1], top = M.h * k / 8;
+    let s = `<ellipse class="tm-plot" rx="${M.w - 5}" ry="3.4" cy=".6"/>`;
+    if (!k) return s + `<path class="tm-scaf" d="M${-(M.w - 8)} .5V-5M${M.w - 8} .5V-5"/><path class="tm-tape" d="M${-(M.w - 8)} -4.2H${M.w - 8}"/>`;   // ground broken: two stakes and a tape
+    s += `<clipPath id="${id}"><rect x="-60" y="${f(k === 8 ? -80 : -top)}" width="120" height="${f(k === 8 ? 90 : top + 10)}"/></clipPath><g clip-path="url(#${id})" stroke="#3B2A20" stroke-width=".6" stroke-linejoin="round">${M.art()}</g>`;
+    if (k < 8) { const t = f(-top - 3), x = M.w - 6; s += `<path class="tm-scaf" d="M${-x} 0V${t}M${x} 0V${t}M${-x} ${f(-top)}H${x}M${-x} ${f(-top / 2)}H${x}"/>`; }
     return s;
   }
-  function globeAt(lv) { const [x, y] = gp(...SITE[lv]); return [x / GW * 100, (y - 16) / GH * 100]; }
-  function globeMount(states) {
-    const svg = $('#gbSvg'), stage = svg?.closest('.gb-stage'); if (!svg || !stage) return;
-    const wl = svg.querySelector('.gb-world'), layer = svg.querySelector('.gb-pins'), pins = [...layer.children], labs = svg.querySelector('.gb-labs');
-    let raf = 0, pend = 0, v = 0, g = null, order = pins.map(p => p.dataset.lv).join('');
-    const draw = () => {
-      if (!svg.isConnected) { cancelAnimationFrame(raf); return false; }
-      wl.innerHTML = world(states, GS.off);
-      const at = pins.map(p => [placePin(p, labs.querySelector(`[data-lv="${p.dataset.lv}"]`), GS.off), p]).sort((a, b) => a[0] - b[0]), o = at.map(a => a[1].dataset.lv).join('');
-      if (o !== order && !layer.contains(document.activeElement)) { order = o; at.forEach(a => layer.appendChild(a[1])); }
-      return true;
-    };
-    const pxDeg = () => stage.clientWidth / GW * GR * Math.cos(33 * D) * D;   // screen pixels per degree of spin, around China
-    const band = x => Math.abs(x) <= 32 ? x : Math.sign(x) * (32 + (Math.abs(x) - 32) * .3);   // past 32° it pulls harder
-    const settle = () => {   // a spring back to China (with the flick's speed carried in)
-      cancelAnimationFrame(raf);
-      if (stillMotion()) { GS.off = 0; draw(); return; }
-      let t = performance.now();
-      const step = now => { const dt = Math.min(32, now - t); t = now; const w = .0085, z = .78;
-        v += (-w * w * GS.off - 2 * z * w * v) * dt; GS.off += v * dt;
-        if (Math.abs(GS.off) < .03 && Math.abs(v) < .0006) { GS.off = 0; v = 0; draw(); return; }
-        if (draw()) raf = requestAnimationFrame(step); };
-      raf = requestAnimationFrame(step);
-    };
-    stage.addEventListener('pointerdown', e => { if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      g = { id: e.pointerId, x: e.clientX, y: e.clientY, o: GS.off, hist: [[e.clientX, e.timeStamp]], on: false }; });
-    stage.addEventListener('pointermove', e => {
-      if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
-      if (!g.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } if (Math.abs(dx) < 8) return;
-        g.on = true; cancelAnimationFrame(raf); g.o = GS.off; g.x = e.clientX; try { stage.setPointerCapture(e.pointerId); } catch (_) {} stage.classList.add('gb-grab'); }
-      GS.off = band(g.o + (e.clientX - g.x) / pxDeg()); g.hist.push([e.clientX, e.timeStamp]); if (g.hist.length > 6) g.hist.shift();
-      if (!pend) pend = requestAnimationFrame(() => { pend = 0; draw(); });   // at most one redraw a frame
-    });
-    const up = e => { if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return;
-      cancelAnimationFrame(pend); pend = 0; stage.classList.remove('gb-grab'); GS.noClick = performance.now() + 350;
-      const [x0, t0] = G.hist[0], dt = e.timeStamp - t0; v = e.type === 'pointerup' && dt > 0 && dt < 160 ? (e.clientX - x0) / dt / pxDeg() : 0;
-      v = Math.max(-.25, Math.min(.25, v)); LOG.add('map-spin', { deg: Math.round(GS.off) }); settle(); };
-    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
-    if (!GS.spun && !stillMotion()) { GS.spun = true; GS.off = -26; v = 0; draw(); settle(); }   // the first look of the session: the world turns China into view
-    else if (GS.off) { draw(); settle(); }   // redrawn mid-turn (the HSK lists arrived): carry on turning back
+  function monument(c, st, cur) {
+    const M = MON[c.lv - 1], w = st.started ? M.w : 27, side = SHI[c.lv];
+    let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="${st.started ? 1 : 3}"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
+    if (st.k > st.seen) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
+    s += `<g class="tm-mon">${st.started ? stands(c.lv, st.k, 'tmB' + c.lv) : fog()}</g>`;
+    if (st.done) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
+    if (cur) s += `<image href="mascots/shi-shi.svg" x="${side < 0 ? -w - 22 : w}" y="-22" width="22" height="22"/>`;   // Shi Shi stands beside the one you are building
+    const top = st.started ? M.h + 4 : 28;
+    return s + `<rect x="${-w - (cur && side < 0 ? 24 : 4)}" y="${-top}" width="${w * 2 + (cur ? 28 : 8)}" height="${top + 10}" fill="transparent"/>`;
   }
+  const mini = (lv, st) => `<svg viewBox="${st.started ? (M => `${-M.w - 5} ${-M.h - 3} ${M.w * 2 + 10} ${M.h + 8}`)(MON[lv - 1]) : '-32 -30 64 44'}" aria-hidden="true">${st.started ? stands(lv, st.k, 'tmM' + lv) : fog()}</svg>`;   // the same monument, for its card
+  /* the camera */
+  const zHome = () => CAM.w / 262, zMin = () => CAM.w / 640;
+  const clampV = o => ({ z: Math.max(zMin(), Math.min(Z_MAX, o.z)), x: Math.max(110, Math.min(650, o.x)), y: Math.max(120, Math.min(450, o.y)) });   // the middle of the screen stays over China
+  const at = (lon, lat, z, fy = .5) => { const [x, y] = wp(lon, lat); return { x, y: y - (fy - .5) * CAM.h / z, z }; };   // this place, fy of the way down the screen
+  const home = () => at(112.2, 32, zHome());   // the five cities, side to side
+  const mScale = () => 1.5 * Math.pow(CAM.z / 1.5, .6);   // monuments grow more slowly than the land
+  const farOut = () => CAM.z < zHome() * .74;   // seen from far off, the name chips would pile up: they step aside
+  const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
+  const scr = lv => { const [x, y] = wp(...SITE[lv]); return [(x - CAM.x) * CAM.z + CAM.w / 2, (y - CAM.y) * CAM.z + CAM.h / 2]; };
+  const pinT = lv => { const [x, y] = scr(lv); return `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${mScale().toFixed(3)})`; };
+  const labT = lv => { const [x, y] = scr(lv); return `translate(${x.toFixed(2)} ${(y + 4 * mScale()).toFixed(2)})`; };
+  function map(states) {
+    if (CAM.x == null) Object.assign(CAM, home());
+    terrain();
+    const cur = states.findIndex(x => !x.done), order = TRAIL.map((_, i) => i).sort((a, b) => SITE[b + 1][1] - SITE[a + 1][1]);   // northern ones first, so nearer ones overlap them
+    let s = `<svg id="tmSvg" viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice" role="group" aria-label="A map of China with a monument for each HSK level. Drag to move it, pinch to zoom, tap a monument to see what it is">
+      <defs><clipPath id="tmChina"><path d="${CHINA_D}"/></clipPath></defs><g id="tmCam" transform="${camT()}">${TERR}</g><g id="tmPins">`, labs = '';
+    for (const i of order) { const c = TRAIL[i], st = states[i], lv = c.lv, cls = st.done ? 'done' : st.started ? 'on' : 'off';
+      const say = !st.started ? `HSK ${lv}: not discovered yet` : `${c.name}, ${c.en}, HSK ${lv}, ${st.done ? 'finished' : `${st.k} of 8 pieces built`}`;
+      s += `<g class="tm-pin ${cls}${CAM.sel === lv ? ' sel' : ''}" data-act="map-city" data-lv="${lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(lv)}">${monument(c, st, i === cur)}</g>`;
+      if (st.started) labs += `<g class="tm-lab ${cls}${i === cur ? ' cur' : ''}" data-act="map-city" data-lv="${lv}" aria-hidden="true" transform="${labT(lv)}"><rect class="tm-chip" x="-43" y="4" width="86" height="24" rx="8"/><circle class="tm-n" cx="-31" cy="16" r="8"/><text class="tm-n-t" x="-31" y="19.8" text-anchor="middle">${lv}</text>
+        <text class="tm-name" x="-18" y="20.8">${c.zh}</text><text class="tm-k" x="35" y="19.8" text-anchor="end">${st.done ? '✓' : st.k + '/8'}</text></g>`; }
+    return s + `</g><g id="tmLabs"${farOut() ? ' class="far"' : ''}>${labs}</g></svg>`;
+  }
+  function mount(from) {   // the map answers your fingers; back from a monument's page, it pulls out of that city
+    const svg = $('#tmSvg'), stage = svg?.closest('.tm-stage'); if (!svg || !stage) return;
+    const cam = svg.querySelector('#tmCam'), pins = [...svg.querySelectorAll('.tm-pin')], labs = [...svg.querySelectorAll('.tm-lab')], labG = svg.querySelector('#tmLabs'), pts = new Map();
+    let raf = 0, anim = 0, g = null, tap = null;
+    const apply = () => { cam.setAttribute('transform', camT()); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); for (const l of labs) l.setAttribute('transform', labT(l.dataset.lv)); labG.classList.toggle('far', farOut()); };
+    const draw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (svg.isConnected) apply(); }); };   // at most one redraw a frame
+    const stop = () => { cancelAnimationFrame(anim); anim = 0; CAM.goal = null; };
+    const fly = (to, ms = 620, done) => {
+      stop(); to = clampV(to);
+      if (stillMotion() || !ms) { Object.assign(CAM, to); apply(); done?.(); return; }
+      const a = { x: CAM.x, y: CAM.y, z: CAM.z }, t0 = performance.now(); CAM.goal = to;
+      const step = now => { if (!svg.isConnected) return; const t = Math.min(1, (now - t0) / ms), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        CAM.z = a.z * Math.pow(to.z / a.z, e); CAM.x = a.x + (to.x - a.x) * e; CAM.y = a.y + (to.y - a.y) * e; apply();
+        if (t < 1) anim = requestAnimationFrame(step); else { CAM.goal = null; done?.(); } };
+      anim = requestAnimationFrame(step);
+    };
+    const size = () => { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; CAM.w = w; CAM.h = h; svg.setAttribute('viewBox', `0 0 ${w} ${h}`); Object.assign(CAM, clampV(CAM)); apply(); };
+    const loc = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    const zoomTo = (sx, sy, z) => { z = clampV({ x: 0, y: 0, z }).z; const dx = sx - CAM.w / 2, dy = sy - CAM.h / 2;   // zoom with the point under your finger staying where it is
+      return clampV({ x: CAM.x + dx / CAM.z - dx / z, y: CAM.y + dy / CAM.z - dy / z, z }); };
+    const glide = (vx, vy) => { let t = performance.now();   // a flick keeps going and slows down
+      const step = now => { if (!svg.isConnected) return; const dt = Math.min(32, now - t), k = Math.pow(.92, dt / 16); t = now;
+        Object.assign(CAM, clampV({ x: CAM.x - vx * dt / CAM.z, y: CAM.y - vy * dt / CAM.z, z: CAM.z })); apply(); vx *= k; vy *= k;
+        if (Math.hypot(vx, vy) > .03) anim = requestAnimationFrame(step); };
+      anim = requestAnimationFrame(step); };
+    stage.addEventListener('pointerdown', e => {
+      if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('.tm-ui')) return;
+      stop(); const p = loc(e); pts.set(e.pointerId, p);
+      if (pts.size === 1) g = { id: e.pointerId, s: p, c: [CAM.x, CAM.y], on: false, hist: [[p[0], p[1], e.timeStamp]], hit: !!e.target.closest('[data-act]') };
+      else if (pts.size === 2) { const [a, b] = [...pts.values()], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];   // two fingers: pinch
+        g = { pinch: true, d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, z: CAM.z, wx: CAM.x + (m[0] - CAM.w / 2) / CAM.z, wy: CAM.y + (m[1] - CAM.h / 2) / CAM.z };
+        CAM.noClick = performance.now() + 400; }
+    });
+    stage.addEventListener('pointermove', e => {
+      if (!g || !pts.has(e.pointerId)) return; const p = loc(e); pts.set(e.pointerId, p);
+      if (g.pinch) { if (pts.size < 2) return; const [a, b] = [...pts.values()], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], z = clampV({ x: 0, y: 0, z: g.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / g.d }).z;
+        Object.assign(CAM, clampV({ x: g.wx - (m[0] - CAM.w / 2) / z, y: g.wy - (m[1] - CAM.h / 2) / z, z })); draw(); return; }
+      if (e.pointerId !== g.id) return; const dx = p[0] - g.s[0], dy = p[1] - g.s[1];
+      if (!g.on) { if (Math.hypot(dx, dy) < 7) return; g.on = true; g.s = p; g.c = [CAM.x, CAM.y]; try { stage.setPointerCapture(e.pointerId); } catch (_) {} stage.classList.add('tm-grab'); return; }
+      Object.assign(CAM, clampV({ x: g.c[0] - dx / CAM.z, y: g.c[1] - dy / CAM.z, z: CAM.z })); g.hist.push([p[0], p[1], e.timeStamp]); if (g.hist.length > 6) g.hist.shift(); draw();
+    });
+    const up = e => {
+      if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); const G = g; if (!G) return;
+      if (G.pinch) { CAM.noClick = performance.now() + 400; LOG.add('map-zoom', { zoom: +CAM.z.toFixed(1) });   // one finger left: it carries on as a drag
+        const [left] = [...pts.entries()]; g = left ? { id: left[0], s: left[1], c: [CAM.x, CAM.y], on: true, hist: [] } : null; return; }
+      if (e.pointerId !== G.id) return; g = null; stage.classList.remove('tm-grab');
+      if (G.on) { CAM.noClick = performance.now() + 350; LOG.add('map-move', { zoom: +CAM.z.toFixed(1) });
+        const h = G.hist, a = h[0], b = h[h.length - 1], dt = h.length > 1 ? b[2] - a[2] : 0;
+        if (e.type === 'pointerup' && dt > 0 && e.timeStamp - b[2] < 80 && !stillMotion()) glide((b[0] - a[0]) / dt, (b[1] - a[1]) / dt);
+        return; }
+      if (e.type !== 'pointerup' || G.hit) return;
+      const p = loc(e);   // a tap on open map: twice quickly zooms in there, once puts the card away
+      if (tap && e.timeStamp - tap[2] < 320 && Math.hypot(p[0] - tap[0], p[1] - tap[1]) < 30) { tap = null; fly(zoomTo(p[0], p[1], CAM.z * 1.9), 300); }
+      else { tap = [p[0], p[1], e.timeStamp]; if (CAM.sel) mapClose(); }
+    };
+    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
+    stage.addEventListener('wheel', e => { e.preventDefault(); stop(); const p = loc(e); Object.assign(CAM, zoomTo(p[0], p[1], CAM.z * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .002)))); draw(); }, { passive: false });
+    const ro = new ResizeObserver(() => { if (svg.isConnected) size(); else ro.disconnect(); }); ro.observe(stage);
+    CAM.api = { fly, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
+    const goal = CAM.goal, first = !CAM.seen; CAM.seen = true; size();
+    if (from) { Object.assign(CAM, clampV(at(...SITE[from], Z_MAX, .5))); apply(); fly(near(from), 700); }
+    else if (first) { const h = home(); Object.assign(CAM, clampV({ ...at(106, 36, zMin() * 1.1) })); apply(); fly(h, 1300); }   // the first look of the session: the whole country, then in to the five cities
+    else if (goal) fly(goal, 500);   // redrawn mid-flight (the HSK lists arrived): carry on to where it was going
+  }
+  const near = lv => at(...SITE[lv], Math.max(CAM.z > 4 ? 0 : CAM.z, zHome() * 1.55), .42);   // close on a monument, clear of its card
+  const focus = lv => CAM.api?.fly(near(lv), 560);
+  const zoomBy = k => CAM.api?.fly({ x: CAM.x, y: CAM.y, z: CAM.z * k }, 260);
+  const goHome = () => CAM.api?.fly(home(), 600);
+  const dive = lv => CAM.api?.fly(at(...SITE[lv], Z_MAX, .56), 440);
   /* ---- the five temples ---- */
   const hill = (pts, fill) => `<path d="${K.smooth(pts)}V262H0Z" fill="${fill}"/>`;
   const mist = (y, h, P, op = 1) => `<rect x="-10" y="${y}" width="380" height="${h}" fill="${P.mist}" filter="url(#wtSoft)" opacity="${op}"/>`;
@@ -5293,7 +5391,6 @@ const Trail = (() => {
       + hill([[0, 166], [30, 150], [70, 152], [110, 160], [250, 160], [290, 150], [330, 152], [360, 160], [360, 160]], P.near)
       + [[20, 152, .8], [44, 156, .7], [300, 154, .8], [328, 150, .9], [346, 158, .7]].map(([x, y, k]) => K.pine(x, y, k, P)).join('') + mist(156, 14, P, .7) + court(P, 192),
     box: [94, 266, 112, 190], board: 6,
-    tags: [[180, 182], [180, 132], [180, 132], [180, 100], [180, 64], [180, 120], [180, 214], [70, 112]],
     draw(k, P, ctx) {
       let s = k >= 8 ? bamboo(34, 212, 128, P, 3) + bamboo(318, 210, 136, P, 9) : '';
       if (k >= 1) s += K.hall({ cx: 180, base: 188, w: 164, colH: 38, st: k <= 4 ? k : k === 5 ? 4 : 5, double: k >= 5, n: ctx.n, lanterns: k >= 6 ? hallLanterns(ctx, [114, 130, 230, 246]) : [] }, P);
@@ -5324,7 +5421,6 @@ const Trail = (() => {
       return s + court(P, 196);
     },
     box: [96, 264, 112, 192],
-    tags: [[180, 186], [180, 136], [180, 112], [180, 100], [180, 136], [180, 96], [60, 92], [180, 70]],
     draw(k, P) {
       const brick = P.lit ? '#4C4A54' : '#A9A59C', plaster = P.lit ? '#6C6874' : '#F1ECE2', base = 192;
       let s = k >= 7 ? banyan(52, 206, P) : '';
@@ -5375,7 +5471,6 @@ const Trail = (() => {
   const T3 = {
     back: (P, k) => sky(P) + K.cloud(40, 30, .9, P) + K.cloud(180, 16, .7, P) + skyline(P, k >= 8) + mist(150, 26, P) + hill([[0, 178], [90, 174], [180, 177], [270, 173], [360, 177], [360, 177]], P.near) + court(P, 190),
     box: [92, 288, 112, 188], board: 5,
-    tags: [[190, 180], [190, 130], [190, 130], [190, 100], [190, 66], [64, 74], [316, 96], [180, 40]],
     draw(k, P, ctx) {
       let s = '';
       if (k >= 6) s += K.pagoda(58, 184, 32, P);
@@ -5410,7 +5505,6 @@ const Trail = (() => {
       + mist(104, 24, P) + hill([[0, 150], [50, 134], [100, 146], [150, 140], [210, 150], [260, 136], [310, 146], [360, 138], [360, 138]], P.mid)
       + hill([[0, 176], [60, 166], [120, 172], [240, 172], [300, 164], [360, 172], [360, 172]], P.near) + court(P, 200),
     box: [112, 248, 40, 198],
-    tags: [[180, 190], [270, 150], [270, 118], [270, 88], [270, 62], [270, 40], [64, 140], [180, 214]],
     draw(k, P) {
       let s = '';
       if (k >= 7) s += K.hall({ cx: 58, base: 190, w: 58, colH: 20, st: 4 }, P) + K.hall({ cx: 302, base: 190, w: 58, colH: 20, st: 4 }, P);
@@ -5460,7 +5554,6 @@ const Trail = (() => {
       return s + court(P, 196);
     },
     box: [92, 268, 50, 198],
-    tags: [[180, 218], [300, 186], [300, 172], [300, 152], [304, 128], [304, 100], [304, 70], [180, 20]],
     draw(k, P) {
       const cx = 180, mar = P.lit ? '#8E8A96' : '#F4F1EA', mar2 = P.lit ? '#625E6C' : '#D3CDBF';
       let s = '';
@@ -5481,11 +5574,9 @@ const Trail = (() => {
     },
   };
   const TT = [T1, T2, T3, T4, T5];
-  const risen = k => k >= 2;   // until the base and the first piece on it stand, the picture shows no dashed plan or next-piece label
   function layer(T, k, P, ctx) {
     if (!ctx.started) return '';
-    let s = risen(k) && k < 8 ? K.ghost(T.draw(k + 1, P, ctx)) : '';
-    if (k === 0) s += stakes(T.box, P);
+    let s = k === 0 ? stakes(T.box, P) : '';   // only what stands: no outline of the next piece
     s += T.draw(k, P, ctx);
     if (k >= 1 && k < 8) s += scaffold(T.box);
     return s;
@@ -5497,31 +5588,49 @@ const Trail = (() => {
     const rev = from != null && from < st.k;
     s += rev ? `<g class="mp-old">${layer(T, from, P, ctx)}</g><g class="mp-new">${layer(T, st.k, P, ctx)}</g>` : layer(T, st.k, P, ctx);
     if (st.k < Math.min(8, T.board || 8)) s += K.sign(42, 246, st.n, P);
-    if (st.started && risen(st.k) && st.k < 8) { const [x, y] = T.tags[st.k], m = st.need[st.k] - st.n; s += `<g${rev ? ' class="mp-new"' : ''}>${K.tag(x, y, `${TRAIL[lv - 1].pieces[st.k]} · ${m} more word${m === 1 ? '' : 's'}`, P)}</g>`; }
     if (rev) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
   }
-  return { globe, globeAt, globeMount, scene, GS };
+  return { map, mount, mini, scene, CAM, focus, zoomBy, goHome, dive };
 })();
 
 function MapView() {
   if (!S.H) loadHsk().then(() => { if (S.view === 'map') { S.instant = true; render(); } }, () => {});
   return S.mapLv ? CityView(S.mapLv) : TrailView();
 }
+const trailSeg = st => TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
+  return `<i class="${p >= 1 ? 'full' : p > 0 ? 'part' : ''}"><b style="width:${(p * 100).toFixed(1)}%"></b></i>`; }).join('');
 function TrailView() {
-  const sts = TRAIL.map(c => trailState(c.lv)), built = sts.reduce((a, x) => a + x.k, 0);
-  const row = (c, st) => `<button class="mp-row${st.done ? ' done' : st.started ? '' : ' off'}" data-act="map-city" data-lv="${c.lv}">
-      <span class="mp-row-zh">${c.zh}</span>
-      <span class="mp-row-mid"><b>${esc(c.en)}</b><small>HSK ${c.lv} · ${c.name}</small><span class="mp-row-bar"><i style="width:${(st.n / st.total * 100).toFixed(1)}%"></i></span></span>
-      <span class="mp-row-end">${st.done ? 'Finished' : st.started ? `${st.k} of 8` : 'Not started'}${st.k > st.seen ? '<em>New</em>' : ''}</span></button>`;
+  const sts = TRAIL.map(c => trailState(c.lv)), built = sts.reduce((a, x) => a + x.k, 0), C = Trail.CAM;
+  if (S.mapFrom) C.sel = S.mapFrom;   // back from a monument's page: its card is open again
+  const ic = d => `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}"/></svg>`;
   return `<div class="screen fade-in mp-page">
-    <div class="top-gap"></div>
-    <div class="section-head cal-head"><h2>Temple map <span class="cal-zh">地图</span></h2><span class="mp-sum">${built} of 40 pieces</span></div>
-    <div class="mp-map gb-stage" id="mpMap"><div class="mp-zoom">${Trail.globe(sts)}</div></div>
-    <p class="mp-note">Each HSK level builds a temple in its own city. Your first word of a level breaks ground there, and every word after it brings the next piece closer.</p>
-    <div class="mp-list">${TRAIL.map((c, i) => row(c, sts[i])).join('')}</div>
+    <div class="tm-stage" id="mpMap">${Trail.map(sts)}
+      <div class="section-head cal-head tm-head"><h2>Temple map <span class="cal-zh">地图</span></h2><span class="mp-sum">${plural(built, 'piece')} built</span></div>
+      <div class="tm-ctl tm-ui"><button data-act="map-zoom" data-d="1" aria-label="Zoom in">${ic('M10 4v12M4 10h12')}</button><button data-act="map-zoom" data-d="-1" aria-label="Zoom out">${ic('M4 10h12')}</button>
+        <button data-act="map-home" aria-label="Show all five cities">${ic('M10 2v3M10 15v3M2 10h3M15 10h3M10 6a4 4 0 1 0 0 8a4 4 0 1 0 0 -8')}</button></div>
+      <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : ''}</div>
+    </div>
   </div>`;
 }
+function mapCard(lv) {   // what a tap on a monument shows: its name and how far along it is; a cloud tells you nothing but its level
+  const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
+  const med = `<div class="tm-med">${Trail.mini(lv, st)}<i class="tm-lv">${lv}</i></div>`, go = t => `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${t}</button>`;
+  if (!st.started) return `<div class="tm-card tm-ui myst" role="dialog" aria-label="HSK ${lv}: not discovered yet">${x}${med}
+    <div class="tm-body"><small class="tm-city">HSK ${lv}</small><h3>Undiscovered <span>未知</span></h3><p>Something will stand here. Your first HSK ${lv} word clears the clouds.</p></div>
+    <div class="tm-acts">${go('Start building')}</div></div>`;
+  const m = st.k < 8 ? st.need[st.k] - st.n : 0;
+  const line = st.done ? 'All 8 pieces built.' : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'word')}` : `Ground broken · first piece in ${plural(m, 'word')}`;
+  return `<div class="tm-card tm-ui${st.done ? ' done' : ''}" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
+    <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · HSK ${lv}</small><h3>${c.name} <span>${c.nzh}</span></h3><div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
+      <p>${st.k > st.seen ? '<em>New</em>' : ''}${line}</p></div>
+    <div class="tm-acts"><button class="btn btn-ghost" data-act="map-visit" data-lv="${lv}">Visit</button>${go(st.done ? 'Add more words' : 'Continue building')}</div></div>`;
+}
+function mapPick(lv) {   // tap a monument: the map flies to it and its card comes up
+  const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
+  C.sel = lv; LOG.add('map-city', { lv }); const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); C.api?.mark(); Trail.focus(lv);
+}
+function mapClose() { Trail.CAM.sel = 0; $('#tmSlot')?.replaceChildren(); Trail.CAM.api?.mark(); }
 function trailNext(lv) {   // what Continue building does, in words
   if (lv === 1) { const due = utDue(), n = lesNext();
     if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
@@ -5539,50 +5648,42 @@ function CityView(lv) {
   const c = TRAIL[lv - 1], st = trailState(lv), from = st.k > st.seen ? st.seen : null;
   if ((db.mapSeen ||= {})[lv] !== st.k) { db.mapSeen[lv] = st.k; save(); }
   const label = !st.started ? 'Start building' : st.done ? 'Add more words' : 'Continue building';
-  const seg = TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
-    return `<i class="${p >= 1 ? 'full' : p > 0 ? 'part' : ''}"><b style="width:${(p * 100).toFixed(1)}%"></b></i>`; }).join('');
   const m = st.k < 8 ? st.need[st.k] - st.n : 0, cap = s => s[0].toUpperCase() + s.slice(1);
-  const next = !st.started ? `Your first HSK ${lv} word breaks ground in ${esc(c.en)}.` : st.done ? `Every piece is built. ${esc(c.en)} is finished.`
-    : `Next piece: <b>${cap(c.pieces[st.k])}</b>, ${plural(m, 'more word')}.`;
+  const next = !st.started ? `Your first HSK ${lv} word breaks ground here.` : st.done ? `Every piece is built. ${esc(c.en)} is finished.`
+    : `Next piece in ${plural(m, 'more word')}.`;
   const built = from != null ? c.pieces.slice(from, st.k) : [];
   const step = (name, i) => { const need = i < 0 ? 1 : st.need[i], done = st.n >= need, cur = !done && (i < 0 || st.k === i);
-    return `<li class="${done ? 'done' : cur ? 'cur' : ''}"><span class="mp-tick">${done ? I.check : ''}</span><span class="mp-st-n">${cap(name)}</span><small>${done ? 'Built' : cur ? `${need - st.n} more` : plural(need, 'word')}</small></li>`; };
+    return `<li class="${done ? 'done' : cur ? 'cur' : ''}"><span class="mp-tick">${done ? I.check : ''}</span><span class="mp-st-n">${done ? cap(name) : cur ? 'Next piece' : '???'}</span><small>${done ? 'Built' : cur ? `${need - st.n} more` : plural(need, 'word')}</small></li>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
   return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">
-    <header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${esc(c.en)} <span class="mp-zh">${c.zh}</span></div><div style="width:42px"></div></header>
+    <header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${st.started ? `${esc(c.en)} <span class="mp-zh">${c.zh}</span>` : `HSK ${lv}`}</div><div style="width:42px"></div></header>
     <div class="mp-scene${from != null ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), from)}
       <span class="mp-chip"><i>${lv}</i>HSK ${lv}</span>
       ${built.length ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Built</b>${esc(built.length > 1 ? `${built.length} new pieces, last the ${built.at(-1)}` : built[0])}</span></div>` : ''}</div>
     <div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${label}</button></div>
     <p class="mp-hint">${trailNext(lv)}</p>
     <section class="mp-info">
-      <h2>${c.name} <span class="cal-zh">${c.nzh}</span></h2>
+      <h2>${st.started ? c.name : 'Undiscovered'} <span class="cal-zh">${st.started ? c.nzh : '未知'}</span></h2>
       <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} HSK ${lv} words in your word bank</p>
-      <div class="mp-seg" aria-hidden="true">${seg}</div>
+      <div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
       <p class="mp-next">${next}</p>
     </section>
     <section class="mp-steps"><h3>The pieces</h3><ol>${step('ground broken', -1)}${c.pieces.map(step).join('')}</ol></section>
   </div>`;
 }
-function mapZoom(lv) {   // tap a temple: the map dives into its city, then the temple opens
-  if (performance.now() < Trail.GS.noClick) return;   // the end of a spin, not a tap
-  const z = $('#mpMap .mp-zoom'); LOG.add('map-city', { lv });
-  if (!z || stillMotion()) { nav('#/map/' + lv); return; }
-  const [ox, oy] = Trail.globeAt(lv); z.style.transformOrigin = `${ox.toFixed(2)}% ${oy.toFixed(2)}%`;
-  $('#mpMap').classList.add('mp-going'); z.classList.add('mp-zooming');
+function mapZoom(lv) {   // Visit: the map dives into the city, then the monument's page opens
+  const st = $('#mpMap'); LOG.add('map-visit', { lv });
+  if (!st || stillMotion()) { nav('#/map/' + lv); return; }
+  st.classList.add('mp-going'); Trail.dive(lv);
   setTimeout(() => { S.instant = true; S.mapZoomIn = true; nav('#/map/' + lv); }, 440);
 }
-function mountMap() {   // the globe spins under your finger; back from a temple, it pulls out of that city
+function mountMap() {   // the map answers your fingers; back from a monument's page, it pulls out of that city
   if (S.mapLv) return;
-  const lv = S.mapFrom; S.mapFrom = 0; if (lv) Trail.GS.spun = true;
-  Trail.globeMount(TRAIL.map(c => trailState(c.lv)));
-  const z = $('#mpMap .mp-zoom'); if (!z || !lv || stillMotion()) return;
-  const [ox, oy] = Trail.globeAt(lv); z.style.transformOrigin = `${ox.toFixed(2)}% ${oy.toFixed(2)}%`;
-  z.style.transition = 'none'; z.classList.add('mp-zin'); z.offsetWidth; z.style.transition = '';
-  setTimeout(() => z.classList.remove('mp-zin'), 30);
+  const lv = S.mapFrom; S.mapFrom = 0; Trail.mount(lv);
 }
-document.addEventListener('keydown', e => {   // a temple on the map opens with Enter or Space too
-  const p = e.target.closest?.('.gb-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapZoom(+p.dataset.lv); }
+document.addEventListener('keydown', e => {   // a monument on the map opens with Enter or Space too; Escape puts its card away
+  const p = e.target.closest?.('.tm-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapPick(+p.dataset.lv); }
+  else if (e.key === 'Escape' && S.view === 'map' && !S.mapLv && Trail.CAM.sel) mapClose();
 });
 /* the last thing you used: the story you are reading, or your last deck; with neither, a button to make a deck */
 function LastTile() {
@@ -7411,7 +7512,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.28';
+const APP_VERSION = '2.29';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8101,7 +8202,11 @@ const A = {
   'new-deck': () => deckSheet(null),
   'quick-add': () => quickAddSheet(),
   'open-bank': () => nav('#/bank'),
-  'map-city': t => mapZoom(+t.dataset.lv),
+  'map-city': t => mapPick(+t.dataset.lv),
+  'map-visit': t => mapZoom(+t.dataset.lv),
+  'map-close': () => mapClose(),
+  'map-zoom': t => Trail.zoomBy(+t.dataset.d > 0 ? 1.7 : 1 / 1.7),
+  'map-home': () => { mapClose(); Trail.goHome(); },
   'map-back': () => { S.instant = true; goBack('#/map'); },
   'map-build': t => trailGo(+t.dataset.lv),
   'open-hsk': () => nav('#/hsk'),
@@ -8276,7 +8381,7 @@ document.addEventListener('click', e => {
   };
   app.addEventListener('pointerdown', e => {
     if (g || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf,.hd-stack,.gb-stage')) return;
+    if (e.target.closest('input,textarea,select,.stage,.tzg,canvas,.shelf,.hd-stack,.tm-stage')) return;
     const T = targets(); if (!T) return;
     g = { id: e.pointerId, sx: e.clientX, sy: e.clientY, hist: [[e.clientX, e.timeStamp]], v: 0, x0: 0, T, on: false };
   });
