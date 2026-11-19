@@ -2173,6 +2173,8 @@ button.scene-tile:active svg{opacity:.92}
 @media (prefers-reduced-motion:reduce){#ob,#ob.out,.ob-hi .ob-big,.ob-hi .ob-big .shi-face{animation:none}}
 
 .fade-in{animation:fadeIn .35s ease both}
+.q-host{position:relative}
+.q-ghost{position:absolute;inset:0;z-index:1;pointer-events:none}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -3599,7 +3601,7 @@ function lesWriteGraded(ok) {   // Next under the checked writing (or Got it / M
   if (ok) { E.combo++; E.best = Math.max(E.best, E.combo); E.wroteCh.push(Q.ch); lesGain(25 + (clean ? 10 : 0)); }
   else { E.combo = 0; E.wrong++; E.wFail = true; E.missed.add(Q.w.h); }
   if (++E.qi >= E.q.length) lesLast();
-  lesPaint(true);
+  lesGoOn();
 }
 const lesLast = () => S.les.test ? finishTest() : finishLesson();   // after the last step: the lesson's end, or a test's result
 function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWriter checks each stroke)
@@ -3649,7 +3651,7 @@ function lesDropWrites(quiet) {   // "Can't write now", or no internet: no more 
   if (!quiet) toast(`No more writing in this ${E.test ? 'test' : 'lesson'}`);
   LOG.add('lesson-write-skip', { n: E.n, test: E.test || undefined, left, quiet: !!quiet });
   if (E.qi >= E.q.length) lesLast();
-  lesPaint(true);
+  lesGoOn();
 }
 function lesDropEars() {   // "Can't listen now": the listening questions left ask "Which one means…" instead (same four answers), and nothing is said aloud by itself any more
   const E = S.les; let left = 0;
@@ -3788,6 +3790,34 @@ function mountLesson() {
   lesAuto(); lesWriteMount(); lesEndShow();
 }
 function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (S.les) S.les.flash = 0; if (auto) lesAuto(); lesWriteMount(); lesEndShow(); }
+const lesGoOn = () => { const E = S.les; if (E?.step === 'quiz') qSlide($('#lesScr'), '.les-body, .les-dock', () => lesPaint(true)); else lesPaint(true); };   // on to the next question, sliding
+/* Next question: the top bar and the buttons stay where they are and the progress bar glides on, while the old question
+   slides out to the left and the new one slides in from the right, so there is never a blank flash between two questions.
+   sel: the parts that change; paint(): draws the new question. The old parts are moved (not copied, so a canvas keeps its
+   ink) into a layer on top, at the exact spot they were, and fade away there. */
+function qSlide(scr, sel, paint) {
+  const old = scr ? [...scr.querySelectorAll(sel)] : [];
+  if (!old.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return paint();
+  scr.querySelector('.q-ghost')?.remove();                                   // a tap during the last slide: drop it at once
+  const host = scr.getBoundingClientRect(), at = old.map(n => n.getBoundingClientRect());
+  const bar = () => scr.querySelector('.les-bar i'), w0 = bar()?.style.width;
+  old.forEach(n => n.remove());
+  paint();
+  const nb = bar(); if (nb && w0 && nb.style.width !== w0) { const w1 = nb.style.width; nb.style.transition = 'none'; nb.style.width = w0; nb.offsetWidth; nb.style.transition = ''; nb.style.width = w1; }
+  const fresh = [...scr.querySelectorAll(sel)];
+  const ghost = document.createElement('div'); ghost.className = 'q-ghost'; ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
+  old.forEach((n, i) => {
+    [n, ...n.querySelectorAll('[id]')].forEach(e => { if (!e.closest('svg')) e.removeAttribute('id'); });   // no second #grid for the buttons to find
+    const r = at[i]; Object.assign(n.style, { position: 'absolute', margin: '0', left: r.left - host.left + 'px', top: r.top - host.top + 'px', width: r.width + 'px', height: r.height + 'px', boxSizing: 'border-box' });
+    ghost.append(n);
+  });
+  scr.classList.add('q-host'); scr.append(ghost);
+  const still = n => n.matches('.les-dock');                                   // the button row stays in place and only cross-fades
+  const outs = old.map(n => n.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: still(n) ? 'none' : 'translateX(-32px)' }], { duration: 170, easing: 'cubic-bezier(.4,0,.7,1)', fill: 'forwards' }));
+  Promise.all(outs.map(a => a.finished.catch(() => {}))).then(() => { ghost.remove(); if (!scr.querySelector('.q-ghost')) scr.classList.remove('q-host'); });
+  fresh.forEach((n, i) => n.animate([{ opacity: 0, transform: still(n) ? 'none' : 'translateX(36px)' }, { opacity: 1, transform: 'none' }],
+    { duration: still(n) ? 240 : 320, delay: still(n) ? 60 : 90 + i * 25, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' }));
+}
 function lesAuto() {   // say each new word, the word in "what does this mean" and "which one do you hear", and the word you are about to write
   const E = S.les; if (!E) return;
   const h = E.step === 'quiz' && ['meet', 'hz2en', 'ear', 'write'].includes(E.q[E.qi]?.t) ? E.q[E.qi].w.h : null;
@@ -3848,12 +3878,12 @@ function lesAct(k, b) {
       W.animateCharacter({ onComplete: () => { if (E.writer !== W || E.ans != null) return; W.hideCharacter(); E.wq(); b.disabled = false; } });
       return;
     }
-    if (k === 'next' && E.ans != null) { clearTimeout(E.timer); E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesPaint(true); }
+    if (k === 'next' && E.ans != null) { clearTimeout(E.timer); E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesGoOn(); }
     return;
   }
 }
 function lesStep() {   // on to the next card or task
-  const E = S.les; E.turned = false; E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesPaint(true); window.scrollTo(0, 0);
+  const E = S.les; E.turned = false; E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesGoOn(); window.scrollTo(0, 0);
 }
 /* the end of a lesson: its words go into the word bank by themselves (each one seen today, back for review tomorrow) */
 function finishLesson() {
@@ -7186,6 +7216,7 @@ const JUDGE = {
   looseTol: .2,    // when the reader's first guess is exactly the right character, a stroke may sit this far off instead
   looseTotal: .6,  // (a stroke drawn a bit off still counts; a stroke left out still fails)
   looseInk: .85,   // and you must have drawn at least this much ink compared with the real character
+  twin: { shape: .12, off: .34, len: 2, most: 3, ink: .55 },  // a stroke written in the wrong spot still counts when one of your strokes is plainly it (see strokeCheck)
 }
 function polyNorm(lines) {
   const all = lines.flat(); if (!all.length) return [];
@@ -7325,9 +7356,38 @@ function strokeCheck(userStrokes, ref, s) {
   const totalL = onL.reduce((a, f, i) => a + f * U[i].length, 0) / Ua.length;
   const partL = parts.map(pt => pt.ix.reduce((a, i) => a + refL[i] * R[i].length, 0) / (pt.ix.reduce((a, i) => a + R[i].length, 0) || 1));
   const looseOk = !extra && refL.every(c => c >= JUDGE.strokeCov) && onL.every(c => c >= JUDGE.inkOn) && partL.every(c => c >= JUDGE.partCov) && totalL >= JUDGE.looseTotal && Ua.length >= JUDGE.looseInk * Ra.length;
+  // Written fast is not written wrong. A stroke that misses its spot still counts when one of your strokes is plainly that
+  // stroke, only shifted (a 辶 dot drawn low, a squeezed 讠, a tall 田): the same shape and size, on the same part of the
+  // character, not too far off, and not needed for any other stroke. A stroke you left out has no such twin (氵 with two
+  // marks: the nearest spare stroke belongs to the other part, or is far longer than a dot). Only used when the reader is sure.
+  const T = JUDGE.twin, offRef = R.map((_, j) => j).filter(j => refL[j] < JUDGE.strokeCov), twinOf = new Map();
+  if (!looseOk && !extra && offRef.length && offRef.length <= Math.min(T.most, R.length / 2)) {
+    const partOf = j => parts.findIndex(pt => pt.ix.includes(j));
+    const userPart = i => { const c = parts.map(() => 0); owner[i].forEach(j => c[partOf(j)]++); return c.indexOf(Math.max(...c)); };
+    const mid = A => ({ x: A.reduce((t, q) => t + q.x, 0) / A.length, y: A.reduce((t, q) => t + q.y, 0) / A.length });
+    const lift = (A, m) => A.map(q => ({ x: q.x - m.x, y: q.y - m.y })), near = R.map(l => frac(l, Ua, JUDGE.looseTol));
+    for (const j of offRef) {
+      if (!Rs[j]) break;
+      const mr = mid(Rs[j]), r0 = lift(Rs[j], mr); let best = null;
+      Us.forEach((u, i) => {
+        if ([...twinOf.values()].includes(i) || (parts.length > 1 && userPart(i) !== partOf(j))) return;
+        if ((U[i].length + 1.3) > T.len * (R[j].length + 1.3)) return;              // a long stroke can't be a dot (lengths in steps)
+        const mu = mid(u), d = Math.hypot(mu.x - mr.x, mu.y - mr.y); if (d > T.off) return;
+        const sh = Math.min(gap(lift(u, mu), r0), gap(lift([...u].reverse(), mu), r0)); if (sh > T.shape) return;
+        const rest = U.filter((_, x) => x !== i).flat();                            // needed elsewhere: without it another stroke goes bare
+        if (R.some((l, k) => k !== j && !twinOf.has(k) && near[k] >= JUDGE.strokeCov && frac(l, rest, JUDGE.looseTol) < JUDGE.strokeCov)) return;
+        if (!best || d < best.d) best = { i, d };
+      });
+      if (!best) break; twinOf.set(j, best.i);
+    }
+  }
+  const twinUsed = new Set(twinOf.values()), refT = refL.map((c, j) => twinOf.has(j) ? 1 : c);
+  const twinOk = twinOf.size > 0 && twinOf.size === offRef.length && onL.every((c, i) => twinUsed.has(i) || c >= JUDGE.inkOn)
+    && parts.every(pt => pt.ix.reduce((a, i) => a + refT[i] * R[i].length, 0) / (pt.ix.reduce((a, i) => a + R[i].length, 0) || 1) >= JUDGE.partCov)
+    && Ua.length >= T.ink * Ra.length;
   const strong = ok && Math.min(...refCov) >= JUDGE.strong.stroke && Math.min(...parts.map(pt => pt.cov)) >= JUDGE.strong.part && total >= JUDGE.strong.total;
   const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
-  return { ok, strong, looseOk, extra, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
+  return { ok, strong, looseOk, twinOk, extra, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -7385,6 +7445,7 @@ function verdict(shape, rank) {
   if (!shape) return rank === 0;
   if (rank === null) return shape.ok;                          // offline: stroke placement only
   if (rank === 0 && shape.looseOk) return true;               // the reader is sure and every stroke is roughly in place
+  if (rank === 0 && shape.twinOk) return true;                // ...or the strokes off their spot are plainly yours, only shifted
   return shape.ok && ((rank >= 0 && rank <= JUDGE.maxRank) || shape.strong);   // a clean stroke match is enough on its own
 }
 
@@ -7598,7 +7659,17 @@ function gradeWrite(ok) {
   LOG.add('write-grade', { hz: c.hanzi, counted: ok ? 'right' : 'wrong', mode: db.prefs.writeMode, checker: W.judge ? W.judge.ok : undefined, again: first ? undefined : true, hints: W.hints || undefined });
   W.i++;
   if (W.i >= W.order.length) { W.done = true; LOG.add('write-round', { right: W.order.slice(0, W.main).filter(id => W.results[id]).length, of: W.main, fixed: W.order.slice(0, W.main).filter(id => !W.results[id] && W.last[id]).length }); }
-  resetCardState(); render();
+  resetCardState();
+  const scr = $('#app > .screen'), dock = $('#wdock');
+  if (W.done || S.view !== 'write' || !dock) return render();
+  const side = $('.shi-side'); if (side) { side.animate([{ opacity: 1 }, { opacity: 0, transform: 'translateX(-24px)' }], { duration: 180, fill: 'forwards' }).onfinish = () => side.remove(); }   // Shi Shi's note goes with the old word
+  iconBadge();
+  qSlide(scr, '#wprompt, #grid, #note, #tools', () => {   // the next word slides in; the bar, the mode switch and the button row stay
+    dock.insertAdjacentHTML('beforebegin', writeBody(cardById(d, W.order[W.i])));
+    $('.progress-fill', scr).style.width = `${W.i / W.order.length * 100}%`;
+    dock.innerHTML = writeDock(); dock.firstElementChild?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+    mountWrite();
+  });
 }
 function WriteSummary(d) {
   const W = S.write, ids = W.order.slice(0, W.main), ok = ids.filter(id => W.results[id]).length, n = ids.length, pct = Math.round(ok / n * 100);
@@ -8515,7 +8586,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.58';
+const APP_VERSION = '2.59';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9371,7 +9442,7 @@ const A = {
     W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
     LOG.add('write-check', { hz: chars.join(''), ok: W.judge.ok, wrote_for: Math.round((t0 - W.shownAt) / 1000) + 's', check_took: (Date.now() - t0) + 'ms',
       boxes: res.map((r, i) => ({ ok: r.ok, strokes: (boxes[i]._strokes || []).length, rank: r.rank, top: r.cands?.[0], fit: r.shape?.fit != null ? +r.shape.fit.toFixed(2) : undefined, missing: r.shape?.missing || undefined, stray: r.shape?.stray || undefined, part: r.shape?.badPart?.pos,
-        ink: r.ok === false && !r.empty ? { s: boxes[i]._s, strokes: (boxes[i]._strokes || []).map(st => st.filter((_, k) => k % 2 === 0 || k === st.length - 1).map(p => [Math.round(p.x), Math.round(p.y)])) } : undefined })),   // a failed drawing, so a wrong "wrong" can be replayed and fixed
+        ink: !r.empty ? { s: boxes[i]._s, strokes: (boxes[i]._strokes || []).map(st => st.filter((_, k) => k % 2 === 0 || k === st.length - 1).map(p => [Math.round(p.x), Math.round(p.y)])) } : undefined })),   // every drawing, so a wrong "wrong" and a wrong "right" (Count as wrong) can both be replayed and fixed
       said: judgeNote(chars).replace(/<[^>]+>/g, '') });
     showVerdict();
   },
