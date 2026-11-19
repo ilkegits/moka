@@ -5349,16 +5349,16 @@ const Trail = (() => {
   // the marker over the city you are building in: a red pin with Shi Shi in it, hovering, like the "you are here" of a game map
   const beacon = y => `<g transform="translate(0 ${f(y)})"><g class="tm-hov"><path class="tm-bpin" d="M0 0C-3 -6 -11 -9 -11 -18A11 11 0 1 1 11 -18C11 -9 3 -6 0 0Z"/><circle class="tm-bface" cy="-18" r="8.2"/><image href="mascots/shi-shi.svg" x="-7.5" y="-25.5" width="15" height="15"/></g></g>`;
   function monument(c, st, cur) {
-    const M = MON[c.lv - 1], w = st.started ? M.w : 16, top = !st.started ? 0 : st.k ? M.h * st.k / 8 + 4 : 7;
-    let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
+    const M = MON[c.lv - 1], w = st.k ? M.w : 16, top = st.k ? M.h * st.k / 8 + 4 : 0;   // nothing built yet: no pad, no stakes, only the marker over the spot
+    let s = (st.k ? `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/>` : '') + `<ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
     if (cur || st.k > st.seen) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
-    if (st.started) s += `<g class="tm-mon">${stands(c.lv, st.k, 'tmB' + c.lv)}</g>`;
+    if (st.k) s += `<g class="tm-mon">${stands(c.lv, st.k, 'tmB' + c.lv)}</g>`;
     if (st.done) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-M.w + 4} ${-M.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${M.w - 3} ${-M.h + 12})"/>`;
     if (cur) s += beacon(-top - 5);
     const hi = top + (cur ? 44 : 4);
     return s + `<rect x="${-w - 4}" y="${-hi}" width="${w * 2 + 8}" height="${hi + 10}" fill="transparent"/>`;
   }
-  const mini = (lv, st) => st.started ? `<svg viewBox="${(M => `${-M.w - 5} ${-M.h - 3} ${M.w * 2 + 10} ${M.h + 8}`)(MON[lv - 1])}" aria-hidden="true">${stands(lv, st.k, 'tmM' + lv)}</svg>`   // the same monument, for its card
+  const mini = (lv, st) => st.k ? `<svg viewBox="${(M => `${-M.w - 5} ${-M.h - 3} ${M.w * 2 + 10} ${M.h + 8}`)(MON[lv - 1])}" aria-hidden="true">${stands(lv, st.k, 'tmM' + lv)}</svg>`   // the same monument, for its card
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`;
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -5380,7 +5380,7 @@ const Trail = (() => {
     const [under, over] = drawn(), cur = states.findIndex(x => !x.done), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have built. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
-    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.started || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; a level you have not reached is not on the map at all
+    TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.k || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; a level with nothing built yet is not on the map, unless it is the one you are building
       const say = !st.started ? `Your next monument, HSK ${c.lv}` : `${c.name}, ${c.en}, HSK ${c.lv}, ${st.done ? 'finished' : `${st.k} of 8 pieces built`}`;
       s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
     return s + '</svg>';
@@ -7659,7 +7659,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.35';
+const APP_VERSION = '2.36';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
