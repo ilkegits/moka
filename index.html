@@ -772,16 +772,13 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-ping{fill:none;stroke:#FFC21F;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
 @keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.7);opacity:0}}
 .tm-ring{fill:none;stroke:#FFC21F;stroke-width:1.7;stroke-dasharray:4 3;opacity:0}
-.tm-pin.sel .tm-ring,.tm-pin.cur .tm-ring{opacity:1;animation:tmRing 1.1s linear infinite}
+.tm-pin.sel .tm-ring{opacity:1;animation:tmRing 1.1s linear infinite}
 @keyframes tmRing{to{stroke-dashoffset:-14}}
 .tm-mon{transform-box:fill-box;transform-origin:50% 100%}
 .tm-pin.sel .tm-mon{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1)}
 @keyframes tmPop{0%{transform:scale(1)}35%{transform:scale(1.14,1.2)}100%{transform:scale(1)}}
 .tm-pin:focus-visible .tm-shade{fill:var(--seal);opacity:.55}
-.tm-hov{animation:tmHover 1.2s ease-in-out infinite alternate}
 @keyframes tmHover{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-.tm-bpin{fill:#E8322A;stroke:#8E1810;stroke-width:1.1;stroke-linejoin:round}
-.tm-bface{fill:#FFF4DC;stroke:#8E1810;stroke-width:.8}
 .tm-q rect{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
 .tm-q text{font:700 12px var(--display);fill:var(--seal-ink)}
 /* the bar along the bottom: progress on the monument you are on, and the button that goes on building it */
@@ -852,11 +849,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
   box-shadow:var(--ring),0 6px 14px -8px rgba(60,35,10,.5);font:600 16px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
 .tm-wallet .coin{width:22px;height:22px}
 .tm-wallet.can{box-shadow:var(--ring),0 0 0 2.5px #FFC21F,0 6px 14px -8px rgba(60,35,10,.5)}
-.tm-now>em{position:absolute;left:12px;top:-10px;font:700 10.5px var(--ui);font-style:normal;padding:3px 7px;border-radius:7px;background:#FFD43B;color:#4A2E03;box-shadow:0 0 0 2px var(--card)}
-.tm-ghost{opacity:.42}
-.tm-ghost.can{opacity:.62}
-.tm-gauge0{fill:none;stroke:#FFF8E6;stroke-width:2.6;opacity:.75}
-.tm-gauge{fill:none;stroke:#FFC21F;stroke-width:2.6;stroke-linecap:round}
 .tm-buy-near,#tmSvg.near .tm-buy-far{display:none}
 #tmSvg.near .tm-buy-near{display:inline}
 .tm-tag{fill:var(--card);stroke:#3B2A20;stroke-width:.7}
@@ -872,13 +864,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-wallet:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tm-now-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-now-s{font-size:12.5px;font-weight:600;color:var(--muted)}
-.tm-now.ready{box-shadow:var(--ring),0 0 0 2.5px #FFC21F,0 14px 26px -14px rgba(50,25,8,.6)}
-.tm-now.ready .tm-now-bar i{background:linear-gradient(90deg,#FFB800,#FFE066)}
 .tm-price{display:flex;align-items:center;gap:5px}
 .tm-price .coin{width:18px;height:18px}
 .tm-price b{font-weight:800;color:#8A4A06}
-.mp-cbar{margin-top:8px}
-.fb-seg .tm-now-bar{width:100%;max-width:300px;margin:0 auto 6px}
 .shop-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .shop-top h3{margin:0}
 .shop-bal{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:#FFF4C7;box-shadow:inset 0 0 0 1.5px #FFC21F;font:600 17px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
@@ -920,7 +908,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-buy .coin{width:20px;height:20px}
 .shop-need p{margin:6px 0 12px;font-size:13.5px;color:var(--ink-2)}
 .shop .qa-glyph{width:24px;height:24px;font-size:15px;transform:none;background:var(--seal-ink);color:var(--seal)}
-.tm-play.tm-go{flex-basis:40%;justify-content:flex-start;padding-left:16px}
+.tm-play.tm-go{flex:1;justify-content:flex-start;padding-left:16px}
 .tm-go-t{display:flex;flex-direction:column;gap:2px;font-size:20px;min-width:0}
 .tm-go-t small{font:600 11.5px var(--ui);opacity:.86;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-play .tm-tri{width:32px;height:32px}
@@ -967,9 +955,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .fb-note.no{background:var(--seal-soft);color:var(--seal)}
 .fb-end h1{margin:8px 0 6px}
 .fb-end .muted{max-width:320px}
-.fb-seg{width:100%;margin-top:22px;padding:14px 16px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:left}
-.fb-seg .mp-seg{display:grid}
-.fb-seg small{display:block;margin-top:9px;font-size:12.5px;color:var(--muted)}
 .fb-acts{display:grid;gap:10px}
 .mp-info{margin:22px 2px 0}
 .mp-info h2{margin:0 0 6px;font-family:var(--display);font-weight:600;font-size:21px}
@@ -1024,7 +1009,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-hov,.tm-bob,.tm-hud.in,.tm-card,.tm-pin.cur .tm-ring,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-bob,.tm-hud.in,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -5937,8 +5922,8 @@ function coinRain(root, P, wait = 0) {
    cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map), and
    mon/<id>-t.webp, 13 cut-outs side by side as the camera swings 0 to 30 degrees round it, played when you buy it
    (it: base and top in those, baked with bake.html?turn=13&deg=30&ic=400). Tap a
-   monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sit the
-   coins you are saving toward the monument you want next (db.monWish, else the cheapest one you lack) and the Shop.
+   monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sits
+   Play. (v2.67: no monument is singled out as the one you are saving for: no pin, ghost or saving bar.)
    db.monOpen = { monument: 1 } once you have seen it: a new one is revealed the first time you open its page. */
 const TRAIL = [
   { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, price: 3500, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02], it: [0.4832, 0.875, 0.02] },
@@ -5978,10 +5963,6 @@ function trailState(lv, A = trailAll()) {   // done = yours; n of total = the co
   return { lv, n: done ? total : Math.min(total, A.bal), total, words, done, seen: !!db.monOpen?.[lv], open: A.open, mast: mine.filter(w => w.pf.m).length, due: mine.filter(w => w.srs?.due <= now).length };
 }
 const trailStates = () => { const A = trailAll(); return TRAIL.map(c => trailState(c.lv, A)); };
-const trailCur = sts => {   // the monument you are saving for: the one you picked in the shop, else the cheapest you lack (-1: you own them all)
-  const w = db.monWish && sts[db.monWish - 1]; if (w && !w.done) return w.lv - 1;
-  let b = -1; sts.forEach((x, i) => { if (!x.done && (b < 0 || x.total < sts[b].total)) b = i; }); return b;
-};
 const trailOpened = sts => sts.filter(x => x.done).length;
 /* v2.56: the monuments unlocked by proven words before coins came stay yours, and the coins they would have cost are
    forgiven (db.coinAdj) as far as you had not earned them; coins earned before today are not poured into the bag again */
@@ -5992,6 +5973,7 @@ function monMigrate() {
   const e = coinEarned(); db.coinAdj = Math.max(0, coinSpent() - e); db.coinShown = e; save();
 }
 monMigrate();
+delete db.monWish;   // v2.67: the saving-for goal is gone
 /* The Map's "+N today": db.coinDay = { d: the day, e: what you had earned in all when the app first opened that day }.
    Only shown, never paid: the coins themselves are still counted from your data (coinEarned). */
 function coinToday() {
@@ -6289,25 +6271,17 @@ const Trail = (() => {
   }
   /* the monuments, small: the cut-out of its 3D picture standing on its spot (base at 0 0) */
   const cutout = c => { const k = c.h / (c.ic[1] - c.ic[2]); return `<image href="mon/${c.id}-i.webp" x="${f(-c.ic[0] * k)}" y="${f(-c.ic[1] * k)}" width="${f(k)}" height="${f(k)}"/>`; };
-  // the marker over the next monument: a red pin with Shi Shi in it, hovering, like the "you are here" of a game map
-  const beacon = y => `<g transform="translate(0 ${f(y)})"><g class="tm-hov"><path class="tm-bpin" d="M0 0C-3 -6 -11 -9 -11 -18A11 11 0 1 1 11 -18C11 -9 3 -6 0 0Z"/><circle class="tm-bface" cy="-18" r="8.2"/><image href="icons/logo.svg" x="-7.5" y="-25.5" width="15" height="15"/></g></g>`;
   const coin = (x, y, d) => coinSvg().replace('<svg class="coin"', `<svg x="${f(x)}" y="${f(y)}" width="${d}" height="${d}"`);
-  const girth = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));   // how long an ellipse's edge is, near enough
-  /* What stands on a monument's spot. Yours: the monument. The one you are saving for (wish): its ghost, a ring on the
-     ground that closes as the coins come in, and Shi Shi over it. Any other: a coin from far away, a price tag from
+  /* What stands on a monument's spot. Yours: the monument. One you do not own: a coin from far away, a price tag from
      closer (gold once you can pay for it), so the map is the shop window too. */
-  function monument(c, st, wish) {
+  function monument(c, st) {
     const can = !st.done && st.n >= st.total;
-    if (!st.done && !wish) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2;
+    if (!st.done) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2;
       return (can ? `<ellipse class="tm-ping" rx="7" ry="2.6" cy=".5"/>` : '') + `<ellipse class="tm-shade" rx="4.6" ry="1.6" cy=".6"/><g class="tm-buy${can ? ' can' : ''}">
         <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/>${coin(-5.5, -13.4, 11)}</g>
         <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/>${coin(-W / 2 + 1.5, -13.2, 9.2)}<text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
         <rect x="-13" y="-19" width="26" height="25" fill="transparent"/>`; }
     const w = c.w, top = c.h + 4, fresh = st.done && !st.seen;
-    if (!st.done) { const rx = w + 4, ry = 6.4, P = girth(rx, ry), k = st.n / st.total;
-      return `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1" style="opacity:.1"/><ellipse class="tm-gauge0" rx="${rx}" ry="${ry}" cy="1.5"/>`
-        + (k > 0 ? `<ellipse class="tm-gauge" rx="${rx}" ry="${ry}" cy="1.5" stroke-dasharray="${f(P * k)} ${f(P)}"/>` : '') + (can ? `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>` : '')
-        + `<g class="tm-mon tm-ghost${can ? ' can' : ''}">${cutout(c)}</g>${beacon(-top - 5)}<rect x="${f(-w * .8)}" y="${-top - 44}" width="${f(w * 1.6)}" height="${top + 54}" fill="transparent"/>`; }
     let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
     if (fresh) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
     s += `<g class="tm-up"><g class="tm-mon">${cutout(c)}</g></g>`;
@@ -6332,17 +6306,17 @@ const Trail = (() => {
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
   const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   const nearby = () => CAM.z >= zHome() * 1.5;   // close enough for the price tags; from further away each is only a coin
-  const landing = states => {   // where the camera comes down when the map opens: a monument just bought, else the one you are saving for
-    const fresh = states.find(x => x.done && !x.seen), i = trailCur(states), lv = fresh ? fresh.lv : i + 1;
-    return lv ? view(...SITE[lv], CAM.w / 185, .47) : null; };
+  const landing = states => {   // where the camera comes down when the map opens: a monument you just bought
+    const fresh = states.find(x => x.done && !x.seen);
+    return fresh ? view(...SITE[fresh.lv], CAM.w / 185, .47) : null; };
   function map(states) {
     if (CAM.x == null) Object.assign(CAM, home());
-    const [under, over] = drawn(), cur = trailCur(states), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
+    const [under, over] = drawn(), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<div class="tm-world"><svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
-    TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them
-      const say = st.done ? `${c.name}, ${c.en}, yours` : i === cur ? `Saving for the ${c.name}, ${c.en}: ${st.n} of ${st.total} coins` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
-      s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
+    TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st }) => {   // northern ones first, so nearer ones overlap them
+      const say = st.done ? `${c.name}, ${c.en}, yours` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
+      s += `<g class="tm-pin${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st)}</g>`; });
     return s + '</svg></div>';
   }
   function mount(from) {   // the map answers your fingers; back from a monument's page, it pulls out of that city
@@ -6450,10 +6424,10 @@ const Trail = (() => {
       t0 = performance.now(); rf = requestAnimationFrame(frame);
     };
     CAM.api = { fly, show, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
-    const goal = CAM.goal, first = !CAM.seen, states = trailStates(), cur = trailCur(states), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
+    const goal = CAM.goal, first = !CAM.seen, states = trailStates(), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
     if (first && !from) Object.assign(CAM, home());
-    if (from) CAM.land = false; else if (first || CAM.cur !== cur || fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to your goal (first visit, a new goal, a new monument)
-    CAM.cur = cur; CAM.news = fresh;
+    if (from) CAM.land = false; else if (fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to a monument you just bought
+    CAM.news = fresh;
     size();
     bake(() => { if (!svg.isConnected) return; svg.before(TEX.cv, PROPS.cv); apply(); requestAnimationFrame(() => { TEX.cv.classList.add('on'); PROPS.cv.classList.add('on'); });   // the painted land arrives and fades in
       if (CAM.land) setTimeout(() => { if (!svg.isConnected) return; CAM.land = false; const to = landing(states); if (to && !g && !CAM.sel && !CAM.show) fly(to, first ? 1100 : 700); }, first ? 420 : 60); });   // then, from far away, down to it
@@ -6506,25 +6480,20 @@ function TrailView() {
     </div>
   </div>`;
 }
-const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">证</span>Prove words</button>`;
-const EARN = lv => trailState(lv).open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`;
-const coinBarLab = st => st.n >= st.total ? 'Ready to buy' : goLab(st.n, st.total, coinFmt);   // past halfway, what is left is the smaller number, and it pulls harder
 const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
   return due ? `Unit ${due} test` : n ? `Lesson ${n}` : `HSK ${openLevel()} words`; };
-function mapHud() {   // along the bottom, as in a game: the coins you are saving toward the monument you want next, and Play (the shop is the round button up top)
-  const sts = trailStates(), i = trailCur(sts), shop = `<button class="tm-play tm-go" data-act="map-build" data-lv="${sts[Math.max(i, 0)].lv}"><span class="qa-glyph tm-tri"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 1.8l7 4.2-7 4.2z"/></svg></span><span class="tm-go-t">Play<small>${playSub()}</small></span></button>`;
-  if (i < 0) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
-  const st = sts[i], c = TRAIL[st.lv - 1], ready = st.n >= st.total, today = coinToday();
-  return `<div class="tm-hud tm-ui"><button class="tm-now${ready ? ' ready' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${ready ? `You can buy the ${esc(c.name)} now` : `Saving for the ${esc(c.name)}: ${st.n} of ${st.total} coins`}${today ? `, ${today} earned today` : ''}. Open it in the shop">${today ? `<em>+${coinFmt(today)} today</em>` : ''}
-      <span class="tm-now-t"><small>${esc(c.name)}</small><span class="tm-now-bar"><i style="width:${gBar(st.n / st.total)}%"></i><b>${coinBarLab(st)}</b></span></span><span class="tm-med s">${Trail.mini(st.lv, st, true)}</span></button>${shop}</div>`;
+function mapHud() {   // along the bottom, as in a game: Play (the shop is the round button up top); once every monument is yours, that too
+  const sts = trailStates(), shop = `<button class="tm-play tm-go" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}"><span class="qa-glyph tm-tri"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 1.8l7 4.2-7 4.2z"/></svg></span><span class="tm-go-t">Play<small>${playSub()}</small></span></button>`;
+  if (sts.every(x => x.done)) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
+  return `<div class="tm-hud tm-ui">${shop}</div>`;
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
   const med = `<div class="tm-med">${Trail.mini(lv, st, true)}</div>`;
   const head = `<small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h3>${c.name} <span>${c.nzh}</span></h3>`;
-  if (!st.done) { const can = st.n >= st.total, cur = trailCur(trailStates()) === lv - 1;   // one you do not own: what it is, its price, and one button, Buy
+  if (!st.done) { const can = st.n >= st.total;   // one you do not own: what it is, its price, and one button, Buy
     return `<div class="tm-card tm-ui" role="dialog" aria-label="${c.name}: ${st.total} coins">${x}${med}
-    <div class="tm-body">${head}<p class="tm-price">${coinSvg()}<b>${coinFmt(st.total)}</b> coins${can ? '<em>You can buy it</em>' : cur ? `<span>· ${coinFmt(st.total - st.n)} to go</span>` : ''}</p><p class="tm-about">${TRAIL_ABOUT[lv - 1]}</p></div>
+    <div class="tm-body">${head}<p class="tm-price">${coinSvg()}<b>${coinFmt(st.total)}</b> coins${can ? '<em>You can buy it</em>' : ''}</p><p class="tm-about">${TRAIL_ABOUT[lv - 1]}</p></div>
     <div class="tm-acts">${buyBtn(lv, st.total)}</div></div>`; }
   return `<div class="tm-card tm-ui done" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
     <div class="tm-body">${head}<p>${st.seen ? '' : '<em>New</em>'}Yours · worth ${coinFmt(st.total)} coins</p></div>
@@ -6547,7 +6516,7 @@ function shopHtml(lv) {
   const sts = trailStates(), bal = coinBal(), own = trailOpened(sts);
   const top = `<div class="shop-top"><h3>Shop <span class="cal-zh">商店</span></h3><span class="shop-bal" aria-label="${coinFmt(bal)} coins">${coinSvg()}<b>${coinFmt(bal)}</b></span></div>`;
   if (lv) {
-    const c = TRAIL[lv - 1], st = sts[lv - 1], can = !st.done && bal >= st.total, wish = db.monWish === lv;
+    const c = TRAIL[lv - 1], st = sts[lv - 1], can = !st.done && bal >= st.total;
     const act = st.done ? `<button class="btn btn-seal wide" data-act="shop-see" data-lv="${lv}">See it on your map</button>` : buyBtn(lv, st.total, ' wide');   // short of coins, Buy brings up Shi Shi with his empty bag (brokeSheet)
     return `${top}<div class="shop-det"><button class="shop-back" data-act="shop-back">${I.back}<span>All monuments</span></button>
       <div class="shop-hero${st.done ? '' : ' sil'}">${st.done ? `<img src="mon/${c.id}.webp" alt="The ${esc(c.name)} in ${esc(c.en)}"><i class="shop-own">Yours</i>` : `<img src="mon/${c.id}-i.webp" alt="The shape of the ${esc(c.name)}: buy it to see it">`}</div>
@@ -6608,7 +6577,7 @@ function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to th
 }
 function shopBuy(lv) {
   const c = TRAIL[lv - 1]; if (!c || monOwns(lv) || coinBal() < c.price) return;
-  (db.monOwn ||= {})[lv] = Date.now(); if (db.monWish === lv) delete db.monWish; save();
+  (db.monOwn ||= {})[lv] = Date.now(); save();
   LOG.add('shop-buy', { lv, id: c.id, price: c.price, left: coinBal() });
   closeSheet(); Trail.CAM.sel = 0; S.mapShow = lv;   // no page after it: on the map it lands on its spot, and the camera tilts and swings round it (Trail's show)
   setTimeout(() => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } else nav('#/map'); }, 340);
@@ -6625,12 +6594,6 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
 const mapRepin = () => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } };   // a new goal: the map is drawn again, and Shi Shi stands over it
 function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) { s.innerHTML = mapHud(); s.firstElementChild?.classList.add('in'); } Trail.CAM.api?.mark(); }
 const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
-function trailNext() {   // what Learn words does, in words
-  if (trailLessons()) { const due = utDue(), n = lesNext();
-    if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
-    if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. It pays ${PAY.les} coins, and each of its words ${PAY.word} more once you get it right again on another day.`; }
-  return `Tick the HSK ${openLevel()} words you already know, then prove them: each proven word puts ${PAY.word} coins in Shi Shi's bag.`;
-}
 function trailGo(lv) {
   LOG.add('map-build', { lv });
   if (trailLessons()) { const due = utDue(), n = lesNext();
@@ -6697,28 +6660,22 @@ function fbNext() {
   fbPaint();
 }
 function fbEnd() {
-  const F = S.fb, sts = trailStates(), i = trailCur(sts), miss = F.q.length - F.right, now = i < 0 ? null : sts[i], c = now && TRAIL[now.lv - 1], P = F.pay, mood = miss ? 'cheer' : 'star';
-  const ready = now && now.n >= now.total; F.lv = 0;   // Back to the map: the map itself
-  const what = !now ? 'Every monument is yours.' : ready ? `You can buy ${theName(c)} now.` : `${coinFmt(now.total - now.n)} more coins for ${theName(c)}.`;
+  const F = S.fb, sts = trailStates(), miss = F.q.length - F.right, P = F.pay, mood = miss ? 'cheer' : 'star';
+  const ready = sts.some(x => !x.done && x.n >= x.total), open = sts[0].open; F.lv = 0;   // Back to the map: the map itself
+  const what = ready ? 'You can buy a monument now.' : sts.every(x => x.done) ? 'Every monument is yours.' : '';
   return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button></div>
     <div class="les-end fb-end"><span class="les-end-shi${P ? ' bag' : ''}">${P ? bagShi(mood) : shiFace(mood)}</span>
       <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>${P ? payLine(P) : ''}
-      <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
-      ${now && !ready ? `<div class="fb-seg"><span class="tm-now-bar"><i style="width:${gBar(now.n / now.total)}%"></i><b>${coinBarLab(now)}</b></span>${now.open ? `<small>${plural(now.open, 'word')} you know waiting to be proven</small>` : ''}</div>` : ''}</div>
-    <div class="les-dock fb-acts">${ready ? `<button class="btn btn-seal wide" data-act="shop-item" data-lv="${now.lv}"><span class="qa-glyph">店</span>Buy it in the shop</button>` : ''}
-      ${now?.open ? `<button class="btn ${ready ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
-      <button class="btn ${ready || now?.open ? 'btn-quiet' : 'btn-seal'} wide" data-act="fb-see">Back to the map</button></div></div>`;
+      ${what || miss ? `<p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>` : ''}
+    <div class="les-dock fb-acts">${ready ? `<button class="btn btn-seal wide" data-act="shop"><span class="qa-glyph">店</span>Open the shop</button>` : ''}
+      ${open ? `<button class="btn ${ready ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
+      <button class="btn ${ready || open ? 'btn-quiet' : 'btn-seal'} wide" data-act="fb-see">Back to the map</button></div></div>`;
 }
 const theName = c => (c.the ?? 'the ') + c.name;
 function CityView(lv) {   // a monument's page: its big picture (revealed the first time you see it as yours), or one still in the shop
   const c = TRAIL[lv - 1], st = trailState(lv), reveal = st.done && !st.seen;
   if (reveal) { (db.monOpen ||= {})[lv] = 1; save(); LOG.add('map-unlock-seen', { lv }); }
-  const sts = trailStates(), i = trailCur(sts), now = i < 0 || i === lv - 1 ? null : sts[i];
-  const save4 = n => { const nc = TRAIL[n.lv - 1], ready = n.n >= n.total;   // the monument you are saving for, and how to get there
-    return `<section class="mp-info"><h2>${ready ? 'Ready to buy' : 'Saving for'} <span class="cal-zh">${nc.nzh}</span></h2><p class="mp-count">${nc.name} · <b>${coinFmt(n.total)}</b> coins</p>
-      <span class="tm-now-bar mp-cbar"><i style="width:${gBar(n.n / n.total)}%"></i><b>${coinBarLab(n)}</b></span></section>
-      <div class="mp-cta">${ready ? `<button class="btn btn-seal" data-act="shop-item" data-lv="${n.lv}"><span class="qa-glyph">店</span>Buy it</button>` : EARN(n.lv)}</div>
-      <p class="mp-hint">${ready ? 'It is in the shop, waiting for you.' : n.open ? `${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven: ${PAY.word} coins each.` : trailNext()}</p>`; };
+  const all = trailStates().every(x => x.done);
   const enter = S.mapZoomIn; S.mapZoomIn = false;
   const head = `<header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${esc(c.en)} <span class="mp-zh">${c.zh}</span></div><div style="width:42px"></div></header>`;
   const pic = `<div class="mp-scene${reveal ? ' rv' : ''}${st.done ? '' : ' sil'}">${Trail.scene(lv, st, Temple.night(), reveal)}
@@ -6734,7 +6691,7 @@ function CityView(lv) {   // a monument's page: its big picture (revealed the fi
       <p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? `It holds ${st.words} of your proven words. One you still know three weeks after proving it is mastered, and mastered words hang red lanterns over the monument.`
         : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>
     </section>
-    ${now ? save4(now) : i < 0 ? `<section class="mp-info"><p class="mp-next">Every monument is yours. More are on the way.</p></section>` : ''}
+    ${all ? `<section class="mp-info"><p class="mp-next">Every monument is yours. More are on the way.</p></section>` : ''}
   </div>`;
 }
 function mapZoom(lv) {   // Visit: the map dives into the city, then the monument's page opens
@@ -8654,7 +8611,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.66';
+const APP_VERSION = '2.67';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9400,8 +9357,6 @@ const A = {
   'shop-back': () => shopSheet(),
   'shop-buy': t => shopBuy(+t.dataset.lv),
   'map-buy': t => mapBuy(+t.dataset.lv),
-  'shop-wish': t => { db.monWish = +t.dataset.lv; save(); LOG.add('shop-wish', { lv: db.monWish }); shopSheet(db.monWish); mapRepin(); },
-  'map-wish': t => { db.monWish = +t.dataset.lv; save(); LOG.add('shop-wish', { lv: db.monWish, from: 'map' }); Trail.CAM.sel = 0; mapRepin(); },
   'shop-see': t => { closeSheet(); const lv = +t.dataset.lv; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapPick(lv), 300); else nav('#/map/' + lv); },
   'coin': t => coinSheet(t.dataset.id),
   'mo-coll': () => closeLayer(() => nav('#/bank')),
