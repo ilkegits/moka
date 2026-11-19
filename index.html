@@ -560,6 +560,36 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 @keyframes hintDraw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.tzg .hint .hs{animation-duration:.01s}}
 .tzg.revealed .hint{opacity:0}
+/* Shi Shi when a writing answer is wrong: in the bottom section (a different character), or small in the box's corner (one part) */
+.w-lfb{margin-bottom:12px;animation:lesUp .3s cubic-bezier(.2,.8,.3,1) both}
+.w-lfb .lfb-txt b{font-size:17px}
+.w-lfb .lfb-shi{animation:wShiIn .5s .05s cubic-bezier(.2,.9,.3,1.3) both}
+.w-shi{position:absolute;right:-17px;bottom:-17px;z-index:4;width:50px;height:50px;pointer-events:none;transform-origin:50% 90%;animation:wShiIn .5s cubic-bezier(.2,.9,.3,1.3) both}
+.w-shi .shi-face{width:100%;height:100%;display:block}
+.w-shi-bub{position:relative;display:block;width:fit-content;max-width:300px;margin:10px auto 8px;padding:9px 13px 10px;border-radius:14px;background:var(--card);box-shadow:0 0 0 1.5px rgba(120,95,60,.14),0 4px 12px rgba(60,40,20,.12);
+  font-size:13.5px;line-height:1.4;color:var(--ink-2);text-align:left;transform-origin:85% 0;animation:wBubIn .35s .22s cubic-bezier(.2,.9,.3,1.2) both}
+.w-shi-bub::before{content:"";position:absolute;right:26px;top:-6px;width:12px;height:12px;border-radius:2px;background:var(--card);transform:rotate(45deg);box-shadow:-1.5px -1.5px 0 0 rgba(120,95,60,.14)}
+.w-shi-want{display:block;font-weight:600;color:var(--ink)}
+.note .w-shi-bub .hz,.w-shi-bub .hz{font-family:var(--hanzi);font-size:19px;font-weight:600;color:var(--jade);margin-right:1px;vertical-align:-2px}
+.w-shi-not{display:block}
+.note .w-shi-not .hz,.w-shi-not .hz{color:var(--seal)}
+.w-shi-bub small{display:block;margin-top:3px;font-size:11.5px;color:var(--muted)}
+@keyframes wShiIn{from{transform:translateY(14px) scale(.4);opacity:0}60%{transform:translateY(-3px) scale(1.08);opacity:1}to{transform:none}}
+@keyframes wBubIn{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+/* the end of a writing round: Shi Shi jumps up big and cheers, with paper confetti */
+.ws-end{padding-top:6px}
+.ws-stage{position:relative;height:300px;margin:4px auto 10px;max-width:350px}
+.ws-lion{position:absolute;left:calc(50% - 150px);bottom:0;width:236px;height:236px;transform-origin:50% 100%;transform:translateY(30px) scale(.3);opacity:0}
+.ws-bubble{position:absolute;z-index:2;left:calc(50% + 50px);top:8px;min-width:96px;max-width:150px;padding:10px 14px 11px;border-radius:16px;background:var(--card);
+  box-shadow:0 0 0 1.5px rgba(120,95,60,.14),0 6px 18px rgba(60,40,20,.14);text-align:left;opacity:0}
+.ws-bubble::before{content:"";position:absolute;left:-5px;bottom:14px;width:14px;height:14px;border-radius:3px;background:var(--card);transform:rotate(45deg)}
+.ws-bit{position:absolute;left:calc(50% - 34px);bottom:150px;width:8px;height:11px;border-radius:2px;opacity:0}
+.ws-score{font-size:17px;color:var(--ink-2);margin-top:2px}
+.ws-score b{font-family:var(--display);font-size:46px;font-weight:600;color:var(--ink);line-height:1;vertical-align:-6px;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.w-lfb,.w-lfb .lfb-shi,.w-shi,.w-shi-bub{animation:none}.ws-lion,.ws-bubble{transform:none;opacity:1}}
+.note .hz{font-family:var(--hanzi);font-size:18px;font-weight:600;color:var(--seal);vertical-align:-2px}
+.tzg .hint .hg{transition:opacity .45s ease-out}
+.tzg .hint .hg.gone{opacity:0}
 .pick-n{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 8px}
 .pick-n > span{font-size:14.5px;font-weight:600}
 .pick-n .seg button{min-width:40px;padding:0 10px}
@@ -2707,7 +2737,7 @@ function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWri
   const s = box.offsetWidth || lesBoxSize(), trace = Q.mode === 'trace';
   let miss = 0, N = 0;
   const W = HanziWriter.create(q, Q.ch, writerOpts(s, { showCharacter: false, showOutline: trace, strokeColor: css('--ink'), outlineColor: css('--line'),
-    drawingColor: css('--ink'), highlightColor: css('--seal'), drawingWidth: Math.max(4, Math.round(s / 55)), showHintAfterMisses: trace ? 2 : 3,
+    drawingColor: css('--ink'), highlightColor: css('--seal'), drawingWidth: INK_W, showHintAfterMisses: trace ? 2 : 3,
     highlightOnComplete: true, highlightCompleteColor: css('--jade'), strokeAnimationSpeed: 2.2, delayBetweenStrokes: 70,   // "Show me how" plays quickly
     charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
   E.writer = W;
@@ -4154,7 +4184,7 @@ function hdxTrace(el, H) {
     let miss = 0; cap.textContent = 'Trace the light character, stroke by stroke';
     writer = HanziWriter.create(q, H.h, writerOpts(S3, {
       showCharacter: false, showOutline: true, strokeColor: css('--ink'), outlineColor: css('--line'), drawingColor: css('--ink'), highlightColor: css('--seal'),
-      drawingWidth: Math.max(4, Math.round(S3 / 55)), showHintAfterMisses: 2, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+      drawingWidth: INK_W, showHintAfterMisses: 2, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
       charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
     writer.quiz({
       onMistake: () => { miss++; },
@@ -4509,7 +4539,7 @@ function writePick(d) {   // word bank: N words, the ones you missed last time a
   const rank = c => { const h = c.hist || []; return !h.length ? 1 : h[h.length - 1] ? 2 : 0; };
   return shuffle(ids.map(id => cardById(d, id)).sort((a, b) => rank(a) - rank(b)).slice(0, n).map(c => c.id));
 }
-function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, gNext: [], gHint: [], sounded: false, shownAt: Date.now() }); }
+function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, gNext: [], hg: [], miss: null, sounded: false, shownAt: Date.now() }); }
 function promptHtml(c) {
   const W = S.write, chars = hanChars(c.hanzi), ask = writeAsk(c), clue = writeClue(c), open = W.revealed || W.guidedDone;
   const left = W.order.length - W.i;
@@ -4537,34 +4567,36 @@ function WriteView(d) {
     <div class="dock" id="wdock">${writeDock()}</div></div>`;
 }
 const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(writeAsk(c).py)}</span>`;
-/* Hint: each tap draws the next stroke faintly in red, in its writing direction.
-   Free: stroke 1, then 2… into every box. Guided: the stroke you are due to write next, in the box you are on. */
+/* Hint: each tap draws the next part of the character faintly in red (晴: 日, then 龶, then 月), its strokes one after
+   another in their writing direction. Once you have written over a part, its hint fades away, so the box stays clean.
+   Free: box by box, part by part. Guided: the part you are due to write next, in the box you are on.
+   Small characters (4 strokes or fewer) go stroke by stroke. */
 async function writeHint() {
   const W = S.write; if (W.revealed || W.checking || W.guidedDone) return;
   const c = cardById(curDeck(), W.order[W.i]), chars = hanChars(c.hanzi), boxes = $$('#grid .tzg');
-  let refs; try { refs = await Promise.all(chars.map(loadRef)); } catch (_) { toast('Hints need the internet the first time'); return; }
+  let refs; try { [refs] = await Promise.all([Promise.all(chars.map(loadRef)), loadParts().catch(() => null)]); } catch (_) { toast('Hints need the internet the first time'); return; }
   if (S.write !== W || W.revealed || W.guidedDone) return;
-  const btn = $('#whint');
-  if (db.prefs.writeMode === 'guided') {
-    const i = W.active, ref = refs[i], k = Math.max(W.gNext?.[i] || 0, (W.gHint?.[i] ?? -1) + 1);
-    if (k >= ref.strokes.length) { toast('That’s every stroke'); return; }
-    (W.gHint ||= [])[i] = k; W.hints++;
-    hintStroke(boxes[i], ref, k);
-    $('#note').textContent = `Hint: stroke ${k + 1} of ${ref.strokes.length}${chars.length > 1 ? ` (box ${i + 1})` : ''}`;
-    if (btn) btn.innerHTML = `${I.bulb}Next stroke`;
-    LOG.add('write-hint', { hz: c.hanzi, n: k + 1, mode: 'guided' });
-    return;
+  chars.forEach((ch, i) => { W.hg[i] ||= { groups: hintGroups(ch, refs[i]), shown: new Set(), done: new Set() }; boxes[i]._hintRef = refs[i]; });
+  const guided = db.prefs.writeMode === 'guided';
+  let i, k;
+  if (guided) {   // the first part not shown yet that still has strokes left to write
+    i = W.active; const H = W.hg[i], next = W.gNext[i] || 0;
+    k = H.groups.findIndex((g, q) => !H.shown.has(q) && g.ix.some(s => s >= next));
+  } else {
+    i = W.hg.findIndex(H => H && H.shown.size < H.groups.length);
+    k = i < 0 ? -1 : W.hg[i].groups.findIndex((_, q) => !W.hg[i].shown.has(q));
   }
-  const most = Math.max(...refs.map(r => r.strokes.length));
-  if (W.hints >= most) { toast('That’s every stroke'); return; }
-  const k = W.hints++;
-  boxes.forEach((box, i) => { if (k < refs[i].strokes.length) hintStroke(box, refs[i], k); });
-  const n = W.hints;
-  if (btn) btn.innerHTML = `${I.bulb}${n >= most ? 'All strokes' : 'Next stroke'}`;
-  $('#note').textContent = chars.length > 1 ? `Hint: stroke ${n} of each character` : `Hint: stroke ${n} of ${refs[0].strokes.length}`;
-  LOG.add('write-hint', { hz: c.hanzi, n });
+  if (i < 0 || k < 0) { toast('That’s the whole character'); return; }
+  const H = W.hg[i], g = H.groups[k]; H.shown.add(k); W.hints++;
+  hintPart(boxes[i], refs[i], g.ix, k);
+  const where = chars.length > 1 ? ` (box ${i + 1})` : '';
+  $('#note').innerHTML = g.stroke ? `Hint: stroke ${g.ix[0] + 1} of ${refs[i].strokes.length}${where}`
+    : g.n ? `Hint: ${partLabel(g.n)}${g.bit ? ', a few strokes' : ''}${where}` : `Hint: the next part${where}`;
+  const left = W.hg.some(x => x && x.shown.size < x.groups.length);
+  const btn = $('#whint'); if (btn) btn.innerHTML = `${I.bulb}${left ? (g.stroke ? 'Next stroke' : 'Next part') : 'All shown'}`;
+  LOG.add('write-hint', { hz: c.hanzi, box: i + 1, part: g.n || undefined, strokes: g.ix.length, mode: guided ? 'guided' : undefined });
 }
-function hintStroke(box, ref, k) {   // stroke k, drawn in along its own direction, clipped to the brush outline
+function hintPart(box, ref, ix, k) {   // the strokes of one part, drawn in one after another, each along its own direction
   const s = box._s || box.offsetWidth;
   let svg = box.querySelector('.hint');
   if (!svg) {
@@ -4572,10 +4604,26 @@ function hintStroke(box, ref, k) {   // stroke k, drawn in along its own directi
     box.querySelector('canvas').insertAdjacentHTML('beforebegin', `<svg class="hint" viewBox="0 0 ${s} ${s}" aria-hidden="true"><defs></defs><g transform="translate(${p} ${p + 900 * sc}) scale(${sc} ${-sc})"></g></svg>`);
     svg = box.querySelector('.hint');
   }
-  const id = `wh${box.dataset.i}_${k}_${Date.now() % 1e6}`, m = ref.medians[k];
-  const L = Math.ceil(m.reduce((a, q, j) => j ? a + Math.hypot(q[0] - m[j - 1][0], q[1] - m[j - 1][1]) : 0, 0)) + 160;
-  svg.querySelector('defs').insertAdjacentHTML('beforeend', `<clipPath id="${id}"><path d="${ref.strokes[k]}"/></clipPath>`);
-  svg.querySelector('g').insertAdjacentHTML('beforeend', `<path class="hs" clip-path="url(#${id})" d="M${m.map(q => q.join(' ')).join('L')}" style="stroke-dasharray:${L} ${L + 400};stroke-dashoffset:${L}"/>`);
+  const t = Date.now() % 1e6;
+  svg.querySelector(':scope > g').insertAdjacentHTML('beforeend', `<g class="hg" data-k="${k}">${ix.map((j, n) => {
+    const id = `wh${box.dataset.i}_${j}_${t}`, m = ref.medians[j];
+    const L = Math.ceil(m.reduce((a, q, z) => z ? a + Math.hypot(q[0] - m[z - 1][0], q[1] - m[z - 1][1]) : 0, 0)) + 160;
+    svg.querySelector('defs').insertAdjacentHTML('beforeend', `<clipPath id="${id}"><path d="${ref.strokes[j]}"/></clipPath>`);
+    return `<path class="hs" clip-path="url(#${id})" d="M${m.map(q => q.join(' ')).join('L')}" style="stroke-dasharray:${L} ${L + 400};stroke-dashoffset:${L};animation-delay:${n * .32}s"/>`;
+  }).join('')}</g>`);
+}
+function hintGone(box, k) {   // you wrote this part: its hint fades away
+  const g = box.querySelector(`.hint g.hg[data-k="${k}"]`); if (!g) return;
+  g.classList.add('gone'); setTimeout(() => g.remove(), 500);
+}
+function hintCheck(box) {   // Free: after each stroke, has your ink covered a hinted part? (70% of its strokes' centre lines)
+  const W = S.write, H = W.hg?.[+box.dataset.i], ref = box._hintRef; if (!H || !ref || !box._strokes?.length) return;
+  const s = box._s, p = Math.round(s * .09), k = (s - 2 * p) / 1024, tol = s * .085, ink = box._strokes.flat();
+  for (const q of H.shown) {
+    if (H.done.has(q)) continue;
+    const pts = H.groups[q].ix.flatMap(j => alongLine(ref.medians[j].map(([x, y]) => ({ x: p + x * k, y: p + (900 - y) * k })), 12));
+    if (pts.filter(a => ink.some(b => Math.abs(a.x - b.x) <= tol && Math.hypot(a.x - b.x, a.y - b.y) <= tol)).length >= .7 * pts.length) { H.done.add(q); hintGone(box, q); }
+  }
 }
 function writeDock() {
   const W = S.write, guided = db.prefs.writeMode === 'guided';
@@ -4583,7 +4631,7 @@ function writeDock() {
   if (W.revealed && W.judge && W.judge.ok !== null)
     return W.judge.ok
       ? `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Count as wrong</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Next</button></div>`
-      : `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="1">I was right</button><button class="btn btn-primary" data-act="grade" data-ok="0">Next</button></div>`;
+      : `${missStrip()}<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="1">I was right</button><button class="btn btn-primary" data-act="grade" data-ok="0">Next</button></div>`;
   if (W.revealed || W.guidedDone)
     return `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Missed it</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Got it</button></div>`;
   if (guided) return `<button class="btn btn-quiet wide" data-act="skip">Skip card</button>`;
@@ -4604,8 +4652,51 @@ function writeRoom(grid) {
   const vh = Math.min(innerHeight, window.visualViewport?.height || Infinity, document.documentElement.clientHeight || Infinity);
   return vh - (g.top + scrollY) - below - dock - 4;
 }
+/* the end of a round: Shi Shi springs up big (stretch on the way up, squash on landing), the bubble pops, paper confetti
+   bursts from behind his mane, then two happy hops and a gentle bob while you read the score */
+function writeEndShow() {
+  const W = S.write, lion = $('.ws-lion'), bub = $('.ws-bubble'), stage = $('.ws-stage');
+  if (!lion) return;
+  if (W.cheered) { lion.style.cssText = 'transform:none;opacity:1'; bub.style.opacity = 1; return; }   // drawn again (rotation): no second show
+  W.cheered = true;
+  chime(); setTimeout(() => S.write === W && chime(), 260);
+  try { navigator.vibrate?.([10, 70, 16]); } catch (_) {}
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  lion.animate([
+    { transform: 'translateY(60%) scale(.5)', opacity: 0 },
+    { transform: 'translateY(-14%) scale(.92,1.1)', opacity: 1, offset: .5 },
+    { transform: 'translateY(0) scale(1.12,.88)', offset: .72 },
+    { transform: 'translateY(-3%) scale(.97,1.03)', offset: .87 },
+    { transform: 'none', opacity: 1 }], { duration: 760, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' });
+  lion.animate([
+    { transform: 'none' },
+    { transform: 'translateY(-12%) rotate(-6deg) scale(.97,1.04)', offset: .22 },
+    { transform: 'translateY(0) scale(1.06,.94)', offset: .45 },
+    { transform: 'none', offset: .5 },
+    { transform: 'translateY(-12%) rotate(6deg) scale(.97,1.04)', offset: .72 },
+    { transform: 'translateY(0) scale(1.06,.94)', offset: .95 },
+    { transform: 'none' }], { duration: 860, delay: 950, easing: 'ease-in-out', composite: 'replace' });
+  lion.animate([{ transform: 'none' }, { transform: 'translateY(-3%) scale(1.01,.99)' }, { transform: 'none' }],
+    { duration: 1800, delay: 1900, iterations: Infinity, easing: 'ease-in-out' });
+  bub.animate([
+    { opacity: 0, transform: 'scale(.3) translateY(14px)' },
+    { opacity: 1, transform: 'scale(1.07)', offset: .6 },
+    { opacity: 1, transform: 'none' }], { duration: 460, delay: 420, easing: 'cubic-bezier(.2,.9,.3,1.15)', fill: 'forwards' });
+  const colors = ['var(--seal)', '#E8B44A', 'var(--jade)', '#F6D682', '#E5483F'];
+  for (let i = 0; i < 26; i++) {
+    const bit = document.createElement('i'); bit.className = 'ws-bit'; bit.style.background = colors[i % colors.length];
+    if (i % 3 === 0) bit.style.borderRadius = '50%';
+    stage.insertBefore(bit, lion);
+    const a = -Math.PI / 2 + (Math.random() - .5) * 2.6, v = 110 + Math.random() * 110, dx = Math.cos(a) * v, dy = Math.sin(a) * v, r = (Math.random() < .5 ? -1 : 1) * (360 + Math.random() * 420);
+    bit.animate([
+      { transform: 'translate(0,0) rotate(0) scale(.4)', opacity: 0 },
+      { transform: `translate(${dx * .55}px,${dy * .55}px) rotate(${r * .4}deg) scale(1)`, opacity: 1, offset: .25 },
+      { transform: `translate(${dx}px,${dy + 150}px) rotate(${r}deg) scale(.9)`, opacity: 0 }],
+      { duration: 1500 + Math.random() * 700, delay: 380 + Math.random() * 160, easing: 'cubic-bezier(.2,.6,.4,1)', fill: 'forwards' }).onfinish = () => bit.remove();
+  }
+}
 function mountWrite() {
-  const W = S.write; if (W.done) return;
+  const W = S.write; if (W.done) return writeEndShow();
   const d = curDeck(), c = cardById(d, W.order[W.i]), chars = hanChars(c.hanzi);
   const grid = $('#grid'), { s, gap, cols, rows } = boxSize(chars.length, grid.clientWidth, writeRoom(grid));
   grid.style.setProperty('--s', s + 'px'); grid.style.setProperty('--gap', gap + 'px');
@@ -4633,7 +4724,7 @@ function initFreeBox(box, s) {
     for (const ev of (evs.length ? evs : [e])) cur.push(pt(ev));
     redraw(box);
   });
-  const up = () => { cur = null; };
+  const up = () => { if (cur) hintCheck(box); cur = null; };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 }
 function redraw(box) {
@@ -4875,6 +4966,9 @@ function verdict(shape, rank) {
   return shape.ok && ((rank >= 0 && rank <= JUDGE.maxRank) || shape.strong);   // a clean stroke match is enough on its own
 }
 
+/* HanziWriter draws your ink in the character's own 1024-unit grid, not in screen pixels: the old 4-5 came out about 1px wide.
+   80 is a brush line a little thinner than the character's own strokes, the same at every box size. */
+const INK_W = 80;
 function writerOpts(s, extra) {
   return Object.assign({ width: s, height: s, padding: Math.round(s * 0.09), showOutline: false, strokeAnimationSpeed: 1.3, delayBetweenStrokes: 140 }, extra);
 }
@@ -4992,18 +5086,41 @@ function revealFree() {
 }
 function showVerdict() {   // the checker's answer: green or red ring per box, the reason, the sound, the grade buttons
   const W = S.write, c = cardById(curDeck(), W.order[W.i]), chars = hanChars(c.hanzi);
-  $$('#grid .tzg').forEach((box, i) => { const j = W.judge?.chars?.[i]; if (j && j.ok !== null) box.classList.add(j.ok ? 'judged-ok' : 'judged-no'); });
-  $('#note').innerHTML = (W.judge ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
+  const boxes = $$('#grid .tzg');
+  boxes.forEach((box, i) => { const j = W.judge?.chars?.[i]; if (j && j.ok !== null) box.classList.add(j.ok ? 'judged-ok' : 'judged-no'); });
+  const M = W.miss = W.judge?.ok === false ? writeMiss(chars) : null;
+  if (M) {
+    const back = (W.tries[W.order[W.i]] || 0) < 2;   // a miss comes back at the end of the round (twice at most)
+    M.cheer = back ? 'It comes back at the end of the round. You’ve got this!' : ['Next time you’ve got it!', 'So close. You’ll get it next time!'][W.i % 2];
+    if (M.kind === 'part') { M.corner = missCorner(M); boxes[M.i]?.insertAdjacentHTML('beforeend', M.corner.face); }
+    LOG.add('write-shi', { kind: M.kind, box: M.i + 1, wrote: M.w, want: M.want, got: M.got, pos: M.pos });
+  }
+  $('#note').innerHTML = M?.corner ? M.corner.say + 'Tap a box to watch the stroke order.'
+    : (W.judge && !M ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
   $('#wdock').innerHTML = writeDock();
   if (W.judge?.ok != null) { W.sounded = true; W.judge.ok ? chime() : buzz(); }
 }
 function initGuided(boxes, chars, s) {
   const W = S.write;
   if (!window.HanziWriter) { $('#note').textContent = 'Guided mode needs internet for stroke data.'; return; }
+/* Shi Shi in the bottom section: what you wrote instead (清 qīng · clear), or why it isn't right yet, and a kind word */
+function missStrip() {
+  const M = S.write.miss; if (!M || M.kind === 'part') return '';
+  const x = M.kind === 'char' ? charInfo(M.w) : null;
+  return `<div class="lfb w-lfb" role="status"><span class="lfb-shi">${shiFace('miss')}</span><span class="lfb-txt">${M.kind === 'char'
+    ? `<b>You wrote <span class="lfb-hz">${esc(M.w)}</span></b><span>${x.p ? esc(x.p) : ''}${x.p && x.en ? ' · ' : ''}${x.en ? esc(x.en) : ''}</span>`
+    : `<b>${esc(M.why)}</b>`}<small>${esc(M.cheer)}</small></span></div>`;
+}
+/* Shi Shi small in the corner of the box when one part is wrong: which part goes there (and what you put instead) */
+function missCorner(M) {   // his face on the box's bottom corner; what he says goes just under the box, so the character stays clear
+  const pos = M.pos ? M.pos[0].toUpperCase() + M.pos.slice(1) + ' part: ' : 'This part: ';
+  return { face: `<span class="w-shi">${shiFace('peek')}</span>`,
+    say: `<div class="w-shi-bub" role="status"><span class="w-shi-want">${pos}${partLabel(M.want)}</span>${M.got ? `<span class="w-shi-not">not ${partLabel(M.got)}${M.w ? `, that makes <b class="hz">${esc(M.w)}</b>` : ''}</span>` : M.w ? `<span class="w-shi-not">yours reads <b class="hz">${esc(M.w)}</b></span>` : ''}<small>${esc(M.cheer)}</small></div>` };
+}
   W.writers = boxes.map((box, i) => HanziWriter.create(box.querySelector('.quiz'), chars[i], writerOpts(s, {
     showCharacter: false, showOutline: db.prefs.outline,
     strokeColor: css('--ink'), outlineColor: css('--line-2'), drawingColor: css('--ink'), highlightColor: css('--seal'),
-    drawingWidth: Math.max(2.4, Math.min(3.6, s / 32)), showHintAfterMisses: 3, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
+    drawingWidth: INK_W, showHintAfterMisses: 3, highlightOnComplete: true, highlightCompleteColor: css('--jade'),
     onLoadCharDataError: () => { box.querySelector('.quiz').innerHTML = `<span class="ans-fallback">${chars[i]}</span>`; },
   })));
   boxes.forEach((b, j) => b.classList.toggle('dim', j > 0));
@@ -5015,7 +5132,8 @@ function startQuiz(i) {
   boxes.forEach((b, j) => b.classList.toggle('dim', j !== i && !b.classList.contains('done-ok')));
   W.writers[i].quiz({
     onMistake: () => { W.mistakes++; LOG.add('write-miss', { box: i + 1 }); $('#note').textContent = `${plural(W.mistakes, 'mistake')} so far`; },
-    onCorrectStroke: d => { W.gNext[i] = d.strokeNum + 1; },   // the stroke a Hint shows next
+    onCorrectStroke: d => { W.gNext[i] = d.strokeNum + 1;   // the stroke a Hint shows next; a hinted part you finished fades
+      const H = W.hg[i]; if (H) for (const q of H.shown) if (!H.done.has(q) && H.groups[q].ix.every(s => s <= d.strokeNum)) { H.done.add(q); hintGone(boxes[i], q); } },
     onComplete: () => {
       boxes[i].classList.add('done-ok'); boxes[i].classList.remove('dim');
       if (i + 1 < W.writers.length) setTimeout(() => S.write === W && startQuiz(i + 1), 380);
@@ -5053,8 +5171,11 @@ function WriteSummary(d) {
   const [hz, py, en] = pct === 100 ? ['太棒了', 'tài bàng le', 'Perfect round'] : pct >= 70 ? ['很好', 'hěn hǎo', 'Well done'] : ['加油', 'jiā yóu', 'Keep going'];
   return `<div class="screen fade-in" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="back-deck" aria-label="Close">${I.close}</button><div class="bar-title">Session</div><span style="width:42px"></span></header>
-    <section class="summary"><div class="ring" style="--p:${pct}"><div><b>${ok}</b><span>of ${n}</span></div></div>
-      <h2>${hz}</h2><div class="py" style="margin-top:4px">${py}</div><div class="sub">${en}${fixed ? ` · ${fixed} right when ${fixed === 1 ? 'it' : 'they'} came back` : ''}</div>
+    <section class="summary ws-end">
+      <div class="ws-stage"><div class="ws-bubble" role="status"><div class="cheer-zh">${hz}！</div><div class="cheer-py">${py}</div><div class="cheer-en">${en}</div></div>
+        <img class="ws-lion" src="mascots/shi-shi.svg" alt="Shi Shi the lion cheering"></div>
+      <div class="ws-score"><b>${ok}</b>of ${n} right first time</div>
+      ${fixed ? `<div class="sub">${fixed} right when ${fixed === 1 ? 'it' : 'they'} came back</div>` : ''}
       ${missed.length ? `<div class="missed">${missed.map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}</section>
     <div class="dock" style="display:flex;flex-direction:column;gap:10px">
       ${missed.length ? `<button class="btn btn-seal wide" data-act="retry-missed">Practise the ${missed.length} missed</button>` : ''}
@@ -5688,6 +5809,74 @@ function writeClue(c) {
 function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
   if (!S.H) return; let changed = false;
   for (const w of db.bank) { const lv = S.H.byHz.get(w.hanzi)?.lv || 0; if (w.hsk !== lv) { w.hsk = lv; changed = true; } }
+/* ---------- character parts ----------
+   dict/parts.tsv (Make Me a Hanzi; rebuild with tools/build_parts.py): how each character is put together (⿰ left/right,
+   ⿱ top/bottom…), its parts, and which strokes belong to which part. The writing hint goes part by part with it, and
+   Shi Shi can say which part you got wrong (晴 written with 氵 instead of 日 makes 清). */
+let partsP = null;
+function loadParts() {
+  return partsP ||= fetch('dict/parts.tsv').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(t => {
+    const by = new Map(), meta = new Map();
+    for (const l of t.split('\n')) {
+      if (!l || l[0] === '#') continue;
+      const f = l.replace(/\r$/, '').split('\t');
+      if (f[0] === '@') { meta.set(f[1], { p: f[2] || '', en: f[3] || '' }); continue; }
+      const [h, top, gs] = f; if (!gs) continue;
+      const groups = gs.split(';').map(g => { const m = /^(\D+?)([\d,-]+)$/u.exec(g); if (!m) return null;
+        return { n: m[1] === '？' ? null : m[1], ix: m[2].split(',').flatMap(r => { const [a, b = a] = r.split('-').map(Number); return Array.from({ length: b - a + 1 }, (_, k) => a + k); }) }; });
+      if (groups.every(Boolean)) by.set(h, { op: [...top][0], top: [...top].slice(1), groups });
+    }
+    return S.P = { by, meta };
+  }).catch(e => { partsP = null; throw e; });
+}
+function partInfo(n) {   // { p, en } for a part: the radicals table first (plain names), then the clear meanings, then the parts data
+  const r = RADICALS.find(x => x[0] === n || x[1] === n); if (r) return { p: r[2], en: r[3].split(';')[0] };
+  const g = S.H?.gloss?.get(n); if (g) return { p: g.p, en: g.en.split(';')[0] };
+  const m = S.P?.meta.get(n); return { p: m?.p || '', en: m?.en || '' };
+}
+const partLabel = n => { const x = partInfo(n); return `<b class="hz">${esc(n)}</b>${x.p ? ` ${esc(x.p)}` : ''}${x.en ? ` · ${esc(x.en)}` : ''}`; };
+function charInfo(h) {   // pinyin and a short meaning for a character the checker thinks you wrote
+  const g = S.H?.gloss?.get(h); if (g) return { p: g.p, en: g.en };
+  const r = S.H?.byHz.get(h); if (r) return { p: r.p, en: meanOf(r) };
+  for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const w of S.H?.levels[lv] || []) {   // only inside words (医 in 医生): "yī, as in 医生 doctor"
+    const at = [...w.h].indexOf(h); if (at < 0 || [...w.h].length > 3) continue;
+    return { p: w.p.split(' ')[at] || '', en: `as in ${w.h} ${meanOf(w)}` };
+  }
+  return partInfo(h);
+}
+/* hint steps for one character: its parts (a big part a few strokes at a time); small characters (4 strokes or
+   fewer) and characters the data doesn't cover go stroke by stroke */
+function hintGroups(ch, ref) {
+  const N = ref.strokes.length, one = () => ref.strokes.map((_, k) => ({ n: null, ix: [k], stroke: true }));
+  const P = S.P?.by.get(ch); if (N <= 4 || !P || P.groups.length < 2) return one();
+  const out = [];
+  for (const g of P.groups) {
+    if (g.ix.some(k => k >= N)) return one();
+    if (g.ix.length > 6) for (let k = 0; k < g.ix.length; k += 3) out.push({ n: g.n, ix: g.ix.slice(k, k + 3), bit: true });
+    else out.push(g);
+  }
+  return out.reduce((a, g) => a + g.ix.length, 0) === N ? out : one();
+}
+const PART_POS = { '⿰': ['left', 'right'], '⿱': ['top', 'bottom'], '⿲': ['left', 'middle', 'right'], '⿳': ['top', 'middle', 'bottom'],
+  '⿴': ['outside', 'inside'], '⿵': ['outside', 'inside'], '⿶': ['outside', 'inside'], '⿷': ['outside', 'inside'], '⿸': ['outside', 'inside'], '⿹': ['outside', 'inside'], '⿺': ['outside', 'inside'] };
+/* What went wrong, for Shi Shi to say. part: one part swapped or wrong (晴 with 氵 = 清); char: you wrote another character;
+   other: the checker's reason (empty box, missing strokes). */
+function writeMiss(chars) {
+  const J = S.write.judge, i = J.chars.findIndex(j => !j.ok); if (i < 0) return null;
+  const j = J.chars[i], ch = chars[i], w = j.cands?.[0], T = S.P?.by.get(ch);
+  const other = w && w !== ch && [...w].length === 1 && HAN.test(w);
+  if (other && T) {
+    const U = S.P.by.get(w);
+    if (U && U.op === T.op && U.top.length === T.top.length) {
+      const diff = T.top.map((x, k) => x !== U.top[k] ? k : -1).filter(k => k >= 0);
+      if (diff.length === 1) return { kind: 'part', i, w, want: T.top[diff[0]], got: U.top[diff[0]], pos: PART_POS[T.op]?.[diff[0]] || '' };
+    }
+  }
+  if (other) return { kind: 'char', i, w };
+  const bp = j.shape?.badPart, d = bp && T ? (PART_POS[T.op] || []).indexOf(bp.pos) : -1;
+  if (d >= 0 && T.top[d] && T.top[d] !== '？') return { kind: 'part', i, want: T.top[d], pos: bp.pos };
+  return { kind: 'other', i, why: judgeNote(chars).replace(/<[^>]+>/g, '').replace(/^Not quite · /, '') };
+}
   if (changed) save();
 }
 const meanOf = r => r.s ??= shortMeaning(r.e);   // a word's card meaning: the hand-written one from dict/gloss.tsv when there is one
@@ -5878,7 +6067,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.09';
+const APP_VERSION = '2.10';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6286,6 +6475,10 @@ function obShow() {
     html = obTop() + `<div class="ob-art ob-art-s">${shiFace(chars ? 'wow' : 'happy')}</div>
       <div class="ob-you" aria-label="You are ${HSK_NAME(lv)}"><small>You are</small><div class="ob-hsk" aria-hidden="true"><span>HSK</span>${reel}</div>
         ${chars ? `<small class="ob-chars">You can read about ${chars.toLocaleString('en')} characters</small>` : ''}</div>
+    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
+    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
+    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
+      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
       ${sigs.length > 1 ? `<div class="ob-sigs">${sigs.join('')}</div>` : ''}
       ${add}
       <p class="ob-next">${lv > 1 || chars ? 'Hanzi of the day and your new words start here.' : 'Perfect, everyone starts here. Hanzi of the day and your new words start with the basics.'}</p>
@@ -6314,8 +6507,20 @@ function obShow() {
 }
 async function obCheckStart() {   // the HSK lists may still be loading
   try { await loadHsk(); } catch (_) { if (S.ob && OB_STEPS[S.ob.i] === 'check') { LOG.add('onboarding', { step: 'check', error: 'no hsk lists' }); S.ob.chk = null; obGo('goal'); } return; }
+  if (step === 'placed') obReel(el);
   if (!S.ob || OB_STEPS[S.ob.i] !== 'check') return;
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
+/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
+function obReel(el) {
+  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
+  let t = 520;
+  for (let k = 1; k <= n; k++) {
+    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
+    t += gap;
+    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
+      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
+  }
+}
 }
 function obFinish(how) {
   const O = S.ob, sig = O.chk ? obSignals() : {}, lv = O.chk ? obLevel(sig) : how === 'skipped' ? null : O.level ? Math.min(O.level, 2) : null;
@@ -6368,10 +6573,6 @@ async function obClick(e) {
     const k = b.closest('[data-pick]').dataset.pick;
     if (k === 'why') { const v = b.dataset.v; O.why = O.why.includes(v) ? O.why.filter(x => x !== v) : [...O.why, v]; b.setAttribute('aria-pressed', O.why.includes(v)); $('#ob [data-ob="next"]').disabled = !O.why.length; return; }
     O[k] = +b.dataset.v;
-    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
-    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
-    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
-      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
     b.parentElement.querySelectorAll('.ob-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
     $('#ob [data-ob="next"]').disabled = false; return;
   }
@@ -6397,24 +6598,12 @@ async function obClick(e) {
     else { obFinish('install-help'); setTimeout(installHelp, 350); }
     return;
   }
-  html = html.replace(/[–—]/g, '-');   // short dashes only on these pages (HSK 7-9, HSK 1-2)
   // next
   if (step === 'check') {
     if (!O.chk) return;
   if (step === 'placed') obReel(el);
     const R = O.chk.rounds.at(-1); LOG.add('onboarding-check', { lv: R.lv, known: R.on.size, of: R.chars.length });
     if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.q = null; O.st = null; obGo(obSkipTests() ? 'placed' : 'words'); } else obShow();
-/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
-function obReel(el) {
-  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
-  let t = 520;
-  for (let k = 1; k <= n; k++) {
-    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
-    t += gap;
-    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
-      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
-  }
-}
     return;
   }
   if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
@@ -6657,7 +6846,7 @@ const A = {
     const chars = hanChars(cardById(curDeck(), W.order[W.i]).hanzi), boxes = $$('#grid .tzg');
     const judging = Promise.all(boxes.map((b, i) => judgeChar(chars[i], b._strokes || [], b._s))).then(r => rescueWithWord(null, chars, boxes, r));
     revealFree();   // your ink starts turning into the character right away; the verdict lands while it moves
-    const res = await judging;
+    const [res] = await Promise.all([judging, loadParts().catch(() => null)]);   // the parts let Shi Shi name a wrong part
     if (S.write !== W || !W.revealed || !W.checking) return;   // switched mode or card meanwhile
     W.checking = false;
     W.judge = { chars: res, ok: res.some(r => r.ok === null) ? null : res.every(r => r.ok) };
