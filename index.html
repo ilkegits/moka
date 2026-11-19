@@ -7681,15 +7681,21 @@ function writeAsk(c) {
   return { en: (ok && shortMeaning(ok)) || c.en, py: c.pinyin };
 }
 /* a common word that uses the character, shown with the character left out (东＿ · thing): which sense is meant,
-   without giving the answer. Words from your word bank first, then the easiest HSK level. */
+   without giving the answer. A word whose meaning agrees with the one asked, a word from your word bank and an easy
+   HSK level each count in its favour. */
+const CLUE_STOP = new Set(['the', 'and', 'for', 'one', 'ones', 'not', 'with', 'are', 'was', 'has', 'have', 'its', 'can', 'get', 'out', 'off', 'into', 'from', 'some', 'someone', 'something', 'thing', 'very', 'make', 'person', 'measure', 'word', 'used']);
 function writeClue(c) {
   const ch = c.hanzi; if (c.clue !== undefined) return c.clue;   // a lesson gives its own word
   if (hanChars(ch).length !== 1 || !S.H) return null;
-  const mine = new Set(db.bank.map(w => w.hanzi)), say = normPy(writeAsk(c).py || ''); let best = null, bs = Infinity;
+  const ask = writeAsk(c), mine = new Set(db.bank.map(w => w.hanzi)), say = normPy(ask.py || ''); let best = null, bs = Infinity;
+  // a word whose meaning shares a word with the one asked comes first: "which" 哪 gets 哪些 which ones, not 哪里 where
+  const keys = w => new Set((w.toLowerCase().match(/[a-z]+/g) || []).filter(x => x.length > 2 && !CLUE_STOP.has(x)).map(x => x.replace(/s$/, ''))),
+    want = keys(ask.en || '');
   for (const lv of [1, 2, 3, 4, 5, 6, 7]) for (const [k, r] of (S.H.levels[lv] || []).entries()) {
     if (r.h === ch || !r.h.includes(ch) || [...r.h].length > 3 || !r.e) continue;
     if (say && normPy(r.p.split(' ')[[...r.h].indexOf(ch)] || '') !== say) continue;   // same reading only: "long" 长 cháng, not 校长 zhǎng
-    const sc = (mine.has(r.h) ? 0 : 1e5) + lv * 1e4 + k; if (sc < bs) { bs = sc; best = r; }
+    const same = [...keys(meanOf(r))].some(x => want.has(x));
+    const sc = lv * 1e4 + k - (same ? 2e4 : 0) - (mine.has(r.h) ? 1.5e4 : 0); if (sc < bs) { bs = sc; best = r; }   // a match is worth two HSK levels, your own word one and a half
   }
   return best && { hz: best.h, py: best.p, en: meanOf(best) };
 }
@@ -7953,7 +7959,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.39';
+const APP_VERSION = '2.40';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
