@@ -1158,6 +1158,13 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .bk.now .bk-name{color:var(--seal);font-weight:700}
 .mo-book{position:relative;z-index:1;width:112px;margin:26px auto 0;filter:drop-shadow(0 10px 10px rgba(60,40,20,.25));animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
 .mo-book svg{display:block;width:100%;height:auto}
+/* the quick check before a story is finished: one word of the story, three meanings */
+.rc-card{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0 0 14px;padding:20px 16px 16px;border-radius:20px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.12),0 4px 0 rgba(120,95,60,.12)}
+.rc-hz{font:600 46px/1.2 var(--hanzi);letter-spacing:.04em;color:var(--ink)}
+.rc-py{min-height:1.35em;font-size:16px;font-weight:500;color:var(--seal)}
+.rc-ask{margin:0 2px 12px;text-align:center;font-size:16px;font-weight:700;color:var(--ink)}
+.rc-fb{min-height:1.4em;margin:12px 2px 14px;text-align:center;font-size:15px;font-weight:700;color:var(--jade)}
+.rc-fb.no{color:var(--seal)}
 @media (prefers-reduced-motion:reduce){.mo-book{animation:none}.bk-art{transition:none}}
 .story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:28px;line-height:1.6;color:var(--ink)}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
@@ -4560,10 +4567,31 @@ function mountRead() {
     if (S.view === 'read' && ch) { S.instant = true; render(); }
   }, () => {});
 }
-/* finishing: tick the new words you learned, they go into the word bank, the story is filed under its HSK level */
+/* the quick check: one word of the story and three meanings to pick from. A word that fills a gap in the story (a
+   thing, a place, something to do) is asked first, and a new one before one you know. The wrong meanings come from
+   words of the same kind, never one that means the same. null when the story has no word that can be asked */
+function storyCheck(s) {
+  const plain = m => !!m && /^[a-z]/i.test(m), parts = m => m.toLowerCase().split(/;\s*/), seen = new Set(), C = [];
+  for (const t of storyTokens(s).flat()) {
+    if (READ_PUNCT.test(t.h) || t.h === '狮狮' || seen.has(t.h)) continue; seen.add(t.h);
+    const kind = Object.keys(RL.cat).find(k => RL.cat[k].includes(t.h)), en = RL.home[t.h] ?? RL.gloss[t.h] ?? readMeaning(t.h);   // what it means in the story
+    if (plain(en)) C.push({ h: t.h, p: t.p, en, kind, rank: (kind ? 0 : 2) + (bankHas(t.h) ? 1 : 0) });
+  }
+  const w = shuffle(C).sort((a, b) => a.rank - b.rank)[0]; if (!w) return null;
+  // not a wrong answer: anything this word can mean (小 is little in one story, small in another), or a near twin of it
+  const mine = new Set([w.en, RL.gloss[w.h], RL.home[w.h], bankHas(w.h)?.en].filter(Boolean).flatMap(parts)), wrong = [];
+  for (const g of [['pretty', 'good-looking'], ['small', 'little'], ['to study', 'to learn'], ['happy', 'cheerful'], ['good', 'nice', 'not bad']]) if (g.some(x => mine.has(x))) g.forEach(x => mine.add(x));
+  const pool = [...shuffle(w.kind ? RL.cat[w.kind].map(h => RL.gloss[h]) : []), ...shuffle([...Object.values(RL.gloss), ...Object.values(RL.home)])];
+  for (const m of pool) { if (plain(m) && !wrong.includes(m) && !parts(m).some(x => mine.has(x))) wrong.push(m); if (wrong.length === 2) break; }
+  if (wrong.length < 2) return null;
+  const opts = shuffle([w.en, ...wrong]);
+  return { h: w.h, p: w.p, en: w.en, opts, ok: opts.indexOf(w.en) };
+}
+/* finishing, in two steps on one pop-up: the quick check, then the new words you learned: tick them and they go into
+   the word bank, and the story is filed on your shelf */
 function finishSheet() {
   const s = db.readCur; if (!s) return;
-  const go = () => {
+  const wordsStep = () => {
     const words = storyNewWords(s), sel = new Set(words.map(w => w.h));
     openSheet(`<h3>New words in this story</h3>
       ${words.length ? `<p class="muted" style="margin:-8px 0 16px;text-align:center">Untick any you haven't learned yet. The rest go into your word bank.</p>
@@ -4579,6 +4607,29 @@ function finishSheet() {
       });
       btn.onclick = () => { closeSheet(true); finishStory(words.filter(w => sel.has(w.h)), words.length); };
       paint();
+    });
+  };
+  const go = () => {
+    const Q = storyCheck(s); if (!Q) { wordsStep(); return; }
+    openSheet(`<h3>Quick check</h3>
+      <div class="rc-card"><span class="rc-hz">${esc(Q.h)}</span><span class="rc-py" id="rcPy">${db.prefs.readPy ? esc(Q.p) : ''}</span></div>
+      <p class="rc-ask">What does it mean in this story?</p>
+      <div class="les-opts list" id="rcOpts">${Q.opts.map((m, k) => `<button class="les-opt" data-k="${k}"><span class="lo-en">${esc(m)}</span></button>`).join('')}</div>
+      <p class="rc-fb" id="rcFb" aria-live="polite"></p>
+      <div class="sheet-go"><button class="btn btn-seal wide" id="rcGo" style="visibility:hidden">Continue</button></div>`, sh => {
+      const box = sh.querySelector('#rcOpts'), fb = sh.querySelector('#rcFb'), next = sh.querySelector('#rcGo');
+      box.onclick = e => {
+        const b = e.target.closest('.les-opt'); if (!b || box.classList.contains('answered')) return;
+        const pick = +b.dataset.k, right = pick === Q.ok;
+        box.classList.add('answered');
+        box.querySelectorAll('.les-opt').forEach((o, k) => { o.disabled = true; if (k === Q.ok) o.classList.add('ok', right ? 'pick' : 'reveal'); else if (k === pick) o.classList.add('no'); });
+        sh.querySelector('#rcPy').textContent = Q.p;
+        fb.textContent = right ? 'Right!' : `Not quite: ${Q.h} is ${Q.en}.`; fb.classList.toggle('no', !right);
+        right ? chime() : buzz();
+        LOG.add('read-check', { hz: Q.h, right });
+        next.style.visibility = '';
+      };
+      next.onclick = wordsStep;
     });
   };
   loadHsk().then(go, go);
@@ -8307,7 +8358,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.45';
+const APP_VERSION = '2.46';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
