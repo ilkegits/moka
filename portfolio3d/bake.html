@@ -105,6 +105,20 @@ function cut(mon, h) {   // show the monument up to height h
   return plane;
 }
 
+/* ?turn=13&deg=30&ic=400: a turntable for the map instead, the cut-out seen as the camera swings round it from 0 to deg
+   degrees in turn steps (the whole scene turns, lights too, so the sun stays where it is on the monument). One camera
+   frames every step, so the base and the top stay in the same place in every frame */
+if (q.get('turn')) {
+  const N = +q.get('turn'), DEG = +(q.get('deg') || 30), angs = Array.from({ length: N }, (_, i) => D2R(DEG * i / (N - 1)));
+  const T = makeScene(false), fullT = boxOf(T.mon).max.y, pts0 = samplePts(T.mon), pts = [];
+  for (const a of angs) for (const p of pts0) pts.push(p.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), a));
+  const { cam } = fitCam(pts, 1, new THREE.Box3().setFromPoints(pts).getCenter(new THREE.Vector3()), 32, 22, 26, .96);
+  cam.updateMatrixWorld(); const b = new THREE.Vector3(0, 0, 0).project(cam), t = new THREE.Vector3(0, fullT, 0).project(cam);
+  const res = { id: M.id, anchor: { x: +((b.x + 1) / 2).toFixed(4), y: +((1 - b.y) / 2).toFixed(4), top: +((1 - t.y) / 2).toFixed(4) }, frames: [] };
+  for (const a of angs) { T.scene.rotation.y = a; T.scene.updateMatrixWorld(true); icr.render(T.scene, cam); res.frames.push(icr.domElement.toDataURL('image/png')); await new Promise(r => setTimeout(r, 0)); }
+  document.getElementById('out').textContent = JSON.stringify(res); document.body.dataset.done = '1';
+  throw 'turntable done';
+}
 // the levels and both cameras come from the finished monument, so every step lines up with the next
 const ref = makeScene(true), levels = cutLevels(ref.mon), full = boxOf(ref.mon).max.y;
 out.levels = levels.map(x => +x.toFixed(3));

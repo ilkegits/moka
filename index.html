@@ -741,7 +741,11 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-stage{position:relative;flex:1;min-height:440px;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
   background:radial-gradient(130% 80% at 62% 44%,#ACE1F2,#86D0EA 60%,#6DC1E4)}
 .tm-stage.tm-grab{cursor:grabbing}
-.tm-stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tm-world{position:absolute;inset:0}
+.tm-stage.tm-over .tm-world{inset:-70%;transform-origin:50% 55%}
+.tm-world>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tm-slot{transition:opacity .35s}
+.tm-showing .tm-slot{opacity:0;pointer-events:none}
 .tm-stage::before{content:"";position:absolute;inset:0 0 auto;height:128px;z-index:1;pointer-events:none;background:linear-gradient(var(--paper) 38%,transparent)}
 .tm-stage::after{content:"";position:absolute;inset:0;z-index:5;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .2s .24s}
 .tm-stage.mp-going::after{opacity:1}
@@ -968,6 +972,13 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-seg i.full b{background:var(--jade)}
 .mp-seg.one{grid-template-columns:1fr}.mp-seg.one i{height:10px;border-radius:5px}
 .mp-veil{filter:blur(16px) saturate(.5) brightness(.8)}
+/* a monument you do not own yet: only its silhouette, grey on grey (shop, its card, its page) */
+.shop-pic.sil,.shop-hero.sil,.mp-scene.sil{background:linear-gradient(#DCD9D2,#C8C4BB)}
+.shop-pic.sil img,.shop-hero.sil img{object-fit:contain;padding:7% 0 3%;filter:brightness(0);opacity:.24}
+svg.sil{filter:brightness(0);opacity:.28}
+.mp-scene.sil svg.sil{opacity:.22}
+.mp-silim{filter:brightness(0);opacity:.22}
+.tm-med:has(svg.sil){background:radial-gradient(circle at 50% 35%,#ECEAE5,#CFCBC3 75%)}
 .mp-q{font:700 90px var(--display);fill:#FFF3E2;opacity:.9}
 .mp-next{margin:10px 0 0;font-size:14px;color:var(--ink-2)}
 .mp-steps{margin:24px 2px 8px}
@@ -4733,7 +4744,8 @@ function mountRead() {
 }
 /* the quick check: every new word of the story (the ones not in your word bank yet, the same ones the next step
    offers for it), each with three meanings to pick from, in the order they come in the story. A story with no new word
-   has no check: words in your word bank are not asked again. The wrong meanings come from words of the same kind,
+   has no check: words in your word bank are not asked again. A word you get wrong is asked again after the others, its
+   meanings in a new order, until you get it right. The wrong meanings come from words of the same kind,
    never one that means the same. A word whose meaning can't be asked (了, 的) is left out */
 const RC_TWINS = [['pretty', 'good-looking'], ['small', 'little', 'a little', 'a bit'], ['to study', 'to learn'], ['happy', 'cheerful'], ['good', 'nice', 'not bad'],
   ['very', 'really'], ['to want to', 'to want', 'would like'], ['home', 'at home'], ['to say', 'to tell'], ['still', 'also'], ['then', 'later'],
@@ -4787,7 +4799,7 @@ function finishSheet() {
     if (!Qs.length) { wordsStep(); return; }
     const ask = () => {
       const Q = Qs[i];
-      openSheet(`<h3>Quick check${Qs.length > 1 ? `<span class="rc-n">${i + 1} of ${Qs.length}</span>` : ''}</h3>
+      openSheet(`<h3>${Q.again ? 'Once more' : 'Quick check'}${Qs.length > 1 ? `<span class="rc-n">${i + 1} of ${Qs.length}</span>` : ''}</h3>
         <div class="rc-card rc-in"><span class="rc-hz">${esc(Q.h)}</span><span class="rc-py" id="rcPy">${db.prefs.readPy ? esc(Q.p) : ''}</span></div>
         <p class="rc-ask">What does it mean in this story?</p>
         <div class="les-opts list rc-in" id="rcOpts">${Q.opts.map((m, k) => `<button class="les-opt" data-k="${k}"><span class="lo-en">${esc(m)}</span></button>`).join('')}</div>
@@ -4802,10 +4814,11 @@ function finishSheet() {
           sh.querySelector('#rcPy').textContent = Q.p;
           fb.textContent = right ? 'Right!' : `Not quite: ${Q.h} is ${Q.en}.`; fb.classList.toggle('no', !right);
           right ? chime() : buzz();
-          LOG.add('read-check', { hz: Q.h, right, n: i + 1, of: Qs.length });
+          if (!right) { const o = shuffle(Q.opts.slice()); Qs.push({ ...Q, opts: o, ok: o.indexOf(Q.en), again: true }); }   // a miss comes back once the others are done, until you get it right
+          LOG.add('read-check', { hz: Q.h, right, n: i + 1, of: Qs.length, again: !!Q.again });
           next.style.visibility = '';
         };
-        next.onclick = () => { if (++i < Qs.length) ask(); else wordsStep(); };   // the next new word, then the list of them
+        next.onclick = () => { if (++i < Qs.length) ask(); else wordsStep(); };   // the next new word (then the ones you missed, again), then the list of them
       });
     };
     ask();
@@ -5855,25 +5868,27 @@ function coinRain(root, P, wait = 0) {
    lanterns. Until v2.55 they unlocked in this order by proven words (cost, TRAIL_AT); that is kept only to carry what
    people had unlocked over into coins (db.monOwn), so add new ones at the end of the list. The pictures are
    3D models in golden-hour light, baked by portfolio3d/bake.html: mon/<id>.webp for its page and mon/<id>-i.webp, a
-   cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map). Tap a
+   cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map), and
+   mon/<id>-t.webp, 13 cut-outs side by side as the camera swings 0 to 30 degrees round it, played when you buy it
+   (it: base and top in those, baked with bake.html?turn=13&deg=30&ic=400). Tap a
    monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sit the
    coins you are saving toward the monument you want next (db.monWish, else the cheapest one you lack) and the Shop.
    db.monOpen = { monument: 1 } once you have seen it: a new one is revealed the first time you open its page. */
 const TRAIL = [
-  { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, price: 3500, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02] },
-  { lv: 2, id: 'leifeng', en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, price: 150, name: 'Leifeng Pagoda', nzh: '雷峰塔', h: 42, w: 17, ic: [0.4956, 0.8359, 0.0208] },
-  { lv: 3, id: 'crane', en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, price: 400, name: 'Yellow Crane Tower', nzh: '黄鹤楼', h: 44, w: 21, ic: [0.5132, 0.7667, 0.0211] },
-  { lv: 4, id: 'canton', en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, price: 1200, name: 'Canton Tower', nzh: '广州塔', h: 54, w: 13, ic: [0.5, 0.8919, 0.02] },
-  { lv: 5, id: 'hongya', en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, price: 250, name: 'Hongya Cave', the: '', nzh: '洪崖洞', h: 36, w: 24, ic: [0.3958, 0.9033, 0.0507] },
-  { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, price: 2500, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215] },
-  { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, price: 500, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209] },
-  { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, price: 2000, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218] },
-  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, price: 5000, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187] },
-  { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, price: 900, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305] },
-  { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, price: 800, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608] },
-  { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, price: 600, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201] },
-  { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, price: 1600, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781] },
-  { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, price: 1000, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897] },
+  { lv: 1, id: 'pearl', en: 'Shanghai', zh: '上海', site: [122.0, 31.55], cost: 24, price: 3500, name: 'Oriental Pearl Tower', nzh: '东方明珠', h: 47, w: 15, ic: [0.4729, 0.885, 0.02], it: [0.4832, 0.875, 0.02] },
+  { lv: 2, id: 'leifeng', en: 'Hangzhou', zh: '杭州', site: [118.9, 29.55], cost: 40, price: 150, name: 'Leifeng Pagoda', nzh: '雷峰塔', h: 42, w: 17, ic: [0.4956, 0.8359, 0.0208], it: [0.5, 0.8342, 0.0209] },
+  { lv: 3, id: 'crane', en: 'Wuhan', zh: '武汉', site: [114.3, 30.55], cost: 64, price: 400, name: 'Yellow Crane Tower', nzh: '黄鹤楼', h: 44, w: 21, ic: [0.5132, 0.7667, 0.0211], it: [0.5131, 0.7667, 0.0214] },
+  { lv: 4, id: 'canton', en: 'Guangzhou', zh: '广州', site: [113.3, 23.15], cost: 96, price: 1200, name: 'Canton Tower', nzh: '广州塔', h: 54, w: 13, ic: [0.5, 0.8919, 0.02], it: [0.5, 0.8918, 0.02] },
+  { lv: 5, id: 'hongya', en: 'Chongqing', zh: '重庆', site: [106.55, 29.6], cost: 128, price: 250, name: 'Hongya Cave', the: '', nzh: '洪崖洞', h: 36, w: 24, ic: [0.3958, 0.9033, 0.0507], it: [0.4358, 0.9036, 0.055] },
+  { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, price: 2500, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215], it: [0.4997, 0.6574, 0.1765] },
+  { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, price: 500, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209], it: [0.5077, 0.8171, 0.0209] },
+  { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, price: 2000, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218], it: [0.5, 0.6992, 0.0221] },
+  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, price: 5000, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187], it: [0.4923, 0.5719, 0.233] },
+  { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, price: 900, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305], it: [0.5304, 0.7491, 0.0316] },
+  { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, price: 800, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608], it: [0.4522, 0.5439, 0.367] },
+  { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, price: 600, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201], it: [0.4642, 0.8974, 0.0204] },
+  { lv: 13, id: 'mogao', en: 'Dunhuang', zh: '敦煌', site: [94.7, 40.1], cost: 608, price: 1600, name: 'Mogao Caves', nzh: '莫高窟', h: 32, w: 26, ic: [0.4136, 0.6736, 0.1781], it: [0.4284, 0.6709, 0.1894] },
+  { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, price: 1000, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897], it: [0.5052, 0.6831, 0.0944] },
 ];
 const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
@@ -6100,6 +6115,10 @@ const Trail = (() => {
       mc.putImageData(img, 0, 0); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(m, 0, 0, W, H);
       for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); ctx.beginPath(); ctx.ellipse((x - X0) * P, (y - Y0) * P, rx * UX * P * .85, ry * UY * P * .85, -.2, 0, 6.3); ctx.fillStyle = '#86CFEA'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3; ctx.stroke(); }
       ctx.globalCompositeOperation = 'destination-in'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); ctx.fillStyle = '#000'; ctx.fill(outline); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
+      // behind the land, painted once: its pale rim (as .tm-land draws it), then a soft shadow under the whole country, so China seems to lift off the sea
+      ctx.globalCompositeOperation = 'destination-over'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); Object.assign(ctx, { lineWidth: 5, lineJoin: 'round', strokeStyle: '#F8EFC8' }); ctx.stroke(outline);
+      Object.assign(ctx, { shadowColor: 'rgba(18,72,92,.42)', shadowBlur: 11 * P, shadowOffsetX: 1.5 * P, shadowOffsetY: 5 * P, fillStyle: '#F8EFC8' }); ctx.fill(outline); ctx.stroke(outline);
+      Object.assign(ctx, { shadowColor: 'transparent', shadowBlur: 0, shadowOffsetX: 0, shadowOffsetY: 0 }); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
       // what stands on the ground
       const clear = (lon, lat, room) => { for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
       const T = TEX.things, ok = (lon, lat) => { const c = cell(lon, lat); return c >= 0 && M[c] && pip(lon, lat, CHINA) ? c : -1; }, put = (t, lon, lat, o) => { const [x, y] = wp(lon, lat); T.push({ t, x, y, ...o }); };
@@ -6225,15 +6244,15 @@ const Trail = (() => {
         + `<g class="tm-mon tm-ghost${can ? ' can' : ''}">${cutout(c)}</g>${beacon(-top - 5)}<rect x="${f(-w * .8)}" y="${-top - 44}" width="${f(w * 1.6)}" height="${top + 54}" fill="transparent"/>`; }
     let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
     if (fresh) s += `<ellipse class="tm-ping" rx="${w - 2}" ry="5" cy="1"/>`;
-    s += `<g class="tm-mon">${cutout(c)}</g>`;
+    s += `<g class="tm-up"><g class="tm-mon">${cutout(c)}</g></g>`;
     if (fresh) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-c.w + 4} ${-c.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${c.w - 3} ${-c.h + 12})"/>`;
     return s + `<rect x="${f(-w * .8)}" y="${-top - 4}" width="${f(w * 1.6)}" height="${top + 14}" fill="transparent"/>`;   // narrow enough that neighbours (Shanghai, Hangzhou) do not steal each other's taps
   }
-  const mini = (lv, st, show) => { const c = TRAIL[lv - 1]; return st.done || show ? `<svg viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card
+  const mini = (lv, st, show) => { const c = TRAIL[lv - 1]; return st.done || show ? `<svg${st.done ? '' : ' class="sil"'} viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card; one you do not own yet is only its silhouette
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
-  const zHome = () => CAM.w / 400, zMin = zHome, zMax = () => CAM.w / 76;   // the view the map opens on is as far back as it goes; in, down to one city
+  const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 76;   // the view the map opens on is as far back as it goes; in, down to one city
   const CORE = [[82, 33], [77, 39.4], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [126.4, 45.6], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [117.5, 25.0], [111, 24], [104, 25], [100.3, 25.8], [99, 29], [90, 31]];   // China's heartland, reaching out to the far monuments
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
     let lon = o.x / UX + LON_A, lat = LAT_A - o.y / UY;
@@ -6253,19 +6272,25 @@ const Trail = (() => {
   function map(states) {
     if (CAM.x == null) Object.assign(CAM, home());
     const [under, over] = drawn(), cur = trailCur(states), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
-    let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
+    let s = `<div class="tm-world"><svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
     TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them
       const say = st.done ? `${c.name}, ${c.en}, yours` : i === cur ? `Saving for the ${c.name}, ${c.en}: ${st.n} of ${st.total} coins` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
       s += `<g class="tm-pin${i === cur ? ' cur' : ''}${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st, i === cur)}</g>`; });
-    return s + '</svg>';
+    return s + '</svg></div>';
   }
   function mount(from) {   // the map answers your fingers; back from a monument's page, it pulls out of that city
     const svg = $('#tmSvg'), stage = svg?.closest('.tm-stage'); if (!svg || !stage) return;
     if (!PROPS.cv) { PROPS.cv = document.createElement('canvas'); PROPS.cv.id = 'tmProps'; PROPS.c = PROPS.cv.getContext('2d'); }
     const cams = [...stage.querySelectorAll('.tm-cam')], pins = [...svg.querySelectorAll('.tm-pin')], pts = new Map();
     let raf = 0, anim = 0, g = null, tap = null;
-    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps(); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); svg.classList.toggle('near', nearby()); };
+    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps(); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); svg.classList.toggle('near', nearby()); upright(); };
+    const ups = [...svg.querySelectorAll('.tm-up,.tm-buy')], world = stage.querySelector('.tm-world');
+    function upright() {   // while the ground is tilted and turned (CAM.tilt), each monument and price tag turns back and stands up straight on it
+      const T = CAM.tilt, u = T ? `rotate(${T.r.toFixed(2)}) scale(1 ${(1 / Math.cos(T.a * Math.PI / 180)).toFixed(4)})` : null;
+      if (world) world.style.transform = T ? `perspective(${T.p}px) rotateX(${T.a.toFixed(2)}deg) rotateZ(${(-T.r).toFixed(2)}deg)` : '';
+      for (const e of ups) u ? e.setAttribute('transform', u) : e.removeAttribute('transform');
+    }
     const draw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (svg.isConnected) apply(); }); };   // at most one redraw a frame
     const stop = () => { cancelAnimationFrame(anim); anim = 0; CAM.goal = null; };
     const fly = (to, ms = 620, done) => {
@@ -6277,7 +6302,8 @@ const Trail = (() => {
         if (t < 1) anim = requestAnimationFrame(step); else { CAM.goal = null; done?.(); } };
       anim = requestAnimationFrame(step);
     };
-    const size = () => { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; CAM.w = w; CAM.h = h; const q = PROPS.dpr = Math.min(window.devicePixelRatio || 1, 2); PROPS.cv.width = Math.round(w * q); PROPS.cv.height = Math.round(h * q); for (const s of stage.querySelectorAll(':scope > svg')) s.setAttribute('viewBox', `0 0 ${w} ${h}`); Object.assign(CAM, clampV(CAM)); apply(); };
+    const size = () => { const box = world || stage, w = box.clientWidth, h = box.clientHeight; if (!w || !h) return; CAM.w = w; CAM.h = h; CAM.vw = stage.clientWidth; CAM.vh = stage.clientHeight;   // tm-over: the world is drawn wider than the screen while it is tilted, so no edge shows
+      const q = PROPS.dpr = Math.min(window.devicePixelRatio || 1, stage.classList.contains('tm-over') ? 1.25 : 2); PROPS.cv.width = Math.round(w * q); PROPS.cv.height = Math.round(h * q); for (const s of box.querySelectorAll(':scope > svg')) s.setAttribute('viewBox', `0 0 ${w} ${h}`); Object.assign(CAM, clampV(CAM)); apply(); };
     const loc = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     const zoomTo = (p, z) => { z = cl(z, zMin(), zMax()); const dx = p[0] - CAM.w / 2, dy = p[1] - CAM.h / 2; return clampV({ x: CAM.x + dx / CAM.z - dx / z, y: CAM.y + dy / CAM.z - dy / z, z }); };   // zoom, the spot under the finger staying put
     const glide = (vx, vy) => { let t = performance.now();   // a flick keeps going and slows down
@@ -6318,14 +6344,53 @@ const Trail = (() => {
     stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
     stage.addEventListener('wheel', e => { e.preventDefault(); stop(); Object.assign(CAM, zoomTo(loc(e), CAM.z * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .002)))); draw(); }, { passive: false });
     const ro = new ResizeObserver(() => { if (svg.isConnected) size(); else ro.disconnect(); }); ro.observe(stage);
-    CAM.api = { fly, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
+    /* The moment you buy a monument: the map flies down to its city and tilts like a camera coming lower, the monument
+       drops onto its spot, then the camera swings 30 degrees round it (the ground turns, and the monument turns too,
+       frame by frame from its baked turntable) and back, and the map lies flat again with its card up. About 5 s; a
+       touch ends it at once. */
+    const show = (lv, end) => {
+      const c = TRAIL[lv - 1], pin = pins.find(p => +p.dataset.lv === lv), mon = pin?.querySelector('.tm-mon');
+      const at = z => { const [x, y] = wp(...SITE[lv]); return { x, y: y - .12 * (CAM.vh || CAM.h) / z, z }; };   // its base a little below the middle of the screen
+      if (!pin || !mon || !world || stillMotion()) { fly(at(zMax() * .8), stillMotion() ? 0 : 900, end); fanfare(); return; }
+      const N = 13, TURN = 30, A = 36, k = c.h / (c.it[1] - c.it[2]);
+      let t0 = 0, rf = 0, drop = null, done = false, strip = null, fi = -1;
+      const img = new Image(); img.src = `mon/${c.id}-t.webp`;
+      const finish = () => {
+        if (done) return; done = true; cancelAnimationFrame(rf); stop(); CAM.show = 0; stage.removeEventListener('pointerdown', finish, true);
+        drop?.cancel(); mon.style.opacity = ''; if (strip) mon.innerHTML = cutout(c);
+        CAM.tilt = null; stage.classList.remove('tm-over', 'tm-showing'); size(); Object.assign(CAM, clampV(at(CAM.z))); apply(); end();
+      };
+      const sm = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+      CAM.show = lv; stage.classList.add('tm-showing'); mon.style.opacity = '0';
+      stage.addEventListener('pointerdown', finish, true);
+      const frame = now => {
+        if (done || !svg.isConnected) return; const t = now - t0;
+        const a = A * (t < 3700 ? sm(t / 1100) : 1 - sm((t - 3700) / 1300)), r = TURN * (t < 3700 ? sm((t - 1300) / 1800) : 1 - sm((t - 3700) / 1300));
+        CAM.tilt = { a, r, p: 900 }; upright();
+        if (strip) { const i = Math.round(r / TURN * (N - 1)); if (i !== fi) { fi = i; strip.setAttribute('viewBox', `${i} 0 1 1`); } }
+        if (t > 5000) { finish(); return; }
+        rf = requestAnimationFrame(frame);
+      };
+      img.decode().then(() => {   // the turntable swaps in for the still cut-out once it is loaded, if the camera has not started round yet (the shop fetched it ahead: shopPeek); else the monument just stays still
+        if (done || !svg.isConnected || fi > 0 || performance.now() - t0 > 1250) return;
+        mon.innerHTML = `<svg x="${f(-c.it[0] * k)}" y="${f(-c.it[1] * k)}" width="${f(k)}" height="${f(k)}" viewBox="0 0 1 1" preserveAspectRatio="none"><image href="${img.src}" width="${N}" height="1" preserveAspectRatio="none"/></svg>`; strip = mon.firstElementChild;
+      }, () => {});
+      stage.classList.add('tm-over'); size();   // the world drawn wide enough to tilt and turn without an edge showing
+      fly(at(zMax()), 1100);
+      drop = mon.animate([{ opacity: 0, transform: 'translateY(-46px) scale(.7)' }, { opacity: 1, transform: 'translateY(0) scale(1.1,.88)', offset: .62 }, { opacity: 1, transform: 'scale(.97,1.04)', offset: .82 }, { opacity: 1, transform: 'none' }],
+        { duration: 620, delay: 650, easing: 'cubic-bezier(.4,0,.7,1)', fill: 'both' });
+      mon.style.opacity = '';
+      setTimeout(() => { if (!done) { fanfare(); try { navigator.vibrate?.(20); } catch (_) {} } }, 1050);   // it lands
+      t0 = performance.now(); rf = requestAnimationFrame(frame);
+    };
+    CAM.api = { fly, show, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
     const goal = CAM.goal, first = !CAM.seen, states = trailStates(), cur = trailCur(states), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
     if (first && !from) Object.assign(CAM, home());
     if (from) CAM.land = false; else if (first || CAM.cur !== cur || fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to your goal (first visit, a new goal, a new monument)
     CAM.cur = cur; CAM.news = fresh;
     size();
     bake(() => { if (!svg.isConnected) return; svg.before(TEX.cv, PROPS.cv); apply(); requestAnimationFrame(() => { TEX.cv.classList.add('on'); PROPS.cv.classList.add('on'); });   // the painted land arrives and fades in
-      if (CAM.land) setTimeout(() => { if (!svg.isConnected) return; CAM.land = false; const to = landing(states); if (to && !g && !CAM.sel) fly(to, first ? 1100 : 700); }, first ? 420 : 60); });   // then, from far away, down to it
+      if (CAM.land) setTimeout(() => { if (!svg.isConnected) return; CAM.land = false; const to = landing(states); if (to && !g && !CAM.sel && !CAM.show) fly(to, first ? 1100 : 700); }, first ? 420 : 60); });   // then, from far away, down to it
     if (from) { Object.assign(CAM, clampV(view(...SITE[from], zMax(), .56))); apply(); fly(near(from), 700); }
     else if (!first && goal && !CAM.land) fly(goal, 500);   // redrawn mid-flight (the HSK lists arrived): carry on to where it was going
   }
@@ -6347,11 +6412,12 @@ const Trail = (() => {
     }
     return s + `</g><defs><radialGradient id="mpLantGlow"><stop offset="0" stop-color="#FFD98A" stop-opacity="${night ? .75 : .45}"/><stop offset="1" stop-color="#FFD98A" stop-opacity="0"/></radialGradient></defs>`;
   }
+  const sil = c => `<svg class="sil" viewBox="0 0 360 252" aria-hidden="true"><image href="mon/${c.id}-i.webp" x="${f(180 - c.ic[0] * 220)}" y="${f(230 - c.ic[1] * 220)}" width="220" height="220"/></svg>`;   // a monument you do not own yet: its shape only, grey on grey
   function scene(lv, st, night, reveal) {   // its 3D picture with the lanterns of its mastered words; reveal: the first look once unlocked
     const c = TRAIL[lv - 1], img = cls => `<image class="${cls}" href="mon/${c.id}.webp" width="360" height="252" preserveAspectRatio="xMidYMid slice"/>`;
-    if (!st.done) return `<svg viewBox="0 0 360 252" aria-hidden="true">${img('mp-veil')}<text class="mp-q" x="180" y="150" text-anchor="middle">?</text></svg>`;   // still a secret
+    if (!st.done) return sil(c);   // still a secret: only its shape
     let s = `<svg viewBox="0 0 360 252" aria-hidden="true">`;
-    s += reveal ? `<g class="mp-old">${img('mp-veil')}</g><g class="mp-new">${img('')}</g>` : img('');
+    s += reveal ? `<g class="mp-old"><rect width="360" height="252" fill="#D3CFC7"/><image class="mp-silim" href="mon/${c.id}-i.webp" x="${f(180 - c.ic[0] * 220)}" y="${f(230 - c.ic[1] * 220)}" width="220" height="220"/></g><g class="mp-new">${img('')}</g>` : img('');
     s += lanterns(trailLanterns(st), !st.due, night);
     if (reveal) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
@@ -6366,7 +6432,7 @@ function MapView() {
 const trailBar = st => `<div class="mp-seg one" aria-hidden="true"><i class="${st.done ? 'full' : 'part'}"><b style="width:${Math.max(st.n ? 3 : 0, st.n / st.total * 100).toFixed(1)}%"></b></i></div>`;
 function TrailView() {
   const sts = trailStates(), C = Trail.CAM, bal = coinBal();
-  if (S.mapFrom) C.sel = S.mapFrom;   // back from a monument's page: its card is open again
+  if (S.mapFrom && !S.mapShow) C.sel = S.mapFrom;   // back from a monument's page: its card is open again (not when you come back to watch one you just bought land)
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
       <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></div>
@@ -6420,28 +6486,34 @@ function shopHtml(lv) {
           <p>${coinFmt(st.total - st.n)} more coins to go.${wish ? ' You are saving for this one.' : ''}</p></div>
         <div class="row-btns">${wish ? '' : `<button class="btn btn-ghost" data-act="shop-wish" data-lv="${lv}">Save for it</button>`}${EARN(lv)}</div>`;
     return `${top}<div class="shop-det"><button class="shop-back" data-act="shop-back">${I.back}<span>All monuments</span></button>
-      <div class="shop-hero"><img src="mon/${c.id}.webp" alt="The ${esc(c.name)} in ${esc(c.en)}">${st.done ? '<i class="shop-own">Yours</i>' : ''}</div>
+      <div class="shop-hero${st.done ? '' : ' sil'}">${st.done ? `<img src="mon/${c.id}.webp" alt="The ${esc(c.name)} in ${esc(c.en)}"><i class="shop-own">Yours</i>` : `<img src="mon/${c.id}-i.webp" alt="The shape of the ${esc(c.name)}: buy it to see it">`}</div>
       <small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h4>${c.name} <span>${c.nzh}</span></h4>
       <p class="shop-about">${TRAIL_ABOUT[lv - 1]}</p>${st.done ? '' : `<p class="shop-cost">${coinSvg()}<b>${coinFmt(st.total)}</b> coins</p>`}${act}</div>`;
   }
   const card = st => { const c = TRAIL[st.lv - 1], can = !st.done && bal >= st.total;
     return `<button class="shop-it${st.done ? ' own' : can ? ' can' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${c.name}, ${st.done ? 'yours' : `${st.total} coins${can ? ', you can buy it' : ''}`}">
-      <span class="shop-pic"><img src="mon/${c.id}.webp" alt="" loading="lazy">${st.done ? '<i class="shop-own">Yours</i>' : ''}</span>
+      <span class="shop-pic${st.done ? '' : ' sil'}">${st.done ? `<img src="mon/${c.id}.webp" alt="" loading="lazy"><i class="shop-own">Yours</i>` : `<img src="mon/${c.id}-i.webp" alt="" loading="lazy">`}</span>
       <b>${c.name}</b><small>${esc(c.en)}</small><span class="shop-price">${st.done ? 'On your map' : `${coinSvg()}${coinFmt(st.total)}`}</span></button>`; };
   return `${top}<p class="muted shop-sub">Buy a monument and it stands on your map. ${own ? `${own} of ${TRAIL.length} are yours.` : 'Start with a small one.'}</p>
     <div class="shop-grid">${sts.slice().sort((a, b) => a.done - b.done || a.total - b.total).map(card).join('')}</div>${earnHow()}`;
 }
 function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to the page asked for
   const body = $('#shopBody'); LOG.add('shop', { lv: lv || 0, coins: coinBal() });
+  if (lv && !monOwns(lv) && coinBal() >= TRAIL[lv - 1].price) new Image().src = `mon/${TRAIL[lv - 1].id}-t.webp`;   // shopPeek: one you can buy, its turntable fetched ahead for the moment you buy it
   if (body) { body.innerHTML = shopHtml(lv); body.closest('.sheet').scrollTop = 0; return; }
   openSheet(`<div class="shop" id="shopBody">${shopHtml(lv)}</div>`);
 }
 function shopBuy(lv) {
   const c = TRAIL[lv - 1]; if (!c || monOwns(lv) || coinBal() < c.price) return;
   (db.monOwn ||= {})[lv] = Date.now(); if (db.monWish === lv) delete db.monWish; save();
-  LOG.add('shop-buy', { lv, id: c.id, price: c.price, left: coinBal() }); fanfare();
-  closeSheet(); Trail.CAM.sel = 0;
-  setTimeout(() => { if (S.view === 'map' && !S.mapLv && $('#mpMap')) mapZoom(lv); else nav('#/map/' + lv); }, 340);   // the map dives into its city, and it is revealed
+  LOG.add('shop-buy', { lv, id: c.id, price: c.price, left: coinBal() });
+  closeSheet(); Trail.CAM.sel = 0; S.mapShow = lv;   // no page after it: on the map it lands on its spot, and the camera tilts and swings round it (Trail's show)
+  setTimeout(() => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } else nav('#/map'); }, 340);
+}
+function mapShowEnd(lv) {   // after the buy moment: its card is up, and it no longer counts as new
+  if (S.view !== 'map' || S.mapLv) return;
+  Trail.CAM.sel = lv; const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); Trail.CAM.api?.mark();
+  (db.monOpen ||= {})[lv] = 1; save(); LOG.add('map-unlock-seen', { lv, on: 'map' });
 }
 function mapPick(lv) {   // tap a monument: the map flies to it and its card comes up
   const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
@@ -6546,7 +6618,7 @@ function CityView(lv) {   // a monument's page: its big picture (revealed the fi
       <p class="mp-hint">${ready ? 'It is in the shop, waiting for you.' : n.open ? `${plural(n.open, 'word')} you already know ${n.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven: ${PAY.word} coins each.` : trailNext()}</p>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
   const head = `<header class="bar"><button class="icon-btn" data-act="map-back" aria-label="Back to the map">${I.back}</button><div class="bar-title">${esc(c.en)} <span class="mp-zh">${c.zh}</span></div><div style="width:42px"></div></header>`;
-  const pic = `<div class="mp-scene${reveal ? ' rv' : ''}">${Trail.scene(lv, st.done ? st : { ...st, done: true, mast: 0, due: 0 }, Temple.night(), reveal)}
+  const pic = `<div class="mp-scene${reveal ? ' rv' : ''}${st.done ? '' : ' sil'}">${Trail.scene(lv, st, Temple.night(), reveal)}
       ${reveal ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>It's yours</b>${esc(c.name)}</span></div>` : ''}</div>`;
   if (!st.done) return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">${head}${pic}
     <section class="mp-info"><h2>${c.name} <span class="cal-zh">${c.nzh}</span></h2><p class="mp-next">${TRAIL_ABOUT[lv - 1]}</p>
@@ -6570,7 +6642,8 @@ function mapZoom(lv) {   // Visit: the map dives into the city, then the monumen
 }
 function mountMap() {   // the map answers your fingers; back from a monument's page, it pulls out of that city
   if (S.mapLv) return;
-  const lv = S.mapFrom; S.mapFrom = 0; Trail.mount(lv);
+  const lv = S.mapFrom, buy = S.mapShow; S.mapFrom = 0; S.mapShow = 0; Trail.mount(buy ? 0 : lv);
+  if (buy) Trail.CAM.api?.show(buy, () => mapShowEnd(buy));   // just bought: it lands on the map
   if (!db.coinIntro && !$('#ob')) { db.coinIntro = 1; save(); setTimeout(() => { if (S.view === 'map' && !$('#ob')) coinIntro(); }, 450); }
 }
 function coinIntro() {   // once, the first time the Map opens with coins: what they are, and the coins you already have pour into the bag
@@ -8442,7 +8515,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.57';
+const APP_VERSION = '2.58';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
