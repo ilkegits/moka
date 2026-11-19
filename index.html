@@ -5100,9 +5100,6 @@ function showVerdict() {   // the checker's answer: green or red ring per box, t
   $('#wdock').innerHTML = writeDock();
   if (W.judge?.ok != null) { W.sounded = true; W.judge.ok ? chime() : buzz(); }
 }
-function initGuided(boxes, chars, s) {
-  const W = S.write;
-  if (!window.HanziWriter) { $('#note').textContent = 'Guided mode needs internet for stroke data.'; return; }
 /* Shi Shi in the bottom section: what you wrote instead (清 qīng · clear), or why it isn't right yet, and a kind word */
 function missStrip() {
   const M = S.write.miss; if (!M || M.kind === 'part') return '';
@@ -5117,6 +5114,9 @@ function missCorner(M) {   // his face on the box's bottom corner; what he says 
   return { face: `<span class="w-shi">${shiFace('peek')}</span>`,
     say: `<div class="w-shi-bub" role="status"><span class="w-shi-want">${pos}${partLabel(M.want)}</span>${M.got ? `<span class="w-shi-not">not ${partLabel(M.got)}${M.w ? `, that makes <b class="hz">${esc(M.w)}</b>` : ''}</span>` : M.w ? `<span class="w-shi-not">yours reads <b class="hz">${esc(M.w)}</b></span>` : ''}<small>${esc(M.cheer)}</small></div>` };
 }
+function initGuided(boxes, chars, s) {
+  const W = S.write;
+  if (!window.HanziWriter) { $('#note').textContent = 'Guided mode needs internet for stroke data.'; return; }
   W.writers = boxes.map((box, i) => HanziWriter.create(box.querySelector('.quiz'), chars[i], writerOpts(s, {
     showCharacter: false, showOutline: db.prefs.outline,
     strokeColor: css('--ink'), outlineColor: css('--line-2'), drawingColor: css('--ink'), highlightColor: css('--seal'),
@@ -5806,9 +5806,6 @@ function writeClue(c) {
   }
   return best && { hz: best.h, py: best.p, en: meanOf(best) };
 }
-function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
-  if (!S.H) return; let changed = false;
-  for (const w of db.bank) { const lv = S.H.byHz.get(w.hanzi)?.lv || 0; if (w.hsk !== lv) { w.hsk = lv; changed = true; } }
 /* ---------- character parts ----------
    dict/parts.tsv (Make Me a Hanzi; rebuild with tools/build_parts.py): how each character is put together (⿰ left/right,
    ⿱ top/bottom…), its parts, and which strokes belong to which part. The writing hint goes part by part with it, and
@@ -5877,6 +5874,9 @@ function writeMiss(chars) {
   if (d >= 0 && T.top[d] && T.top[d] !== '？') return { kind: 'part', i, want: T.top[d], pos: bp.pos };
   return { kind: 'other', i, why: judgeNote(chars).replace(/<[^>]+>/g, '').replace(/^Not quite · /, '') };
 }
+function tagBank() {   // note each bank word's HSK level (0 = not on the lists), so practice can pick by level
+  if (!S.H) return; let changed = false;
+  for (const w of db.bank) { const lv = S.H.byHz.get(w.hanzi)?.lv || 0; if (w.hsk !== lv) { w.hsk = lv; changed = true; } }
   if (changed) save();
 }
 const meanOf = r => r.s ??= shortMeaning(r.e);   // a word's card meaning: the hand-written one from dict/gloss.tsv when there is one
@@ -6067,7 +6067,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.10';
+const APP_VERSION = '2.11';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -6475,10 +6475,6 @@ function obShow() {
     html = obTop() + `<div class="ob-art ob-art-s">${shiFace(chars ? 'wow' : 'happy')}</div>
       <div class="ob-you" aria-label="You are ${HSK_NAME(lv)}"><small>You are</small><div class="ob-hsk" aria-hidden="true"><span>HSK</span>${reel}</div>
         ${chars ? `<small class="ob-chars">You can read about ${chars.toLocaleString('en')} characters</small>` : ''}</div>
-    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
-    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
-    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
-      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
       ${sigs.length > 1 ? `<div class="ob-sigs">${sigs.join('')}</div>` : ''}
       ${add}
       <p class="ob-next">${lv > 1 || chars ? 'Hanzi of the day and your new words start here.' : 'Perfect, everyone starts here. Hanzi of the day and your new words start with the basics.'}</p>
@@ -6507,20 +6503,8 @@ function obShow() {
 }
 async function obCheckStart() {   // the HSK lists may still be loading
   try { await loadHsk(); } catch (_) { if (S.ob && OB_STEPS[S.ob.i] === 'check') { LOG.add('onboarding', { step: 'check', error: 'no hsk lists' }); S.ob.chk = null; obGo('goal'); } return; }
-  if (step === 'placed') obReel(el);
   if (!S.ob || OB_STEPS[S.ob.i] !== 'check') return;
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
-/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
-function obReel(el) {
-  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
-  let t = 520;
-  for (let k = 1; k <= n; k++) {
-    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
-    t += gap;
-    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
-      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
-  }
-}
 }
 function obFinish(how) {
   const O = S.ob, sig = O.chk ? obSignals() : {}, lv = O.chk ? obLevel(sig) : how === 'skipped' ? null : O.level ? Math.min(O.level, 2) : null;
@@ -6573,6 +6557,10 @@ async function obClick(e) {
     const k = b.closest('[data-pick]').dataset.pick;
     if (k === 'why') { const v = b.dataset.v; O.why = O.why.includes(v) ? O.why.filter(x => x !== v) : [...O.why, v]; b.setAttribute('aria-pressed', O.why.includes(v)); $('#ob [data-ob="next"]').disabled = !O.why.length; return; }
     O[k] = +b.dataset.v;
+    // the level number counts up from 1 like a lottery drum, each number clicking into place, and lands on yours (obReel)
+    const reel = `<span class="ob-reel"><span class="ob-reel-in" style="--p:${lv > 1 && !stillMotion() ? 0 : lv - 1}" data-to="${lv - 1}">${Array.from({ length: lv }, (_, k) => `<b>${k === 6 ? '7-9' : k + 1}</b>`).join('')}</span></span>`;
+    const add = O.replay ? '' : lv > 1 ? `<p class="ob-add"><span class="ob-add-n">+${low.toLocaleString('en')} words</span>${range} go into your word bank as known</p>`
+      : nk ? `<p class="ob-add"><span class="ob-add-n">+${nk}</span>characters you know go into your word bank</p>` : '';
     b.parentElement.querySelectorAll('.ob-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
     $('#ob [data-ob="next"]').disabled = false; return;
   }
@@ -6598,12 +6586,24 @@ async function obClick(e) {
     else { obFinish('install-help'); setTimeout(installHelp, 350); }
     return;
   }
+  html = html.replace(/[–—]/g, '-');   // short dashes only on these pages (HSK 7-9, HSK 1-2)
   // next
   if (step === 'check') {
     if (!O.chk) return;
   if (step === 'placed') obReel(el);
     const R = O.chk.rounds.at(-1); LOG.add('onboarding-check', { lv: R.lv, known: R.on.size, of: R.chars.length });
     if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.q = null; O.st = null; obGo(obSkipTests() ? 'placed' : 'words'); } else obShow();
+/* count the level up one number at a time: quick ticks first, the last ones slower, every number landing whole */
+function obReel(el) {
+  const r = el.querySelector('.ob-reel-in'), n = +r?.dataset.to; if (!n || stillMotion()) return;
+  let t = 520;
+  for (let k = 1; k <= n; k++) {
+    const left = n - k, gap = left === 0 ? 330 : left === 1 ? 240 : 150;
+    t += gap;
+    setTimeout(() => { if (!r.isConnected) return; r.style.setProperty('--d', (left ? .14 : .32) + 's'); r.style.setProperty('--p', k);
+      if (!left) setTimeout(() => r.closest('.ob-hsk')?.classList.add('landed'), 200); }, t);
+  }
+}
     return;
   }
   if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
