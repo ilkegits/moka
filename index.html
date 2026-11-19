@@ -1117,6 +1117,48 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .read-lv>span:last-child{margin-left:auto;font-size:12.5px;font-weight:400;color:var(--muted)}
 .read-lv-seal{display:grid;place-items:center;min-width:24px;height:24px;padding:0 4px;border-radius:6px;background:var(--seal);color:var(--seal-ink);font-size:12px;font-weight:700}
 .read-row-zh{font-family:var(--hanzi);font-weight:600}
+/* v2.43 Read: today's story as a picture card that says how much of it you can already read, the flame beside the
+   heading, and a shelf of thread-bound books that fills as you finish stories */
+.rd-head{display:flex;align-items:center;justify-content:space-between;margin:18px 2px 10px}
+.rd-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+.rd-head .hm-streak{margin-right:-6px}
+.rd-today{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:var(--jade-soft);font-size:14px;line-height:1.3;color:var(--ink-2)}
+.rd-today i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--jade);color:#fff}
+.rd-today i svg.i{width:14px;height:14px;stroke-width:3}
+.rd-today b{font-weight:700;color:var(--ink)}
+.rd-hero{margin:0 0 26px;border-radius:22px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);overflow:hidden}
+.rd-scene{display:block;width:100%;height:auto}
+.rd-body{padding:14px 18px 12px}
+.rd-eye{font-size:13px;font-weight:700;color:var(--seal)}
+.rd-title{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}
+.rd-title h3{margin:0;font:600 32px/1.25 var(--hanzi);letter-spacing:.04em;color:var(--ink)}
+.rd-title span{font-size:16px;color:var(--ink-2)}
+.rd-know{margin:12px 0 0}
+.rd-know-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink-2)}
+.rd-know-top b{font-weight:700;color:var(--ink)}
+.rd-know-top em{font-style:normal;font-size:13px;font-weight:700;color:var(--jade)}
+.rd-bar{display:block;height:10px;margin-top:7px;border-radius:6px;background:var(--fill);overflow:hidden}
+.rd-bar i{display:block;height:100%;border-radius:6px;background:var(--jade)}
+.rd-meta{margin:10px 0 16px;font-size:13px;line-height:1.4;color:var(--muted)}
+.rd-keep{display:flex;align-items:center;gap:5px;margin:-8px 0 16px;font-size:13.5px;font-weight:700;color:#C2591B}
+.rd-keep .flame{flex:none;width:18px;height:18px}
+.rd-other{display:block;margin:4px auto 0}
+.rd-shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 0;margin:0 0 26px}
+.bk{display:flex;flex-direction:column;align-items:center;padding:0;text-align:center;color:inherit}
+.bk:disabled{opacity:1}
+.bk-art{position:relative;width:66%;transition:transform .18s cubic-bezier(.2,.8,.3,1.2)}
+.bk-art svg{display:block;width:100%;height:auto}
+.bk:not(:disabled):active .bk-art{transform:translateY(-6px) rotate(-3deg);transition:none}
+.bk-art em{position:absolute;right:-8px;top:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#FFD15C;color:#3B1A12;box-shadow:0 0 0 2px var(--paper);font-style:normal;font-size:11px;font-weight:700;display:grid;place-items:center}
+.bk::before{content:"";order:1;width:100%;height:8px;background:#C98E55;box-shadow:inset 0 2px 0 #E2B37E,0 2px 0 #8A5A2E}
+.bk:nth-child(4n+1)::before{border-radius:4px 0 0 4px}
+.bk:nth-child(4n)::before{border-radius:0 4px 4px 0}
+.bk-name{order:2;margin-top:8px;padding:0 4px;font-size:11.5px;line-height:1.25;color:var(--ink-2);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.bk.off .bk-name{color:var(--muted)}
+.bk.now .bk-name{color:var(--seal);font-weight:700}
+.mo-book{position:relative;z-index:1;width:112px;margin:26px auto 0;filter:drop-shadow(0 10px 10px rgba(60,40,20,.25));animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.mo-book svg{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:reduce){.mo-book{animation:none}.bk-art{transition:none}}
 .story-line{margin:0 0 2px;display:flex;flex-wrap:wrap;align-items:flex-start;font-family:var(--hanzi);font-size:28px;line-height:1.6;color:var(--ink)}
 .rw,.rp{display:inline-flex;flex-direction:column;align-items:center}
 .rw{border-radius:6px;padding:0 1px;font:inherit;line-height:inherit;transition:background .2s}
@@ -4344,13 +4386,15 @@ const READ_PUNCT = /^[，。！？：、“”"'…（）]+$/;
    story's new words for your word bank, then files the story under its HSK level in db.readDone (newest first).
    Stories keep only their words; pinyin is worked out when they are shown. */
 function makeStory(skip) {
-  const bank = db.bank, inBank = new Set(bank.map(w => w.hanzi)), done = {};
+  const bank = db.bank, inBank = new Set(bank.map(w => w.hanzi)), done = {}, my = Math.min(7, db.prefs.level || 1);
   for (const s of db.readDone) done[s.zh] = (done[s.zh] || 0) + 1;
   const pick = (kind, taken) => {
     const pool = kind === 'any' ? shuffle(bank.map(w => w.hanzi)) : shuffle(RL.cat[kind] || []);
     const h = pool.find(h => (kind === 'any' || inBank.has(h)) && !taken.has(h));
     if (h) return { h, mine: true };
-    const fb = pool.find(h => !taken.has(h));
+    // none of your words fits: a new word near your own level (an HSK 1 learner is not handed an HSK 4 word)
+    const far = h => { const l = S.H?.byHz.get(h)?.lv; return !S.H ? 0 : !l ? 1 : Math.max(0, l - my - 1); };
+    const fb = pool.filter(h => !taken.has(h)).sort((a, b) => far(a) - far(b))[0];
     return fb ? { h: fb, mine: false } : null;
   };
   const best = RL.T.filter(t => t[0] !== skip).map(tpl => {
@@ -4361,8 +4405,11 @@ function makeStory(skip) {
       const r = pick(s.replace(/\d+$/, ''), taken); if (!r) return null;
       fill[s] = r.h; taken.add(r.h); if (r.mine) mine++;
     }
-    // stories you have not finished yet come first, then the ones your word bank fills best
-    return { tpl, fill, score: mine / Math.max(1, slots.size) + Math.random() * 0.35 - (done[tpl[0]] || 0) };
+    // stories you have not finished yet come first (they are new books for your shelf), then the ones you can read best:
+    // your own words in the gaps, and how many of the story's fixed words you know
+    const fixed = [...new Set(tpl[2].join(' ').split(' ').filter(t => t[0] !== '{' && !READ_PUNCT.test(t) && t !== '狮狮'))];
+    const cover = fixed.filter(h => knowsTok(inBank, h)).length / Math.max(1, fixed.length);
+    return { tpl, fill, score: mine / Math.max(1, slots.size) + cover * .6 + Math.random() * 0.35 - 2 * (done[tpl[0]] || 0) };
   }).filter(Boolean).sort((a, b) => b.score - a.score)[0];
   if (!best) return null;
   const { tpl, fill } = best;
@@ -4428,16 +4475,57 @@ function StoryCard(s, foot) {
       ${foot || ''}
     </article>`;
 }
-function FinishedList() {
-  if (!db.readDone.length) return `<div class="section-head"><h2>Finished stories</h2></div>
-    <p class="read-note">Stories you finish are kept here, sorted by HSK level, so you can read them again.</p>`;
-  const by = {}; for (const s of db.readDone) (by[s.hsk || 0] ||= []).push(s);
-  const lvls = [1, 2, 3, 4, 5, 6, 7, 0].filter(l => by[l]);
-  return `<div class="section-head"><h2>Finished stories</h2><span class="muted" style="font-size:12.5px">${db.readDone.length}</span></div>
-    ${lvls.map(l => `<div class="read-lv"><span class="read-lv-seal">${l ? (l === 7 ? '7–9' : l) : '·'}</span>${l ? HSK_NAME(l) : 'Not on the HSK lists'}<span>${plural(by[l].length, 'story').replace('storys', 'stories')}</span></div>
-      <div class="group">${by[l].map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
+/* you can read a word when you know it, or know each of its characters as a word of its own (喝茶 from 喝 and 茶) */
+const knowsTok = (k, h) => k.has(h) || [...h].every(c => k.has(c));
+/* how much of a story you can already read: its different words (no punctuation, not Shi Shi's name) against the words you know */
+function storyKnow(s) {
+  const k = knownWords(), all = new Set();
+  for (const l of s.lines) for (const h of l) if (!READ_PUNCT.test(h) && h !== '狮狮') all.add(h);
+  const mine = [...all].filter(h => knowsTok(k, h));
+  return { n: all.size, mine, f: all.size ? mine.length / all.size : 0 };
+}
+/* a thread-bound book (线装书): the title down a paper slip, the stitching along the right edge. A story you have not
+   finished is a pale book with an empty slip */
+const BK_INK = ['#2E4A7D', '#3F7A5F', '#B23A2C', '#B8791F', '#5B4A8A'];
+function bookArt(zh, i, on) {
+  const ch = hanChars(zh.replace(/^狮狮的?/, '') || zh).slice(0, 4), n = ch.length, fs = n <= 2 ? 15 : n === 3 ? 13.5 : 11, step = n <= 2 ? 18 : n === 3 ? 15 : 12, y0 = 32 - (n - 1) * step / 2;   // 狮狮的本子 is 本子 on the slip
+  const ink = on ? '#3B1A12' : '#B5A891';
+  return `<svg viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <rect x="3" y="3" width="54" height="72" rx="3.5" fill="${on ? BK_INK[i % BK_INK.length] : '#E4DBCA'}" stroke="${ink}" stroke-width="2.5"/>
+    <path d="M49 5V73" stroke="${on ? '#fff' : ink}" stroke-width="1.2" opacity=".35"/>
+    <path d="M49 13H56M49 30H56M49 48H56M49 65H56" stroke="${on ? '#FFF8EE' : ink}" stroke-width="1.7" stroke-linecap="round" opacity="${on ? .9 : .6}"/>
+    <rect x="9" y="7" width="19" height="50" rx="1.5" fill="${on ? '#FFF8EE' : '#F1EADC'}" stroke="${ink}" stroke-width="1.6"/>
+    ${ch.map((c, k) => `<text x="18.5" y="${(y0 + k * step).toFixed(1)}" font-size="${fs}" fill="${on ? '#2A0E0C' : '#9C8F78'}" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`).join('')}</svg>`;
+}
+/* the shelf: one book for each of the stories there are. Finished ones stand in colour (tap to read again), the story
+   you are on is named, the rest stay a secret */
+function ShelfHtml() {
+  const by = {}; for (const s of db.readDone) (by[s.zh] ||= []).push(s);
+  const cur = db.readCur, total = RL.T.length, got = RL.T.filter(t => by[t[0]]).length;
+  const book = (t, i) => {
+    const L = by[t[0]], on = !!L, now = !on && cur?.zh === t[0];
+    return `<button class="bk${on ? '' : ' off'}${now ? ' now' : ''}"${on ? ` data-act="shelf-open" data-zh="${esc(t[0])}"` : now ? ' data-act="shelf-now"' : ' disabled'} aria-label="${on ? `${esc(t[1])}, read ${L.length === 1 ? 'once' : L.length + ' times'}` : now ? `${esc(t[1])}, the story you are on` : 'A story you have not found yet'}">
+      <span class="bk-art">${bookArt(on || now ? t[0] : '', i, on)}${on && L.length > 1 ? `<em>${L.length}</em>` : ''}</span>
+      <span class="bk-name">${on ? esc(t[1]) : now ? (cur.opened ? 'Reading now' : 'Up next') : ''}</span></button>`;
+  };
+  const other = db.readDone.filter(s => !RL.T.some(t => t[0] === s.zh));   // stories from before a title changed
+  return `<div class="section-head cal-head"><h2>Your shelf <span class="cal-zh">书架</span></h2><span class="sh-n">${got} of ${total}</span></div>
+    <p class="read-note">${!got ? 'Every story you finish becomes a book on your shelf, to read again any time.' : got < total ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find. Tap a book to read it again.` : `All ${total} stories found. Tap a book to read it again.`}</p>
+    <div class="rd-shelf">${RL.T.map(book).join('')}</div>
+    ${other.length ? `<div class="section-head"><h2>More finished stories</h2></div>
+      <div class="group" style="margin-bottom:26px">${other.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
         <span class="row-main"><span class="row-t"><span class="read-row-zh">${esc(s.zh)}</span> ${esc(s.en)}</span>
-        <span class="row-s">${s.learned?.length ? `+${plural(s.learned.length, 'word')} · ` : ''}finished ${shortDate(s.done)}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`).join('')}`;
+        <span class="row-s">finished ${shortDate(s.done)}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>` : ''}`;
+}
+function shelfOpen(zh) {   // a book on the shelf: the story, or the list of the times you read it (each time with other words)
+  const L = db.readDone.filter(s => s.zh === zh); if (!L.length) return;
+  if (L.length === 1) { nav('#/read/' + L[0].id); return; }
+  const line = s => s.lines[Math.max(0, s.lines.findIndex((l, k) => L.some(o => o !== s && o.lines[k]?.join('') !== l.join(''))))].join('');   // the first sentence that is not the same every time
+  openSheet(`<h3><span class="read-row-zh">${esc(zh)}</span> ${esc(L[0].en)}</h3>
+    <p class="muted" style="margin:-8px 0 16px;text-align:center">You read this story ${L.length} times, each time with other words.</p>
+    <div class="group">${L.map(s => `<button class="row" data-act="read-open" data-id="${s.id}">
+      <span class="row-main"><span class="row-t read-row-zh">${esc(line(s))}</span>
+      <span class="row-s">finished ${shortDate(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`);
 }
 function ReadView() {
   const s = readStory(), on = !!db.prefs.readPy;
@@ -4449,23 +4537,51 @@ function ReadView() {
         <p class="story-meta">Finished ${shortDate(s.done)}${s.learned?.length ? ` · added ${s.learned.map(esc).join('、')} to your word bank` : ''}</p>`)}`
       : '<div class="empty"><p>This story is no longer saved.</p></div>'}
   </div>`;
+  const st = practiceStreak(), tk = dayKey(Date.now()), readToday = db.readDone.some(x => dayKey(x.done) === tk);
+  const empty = '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>';
   return `<div class="screen fade-in">
     <div class="top-gap"></div>
-    <div class="section-head cal-head" style="margin-top:18px"><h2>Stories <span class="cal-zh">故事</span></h2></div>
-    <div class="read-tools" style="margin-top:8px">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
-    ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>'
-      : '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>'}
-    ${!s ? '' : s.opened ? StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>') : StoryCover(s)}
-    ${FinishedList()}
+    <div class="rd-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
+    ${readToday ? `<p class="rd-today"><i>${I.check}</i><span><b>You read today.</b> ${st.n > 1 ? `Day ${st.n} of your streak.` : 'Your streak starts here.'}</span></p>` : ''}
+    ${!s ? '' : s.opened ? `<div class="read-tools" style="margin-top:0">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
+        ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are from your word bank.</p>' : empty}
+        ${StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>')}`
+      : StoryCover(s, st, readToday) + (db.bank.length ? '' : empty)}
+    ${ShelfHtml()}
   </div>`;
 }
-/* the next story waits behind a cover: its title, how long it is, its level, and a Start story button */
-function StoryCover(s) {
-  const inBank = new Set(db.bank.map(w => w.hanzi)), mine = new Set(s.lines.flat().filter(h => inBank.has(h))).size, lv = S.H && storyLevel(s);
-  return `<article class="story story-cover">
-      <h3 class="cover-zh">${esc(s.zh)}</h3><div class="cover-en">${esc(s.en)}</div>
-      <div class="cover-meta">${plural(s.lines.length, 'sentence')}${lv ? ` · ${HSK_NAME(lv)}` : ''}${mine ? ` · ${plural(mine, 'word')} you know` : ''}</div>
-      <button class="btn btn-seal wide" data-act="read-start">Start story</button>
+/* the cover picture: Shi Shi reading by lantern light; words of yours that are in the story float around him */
+function readScene(s, mine) {
+  const ch = hanChars((s.zh || '').replace(/^狮狮的?/, '')).slice(0, 2), at = [[84, 96, -10], [280, 92, 9], [58, 144, 7], [304, 140, -8]];
+  const star = (x, y, r) => `<path d="M${x} ${y - r}Q${x + r * .18} ${y - r * .18} ${x + r} ${y}Q${x + r * .18} ${y + r * .18} ${x} ${y + r}Q${x - r * .18} ${y + r * .18} ${x - r} ${y}Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="#F4C14E"/>`;
+  const tile = (h, [x, y, r]) => { const w = 30 + ([...h].length - 1) * 20;
+    return `<g transform="rotate(${r} ${x} ${y})"><rect x="${x - w / 2}" y="${y - 15}" width="${w}" height="30" rx="6" fill="#FFF8EE" stroke="#141D36" stroke-width="3"/><text x="${x}" y="${y + 1}" font-size="19" fill="#2A0E0C" font-family="'Noto Serif SC',serif" font-weight="600" text-anchor="middle" dominant-baseline="central">${esc(h)}</text></g>`; };
+  return `<svg class="rd-scene" viewBox="0 0 360 176" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <rect width="360" height="176" fill="#27385F"/><circle cx="180" cy="126" r="116" fill="#30457A"/><circle cx="180" cy="126" r="80" fill="#FFD98A" opacity=".2"/>
+    <circle cx="320" cy="34" r="15" fill="#FFE9B0"/><circle cx="327" cy="29" r="13" fill="#27385F"/>
+    ${star(104, 26, 7)}${star(250, 20, 5)}${star(286, 58, 4)}${star(132, 58, 3.5)}${star(18, 120, 4.5)}${star(342, 104, 5)}
+    <circle cx="38" cy="46" r="36" fill="#FFB35C" opacity=".16"/><path d="M38 0V22" stroke="#141D36" stroke-width="2.5"/>
+    <rect x="30" y="20" width="16" height="6" rx="2" fill="#F4C14E" stroke="#7A4A08" stroke-width="2"/>
+    <ellipse cx="38" cy="45" rx="17" ry="20" fill="#E5483F" stroke="#7E1D19" stroke-width="3"/><path d="M38 27V63M29 30Q24 45 29 60M47 30Q52 45 47 60" fill="none" stroke="#7E1D19" stroke-width="1.6" opacity=".55"/>
+    <rect x="31" y="63" width="14" height="5" rx="2" fill="#F4C14E" stroke="#7A4A08" stroke-width="2"/><path d="M38 69V84" stroke="#F4C14E" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="180" cy="172" rx="118" ry="9" fill="#141D36" opacity=".35"/>
+    ${[...new Set(mine)].filter(h => [...h].length <= 2).slice(0, 4).map((h, i) => tile(h, at[i])).join('')}
+    ${shiReads(ch).replace('<svg class="shi-read"', '<svg x="100" y="18" width="160" height="160"')}</svg>`;
+}
+/* the next story waits behind a cover: the picture, its title, how much of it you can read already, and one button */
+function StoryCover(s, st, readToday) {
+  const K = storyKnow(s), fresh = K.n - K.mine.length;
+  const fit = K.f >= .9 ? 'Easy read' : K.f >= .7 ? 'Good fit' : K.f >= .4 ? 'A stretch' : 'Lots of new words';
+  const hint = st.today ? '' : st.n ? `Finish it to keep your ${st.n}-day streak` : 'Finish it to start a streak';
+  return `<article class="rd-hero">${readScene(s, K.mine)}
+      <div class="rd-body"><div class="rd-eye">${readToday ? 'Another story' : 'Today’s story'}</div>
+        <div class="rd-title"><h3>${esc(s.zh)}</h3><span>${esc(s.en)}</span></div>
+        ${db.bank.length ? `<div class="rd-know"><div class="rd-know-top"><span>You know <b>${K.mine.length} of ${K.n}</b> words</span><em>${fit}</em></div>
+          <span class="rd-bar"><i style="width:${Math.max(4, Math.round(K.f * 100))}%"></i></span></div>` : ''}
+        <p class="rd-meta">${plural(s.lines.length, 'sentence')}${fresh && db.bank.length ? ` · ${plural(fresh, 'new word')}` : ''}</p>
+        ${hint ? `<p class="rd-keep">${FLAME}${hint}</p>` : ''}
+        <button class="btn btn-seal wide" data-act="read-start">${I.read}Start reading</button>
+        <button class="link-btn rd-other" data-act="read-new">Different story</button></div>
     </article>`;
 }
 function mountRead() {
@@ -4473,7 +4589,7 @@ function mountRead() {
   loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded, and for the cover
     let ch = false; for (const s of db.readDone) if (!s.hsk) { const l = storyLevel(s); if (l) { s.hsk = l; ch = true; } }
     if (ch) save();
-    if (S.view === 'read' && (ch || $('.story-cover'))) { S.instant = true; render(); }
+    if (S.view === 'read' && ch) { S.instant = true; render(); }
   }, () => {});
 }
 /* finishing: tick the new words you learned, they go into the word bank, the story is filed under its HSK level */
@@ -4501,6 +4617,7 @@ function finishSheet() {
 }
 function finishStory(words, offered) {
   const s = db.readCur; if (!s) return;
+  const was = practiceStreak(), isNew = !db.readDone.some(x => x.zh === s.zh);
   const now = Date.now(), add = words.filter(w => !bankHas(w.h)).map((w, i) => ({ id: uid(), hanzi: w.h, pinyin: w.p, en: w.en, added: now - i, hsk: w.lv }));
   const lv = storyLevel(s);
   db.bank = [...add, ...db.bank];
@@ -4508,7 +4625,21 @@ function finishStory(words, offered) {
   db.readCur = makeStory(s.zh); save();
   LOG.add('read-finish', { story: s.zh, level: lv ? HSK_NAME(lv) : 'none', new_words: offered, added: add.length });
   render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
-  cheer(add.length, { zh: '读完了！', py: 'dú wán le', en: `Saved under ${lv ? HSK_NAME(lv) : 'Finished stories'}${add.length ? `<br>+${plural(add.length, 'word')} in your word bank` : ''}` });
+  momentRead(s, add.length, was, isNew);
+}
+/* the page after a story: its book goes on the shelf; the first practice of the day also shows the streak moving on */
+function momentRead(s, added, was, isNew) {
+  const { n } = practiceStreak(), i = Math.max(0, RL.T.findIndex(t => t[0] === s.zh)), total = RL.T.length;
+  const got = RL.T.filter(t => db.readDone.some(x => x.zh === t[0])).length, kept = !was.today;
+  const chip = (t, v) => `<span class="ob-sig"><small>${t}</small><b>${v}</b></span>`;
+  LOG.add('moment', { what: 'story', story: s.zh, added, streak: n, kept, shelf: got });
+  layer(`<div class="ob-top"></div><div class="mo-hero"><div class="done-burst" aria-hidden="true">${confetti()}</div><div class="mo-book">${bookArt(s.zh, i, true)}</div></div>
+    <p class="mo-kicker">${isNew ? 'New on your shelf' : 'Read again'}</p>
+    <h2 class="mo-title">读完了！ Story finished</h2>
+    <p class="mo-text">${kept ? (n > 1 ? `That keeps your streak going: day ${n}.` : 'That starts your streak: day 1.') : isNew ? (got < total ? `${plural(total - got, 'story').replace('storys', 'stories')} still to find for your shelf.` : `Your shelf is full: all ${total} stories.`) : `“${esc(s.en)}” is back on your shelf.`}</p>
+    ${kept ? weekDots(n) : ''}
+    <div class="ob-sigs">${chip('Word bank', added ? `+${plural(added, 'word')}` : 'No new words')}${chip('Your shelf', `${got} of ${total}`)}</div>
+    ${moDock('Continue', 'read-done-ok')}`, 'mo');
 }
 /* keep punctuation on the same line as its word: closing marks stick to the word before, opening quotes to the word after */
 function readGroups(l) {
@@ -8208,7 +8339,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.43';
+const APP_VERSION = '2.44';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8961,6 +9092,9 @@ const A = {
   'read-finish': () => finishSheet(),
   'read-open': t => nav('#/read/' + t.dataset.id),
   'read-back': () => goBack('#/read'),
+  'shelf-open': t => shelfOpen(t.dataset.zh),
+  'shelf-now': () => { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+  'read-done-ok': () => closeLayer(() => moments()),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
