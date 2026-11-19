@@ -689,9 +689,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .temple:active{transform:scale(.99);transition:none}
 .temple svg{display:block;width:100%;height:auto}
 .temple [data-act="bank-word"]{cursor:pointer}
-.temple-add{display:flex;justify-content:center;margin:14px 0 28px}
-.temple-add .btn{min-width:64%;box-shadow:0 8px 18px -10px rgba(178,58,44,.7)}
-.temple-add .qa-glyph{background:var(--seal-ink);color:var(--seal)}
+.temple-add{position:relative;z-index:1;display:flex;justify-content:center;margin:-25px 0 28px}   /* tucked half over the temple's bottom edge */
+.temple-add .btn{min-width:64%;box-shadow:0 0 0 4px var(--paper),0 10px 20px -8px rgba(120,30,20,.55)}
+.temple-add .qa-glyph{width:26px;height:26px;font-size:17px;transform:none;background:var(--seal-ink);color:var(--seal)}   /* upright: a tilted small glyph renders jagged on phones */
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
 .wt-drift{animation:wtDrift 46s ease-in-out infinite alternate}
@@ -4557,18 +4557,19 @@ const Temple = (() => {
     ch.forEach((c, j) => s += `<text x="${x}" y="${f(cy + .5 + (two ? (j ? 1 : -1) * ry * .42 : 0))}" font-family="Noto Serif SC" font-weight="600" font-size="${fs}" fill="#FFE6A6" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`);
     return s + '</g></g>';
   }
-  function board(cx, y, n, P) {   // the name board under the eaves: how many words you know
-    const w = 64, h = 30, x = cx - w / 2;
-    return `<rect x="${f(x - 1.5)}" y="${f(y - 1.5)}" width="${w + 3}" height="${h + 3}" rx="2.5" fill="${INK}"/><rect x="${f(x)}" y="${f(y)}" width="${w}" height="${h}" rx="1.5" fill="#1D3557" stroke="${P.gold}" stroke-width="1.6"/>
-      <rect x="${f(x + 3)}" y="${f(y + 3)}" width="${w - 6}" height="${h - 6}" rx="1" fill="none" stroke="${P.gold}" stroke-width=".5" opacity=".6"/>
-      <text x="${cx}" y="${f(y + 12.5)}" font-family="Chillax,Satoshi,sans-serif" font-weight="600" font-size="17" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n}</text>
-      <text x="${cx}" y="${f(y + 24)}" font-family="Satoshi,sans-serif" font-weight="700" font-size="5.6" letter-spacing=".6" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
+  function board(cx, y, n, P) {   // the name board under the eaves: how many words you know, big enough to read at a glance
+    const w = 88, h = 40, x = cx - w / 2;
+    return `<rect x="${f(x - 1)}" y="${f(y + 2)}" width="${w + 2}" height="${h + 2}" rx="3" fill="#000" opacity=".25"/><rect x="${f(x - 2)}" y="${f(y - 2)}" width="${w + 4}" height="${h + 4}" rx="3" fill="${INK}"/>
+      <rect x="${f(x)}" y="${f(y)}" width="${w}" height="${h}" rx="2" fill="#1D3557" stroke="${P.gold}" stroke-width="2"/>
+      <rect x="${f(x + 3.5)}" y="${f(y + 3.5)}" width="${w - 7}" height="${h - 7}" rx="1" fill="none" stroke="${P.gold}" stroke-width=".6" opacity=".6"/>
+      <text x="${cx}" y="${f(y + 17)}" font-family="Chillax,Satoshi,sans-serif" font-weight="700" font-size="25" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n}</text>
+      <text x="${cx}" y="${f(y + 32.5)}" font-family="Satoshi,sans-serif" font-weight="700" font-size="7" letter-spacing=".8" fill="${P.gold}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
   }
   function sign(cx, base, n, P) {   // before the hall stands: the count on a wooden sign at the building site
-    return `<path d="M${cx} ${base}V${base - 26}" stroke="${INK}" stroke-width="4"/><path d="M${cx} ${base}V${base - 26}" stroke="#9A6A3E" stroke-width="2.4"/>
-      <rect x="${cx - 24}" y="${base - 50}" width="48" height="26" rx="2" fill="#C49A5A" stroke="${INK}" stroke-width="1.3"/><path d="M${cx - 21} ${base - 42}h42M${cx - 21} ${base - 33}h42" stroke="#9A6A3E" stroke-width=".6"/>
-      <text x="${cx}" y="${base - 40}" font-family="Chillax,Satoshi,sans-serif" font-weight="600" font-size="15" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n}</text>
-      <text x="${cx}" y="${base - 29.5}" font-family="Satoshi,sans-serif" font-weight="700" font-size="5.4" letter-spacing=".6" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
+    return `<path d="M${cx} ${base}V${base - 26}" stroke="${INK}" stroke-width="4.4"/><path d="M${cx} ${base}V${base - 26}" stroke="#9A6A3E" stroke-width="2.6"/>
+      <rect x="${cx - 31}" y="${base - 60}" width="62" height="36" rx="2.5" fill="#C49A5A" stroke="${INK}" stroke-width="1.5"/><path d="M${cx - 28} ${base - 49}h56M${cx - 28} ${base - 37}h56" stroke="#9A6A3E" stroke-width=".7"/>
+      <text x="${cx}" y="${base - 46}" font-family="Chillax,Satoshi,sans-serif" font-weight="700" font-size="22" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n}</text>
+      <text x="${cx}" y="${base - 31}" font-family="Satoshi,sans-serif" font-weight="700" font-size="6.6" letter-spacing=".7" fill="${INK}" text-anchor="middle" dominant-baseline="central">${n === 1 ? 'WORD' : 'WORDS'}</text>`;
   }
   const tag = (x, y, text, P) => { const w = text.length * 4.1 + 12; x = Math.min(Math.max(x, w / 2 + 4), 356 - w / 2); return `<g><rect x="${f(x - w / 2)}" y="${y - 7}" width="${f(w)}" height="14" rx="4" fill="${P.lit ? 'rgba(20,24,48,.82)' : 'rgba(255,252,245,.9)'}" stroke="${P.plan}" stroke-width=".8"/><text x="${x}" y="${y + .3}" font-family="Satoshi,sans-serif" font-weight="700" font-size="7.4" fill="${P.plan}" text-anchor="middle" dominant-baseline="central">${text}</text></g>`; };
   const ghost = svg => `<g class="wt-ghost">${svg}</g>`;
@@ -4603,7 +4604,7 @@ const Temple = (() => {
       s += roof(cx, ut - 5, uw * 1.02, uw * .3, P, { pearl: true });
     } else s += roof(cx, yb, w, w * .27, P, { pearl: true });
     if (st < 5) return s;
-    s += board(cx, top - 11, o.n, P);
+    s += board(cx, top - 20, o.n, P);
     (o.lanterns || []).forEach(l => s += lantern(l.x, top, l.w, l.k, l.big, P));
     return s;
   }
@@ -4744,7 +4745,7 @@ const Temple = (() => {
       s += pv.s; strings.push(i === 6 ? [hp, pv.tip] : [pv.tip, hp]);
     });
     if (st === 5) {
-      const hl = [[0, true, 120], [1, false, 146], [2, false, 214], [3, false, 240]].slice(0, Math.min(4, n)).map(([k, big, x]) => ({ k, big, x, w: words[k] }));
+      const hl = [[0, true, 112], [1, false, 128], [2, false, 232], [3, false, 250]].slice(0, Math.min(4, n)).map(([k, big, x]) => ({ k, big, x, w: words[k] }));
       s += hall({ cx: 180, base: 184, w: 168, colH: 38, double: done(13), lanterns: hl, n }, P);
       s += lion(112, 166, 38, true) + lion(210, 166, 38, false);
     } else {
@@ -6613,7 +6614,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.19';
+const APP_VERSION = '2.20';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
