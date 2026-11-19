@@ -800,7 +800,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-play:focus-visible,.tm-now:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tm-play .qa-glyph{flex:none;width:28px;height:28px;font-size:17px;transform:none;background:var(--seal-ink);color:var(--seal)}
 /* the card a monument opens */
-.tm-slot{position:absolute;z-index:3;left:14px;right:14px;bottom:calc(var(--tabh) + 24px + env(safe-area-inset-bottom))}
+.tm-slot{position:absolute;z-index:3;left:14px;right:14px;bottom:calc(var(--tabh) + 120px + env(safe-area-inset-bottom))}   /* above Play */
 .tm-card{position:relative;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;padding:14px;border-radius:20px;background:var(--card);cursor:default;
   box-shadow:var(--ring),0 18px 36px -16px rgba(50,25,8,.55);animation:tmCard .42s cubic-bezier(.2,1.3,.4,1)}
 @keyframes tmCard{from{opacity:0;transform:translateY(26px) scale(.96)}}
@@ -895,6 +895,8 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-tagt{font:700 7px var(--ui);fill:#4A3A2C;font-variant-numeric:tabular-nums}
 .tm-buy.can .tm-tag{fill:#FFD43B}
 .tm-buy.can .tm-tagt{fill:#3A2508}
+.tm-buy.p1 .tm-tagt{fill:#1F9D3A}.tm-buy.p2 .tm-tagt{fill:#D9A300}.tm-buy.p3 .tm-tagt{fill:#E5322B}.tm-buy.p4 .tm-tagt{fill:#7E0E0E}   /* the price by how dear it is: green cheap, yellow middling, red dear, dark red dearest */
+.tm-buy.can.p2 .tm-tagt{fill:#3A2508}   /* yellow would vanish on the gold tag of one you can buy */
 .tm-pin.sel .tm-buy{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:50% 100%}
 .tm-price span{color:var(--muted);font-weight:600}
 .tm-card p.tm-price em{margin:0 0 0 6px}
@@ -947,9 +949,10 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-buy .coin{width:20px;height:20px}
 .shop-need p{margin:6px 0 12px;font-size:13.5px;color:var(--ink-2)}
 .shop .qa-glyph{width:24px;height:24px;font-size:15px;transform:none;background:var(--seal-ink);color:var(--seal)}
-/* Play, as in a game: a short chunky button on the right, raised off the bottom, named by where it takes you (Lesson 4) */
-.tm-hud:has(.tm-go){justify-content:flex-end;align-items:flex-end}
-.tm-play.tm-go{flex:0 0 auto;min-width:164px;min-height:60px;margin:0 6px 22px 0;padding:0 28px 4px;border-radius:20px;
+/* Play, as in a game: a short chunky button on the right, raised off the bottom, named by where it takes you (Lesson 4).
+   It has its own spot and a fixed width, so a monument's card, the buy moment or a new label never move it */
+.tm-gobar{position:absolute;z-index:3;right:20px;bottom:calc(var(--tabh) + 46px + env(safe-area-inset-bottom))}
+.tm-play.tm-go{flex:none;width:184px;min-height:60px;margin:0;padding:0 28px 4px;border-radius:20px;
   background:linear-gradient(#E2392E,var(--seal-btn) 55%);font:700 23px/1 var(--display);letter-spacing:.01em;text-align:center;white-space:nowrap;
   text-shadow:0 2px 0 rgba(90,10,5,.45);
   box-shadow:inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
@@ -6234,7 +6237,7 @@ const Trail = (() => {
   const WOODS = { wood: .7, south: .4, basin: .18, plain: .08, grass: .08, loess: .04 };   // how often a little wood stands in each
   let DRAWN = null, CHINA_D = '';
   const tzgGrid = () => {   // writing-practice paper (田字格) printed faintly over the sea and the lands around: solid squares with a dashed cross in each; China's painted land covers it
-    const C = 52, X0 = -1300, X1 = 2300, Y0 = -1300, Y1 = 2500; let box = '', mid = '';
+    const C = 64, X0 = -1300, X1 = 2300, Y0 = -1300, Y1 = 2500; let box = '', mid = '';
     for (let x = X0; x <= X1; x += C) { box += `M${x} ${Y0}V${Y1}`; if (x < X1) mid += `M${x + C / 2} ${Y0}V${Y1}`; }
     for (let y = Y0; y <= Y1; y += C) { box += `M${X0} ${y}H${X1}`; if (y < Y1) mid += `M${X0} ${y + C / 2}H${X1}`; }
     return `<g class="tm-tzg"><path d="${mid}" stroke-dasharray="4 4"/><path d="${box}"/></g>`; };
@@ -6403,8 +6406,8 @@ const Trail = (() => {
      closer (gold once you can pay for it), so the map is the shop window too. */
   function monument(c, st) {
     const can = !st.done && st.n >= st.total;
-    if (!st.done) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2;
-      return (can ? `<ellipse class="tm-ping" rx="7" ry="2.6" cy=".5"/>` : '') + `<ellipse class="tm-shade" rx="4.6" ry="1.6" cy=".6"/><g class="tm-buy${can ? ' can' : ''}">
+    if (!st.done) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2, tier = st.total <= 500 ? 1 : st.total <= 1000 ? 2 : st.total <= 2500 ? 3 : 4;   // 150-500, 600-1000, 1200-2500, 3000 and up
+      return (can ? `<ellipse class="tm-ping" rx="7" ry="2.6" cy=".5"/>` : '') + `<ellipse class="tm-shade" rx="4.6" ry="1.6" cy=".6"/><g class="tm-buy p${tier}${can ? ' can' : ''}">
         <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/>${coin(-5.5, -13.4, 11)}</g>
         <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/>${coin(-W / 2 + 1.5, -13.2, 9.2)}<text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
         <rect x="-13" y="-19" width="26" height="25" fill="transparent"/>`; }
@@ -6421,13 +6424,16 @@ const Trail = (() => {
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
   const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 76;   // the view the map opens on is as far back as it goes; in, down to one city
   const CORE = [[82, 33], [77, 39.4], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [126.4, 45.6], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [117.5, 25.0], [111, 24], [104, 25], [100.3, 25.8], [99, 29], [90, 31]];   // China's heartland, reaching out to the far monuments
+  const HOME = [109, 33], EDGE = { w: 70, n: 60 };   // where the map opens; the furthest west and north the screen's edge may show (Kashgar and Harbin still fit, close up)
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
     let lon = o.x / UX + LON_A, lat = LAT_A - o.y / UY;
     if (!pip(lon, lat, CORE)) { const n = nearest(lon, lat, CORE); lon = n[1]; lat = n[2]; }
-    const [x, y] = wp(lon, lat); return { x, y, z: cl(o.z, zMin(), zMax()) };
+    const z = cl(o.z, zMin(), zMax()), hw = (CAM.vw || CAM.w) / z / 2 / UX, hh = (CAM.vh || CAM.h) / z / 2 / UY;   // half the screen, in degrees
+    lon = Math.max(lon, Math.min(EDGE.w + hw, HOME[0])); lat = Math.min(lat, Math.max(EDGE.n - hh, HOME[1]));   // no empty steppe or Siberia past those edges; zoomed right out, no further west or north than the opening view
+    const [x, y] = wp(lon, lat); return { x, y, z };
   }
   const view = (lon, lat, z, fy = .5) => { const [x, y] = wp(lon, lat); return { x, y: y - (fy - .5) * CAM.h / z, z }; };   // this place, fy of the way down the screen
-  const home = () => view(109, 33, zHome());   // the eastern two thirds of the country
+  const home = () => view(...HOME, zHome());   // the eastern two thirds of the country
   const mScale = () => 1.5 * Math.pow(CAM.z / 1.5, .6);   // monuments grow more slowly than the land
   const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
@@ -6607,6 +6613,7 @@ function TrailView() {
       <div class="section-head cal-head tm-head pg-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
       <button class="tm-shopb tm-ui" data-act="shop" aria-label="Open the shop"><span class="tm-shopb-d"></span>${shopPile()}<span class="tm-shopb-t">Shop</span></button>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
+      <div class="tm-gobar">${goBtn()}</div>
     </div>
   </div>`;
 }
@@ -6628,10 +6635,14 @@ const shopPile = () => {   // a little market stall: a striped awning, its scall
     + `<rect x="${top[0] - 1.5}" y="${y0 - 3}" width="${top[1] - top[0] + 3}" height="4" rx="2" fill="#E8463A" stroke="${K}" stroke-width="1.3"/>`;
   return `<svg viewBox="0 0 54 52" aria-hidden="true">${s}</svg>`;
 };
-function mapHud() {   // along the bottom, as in a game: Play (the shop is the round button up top); once every monument is yours, that too
-  const sts = trailStates(), shop = `<button class="tm-play tm-go" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}" aria-label="Play: ${playSub()}">${playSub()}</button>`;
-  if (sts.every(x => x.done)) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
-  return `<div class="tm-hud tm-ui">${shop}</div>`;
+function goBtn() {   // Play, as in a game, bottom right: always there and always in the same place, whatever card is up or the camera does
+  const sts = trailStates();
+  return `<button class="tm-play tm-go tm-ui" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}" aria-label="Play: ${playSub()}">${playSub()}</button>`;
+}
+function mapHud() {   // over Play when no card is up: once every monument is yours, that news (the shop is the round button up top)
+  const sts = trailStates();
+  if (sts.every(x => x.done)) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span></div>`; }
+  return '';
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
@@ -8759,7 +8770,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.79';
+const APP_VERSION = '2.80';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
