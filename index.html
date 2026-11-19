@@ -920,7 +920,16 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-buy .coin{width:20px;height:20px}
 .shop-need p{margin:6px 0 12px;font-size:13.5px;color:var(--ink-2)}
 .shop .qa-glyph{width:24px;height:24px;font-size:15px;transform:none;background:var(--seal-ink);color:var(--seal)}
-.tm-play.tm-shop{flex-basis:36%}
+.tm-play.tm-go{flex-basis:40%;justify-content:flex-start;padding-left:16px}
+.tm-go-t{display:flex;flex-direction:column;gap:2px;font-size:20px;min-width:0}
+.tm-go-t small{font:600 11.5px var(--ui);opacity:.86;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-play .tm-tri{width:32px;height:32px}
+.tm-tri svg{width:13px;height:13px;margin-left:2px;fill:currentColor}
+.tm-tr{display:flex;align-items:center;gap:8px}
+.tm-shop-r{pointer-events:auto;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--card);box-shadow:var(--ring),0 6px 14px -8px rgba(60,35,10,.5)}
+.tm-shop-r .qa-glyph{width:28px;height:28px;border-radius:50%;font-size:15px;transform:none;background:var(--seal-btn);color:var(--seal-ink)}
+.tm-shop-r:active{transform:scale(.94)}
+.tm-shop-r:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.cp-big,.cp-gain.done b{animation:none}.cp-gain small{transition:none}}
 
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
@@ -6492,7 +6501,7 @@ function TrailView() {
   if (S.mapFrom && !S.mapShow) C.sel = S.mapFrom;   // back from a monument's page: its card is open again (not when you come back to watch one you just bought land)
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></div>
+      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-shop-r tm-ui" data-act="shop" aria-label="Open the shop"><span class="qa-glyph">店</span></button><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
     </div>
   </div>`;
@@ -6500,8 +6509,10 @@ function TrailView() {
 const FAST = lv => `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">证</span>Prove words</button>`;
 const EARN = lv => trailState(lv).open ? FAST(lv) : `<button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">学</span>Learn words</button>`;
 const coinBarLab = st => st.n >= st.total ? 'Ready to buy' : goLab(st.n, st.total, coinFmt);   // past halfway, what is left is the smaller number, and it pulls harder
-function mapHud() {   // along the bottom, as in a game: the coins you are saving toward the monument you want next, and the Shop
-  const sts = trailStates(), i = trailCur(sts), shop = `<button class="tm-play tm-shop" data-act="shop"><span class="qa-glyph">店</span><span>Shop</span></button>`;
+const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
+  return due ? `Unit ${due} test` : n ? `Lesson ${n}` : `HSK ${openLevel()} words`; };
+function mapHud() {   // along the bottom, as in a game: the coins you are saving toward the monument you want next, and Play (the shop is the round button up top)
+  const sts = trailStates(), i = trailCur(sts), shop = `<button class="tm-play tm-go" data-act="map-build" data-lv="${sts[Math.max(i, 0)].lv}"><span class="qa-glyph tm-tri"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 1.8l7 4.2-7 4.2z"/></svg></span><span class="tm-go-t">Play<small>${playSub()}</small></span></button>`;
   if (i < 0) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span>${shop}</div>`; }
   const st = sts[i], c = TRAIL[st.lv - 1], ready = st.n >= st.total, today = coinToday();
   return `<div class="tm-hud tm-ui"><button class="tm-now${ready ? ' ready' : ''}" data-act="shop-item" data-lv="${st.lv}" aria-label="${ready ? `You can buy the ${esc(c.name)} now` : `Saving for the ${esc(c.name)}: ${st.n} of ${st.total} coins`}${today ? `, ${today} earned today` : ''}. Open it in the shop">${today ? `<em>+${coinFmt(today)} today</em>` : ''}
@@ -8643,7 +8654,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.65';
+const APP_VERSION = '2.66';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
