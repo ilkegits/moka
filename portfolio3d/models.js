@@ -1,4 +1,4 @@
-// The eight monuments as 3D models. Every mesh carries a role (userData.role); a look (styles.js) turns roles into materials.
+// The monuments as 3D models. Every mesh carries a role (userData.role); a look (styles.js) turns roles into materials.
 import * as THREE from 'three';
 
 let DET = 1;   // detail: 1 full, 0 low-poly
@@ -69,10 +69,11 @@ function windowsOn(x0, x1, y0, y1, z, cols, rows, role = 'window', ry = 0, ww = 
 }
 
 /* ---------- the stage every monument stands on: a round base, grass, maybe water, trees and tiny people ---------- */
-function stage(R, { water = 0, waterRole = 'water', people = 40, trees = 28, keep = 3, seed = 3 } = {}) {
+function stage(R, { water = 0, waterRole = 'water', people = 40, trees = 28, keep = 3, seed = 3, ground = 'grass' } = {}) {
   const g = new THREE.Group(), r = rnd(seed);
   g.add(cyl(R + .25, R + .45, .9, seg(96, 14), 'plinth', 0, -.9, 0));
-  g.add(cyl(R, R, .06, seg(96, 14), 'grass', 0, -.06, 0));
+  g.add(cyl(R, R, .06, seg(96, 14), ground, 0, -.06, 0));
+  { const top = new THREE.RingGeometry(.01, R, seg(96, 14), seg(24, 4)); top.rotateX(-Math.PI / 2); g.add(at(mesh(top, ground), 0, .003, 0)); }   // fine rings, so the long fan triangles of the cap don't streak
   if (water) {   // the front of the disc is a river or a lake
     const sh = new THREE.Shape(), a = Math.asin(Math.min(1, water / R));
     sh.absarc(0, 0, R, a, Math.PI - a, false); sh.lineTo(Math.cos(a) * R, Math.sin(a) * R);
@@ -268,6 +269,215 @@ function heaven() {
   return g;
 }
 
+/* ---------- shared parts for the second set ---------- */
+// a pointed (Islamic) arch, as a thin panel facing z+; role door = a dark recess
+function arch(w, h, role, x = 0, y = 0, z = 0, ry = 0, depth = .08) {
+  const s = new THREE.Shape(), k = Math.min(w * .62, h * .45);
+  s.moveTo(-w / 2, 0); s.lineTo(-w / 2, h - k); s.quadraticCurveTo(-w / 2, h - k * .25, 0, h); s.quadraticCurveTo(w / 2, h - k * .25, w / 2, h - k); s.lineTo(w / 2, 0); s.lineTo(-w / 2, 0);
+  const g = new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: false, curveSegments: seg(8, 2) });
+  return at(mesh(g, role), x, y, z, ry);
+}
+// a round-topped (Romanesque) window, facing z+
+function roundWin(w, h, role, x = 0, y = 0, z = 0, ry = 0, depth = .06) {
+  const s = new THREE.Shape(); s.moveTo(-w / 2, 0); s.lineTo(-w / 2, h - w / 2); s.absarc(0, h - w / 2, w / 2, Math.PI, 0, true); s.lineTo(w / 2, 0); s.lineTo(-w / 2, 0);
+  return at(mesh(new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: false, curveSegments: seg(8, 2) }), role), x, y, z, ry);
+}
+// an onion dome of radius r standing on y, with a cross or a crescent on top
+function onion(r, role, x, y, z, top = 'cross') {
+  const P = [[1, 0], [1.28, .32], [1.36, .72], [1.22, 1.15], [.86, 1.55], [.42, 1.92], [.14, 2.25], [.04, 2.55]].map(([a, b]) => new THREE.Vector2(a * r, b * r));
+  const g = new THREE.Group(); g.add(at(mesh(new THREE.LatheGeometry(P, seg(32, 8)), role, { double: true }), 0, 0, 0));
+  g.add(cyl(.03 * r + .015, .03 * r + .015, .5 * r, 8, 'gold', 0, 2.5 * r));
+  if (top === 'cross') { g.add(box(.05, .6 * r, .05, 'gold', 0, 2.9 * r)); g.add(box(.32 * r, .05, .05, 'gold', 0, 3.25 * r)); }
+  else { const c = mesh(new THREE.TorusGeometry(.16 * r + .05, .025, 6, 16, Math.PI * 1.4), 'gold'); c.position.set(0, 3.25 * r, 0); c.rotation.z = Math.PI * .8; g.add(c); g.add(sph(.06, 'gold', 0, 2.95 * r, 0, 8)); }
+  return at(g, x, y, z);
+}
+// rooms of windows round a cylinder, facing out
+function ringWins(R, y0, y1, n, rows, role = 'windowDark', ww = .16, wh = .24) {
+  const L = []; for (let r = 0; r < rows; r++) for (let i = 0; i < n; i++) { const a = (i + (r % 2) * .5) / n * Math.PI * 2, y = rows > 1 ? y0 + (y1 - y0) * r / (rows - 1) : y0;
+    L.push([Math.sin(a) * R, y, Math.cos(a) * R, a]); }
+  return many(new THREE.BoxGeometry(ww, wh, .1), role, L);
+}
+
+/* ---------- 9 Badaling: the Great Wall, snaking over green hills from watchtower to watchtower ---------- */
+function greatwall() {
+  const g = new THREE.Group(), R = 9.4, r = rnd(41);
+  const bumps = [[-5.2, -3.0, 3.0, 2.3], [-.6, 1.0, 3.3, 2.2], [3.6, -2.6, 4.0, 2.3], [7.4, -.8, 2.3, 1.8], [-7.2, 2.6, 1.3, 2.0], [1.8, 5.6, 1.1, 2.2], [-3.4, 5.4, .9, 1.9], [5.8, 4.4, 1.0, 1.7], [-1.8, -6.4, 1.6, 2.2]];
+  const H = (x, z) => bumps.reduce((a, [bx, bz, h, rr]) => a + h * Math.exp(-((x - bx) ** 2 + (z - bz) ** 2) / (rr * rr)), 0) * Math.max(0, 1 - Math.pow(Math.hypot(x, z) / R, 8));
+  const N = seg(110, 26), pg = new THREE.PlaneGeometry(2 * R, 2 * R, N, N); pg.rotateX(-Math.PI / 2);
+  const p = pg.attributes.position;
+  for (let i = 0; i < p.count; i++) { let x = p.getX(i), z = p.getZ(i); const d = Math.hypot(x, z); if (d > R) { x *= R / d; z *= R / d; } p.setXYZ(i, x, H(x, z) + .015, z); }
+  pg.computeVertexNormals(); g.add(mesh(pg, 'hill'));
+  // the wall: along a curve over the ridges, a walkway with crenellations on the outer side and a low parapet inside
+  const curve = new THREE.CatmullRomCurve3([[-9.2, -3.4], [-7.2, -3.4], [-5.2, -3.0], [-3.2, -1.2], [-.6, 1.0], [1.4, -.6], [3.6, -2.6], [5.6, -2.2], [7.4, -.8], [9.2, .4]].map(([x, z]) => new THREE.Vector3(x, 0, z)));
+  const M = seg(160, 40), S = curve.getSpacedPoints(M).filter(v => Math.hypot(v.x, v.z) < R - .3).map(v => new THREE.Vector3(v.x, H(v.x, v.z), v.z));
+  const up = new THREE.Vector3(0, 1, 0), mer = [], par = [], walkers = [];
+  for (let i = 0; i < S.length - 1; i++) {
+    const a = S[i], b = S[i + 1], d = b.clone().sub(a), len = d.length(), m = a.clone().add(b).multiplyScalar(.5);
+    const w = mesh(new THREE.BoxGeometry(.78, 1.5, len + .04), 'wallGrey'); w.position.copy(m); w.lookAt(b); g.add(w);   // reaches down into the hill
+    const side = new THREE.Vector3().crossVectors(up, d).normalize();
+    if (i % 2 === 0) { const q = m.clone().addScaledVector(side, .33); mer.push([q.x, q.y + .75, q.z, Math.atan2(d.x, d.z)]); }
+    const q2 = m.clone().addScaledVector(side, -.35); par.push([q2.x, q2.y + .75, q2.z, Math.atan2(d.x, d.z), 1]);
+    if (r() < .07) walkers.push([m.x + side.x * (r() - .5) * .3, m.y + .75, m.z + side.z * (r() - .5) * .3, r() * 6]);
+  }
+  g.add(many(new THREE.BoxGeometry(.12, .26, .22).translate(0, .13, 0), 'wallGrey', mer));
+  g.add(many(new THREE.BoxGeometry(.08, .14, .2).translate(0, .07, 0), 'wallGrey', par));
+  // watchtowers on the high points
+  const towers = []; for (let i = 3; i < S.length - 3; i++) { const h = S[i].y; if (h >= S[i - 3].y && h >= S[i + 3].y && h > 1.2 && (!towers.length || i - towers.at(-1) > 10)) towers.push(i); }
+  [Math.round(S.length * .06), Math.round(S.length * .94)].forEach(i => { if (!towers.some(t => Math.abs(t - i) < 10)) towers.push(i); });
+  towers.forEach((i, k) => {
+    const c = S[i], d = S[Math.min(S.length - 1, i + 1)].clone().sub(S[Math.max(0, i - 1)]), ry = Math.atan2(d.x, d.z), t = new THREE.Group();
+    t.add(box(1.5, 2.5, 1.5, 'wallGrey', 0, -.8, 0)); t.add(box(1.62, .14, 1.62, 'stone', 0, 1.7, 0));
+    for (let s = 0; s < 4; s++) { const a = s * Math.PI / 2; t.add(arch(.32, .55, 'door', Math.sin(a) * .76, .75, Math.cos(a) * .76, a, .04)); [-.38, .38].forEach(u => t.add(arch(.2, .38, 'door', Math.sin(a) * .76 + Math.cos(a) * u, .85, Math.cos(a) * .76 - Math.sin(a) * u, a, .04)).length); }
+    const L = []; for (let s = 0; s < 4; s++) for (let j = 0; j < 5; j++) { const a = s * Math.PI / 2, u = -.62 + j * .31; L.push([Math.sin(a) * .74 + Math.cos(a) * u, 1.84, Math.cos(a) * .74 - Math.sin(a) * u, a]); }
+    t.add(many(new THREE.BoxGeometry(.16, .26, .14).translate(0, .13, 0), 'wallGrey', L));
+    if (k % 2 === 0) { t.add(box(.86, .55, .7, 'wallGrey', 0, 1.84, 0)); t.add(roof({ w: 1.2, d: 1.0, h: .42, ridge: .5, lift: .18, role: 'roofGrey', y: 2.39 })); }
+    at(t, c.x, c.y, c.z, ry); g.add(t);
+  });
+  if (walkers.length) { const body = new THREE.CapsuleGeometry(.055, .16, 2, 6); body.translate(0, .14, 0); const pal = ['#C9302A', '#2F5D8A', '#E8B44C', '#F2EEE6', '#4E9A72'];
+    g.add(many(body, 'person', walkers, i => pal[i % pal.length])); const hd = new THREE.SphereGeometry(.05, 6, 5); hd.translate(0, .32, 0); g.add(many(hd, 'skin', walkers)); }
+  // woods on the slopes, kept off the wall
+  for (let i = 0, n = 0; i < 900 && n < seg(70, 30); i++) { const a = r() * Math.PI * 2, dd = Math.sqrt(r()) * (R - .7), x = Math.cos(a) * dd, z = Math.sin(a) * dd;
+    if (S.some(v => (v.x - x) ** 2 + (v.z - z) ** 2 < 1.1)) continue; n++; const s = .5 + r() * .5, y = H(x, z);
+    if (r() < .55) g.add(sph(.48 * s, 'tree', x, y + .55 * s, z, 10)); else g.add(at(mesh(new THREE.ConeGeometry(.4 * s, 1.2 * s, seg(8, 5)), 'tree'), x, y + .6 * s, z)); }
+  return g;
+}
+
+/* ---------- 10 Harbin: St. Sophia Cathedral, red brick with green onion domes ---------- */
+function sophia() {
+  const g = new THREE.Group(), B = 'brickRed', G = 'copper';
+  g.add(box(10, .3, 13, 'stone', 0, 0, .4));   // the square
+  g.add(box(4.4, 4.6, 9.2, B, 0, .3, -.8)); g.add(box(9.6, 4.6, 4.4, B, 0, .3, -1.2)); g.add(cyl(2.2, 2.2, 4.6, seg(32, 8), B, 0, .3, -5.3));
+  g.add(roof({ w: 4.8, d: 9.6, h: 1.0, ridge: .9, lift: .05, flare: 0, concave: 1, role: G, y: 4.9, z: -.8 })); g.add(roof({ w: 10, d: 4.8, h: 1.0, ridge: .9, lift: .05, flare: 0, concave: 1, role: G, y: 4.9, z: -1.2 }));
+  g.add(box(4.6, .22, 9.4, 'white', 0, 4.7, -.8)); g.add(box(9.8, .22, 4.6, 'white', 0, 4.7, -1.2));
+  // tall round-topped windows on the arms
+  [[0, 3.8, 0], [4.85, -1.2, Math.PI / 2], [-4.85, -1.2, -Math.PI / 2]].forEach(([x, z, ry]) => [-1, 0, 1].forEach(u => {
+    const ox = Math.cos(ry) * u * 1.15, oz = -Math.sin(ry) * u * 1.15; g.add(roundWin(.62, 2.0, 'windowDark', x + ox, 1.6, z + oz, ry)); g.add(roundWin(.82, 2.2, 'white', x + ox - Math.sin(ry) * .02, 1.5, z + oz - Math.cos(ry) * .02, ry, .03)); }));
+  // the drum and the great dome
+  g.add(cyl(2.15, 2.15, 2.6, seg(32, 8), B, 0, 5.4, -1.2)); g.add(cyl(2.3, 2.3, .22, seg(32, 8), 'white', 0, 8.0, -1.2));
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; g.add(roundWin(.5, 1.5, 'windowDark', Math.sin(a) * 2.13, 5.9, -1.2 + Math.cos(a) * 2.13, a)); }
+  g.add(onion(2.0, G, 0, 8.2, -1.2));
+  // four small domes at the corners of the cross
+  [[-2.6, -3.8], [2.6, -3.8], [-2.6, 1.4], [2.6, 1.4]].forEach(([x, z]) => { g.add(cyl(.55, .55, 1.0, seg(16, 6), B, x, 4.9, z)); g.add(onion(.5, G, x, 5.9, z)); });
+  // the bell tower over the door, with a green tent roof
+  g.add(box(3.0, 7.6, 3.0, B, 0, .3, 4.2)); g.add(box(3.2, .24, 3.2, 'white', 0, 7.9, 4.2)); g.add(box(3.2, .24, 3.2, 'white', 0, 4.9, 4.2));
+  g.add(roundWin(1.3, 2.4, 'door', 0, .3, 5.71)); g.add(roundWin(1.7, 2.7, 'white', 0, .3, 5.69, 0, .03));
+  [0, Math.PI / 2, -Math.PI / 2].forEach(a => { g.add(roundWin(.55, 1.6, 'windowDark', Math.sin(a) * 1.51, 5.6, 4.2 + Math.cos(a) * 1.51, a)); });
+  const tent = mesh(new THREE.ConeGeometry(2.3, 3.0, 4, 1), G); tent.rotation.y = Math.PI / 4; tent.position.set(0, 8.14 + 1.5, 4.2); g.add(tent);
+  g.add(cyl(.42, .42, .8, seg(16, 6), B, 0, 10.4, 4.2)); g.add(onion(.42, G, 0, 11.2, 4.2));
+  g.add(box(2.0, 1.4, 1.2, B, 0, .3, 6.2)); g.add(roof({ w: 2.4, d: 1.6, h: .5, ridge: .6, lift: .02, flare: 0, concave: 1, role: G, y: 1.7, z: 6.2, ry: Math.PI / 2 }));
+  return g;
+}
+
+/* ---------- 11 Fujian: the tulou, round earth houses of the Hakka in the tea hills ---------- */
+function tulou() {
+  const g = new THREE.Group(), r = rnd(53);
+  const round = (R, t, h, x, z, floors) => {
+    const q = new THREE.Group();
+    q.add(mesh(new THREE.LatheGeometry([[R - t, 0], [R, 0], [R, h], [R - t, h], [R - t, 0]].map(p => new THREE.Vector2(...p)), seg(64, 12)), 'earth', { double: true }));
+    q.add(mesh(new THREE.LatheGeometry([[R - t - .02, 0], [R - t - .02, h]].map(p => new THREE.Vector2(...p)), seg(64, 12)), 'wood', { double: true }));
+    for (let f = 1; f < floors; f++) { const y = h * f / floors; const ring = torus(R - t - .14, .06, 'wood', y); q.add(ring); }
+    const rr = R - t * .45, L2 = pts => mesh(new THREE.LatheGeometry(pts.map(p => new THREE.Vector2(...p)), seg(72, 12)), 'tileGrey', { double: true });   // two slopes, so the ridge stays sharp
+    q.add(L2([[R + .4, h - .12], [rr, h + .5]])); q.add(L2([[rr, h + .5], [R - t - .3, h]])); q.add(torus(rr, .07, 'ridge', h + .5));
+    q.add(ringWins(R + .01, h * .55, h * .82, Math.round(R * 6), 2, 'windowDark', .14, .2));
+    q.add(arch(.7, 1.0, 'door', 0, 0, R - .02, 0, .06));
+    q.add(box(R * .7, .6, R * .5, 'plaster', 0, 0, -R * .1)); q.add(roof({ w: R * .85, d: R * .65, h: .4, ridge: .5, lift: .15, role: 'roofGrey', y: .6, z: -R * .1 }));
+    return at(q, x, 0, z, r() * .5 - .25);
+  };
+  g.add(round(3.0, 1.2, 3.0, 0, -.8, 4));
+  g.add(round(2.0, .9, 2.4, -5.3, 1.6, 3));
+  g.add(round(1.9, .9, 2.3, 3.4, 3.8, 3));
+  g.add(round(1.8, .85, 2.2, -4.4, -4.8, 3));
+  // the square one, behind
+  const sq = new THREE.Group(), W = 3.8, T = 1.1, h = 2.6;
+  [[0, -(W - T) / 2, W, T], [0, (W - T) / 2, W, T], [-(W - T) / 2, 0, T, W - 2 * T], [(W - T) / 2, 0, T, W - 2 * T]].forEach(([x, z, w, d]) => sq.add(box(w, h, d, 'earth', x, 0, z)));
+  sq.add(roof({ w: W + .7, d: W + .7, h: .55, inner: .5, lift: .14, role: 'tileGrey', y: h - .1 }));
+  sq.add(windowsOn(-1.4, 1.4, 1.2, 1.8, W / 2 + .01, 6, 2, 'windowDark', 0, .14, .2)); sq.add(arch(.6, .9, 'door', 0, 0, W / 2 - .02, 0, .06));
+  g.add(at(sq, 4.9, 0, -3.0, -.3));
+  // tea terraces climbing behind
+  [[-1.5, -7.2, 6.5, 2.2], [3.2, -7.4, 4.4, 1.8], [-6.4, .2, 1.6, 2.6], [7.2, -.6, 1.6, 2.4]].forEach(([x, z, rx, rz]) => {
+    for (let k = 0; k < 4; k++) { const s = 1 - k * .22, c = cyl(1, 1.04, .32, seg(32, 8), k % 2 ? 'tea' : 'tea2', x, k * .32, z); c.scale.set(rx * s, 1, rz * s); g.add(c); } });
+  return g;
+}
+
+/* ---------- 12 Dali: the Three Pagodas of Chongsheng Temple, white over the lake ---------- */
+function dali() {
+  const g = new THREE.Group();
+  g.add(box(3.6, .4, 3.6, 'stone', 0, 0, 0)); g.add(box(2.9, .5, 2.9, 'stone', 0, .4, 0));
+  g.add(box(1.75, 3.2, 1.75, 'white', 0, .9, 0)); g.add(arch(.5, .9, 'door', 0, 1.0, .88, 0, .04));
+  let y = 4.1; const T = 15;
+  for (let i = 0; i < T; i++) {
+    const t = i / (T - 1), w = 1.75 * (1 + .2 * Math.sin(Math.PI * Math.min(1, t * 1.6))) * (1 - .5 * Math.pow(t, 1.7)), h = .6 - t * .16;
+    g.add(box(w + .55, .1, w + .55, 'white', 0, y - .02)); g.add(box(w + .32, .08, w + .32, 'plaster', 0, y - .1));
+    g.add(box(w, h, w, 'white', 0, y + .08)); if (i % 2 === 0) g.add(box(.18, h * .55, .04, 'door', 0, y + .08 + h * .2, w / 2 + .01));
+    y += h + .08;
+  }
+  g.add(box(.9, .14, .9, 'white', 0, y)); g.add(cyl(.32, .44, .5, 8, 'bronze', 0, y + .14)); g.add(sph(.28, 'gold', 0, y + .82, 0, 14)); g.add(cyl(.03, .05, 1.0, 6, 'gold', 0, y + .9)); g.add(sph(.12, 'gold', 0, y + 1.9, 0, 10));
+  // the two smaller octagonal pagodas behind
+  [-1, 1].forEach(sx => { const x = sx * 5.0, z = -2.6; g.add(cyl(1.3, 1.4, .5, 8, 'stone', x, 0, z, Math.PI / 8)); g.add(cyl(.8, .82, 1.6, 8, 'white', x, .5, z, Math.PI / 8));
+    let yy = 2.1; for (let i = 0; i < 10; i++) { const t = i / 9, rr = .8 * (1 + .12 * Math.sin(Math.PI * t)) * (1 - .45 * Math.pow(t, 1.6)), h = .44 - t * .08;
+      g.add(cyl(rr + .3, rr + .3, .08, 8, 'white', x, yy, z, Math.PI / 8)); g.add(cyl(rr, rr, h, 8, 'white', x, yy + .08, z, Math.PI / 8)); yy += h + .08; }
+    g.add(cyl(.04, .06, .8, 6, 'gold', x, yy, z)); g.add(sph(.14, 'gold', x, yy + .45, z, 10)); });
+  return g;
+}
+
+/* ---------- 13 Dunhuang: the Mogao Caves, the Nine-storey Pagoda against the sand cliff ---------- */
+function mogao() {
+  const g = new THREE.Group(), r = rnd(61);
+  const cs = new THREE.Shape(); cs.moveTo(-8.6, 0); let cx = -8.6;
+  cs.lineTo(-8.6, 4.4); while (cx < 8.6) { cx = Math.min(8.6, cx + .5 + r() * .9); cs.lineTo(cx, 5.4 + r() * 1.3 - Math.pow(Math.abs(cx) / 8.6, 3) * 1.4); }
+  cs.lineTo(8.6, 0); cs.lineTo(-8.6, 0);
+  const cg = new THREE.ExtrudeGeometry(cs, { depth: 3.4, bevelEnabled: true, bevelThickness: .25, bevelSize: .25, bevelSegments: 2, curveSegments: 2 }); cg.translate(0, 0, -7.2);
+  g.add(mesh(cg, 'sand2'));
+  for (let i = 0; i < 9; i++) { const x = -7.6 + i * 1.9 + r() * .6, b = box(1.1 + r() * 1.2, 4 + r() * 1.6, .5, 'sand2', x, 0, -3.65 - r() * .15, (r() - .5) * .2); g.add(b); }   // buttresses that break up the face
+  // cave doors in rows along the cliff, with walkways and ladders
+  [.6, 2.4, 4.2].forEach((yy, row) => {
+    for (let x = -7.6; x < 7.6; x += .7 + r() * .6) { if (Math.abs(x) < 3.3) continue; g.add(box(.3 + r() * .14, .45 + r() * .2, .1, 'door', x, yy + (r() - .5) * .3, -3.32)); }
+    g.add(box(15.8, .08, .45, 'wood', 0, yy - .1, -3.1)); g.add(box(15.8, .2, .03, 'wood', 0, yy, -2.9));
+    if (row < 2) [-5.6, 5.2].forEach(x => g.add(rod([x, yy - .1, -3.0], [x + .8, yy + 1.7, -3.0], .03, 'wood')));
+  });
+  // the Nine-storey Pagoda (Jiucenglou), red columns and grey tiles stepping up the cliff
+  let y = 0; const F = 9;
+  g.add(box(7.4, .3, 3.2, 'stone', 0, 0, -2.2));
+  for (let i = 0; i < F; i++) {
+    const w = 6.4 - i * .46, h = i === F - 1 ? 1.05 : .86, z = -2.3 - i * .1, d = 2.4 - i * .06;
+    g.add(box(w, h, d, 'plaster', 0, y + .3, z));
+    const n = Math.max(3, Math.round(w / .7)); for (let c = 0; c <= n; c++) g.add(box(.1, h, .1, 'column', -w / 2 + w * c / n, y + .3, z + d / 2));
+    g.add(windowsOn(-w / 2 + .3, w / 2 - .3, y + .45, y + .3 + h - .12, z + d / 2 + .02, n, 1, 'lattice', 0, w / n * .6, h * .55));
+    y += h;
+    if (i < F - 1) g.add(roof({ w: w + 1.1, d: d + 1.0, h: .5, inner: .82, lift: .28, role: 'roofGrey', y: y + .3 - .06, z }));
+    else { g.add(roof({ w: w + 1.4, d: d + 1.2, h: 1.5, ridge: .35, lift: .36, role: 'roofGrey', y: y + .3, z })); g.add(sph(.18, 'gold', 0, y + 1.95, z, 10)); }
+  }
+  // poplars and a camel
+  [[-7.4, 2.4], [-6.6, 3.6], [6.8, 2.2], [7.6, 3.4], [-3.6, 4.4], [4.4, 4.8]].forEach(([x, z]) => { g.add(cyl(.05, .07, .6, 6, 'trunk', x, 0, z)); const t = sph(1, 'tree', x, 1.3, z, 10); t.scale.set(.32, .9, .32); g.add(t); });
+  const camel = new THREE.Group(); camel.add(box(.9, .4, .3, 'camel', 0, .55, 0)); camel.add(sph(.18, 'camel', -.15, .98, 0, 8)); camel.add(sph(.18, 'camel', .2, .98, 0, 8)); camel.add(rod([.45, .8, 0], [.7, 1.2, 0], .07, 'camel')); camel.add(box(.22, .14, .14, 'camel', .78, 1.16, 0));
+  [[-.35, -.1], [-.35, .1], [.35, -.1], [.35, .1]].forEach(([x, z]) => camel.add(box(.08, .55, .08, 'camel', x, 0, z))); g.add(at(camel, 2.6, 0, 3.4, -.4));
+  return g;
+}
+
+/* ---------- 14 Kashgar: the Id Kah Mosque, a yellow gate between two minarets ---------- */
+function idkah() {
+  const g = new THREE.Group(), Y = 'yellowWall';
+  g.add(box(14.6, .14, 7.2, 'stone', 0, 0, 1.0));   // the square
+  g.add(box(14.6, 2.2, 3.0, Y, 0, .14, -2.2)); g.add(box(14.8, .26, 3.1, 'white', 0, 2.34, -2.2));
+  for (let x = -6.6; x <= 6.65; x += 1.1) if (Math.abs(x) > 2.6) { g.add(arch(.62, 1.35, 'door', x, .35, -.69, 0, .04)); g.add(arch(.8, 1.55, 'white', x, .27, -.7, 0, .02)); }
+  // the gate (pishtaq): a tall yellow block with a deep pointed arch framed in white
+  g.add(box(4.6, 5.6, 1.8, Y, 0, .14, -.6)); g.add(box(4.8, .3, 1.9, 'white', 0, 5.74, -.6));
+  g.add(arch(2.5, 4.0, 'white', 0, .14, .31, 0, .03)); g.add(arch(2.1, 3.7, 'archBlue', 0, .14, .33, 0, .03)); g.add(arch(1.0, 1.8, 'door', 0, .14, .37, 0, .03));
+  [-1.95, 1.95].forEach(x => { g.add(box(.14, 5.3, .06, 'white', x, .3, .31)); });
+  g.add(windowsOn(-1.6, 1.6, 4.4, 5.3, .32, 5, 1, 'white', 0, .34, .5));
+  // the two minarets: banded columns with little domed lanterns
+  [-2.75, 2.75].forEach(x => { const z = -.2;
+    g.add(box(1.0, 1.4, 1.0, Y, x, .14, z)); g.add(cyl(.38, .46, 7.0, seg(20, 8), Y, x, 1.54, z));
+    [2.6, 4.4, 6.2, 8.2].forEach(yy => g.add(cyl(.45, .43, .16, seg(20, 8), 'white', x, yy, z)));
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; g.add(cyl(.04, .04, .7, 6, 'white', x + Math.sin(a) * .36, 8.54, z + Math.cos(a) * .36)); }
+    g.add(cyl(.5, .5, .14, seg(20, 8), 'white', x, 9.24, z)); g.add(onion(.36, 'domeGreen', x, 9.38, z, 'moon'));
+  });
+  g.add(cyl(1.4, 1.4, .8, seg(24, 8), Y, 0, 2.3, -3.0)); g.add(onion(1.25, 'domeGreen', 0, 3.1, -3.0, 'moon'));   // the dome behind the gate
+  // poplars and white mulberry along the square
+  [[-7.2, 1.6], [-7.0, 3.6], [7.2, 1.4], [7.0, 3.4], [-5.6, 4.8], [5.6, 4.8]].forEach(([x, z]) => { g.add(cyl(.05, .07, .7, 6, 'trunk', x, .14, z)); const t = sph(1, 'tree', x, 1.6, z, 10); t.scale.set(.36, 1.1, .36); g.add(t); });
+  return g;
+}
+
 export const MONUMENTS = [
   { id: 'pearl', name: 'Oriental Pearl Tower', zh: '东方明珠', city: 'Shanghai', czh: '上海', build: pearl, stage: { R: 7.5, water: 4.6, seed: 2 }, boats: [[-3, 6, .2], [3.2, 5.6, -.1]] },
   { id: 'leifeng', name: 'Leifeng Pagoda', zh: '雷峰塔', city: 'Hangzhou', czh: '杭州', build: leifeng, stage: { R: 7.5, water: 4.8, waterRole: 'lake', keep: 4.5, seed: 5 }, boats: [[2.2, 6.1, .6, .7]] },
@@ -277,6 +487,12 @@ export const MONUMENTS = [
   { id: 'potala', name: 'Potala Palace', zh: '布达拉宫', city: 'Lhasa', czh: '拉萨', build: potala, stage: { R: 9.6, keep: 8.0, trees: 10, seed: 17 } },
   { id: 'goose', name: 'Big Wild Goose Pagoda', zh: '大雁塔', city: "Xi'an", czh: '西安', build: goose, stage: { R: 7.4, keep: 4.6, seed: 19 } },
   { id: 'heaven', name: 'Temple of Heaven', zh: '天坛', city: 'Beijing', czh: '北京', build: heaven, stage: { R: 8.2, keep: 6.8, trees: 30, seed: 23 } },
+  { id: 'wall', name: 'Great Wall', zh: '长城', city: 'Badaling', czh: '八达岭', build: greatwall, stage: { R: 9.6, keep: 9.5, trees: 0, people: 0, seed: 29 } },
+  { id: 'sophia', name: 'St. Sophia Cathedral', zh: '圣索菲亚教堂', city: 'Harbin', czh: '哈尔滨', build: sophia, stage: { R: 9.0, keep: 7.4, trees: 18, people: 50, seed: 31 } },
+  { id: 'tulou', name: 'Fujian Tulou', zh: '福建土楼', city: 'Yongding', czh: '永定', build: tulou, stage: { R: 9.4, keep: 8.6, trees: 14, people: 20, seed: 37 } },
+  { id: 'dali', name: 'Three Pagodas', zh: '崇圣寺三塔', city: 'Dali', czh: '大理', build: dali, stage: { R: 8.6, water: 4.6, waterRole: 'lake', keep: 4.6, trees: 22, seed: 43 } },
+  { id: 'mogao', name: 'Mogao Caves', zh: '莫高窟', city: 'Dunhuang', czh: '敦煌', build: mogao, stage: { R: 9.6, keep: 9.4, trees: 0, people: 24, ground: 'sand', seed: 47 } },
+  { id: 'idkah', name: 'Id Kah Mosque', zh: '艾提尕尔清真寺', city: 'Kashgar', czh: '喀什', build: idkah, stage: { R: 9.4, keep: 8.4, trees: 10, people: 60, ground: 'sand', seed: 53 } },
 ];
 
 // the whole diorama for one monument; detail 0 builds the low-poly version

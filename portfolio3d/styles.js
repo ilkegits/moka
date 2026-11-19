@@ -8,6 +8,8 @@ const BASE = {
   roofGold: '#E8B23A', roofBronze: '#7C5E3C', roofGrey: '#5E5C60', roofBlue: '#2B4F96', brick: '#C9A06E', brick2: '#A27C50',
   plaster: '#EFE6D4', wood: '#7A5232', rock: '#9C8C7C', white: '#F4F0E6', redPalace: '#8E2A26', redPalace2: '#A8402F', maroon: '#4E1C18',
   steel: '#C8D0DA', steel2: '#9AA6B4', window: '#3A4A5A', windowLit: '#5A4232', windowDark: '#2A221C', lantern: '#D9321F',
+  hill: '#8DBA5C', wallGrey: '#B2A690', brickRed: '#A4553C', copper: '#4F9A7C', earth: '#CB9A62', tea: '#5E9440', tea2: '#79AC52', hillBlue: '#7E9A8E', tileGrey: '#7E7C7A',
+  sand: '#E2C595', sand2: '#C9A274', camel: '#B98A56', yellowWall: '#E8C37A', archBlue: '#3E7FA6', domeGreen: '#3F9A70', bronze: '#8A6A3E',
   grass: '#8DB26A', plinth: '#D8CDBB', water: '#6FA2B8', lake: '#7DB0B0', tree: '#4F7F45', trunk: '#6A4A34', person: '#ffffff', skin: '#E7C3A0', boat: '#F2EEE6', cabin: '#C9302A',
 };
 const GLOW = { window: '#FFE7A8', windowLit: '#FFC46E', windowDark: '#FFC46E', lantern: '#FF5A3A', pearl: '#FF4FA8', light: '#FF3B30', glassBand: '#FFE0F0', glass: '#FFD58A', cabin: '#FFC46E' };
