@@ -1,1 +1,1 @@
-{"version": "2.13", "notes": "When you write the wrong character or get one part wrong, Shi Shi now slides in from the side of the screen with a speech bubble telling you what you wrote, instead of a message box. Tap him and he slides away"}
+{"version": "2.14", "notes": "Shi Shi only says \"You wrote 快\" when your drawing really is that other character. A slipped attempt (a 伞 with one extra line was read as 拿) now gets \"close, but it doesn’t read clearly as 伞 yet\" instead"}

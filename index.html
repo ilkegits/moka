@@ -4956,13 +4956,17 @@ async function judgeChar(ch, strokes, s) {
   const shape = ref ? strokeCheck(strokes, ref, s) : null;
   const rank = cands ? cands.indexOf(ch) : null;
   let ok = verdict(shape, rank);
-  // Look-alike guard: if the reader's first guess is another character, and your drawing fits that one better, it isn't green.
-  const other = cands?.[0];
-  if (ok && shape && rank !== 0 && other && other !== ch && [...other].length === 1 && HAN.test(other)) {
-    const oref = await loadRef(other).catch(() => null), o = oref && strokeCheck(strokes, oref);
-    if (o && o.fit < shape.fit) ok = false;
-  }
-  return { shape, rank, cands: cands || [], ok };
+  // The reader's first guess is another character: check your drawing against that one too.
+  const other = cands?.[0], isOther = other && other !== ch && [...other].length === 1 && HAN.test(other);
+  const oref = shape && isOther && (!ok || rank !== 0) ? await loadRef(other).catch(() => null) : null, o = oref && strokeCheck(strokes, oref, s);
+  // Look-alike guard: if your drawing fits that one better, it isn't green.
+  if (ok && rank !== 0 && o && o.fit < shape.fit) ok = false;
+  // Only say "you wrote 快" when your drawing really is that character: closer to it than to the one asked for, about its
+  // stroke count, not an unfinished try, and every one of its strokes in place ("close" is enough for a one-part swap).
+  // A slip is not another character: a 伞 drawn a bit wrong was read as 拿 (10 strokes, from 7), and Shi Shi said "You wrote 拿".
+  const alt = !ok && o && o.fit < shape.fit && Math.abs(strokes.length - oref.strokes.length) <= 1 && strokes.length >= .7 * ref.strokes.length && (o.ok || o.looseOk)
+    ? { ch: other, sure: o.ok } : null;
+  return { shape, rank, cands: cands || [], ok, alt };
 }
 function verdict(shape, rank) {
   if (!shape && rank === null) return null;                    // offline and no stroke data: the learner decides
@@ -4983,13 +4987,14 @@ function judgeNote(chars) {
   if (J.ok === null) return 'Couldn’t check your writing (offline). Grade yourself.';
   if (J.ok) return '<span class="verdict ok">Correct ✓</span>';
   const i = J.chars.findIndex(j => !j.ok), j = J.chars[i], ch = chars[i], where = chars.length > 1 ? `Box ${i + 1}` : 'Your character';
-  const sh = j.shape, lookalike = j.cands[0] && j.cands[0] !== ch && HAN.test(j.cands[0]) && [...j.cands[0]].length === 1;
+  const sh = j.shape;
   const why = j.empty ? `${where} is empty`
     : sh && sh.badPart ? `${where}: the ${sh.badPart.pos === 'outside' ? 'outer frame' : sh.badPart.pos === 'inside' ? 'inner part' : sh.badPart.pos + ' part'}${sh.badPart.radical ? ' (radical)' : ''} is missing or wrong`
     : sh && sh.missing ? `${where}: ${sh.missing === 1 ? 'a stroke is' : sh.missing + ' strokes are'} missing or in the wrong place`
     : sh && sh.stray ? `${where}: ${sh.stray === 1 ? 'there’s an extra stroke' : sh.stray + ' extra strokes'}`
     : sh && !sh.ok ? `${where}: some ink is off the character`
-    : lookalike ? `${where} looks more like <span class="hz">${esc(j.cands[0])}</span>`
+    : j.alt?.sure ? `${where} looks more like <span class="hz">${esc(j.alt.ch)}</span>`
+    : sh ? `${where}: close, but it doesn’t read clearly as <span class="hz">${esc(ch)}</span> yet`
     : `${where} is hard to read`;
   return `<span class="verdict no">Not quite</span> · ${why}`;
 }
@@ -5875,16 +5880,15 @@ const PART_POS = { '⿰': ['left', 'right'], '⿱': ['top', 'bottom'], '⿲': ['
    other: the checker's reason (empty box, missing strokes). */
 function writeMiss(chars) {
   const J = S.write.judge, i = J.chars.findIndex(j => !j.ok); if (i < 0) return null;
-  const j = J.chars[i], ch = chars[i], w = j.cands?.[0], T = S.P?.by.get(ch);
-  const other = w && w !== ch && [...w].length === 1 && HAN.test(w);
-  if (other && T) {
+  const j = J.chars[i], ch = chars[i], w = j.alt?.ch, T = S.P?.by.get(ch);   // alt: only when your drawing really is another character (judgeChar)
+  if (w && T) {
     const U = S.P.by.get(w);
     if (U && U.op === T.op && U.top.length === T.top.length) {
       const diff = T.top.map((x, k) => x !== U.top[k] ? k : -1).filter(k => k >= 0);
       if (diff.length === 1) return { kind: 'part', i, w, want: T.top[diff[0]], got: U.top[diff[0]], pos: PART_POS[T.op]?.[diff[0]] || '' };
     }
   }
-  if (other) return { kind: 'char', i, w };
+  if (j.alt?.sure) return { kind: 'char', i, w };
   const bp = j.shape?.badPart, d = bp && T ? (PART_POS[T.op] || []).indexOf(bp.pos) : -1;
   if (d >= 0 && T.top[d] && T.top[d] !== '？') return { kind: 'part', i, want: T.top[d], pos: bp.pos };
   return { kind: 'other', i, why: judgeNote(chars).replace(/<[^>]+>/g, '').replace(/^Not quite · /, '') };
@@ -6082,7 +6086,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.13';
+const APP_VERSION = '2.14';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
