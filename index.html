@@ -5068,7 +5068,7 @@ const Trail = (() => {
      (plateau, desert, loess, farmland, grassland, forest), gently lit from the north-west. Under it lie a blue sea with
      pale shallows and the countries around in haze. Everything that stands on the ground (the two great rivers, the Great
      Wall as a dotted line, snowy mountains along the real ranges, mounds, little woods) is drawn fresh on a second canvas
-     whenever the camera moves, so it is sharp at every zoom; closer in, boulders, ferns, flowers and sheep appear. A few
+     whenever the camera moves, so it is sharp at every zoom; closer in, boulders, ferns, flowers and sheep fade in. A few
      clouds float over it all. One finger drags it; a pinch, the wheel or a double tap zooms, from the eastern two thirds
      of the country down to one city. No buttons.
      CAM is the camera: the spot it looks at (x, y in world units) and z = pixels per unit.
@@ -5253,7 +5253,13 @@ const Trail = (() => {
     const L = PROPS.lines ||= { rivers: [new Path2D(line(YANGTZE)), new Path2D(line(YELLOW))], wall: new Path2D(line(WALL)) };
     for (const p of L.rivers) { c.strokeStyle = 'rgba(62,143,184,.25)'; c.lineWidth = 2.8; c.stroke(p); } for (const p of L.rivers) { c.strokeStyle = '#8FD6EF'; c.lineWidth = 1.7; c.stroke(p); }
     c.setLineDash([.1, 3.2]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7; c.stroke(L.wall); c.setLineDash([]);
-    const zh = zHome(), fade = (a, b) => cl((z / zh - a) / (b - a), 0, 1), aRock = fade(1.2, 1.7), aSmall = fade(1.6, 2.3);
+    /* the small things arrive once you are close enough, and then fade in over a moment and stay solid: how see-through they
+       are depends on time, not on how far in you are, so they never sit half-visible. A little slack between the zoom that
+       brings them and the zoom that sends them away keeps them from flickering at the edge. */
+    const now = performance.now(), dt = Math.min(64, now - (PROPS.t || now)), zr = z / zHome(); PROPS.t = now; let moving = false;
+    const shown = (key, on, off) => { const s = PROPS[key] ||= { on: false, a: 0 }; if (zr >= on) s.on = true; else if (zr < off) s.on = false;
+      const to = s.on ? 1 : 0; if (s.a !== to) { s.a = stillMotion() ? to : cl(s.a + (to ? 1 : -1) * dt / 450, 0, 1); if (s.a !== to) moving = true; } return s.a * s.a * (3 - 2 * s.a); };
+    const aRock = shown('rock', 1.45, 1.32), aSmall = shown('small', 1.9, 1.75);
     const x0 = CAM.x - CAM.w / 2 / z - 45, x1 = CAM.x + CAM.w / 2 / z + 45, y0 = CAM.y - CAM.h / 2 / z - 8, y1 = CAM.y + CAM.h / 2 / z + 50;
     const disc = (x, y, r, col) => { c.beginPath(); c.arc(x, y, r, 0, 6.2832); c.fillStyle = col; c.fill(); };
     const ell = (x, y, rx, ry, col) => { c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, 6.2832); c.fillStyle = col; c.fill(); };
@@ -5306,6 +5312,7 @@ const Trail = (() => {
           ell(X, Y - .95, 1.15, .78, '#FBFAF3'); disc(X - .5, Y - 1.35, .45, '#FFFFFF'); disc(X + .35, Y - 1.4, .5, '#FFFFFF'); ell(X + dir * 1.15, Y - 1.05, .42, .36, '#E9DCC8'); }
         c.globalAlpha = 1; }
     }
+    if (!moving) PROPS.t = 0; else if (!PROPS.raf) PROPS.raf = requestAnimationFrame(() => { PROPS.raf = 0; if (cv.isConnected) drawProps(); });   // keep drawing until the fade is done
   }
   /* the five landmarks, small: base at 0 0, building upward; ink outlines like the rest of the app's drawings */
   const C = { r: '#B8322A', r2: '#7E1E18', door: '#5E1813', st: '#F1E8D6', st2: '#CDBDA3', gold: '#E8B44C', gold2: '#B98426', grey: '#737C84', grey2: '#555D65',
@@ -7652,7 +7659,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.34';
+const APP_VERSION = '2.35';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
