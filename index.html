@@ -1422,12 +1422,12 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ld-cap b{font-size:13.5px;font-weight:700;line-height:1.25;color:var(--ink)}
 .ld-cap small{font-size:12px;font-weight:600;color:var(--muted)}
 .ld-item.locked .ld-cap b{color:var(--ink-2)}
-/* ---------- unit stories: a comic about Shi Shi for a unit; his face walks a road to a finish flag ---------- */
+/* ---------- unit comics: a two-part comic about Shi Shi for a unit; his face walks a road to a finish flag ---------- */
 .cm-card{margin:0 0 18px;padding:12px 12px 6px;border-radius:20px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);cursor:pointer}
 .cm-card:active{transform:translateY(2px)}
 .cm-open{display:flex;align-items:center;gap:13px;width:100%;padding:0;text-align:left}
 .cm-open > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
-.cm-thumb{flex:none;width:108px;aspect-ratio:12/7;border-radius:10px;overflow:hidden;background:#3B1A12;box-shadow:0 0 0 2px #3B1A12,0 3px 0 #3B1A12;transform:rotate(-2deg)}
+.cm-thumb{flex:none;width:108px;aspect-ratio:12/7;border-radius:10px;overflow:hidden;background:#241210;box-shadow:0 0 0 2.5px #241210,0 3px 0 #241210;transform:rotate(-2deg)}
 .cm-thumb svg{display:block;width:100%;height:100%}
 .cm-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .cm-meta small{font-size:12.5px;font-weight:700;color:var(--seal)}
@@ -1438,52 +1438,44 @@ button.st-d:active{transform:scale(.9);transition:none}
 .cm-road::after{content:"";position:absolute;left:8px;right:8px;top:5px;border-top:2px dashed rgba(59,26,18,.2)}
 .cm-road i{position:absolute;z-index:1;left:0;top:0;bottom:0;width:calc(20px + var(--p)*(100% - 34px));border-radius:6px;background:#F4C14E;box-shadow:inset 0 0 0 1.5px rgba(59,26,18,.4)}
 .cm-lane{position:absolute;left:20px;right:36px;top:0;bottom:0}
-.cm-stop{position:absolute;top:38px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--card);box-shadow:0 0 0 2px #3B1A12}
-.cm-stop.on{background:#FFD15C}
 .cm-flag{position:absolute;left:100%;top:1px;width:30px;height:46px;margin-left:-5px}
 .cm-flag svg{display:block;width:100%;height:100%;transform-origin:5px 44px}
 .cm-shi{position:absolute;left:calc(var(--p)*100%);top:20px;width:42px;height:42px;margin-left:-21px;filter:drop-shadow(0 2px 0 rgba(59,26,18,.28))}
 .cm-shi .shi-face{display:block;width:100%;height:100%}
-.cm-track.walk .cm-shi{animation:cmWalk 1.5s .5s cubic-bezier(.45,0,.3,1) both}
-.cm-track.walk .cm-road i{animation:cmFill 1.5s .5s cubic-bezier(.45,0,.3,1) both}
-.cm-track.walk .cm-shi .shi-face{animation:cmHop .3s .5s 5 ease-in-out}
-.cm-track.walk.done .cm-flag svg{animation:cmFlag .5s 2s 2 ease-in-out}
+/* he walks on from where you last saw him, once the road is on screen (.go) */
+.cm-track.walk:not(.go) .cm-shi{left:calc(var(--from)*100%)}
+.cm-track.walk:not(.go) .cm-road i{width:calc(20px + var(--from)*(100% - 34px))}
+.cm-track.walk.go .cm-shi{animation:cmWalk 1.5s .35s cubic-bezier(.45,0,.3,1) both}
+.cm-track.walk.go .cm-road i{animation:cmFill 1.5s .35s cubic-bezier(.45,0,.3,1) both}
+.cm-track.walk.go .cm-shi .shi-face{animation:cmHop .3s .35s 5 ease-in-out}
+.cm-track.walk.go.done .cm-flag svg{animation:cmFlag .5s 1.85s 2 ease-in-out}
 @keyframes cmWalk{from{left:calc(var(--from)*100%)}}
 @keyframes cmFill{from{width:calc(20px + var(--from)*(100% - 34px))}}
 @keyframes cmHop{50%{transform:translateY(-6px) rotate(-7deg)}}
 @keyframes cmFlag{50%{transform:rotate(9deg)}}
-/* the comic, full screen */
-#ob.cm .ob-dock{z-index:3}
-.cm-top span{font-size:13.5px;font-weight:700;color:var(--muted)}
-.cm-head small{font-size:13.5px;font-weight:700;color:var(--seal)}
-.cm-head h2{margin:2px 0 0;font:600 30px/1.08 var(--display);letter-spacing:-.02em;text-wrap:balance}
-.cm-head h2 span{margin-left:4px;font-family:var(--hanzi);font-weight:600;font-size:.74em;letter-spacing:0;color:var(--seal);white-space:nowrap}
-.cm-way{margin:16px 0 0;padding:4px 14px 14px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+/* the comic, full screen: a dark sheet the pages fill from edge to edge */
+#ob.cm{background:#241210}
+#ob.cm .ob-in{padding:0}
+.cm-bar{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:4px;flex:none;height:calc(46px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 14px 0 4px;background:#241210;color:#FFF3E2}
+.cm-bar .icon-btn{color:#FFF3E2}
+.cm-bar b{flex:1;min-width:0;font:600 17px/1.1 var(--display);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-bar span{flex:none;font-size:13px;font-weight:700;color:#BFA994}
+.cm-sheet{margin:0;scroll-margin-top:46px}
+.cm-sheet svg{display:block;width:100%;height:auto}
+.cm-sheet.new svg{animation:cmPop .7s 2.4s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes cmPop{from{opacity:0;transform:translateY(40px) scale(.94)}}
+.cm-says{display:flex;flex-wrap:wrap;gap:4px 18px;margin:14px 18px 0;font-size:13.5px;line-height:1.5;color:#D8C5B0}
+.cm-says b{margin-right:6px;font-family:var(--hanzi);font-weight:600;font-size:17px;color:#FFF3E2}
+.cm-says i{margin-right:6px;font-style:normal;font-weight:700;color:#F4C14E}
+.cm-way{margin:24px 14px 24px;padding:4px 14px 14px;border-radius:18px;background:var(--card)}
 .cm-way p{margin:8px 0 0;font-size:13.5px;line-height:1.42;color:var(--ink-2)}
 .cm-way p b{color:var(--ink)}
 .cm-way .cm-count{margin-top:6px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
-.cm-pages{display:flex;flex-direction:column;gap:26px;margin:24px 0 10px}
-.cm-page{margin:0}
-.cm-art{position:relative;border-radius:14px;background:#3B1A12;box-shadow:0 0 0 2.5px #3B1A12,0 5px 0 #3B1A12;transform:rotate(-.7deg)}
-.cm-page:nth-child(even) .cm-art{transform:rotate(.6deg)}
-.cm-art svg{display:block;width:100%;height:auto;border-radius:14px}
-.cm-art em{position:absolute;right:-6px;top:-10px;padding:4px 11px 5px;border-radius:9px;background:#FFD15C;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12,0 3px 0 #3B1A12;font:600 13px/1 var(--display);font-style:normal;transform:rotate(7deg)}
-.cm-page figcaption{position:relative;z-index:1;margin:-11px 8px 0 14px}
-.cm-cap{display:inline-block;margin:0;padding:9px 13px 10px;border-radius:5px;background:#FFF1B8;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12,3px 4px 0 #3B1A12;font:500 15px/1.36 var(--display);transform:rotate(-.5deg)}
-.cm-page:nth-child(even) .cm-cap{transform:rotate(.4deg)}
-.cm-says{display:flex;flex-wrap:wrap;gap:4px 16px;margin:13px 0 0 2px;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
-.cm-says b{margin-right:6px;font-family:var(--hanzi);font-weight:600;font-size:17px;color:var(--ink)}
-.cm-says i{margin-right:6px;font-style:normal;font-weight:700;color:var(--seal)}
-.cm-page.new .cm-art{animation:cmPop .6s calc(2.1s + var(--k,0)*.3s) cubic-bezier(.2,.9,.3,1.25) both}
-.cm-page.new figcaption{animation:fadeIn .4s calc(2.5s + var(--k,0)*.3s) both}
-@keyframes cmPop{from{opacity:0;transform:translateY(26px) scale(.9) rotate(-3deg)}}
-.cm-lock{display:flex;align-items:center;justify-content:center;gap:8px;height:74px;border-radius:14px;border:2.5px dashed var(--line-2);color:var(--muted);font-size:14px}
-.cm-lock svg.i{width:20px;height:20px}
-.cm-lock b{font-weight:700}
-.cm-lock span::before{content:"· "}
-.cm-end{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 6px;font:600 17px var(--display);color:var(--ink)}
-.cm-end i{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--seal);color:#fff;font:600 20px var(--hanzi);font-style:normal;transform:rotate(-6deg)}
-@media (prefers-reduced-motion:reduce){.cm-track.walk .cm-shi,.cm-track.walk .cm-road i,.cm-track.walk .cm-shi .shi-face,.cm-track.walk.done .cm-flag svg,.cm-page.new .cm-art,.cm-page.new figcaption{animation:none}}
+.cm-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:170px;margin:0 14px;padding:18px;border-radius:16px;border:2.5px dashed #6E574A;color:#BFA994;font-size:13.5px;line-height:1.4;text-align:center}
+.cm-lock svg.i{width:26px;height:26px}
+.cm-lock b{font:600 17px var(--display);color:#FFF3E2}
+#ob.cm .ob-dock{z-index:3;padding-left:20px;padding-right:20px;background:linear-gradient(transparent,#241210 30%)}
+@media (prefers-reduced-motion:reduce){.cm-track.walk.go .cm-shi,.cm-track.walk.go .cm-road i,.cm-track.walk.go .cm-shi .shi-face,.cm-track.walk.go.done .cm-flag svg,.cm-sheet.new svg{animation:none}}
 /* the unit test: a wide card after the unit's lessons */
 .ld-test{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:10px 16px 10px 10px;border-radius:16px;background:var(--card);text-align:left;
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
@@ -3151,187 +3143,163 @@ function ldNext(next, due) {   // Up next: the lesson (or unit test) you're on, 
     <p class="ld-plan"><b>${esc(L.words.join(' '))}</b><br>${lesPlan(L)}</p>
     <button class="btn btn-seal wide" data-act="les-go" data-n="${L.n}">Start lesson</button></section>`;
 }
-/* ---------- Unit stories ----------
-   A unit can have a short comic about Shi Shi: COMIC[unit] = a title and 4 to 6 pages, drawn with the Learn tab's scene kit
-   (CRS.kit). The story moves with the unit's words: Shi Shi takes one step for every word of the unit that is in the word
-   bank and one more when that word is proven, so a unit of 36 words is 72 steps. His face walks along a road to a finish
-   flag; each page opens at its own share of the way (at: 0 to 1) and the last one, the happy ending, at the flag.
-   The unit's card on the lessons page shows the newest open page and the road; a tap opens the comic. A page that has
-   just opened is shown once by itself when you come back to the lessons. db.comic = { unit: { open, p } } is what you
-   have already seen: how many pages, and how far along the road. Only Unit 1 has a story for now. */
+/* ---------- Unit comics ----------
+   A unit can have a comic about Shi Shi in two parts (COMIC[unit]), as in a game's story mode. Each part is one full
+   page of three slanted panels on a dark sheet, drawn with the Learn tab's scene kit (CRS.kit) on a 360 by 600 canvas.
+   Part 1 is there from the start and ends on the cliffhanger; part 2, the happy ending, opens when the unit is done.
+   The comic moves with the unit's words: Shi Shi takes one step for every word of the unit that is in the word bank
+   and one more when that word is proven, so a unit of 36 words is 72 steps. His face walks along a road to a finish
+   flag (at: the share of the way a part opens at, 0 and 1). The unit's card on the lessons page shows a panel and the
+   road; a tap opens the comic. Part 1 shows by itself the first time you open the lessons, part 2 when Shi Shi reaches
+   the flag. db.comic = { unit: { open, p } } is what you have already seen: how many parts, and how far along the
+   road. Only Unit 1 has a comic for now. */
 const COMIC = (() => {
-  const { red, gold, gold2, ln, fl, wood, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, bg, karst, roof, pagoda, xcloud, lantern, burst, bubble } = CRS.kit;
-  const say = (x, y, txt, size, tx, ty, col) => bubble(x, y, [...txt].length * size * 1.02 + 22, size + 15, tx, ty, txt, size, col);
-  const pave = (y, fill, seam) => `<path d="M-10 ${y}H370V220H-10Z" fill="${fill}"/><path d="M-10 ${y}H370" stroke="${ln}" stroke-width="3"/><path d="M30 ${y + 16}h34M120 ${y + 30}h40M214 ${y + 14}h30M286 ${y + 34}h38M70 ${y + 44}h30M180 ${y + 50}h36" stroke="${seam}" stroke-width="3" stroke-linecap="round"/>`;
-  const house = (x, w, top, base, wall, rf) => `<rect x="${x - w / 2}" y="${top}" width="${w}" height="${base - top}" fill="${wall}" stroke="${ln}" stroke-width="3"/>`
-    + `<path d="M${x - 11} ${base}V${base - 28}A11 11 0 0 1 ${x + 11} ${base - 28}V${base}Z" fill="#7A4A2A" stroke="${ln}" stroke-width="2.5"/>`
-    + [-1, 1].map(k => { const wx = x + k * w * .31; return `<rect x="${wx - 8}" y="${top + 16}" width="16" height="16" rx="2" fill="#FFE9A8" stroke="${ln}" stroke-width="2.5"/><path d="M${wx} ${top + 16}v16M${wx - 8} ${top + 24}h16" stroke="${ln}" stroke-width="1.6"/>`; }).join('')
-    + roof(x, top, w + 6, 13, rf);
-  const shade = (x, y, rx) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx * .17}" fill="#000" opacity=".13"/>`;
-  const orange = (x, y, r = 7) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#F7A03C" stroke="${ln}" stroke-width="2.5"/><path d="M${x - 1} ${y - r}q2 -4 5 -4" fill="none" stroke="#2E9466" stroke-width="2.5" stroke-linecap="round"/>`;
+  const { red, gold, gold2, ln, fl, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, roof, lantern, burst, bubble } = CRS.kit;
+  const sky = (id, y, h, a, b) => `<defs><linearGradient id="cmg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-10" y="${y}" width="380" height="${h}" fill="url(#cmg${id})"/>`;
+  /* comic rays: wedges fanning out from a point */
+  const rays = (cx, cy, r, n, fill, op = 1) => `<path d="${Array.from({ length: n }, (_, i) => { const a = i * 2 * Math.PI / n, b = a + Math.PI / n * .9; return `M${cx} ${cy}L${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}L${(cx + r * Math.cos(b)).toFixed(1)} ${(cy + r * Math.sin(b)).toFixed(1)}Z`; }).join('')}" fill="${fill}" opacity="${op}"/>`;
+  /* a spiky shout bubble */
+  const shout = (x, y, rx, ry, txt, size, col = red, rot = 0) => `<g transform="rotate(${rot} ${x} ${y})"><path d="M${Array.from({ length: 24 }, (_, i) => { const a = i * Math.PI / 12, k = i % 2 ? .76 : 1; return `${(x + rx * k * Math.cos(a)).toFixed(1)} ${(y + ry * k * Math.sin(a)).toFixed(1)}`; }).join('L')}Z" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/>${hz(x, y + 1, txt, size, 0, col)}</g>`;
+  /* the storyteller's yellow box */
+  const note = (x, y, w, lines, size = 11.5) => (w = Math.max(w, Math.max(...lines.map(t => t.length)) * size * .53 + 16), '') + `<rect x="${x}" y="${y}" width="${w}" height="${lines.length * size * 1.32 + 10}" rx="2" fill="#FFF1B8" stroke="${ln}" stroke-width="2.5"/>`
+    + lines.map((t, i) => `<text x="${x + 8}" y="${y + 6 + size * .86 + i * size * 1.32}" fill="${ln}" style="font:600 ${size}px var(--display)">${t}</text>`).join('');
+  /* big lettering with a hard shadow */
+  const sfx = (x, y, txt, size, rot, fill) => hzO(x + 4, y + 4, txt, size, rot, ln) + hzO(x, y, txt, size, rot, fill);
   const string = (d, col, ls) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="2"/>` + ls.map(([x, y, g]) => lantern(x, y, .5, g)).join('');
-  const drum = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#D9443A" stroke="${ln}" stroke-width="3.5"/><circle cx="${x}" cy="${y}" r="${r * .74}" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/>`
-    + Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<circle cx="${(x + r * .87 * Math.cos(a)).toFixed(1)}" cy="${(y + r * .87 * Math.sin(a)).toFixed(1)}" r="2.2" fill="${gold}"/>`; }).join('');
+  const shade = (x, y, rx, op = .2) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx * .17}" fill="#000" opacity="${op}"/>`;
+  /* something drawn on a friend's own 200 by 200 body (a frown, a roar), placed like friend() */
+  const onFriend = (x, y, s, inner, r = 0) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s}) translate(-100 -100)">${inner}</g>`;
+  const frown = `<path d="M60 62L90 74M140 62L110 74" stroke="#2A1A0E" stroke-width="7" stroke-linecap="round"/>`;
+  const roar = `<path d="M84 107Q100 99 116 107Q114 130 100 130Q86 130 84 107Z" fill="#7E1D19" stroke="#8A4410" stroke-width="3" stroke-linejoin="round"/><path d="M89 107L93 115L97 106ZM103 106L107 115L111 107Z" fill="#fff"/><ellipse cx="100" cy="123" rx="7" ry="4" fill="#FF8A96"/>`;
+  /* the town gate: two red pillars, a blue beam, a green roof and the 入门 sign; inside is whatever is drawn first */
+  const gate = (x, top, base, half) => [-1, 1].map(k => `<rect x="${x + k * half - 6.5}" y="${top}" width="13" height="${base - top}" fill="#D9443A" stroke="${ln}" stroke-width="3"/>`).join('')
+    + `<rect x="${x - half - 18}" y="${top + 4}" width="${half * 2 + 36}" height="13" fill="#3E7FB1" stroke="${ln}" stroke-width="3"/>${[-.7, -.35, 0, .35, .7].map(k => `<circle cx="${x + k * half * 1.1}" cy="${top + 10.5}" r="2.6" fill="${gold}"/>`).join('')}`
+    + roof(x, top, half * 2 + 50, 14, '#2C5A4F') + `<rect x="${x - 26}" y="${top + 17}" width="52" height="25" rx="3" fill="${gold2}" stroke="${ln}" stroke-width="3"/>${hz(x, top + 30, '入门', 16, 0, fl)}`;
+  const doors = (x, top, base, half, bar) => `<rect x="${x - half}" y="${top}" width="${half * 2}" height="${base - top}" fill="#B8332C" stroke="${ln}" stroke-width="3.5"/><path d="M${x} ${top}V${base}" stroke="${ln}" stroke-width="3"/>`
+    + [-1, 1].flatMap(k => [.3, .7].flatMap(u => [.14, .34, .7, .9].map(v => `<circle cx="${(x + k * half * u).toFixed(1)}" cy="${(top + (base - top) * v).toFixed(1)}" r="3" fill="${gold}" stroke="${ln}" stroke-width="1.2"/>`))).join('')
+    + (bar ? `<rect x="${x - half - 8}" y="${top + (base - top) * .46}" width="${half * 2 + 16}" height="15" rx="4" fill="${woodD}" stroke="${ln}" stroke-width="3"/>` : '');
+  const confetti = (pts) => pts.map(([x, y, r, c]) => `<rect x="${x}" y="${y}" width="8" height="4.5" rx="1" fill="${c}" transform="rotate(${r} ${x} ${y})"/>`).join('');
 
-  const pages = [
-    /* 1. Lost for words: the street behind the gate. Everyone greets everyone; Shi Shi stands alone in the middle */
-    { at: 0, cap: 'Shi Shi is new in town. Everybody says the same two characters to each other, and he has no idea what they mean.', says: [],
-      art: () => bg('#CFEBE4', '#9FD2C2')
-        + xcloud(74, 24, .7, '#EEF9F5') + xcloud(290, 30, .55, '#EEF9F5')
-        + karst(150, '#A9D8C8', [[24, 78, 34], [118, 50, 36], [338, 84, 34]]) + pagoda(244, 92, .5, '#A9D8C8')
-        + house(50, 90, 86, 150, '#FFF6E6', '#3F5F6B') + house(180, 106, 72, 150, '#FBEBD0', '#2C5A4F') + house(310, 90, 88, 150, '#FFF6E6', '#3F5F6B')
-        + string('M-4 44Q90 66 180 52T364 44', '#5A3520', [[112, 76], [250, 74]])
-        + pave(150, '#E9D7AE', '#D3BD8C')
-        + friend('rabbit', 40, 154, .25) + friend('tiger', 100, 158, .22, 0, true)
-        + friend('panda', 266, 158, .23) + friend('dragon', 324, 154, .25, 0, true)
-        + say(70, 102, '你好!', 15, 50, 128) + say(296, 102, '你好!', 15, 312, 128)
-        + shade(184, 189, 36) + lion(184, 150, .42, 'lost', -4) + sweat(218, 132, .9)
-        + hzO(226, 108, '?', 28, 14) + hzO(146, 114, '?', 19, -16) },
+  const part1 = { at: 0, name: 'Part 1', says: [['你是谁？', 'nǐ shì shéi', 'who are you?'], ['不！', 'bù', 'no!'], ['一、二、三', 'yī, èr, sān', 'one, two, three']], panels: [
+    /* 1. Festival night: Shi Shi races to the town gate; inside, the town is waiting for its lion */
+    { clip: '0,0 360,0 360,168 0,196', box: [0, 0, 360, 196], art: () => sky('a', 0, 210, '#1B1750', '#5A2E8C')
+      + `<circle cx="190" cy="28" r="17" fill="#FFF3C4"/><circle cx="184" cy="23" r="3.5" fill="#EBDDA6"/><circle cx="196" cy="34" r="2.6" fill="#EBDDA6"/>`
+      + burst(322, 36, 24, gold) + burst(236, 24, 14, '#FFB4A6') + star(280, 70, 3, '#fff') + star(40, 82, 3, '#fff')
+      + `<rect x="-10" y="102" width="380" height="110" fill="#6A2A5E" stroke="${ln}" stroke-width="3"/><rect x="-10" y="93" width="380" height="11" fill="#2C2350" stroke="${ln}" stroke-width="2.5"/>`
+      + `<rect x="208" y="98" width="108" height="112" fill="#FFD98A"/>` + rays(262, 190, 110, 16, '#FFF3C4', .55)
+      + `<path d="M208 132Q262 146 316 132" fill="none" stroke="${ln}" stroke-width="1.6"/>${[226, 262, 298].map(x => `<ellipse cx="${x}" cy="${x === 262 ? 146 : 142}" rx="6" ry="5" fill="${red}" stroke="${ln}" stroke-width="1.6"/>`).join('')}`
+      + [220, 240, 284, 304].map((x, i) => `<circle cx="${x}" cy="${176 + (i % 2) * 4}" r="9" fill="#C9873A"/>`).join('')
+      + gate(262, 58, 212, 60) + lantern(182, 112, .6, gold) + lantern(342, 112, .6, gold)
+      + `<path d="M-10 178H370V215H-10Z" fill="#3A2A6E"/><path d="M-10 178H202M322 178H370" stroke="${ln}" stroke-width="3"/><path d="M208 178L160 215H370L316 178Z" fill="#FFD98A" opacity=".4"/>`
+      + `<path d="M8 124h34M0 142h30M12 160h26" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>`
+      + shade(100, 186, 38) + lion(100, 138, .52, 'cheer', 8)
+      + note(8, 8, 124, ['Lantern festival night!', 'The town is waiting', 'for its lion.']) },
+    /* 2. The face-off: Hu Hu guards the gate and roars a question; Shi Shi has no words */
+    { clip: '0,203 360,175 360,372 0,352', box: [0, 175, 360, 197], art: () => `<rect x="-10" y="170" width="380" height="210" fill="#F0703C"/>` + rays(80, 296, 230, 14, '#FFA05C', .7)
+      + `<path d="M224 170L172 380H370V170Z" fill="#3E8FC4"/>` + `<clipPath id="cmcR"><path d="M224 170L172 380H370V170Z"/></clipPath><g clip-path="url(#cmcR)">${rays(292, 270, 210, 14, '#62AEDD', .8)}</g>`
+      + `<path d="M232 170L198 262L216 268L176 380L190 380L236 256L218 250L246 170Z" fill="#FFE58A" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + friend('tiger', 78, 304, .8) + onFriend(78, 304, .8, frown + roar)
+      + shout(134, 222, 86, 27, '你是谁?!', 26)
+      + lion(292, 268, .6, 'oops', 6, false) + sweat(238, 240, 1.2) + sweat(346, 256, 1)
+      + hzO(338, 214, '?', 30, 14) + hzO(262, 206, '?', 22, -14)
+      + note(222, 322, 126, ['He does not know', 'a single word.']) },
+    /* 3. The cliffhanger: the gate slams shut, the count for the dance begins, and the lion is outside */
+    { clip: '0,359 360,379 360,600 0,600', box: [0, 359, 360, 241], art: () => sky('c', 350, 260, '#231A56', '#6B3FA0')
+      + burst(200, 398, 16, '#FFB4A6') + burst(336, 404, 13, '#FFE58A') + star(170, 420, 3, '#fff') + star(300, 392, 3, '#fff')
+      + friend('tiger', 128, 420, .34) + onFriend(128, 420, .34, frown + roar)
+      + `<rect x="-10" y="438" width="380" height="132" fill="#7A2E4E" stroke="${ln}" stroke-width="3"/><rect x="-10" y="428" width="380" height="12" fill="#2C2350" stroke="${ln}" stroke-width="2.5"/>`
+      + doors(128, 446, 568, 58, true) + [-1, 1].map(k => `<rect x="${128 + k * 64 - 6.5}" y="438" width="13" height="130" fill="#D9443A" stroke="${ln}" stroke-width="3"/>`).join('')
+      + `<path d="M52 452l-14 -8M48 500h-16M204 452l14 -8M208 500h16M52 548l-14 8M204 548l14 8" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`
+      + bubble(52, 392, 94, 26, 28, 430, '一, 二, 三...', 14)
+      + sfx(272, 462, '不!', 86, -8, red)
+      + `<path d="M-10 568H370V610H-10Z" fill="#33255F"/><path d="M-10 568H370" stroke="${ln}" stroke-width="3"/><ellipse cx="270" cy="584" rx="62" ry="10" fill="#FFF3C4" opacity=".25"/>`
+      + lion(270, 540, .46, 'miss', -6) + sweat(240, 552, .8) + sweat(300, 556, .7)
+      + note(10, 548, 144, ['The dance is starting…', 'without its lion!']) },
+  ] };
 
-    /* 2. The first word: at the tea house Shi Shi tries 你好 on Gun Gun, who says it back */
-    { at: .08, cap: 'He tries his very first word on Gun Gun at the tea house. And Gun Gun says it right back!', says: [['你好', 'nǐ hǎo', 'hello']],
-      art: () => bg('#FFE7B0', '#FFCB7A')
-        + xcloud(52, 28, .7, '#FFF6DC') + star(150, 30, 6, '#fff') + star(26, 84, 5, '#fff')
-        + karst(162, '#F3C06A', [[10, 64, 40], [84, 46, 34]])
-        + `<rect x="168" y="64" width="200" height="98" fill="#FFF3DC" stroke="${ln}" stroke-width="3"/><rect x="184" y="74" width="184" height="56" fill="#6B4428"/>`
-        + `<path d="M196 96H360" stroke="#8A5A2E" stroke-width="4"/>${[204, 226, 300, 322, 344].map((x, i) => `<rect x="${x}" y="82" width="13" height="14" rx="3" fill="${['#8FD3C0', '#FFD15C', '#FF9A8A', '#8FD3C0', '#FFD15C'][i]}" stroke="${ln}" stroke-width="2"/>`).join('')}`
-        + friend('panda', 262, 114, .3, 0, false, true)
-        + `<rect x="170" y="64" width="13" height="98" fill="#D9443A" stroke="${ln}" stroke-width="3"/>`
-        + `<rect x="183" y="130" width="186" height="32" fill="${wood}" stroke="${ln}" stroke-width="3"/><path d="M183 140H369" stroke="${woodD}" stroke-width="2"/>`
-        + `<path d="M306 118q-12 -6 -12 6M338 112q12 0 10 12" fill="none" stroke="${ln}" stroke-width="3" stroke-linecap="round"/><ellipse cx="322" cy="118" rx="16" ry="12" fill="#8FD3C0" stroke="${ln}" stroke-width="3"/><rect x="315" y="103" width="14" height="5" rx="2" fill="#5FB8A2" stroke="${ln}" stroke-width="2.5"/><path d="M318 96q-4 -6 0 -10M326 96q4 -6 0 -10" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>`
-        + `<rect x="196" y="121" width="12" height="9" rx="2" fill="#fff" stroke="${ln}" stroke-width="2.2"/><rect x="214" y="121" width="12" height="9" rx="2" fill="#fff" stroke="${ln}" stroke-width="2.2"/>`
-        + roof(268, 64, 204, 18, '#2C5A4F')
-        + `<path d="M150 74H172" stroke="${ln}" stroke-width="3"/><rect x="140" y="76" width="24" height="46" rx="3" fill="${gold2}" stroke="${ln}" stroke-width="3"/>${hz(152, 99, '茶', 17, 0, fl)}`
-        + pave(162, '#EBCF96', '#D4B575')
-        + shade(88, 183, 38) + arm(112, 130, 132, 104) + lion(88, 140, .46, 'cheer') + paw(134, 101, 24)
-        + say(82, 50, '你好!', 21, 92, 100) + say(218, 92, '你好!', 14, 243, 108) },
-
-    /* 3. Sorry: Shi Shi runs into Hu Hu's fruit cart and the oranges fly; 对不起 and 没关系 */
-    { at: .25, cap: 'Crash! Hu Hu’s oranges roll all over the street. Lucky that Shi Shi can say sorry now.', says: [['对不起', 'duìbuqǐ', 'sorry'], ['没关系', 'méi guānxi', 'it’s OK']],
-      art: () => bg('#A8E0F7', '#DDF3F4')
-        + xcloud(300, 22, .7) + xcloud(150, 16, .5) + pagoda(34, 92, .55, '#8CCBE6')
-        + `<rect x="-10" y="98" width="380" height="60" fill="#FFF6E6" stroke="${ln}" stroke-width="3"/><rect x="-10" y="88" width="380" height="11" fill="#3F5F6B" stroke="${ln}" stroke-width="2.5"/>`
-        + `<circle cx="30" cy="128" r="17" fill="#BFE7D2" stroke="${ln}" stroke-width="3"/><path d="M30 111V145M13 128H47" stroke="${ln}" stroke-width="2"/>`
-        + pave(158, '#E7D3A7', '#CDB684')
-        /* the cart, knocked askew */
-        + `<g transform="rotate(5 220 150)"><path d="M178 78V150M262 78V150" stroke="${woodD}" stroke-width="5" stroke-linecap="round"/>`
-        + `<path d="M166 56H274L284 82H156Z" fill="#fff" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M184 56H202L199 82H178ZM220 56H238L241 82H220ZM256 56H274L284 82H262Z" fill="${red}"/><path d="M166 56H274L284 82H156Z" fill="none" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
-        + orange(196, 112) + orange(212, 110) + orange(230, 112) + orange(246, 110) + orange(204, 100) + orange(222, 99) + orange(239, 100)
-        + `<rect x="170" y="116" width="100" height="34" rx="4" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="196" y="123" width="48" height="20" rx="3" fill="#2E9466" stroke="${ln}" stroke-width="2.5"/>${hz(220, 133.5, '水果', 13, 0, '#fff')}`
-        + `<circle cx="192" cy="158" r="15" fill="#8A5A2E" stroke="${ln}" stroke-width="3"/><circle cx="192" cy="158" r="4" fill="${gold2}"/><circle cx="250" cy="158" r="15" fill="#8A5A2E" stroke="${ln}" stroke-width="3"/><circle cx="250" cy="158" r="4" fill="${gold2}"/></g>`
-        + shade(322, 180, 26) + friend('tiger', 322, 150, .31, 0, true)
-        + burst(148, 128, 17, '#fff')
-        + orange(150, 88) + orange(126, 76, 6) + orange(170, 70, 6) + orange(142, 188) + orange(118, 196, 6) + orange(206, 192) + orange(268, 186, 6)
-        + shade(84, 187, 36) + lion(84, 146, .44, 'oops', -12) + sweat(52, 122, .9)
-        + say(84, 44, '对不起!', 18, 88, 96) + say(312, 82, '没关系!', 15, 322, 124, '#2E9E6B') },
-
-    /* 4. A name: on the old stone bridge Yu Tu asks 你叫什么名字 and Shi Shi can answer */
-    { at: .45, cap: 'On the old bridge, Yu Tu asks who he is. This time he has an answer.', says: [['你叫什么名字？', 'nǐ jiào shénme míngzi', 'what’s your name?'], ['我叫狮狮', 'wǒ jiào Shīshi', 'my name is Shi Shi']],
-      art: () => bg('#BDE8F5', '#FBE9BE')
-        + xcloud(190, 60, .5, '#fff') + xcloud(340, 44, .5, '#fff')
-        + karst(152, '#9ED3C0', [[16, 56, 36], [336, 80, 36], [276, 50, 30]]) + pagoda(318, 112, .5, '#7FBFA8')
-        + `<path d="M-10 150H370V176H-10Z" fill="#6FBF94"/><path d="M-10 170H370V220H-10Z" fill="#69BBD6"/>`
-        + `<path d="M20 190h40M286 196h44M150 204h60M66 208h28" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>`
-        /* willow */
-        + `<path d="M22 176Q14 124 30 86" fill="none" stroke="#6B4428" stroke-width="7" stroke-linecap="round"/><path d="M30 86Q4 92 2 136M30 86Q18 100 20 150M30 86Q44 96 44 142M30 86Q60 90 64 128M30 86Q34 76 52 78" fill="none" stroke="#4FA873" stroke-width="5" stroke-linecap="round"/>`
-        /* the bridge: far rail, then the stone */
-        + `<path d="M-10 158Q180 48 370 158" fill="none" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M-10 158Q180 48 370 158" fill="none" stroke="#F4EEDF" stroke-width="3.5"/>`
-        + [[40, 146], [86, 127], [136, 112], [180, 106], [224, 112], [274, 127], [320, 146]].map(([x, y]) => `<rect x="${x - 3.5}" y="${y - 6}" width="7" height="24" rx="2" fill="#F4EEDF" stroke="${ln}" stroke-width="2.5"/>`).join('')
-        + `<path d="M-10 172Q180 62 370 172V214H-10Z" fill="#E4DCCB" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M110 214A70 64 0 0 1 250 214Z" fill="#4E9DB8" stroke="${ln}" stroke-width="3"/><path d="M60 170h22M290 176h22M40 196h20M300 200h24" stroke="#C9BFA8" stroke-width="3" stroke-linecap="round"/>`
-        + friend('rabbit', 114, 102, .28, 0, false, true)
-        + arm(258, 94, 276, 72) + lion(236, 86, .42, 'cheer') + paw(278, 69, 22)
-        + say(92, 40, '你叫什么名字?', 14, 110, 76) + say(262, 22, '我叫狮狮!', 15, 244, 52) },
-
-    /* 5. The drum: sunset in the temple courtyard; Long Long counts Shi Shi in for the lion dance */
-    { at: .7, cap: 'Tonight is the lantern festival, and the town needs a lion. Long Long counts him in.', says: [['一、二、三', 'yī, èr, sān', 'one, two, three']],
-      art: () => bg('#FFC27A', '#F58A5B')
-        + `<circle cx="64" cy="60" r="32" fill="#FFE58A" opacity=".9"/>` + xcloud(250, 26, .6, '#FFE3B8')
-        + `<rect x="-10" y="94" width="380" height="64" fill="#C43A2F" stroke="${ln}" stroke-width="3"/>${[28, 96, 264, 332].map(x => `<rect x="${x - 4}" y="96" width="8" height="60" fill="#A42A22"/>`).join('')}`
-        + `<path d="M150 158V126A30 30 0 0 1 210 126V158Z" fill="#7A1C16" stroke="${ln}" stroke-width="3"/><path d="M180 98V158" stroke="${ln}" stroke-width="2"/>${[164, 196].map(x => [128, 142].map(y => `<circle cx="${x}" cy="${y}" r="2.4" fill="${gold}"/>`).join('')).join('')}`
-        + roof(180, 94, 330, 20, '#E8A33C', ln, '#E8A33C')
-        + lantern(18, 126, .5, gold) + lantern(346, 126, .5, gold)
-        + pave(158, '#E8C48E', '#CFA76B')
-        + `<path d="M228 190L242 152M280 190L266 152" stroke="${ln}" stroke-width="9" stroke-linecap="round"/><path d="M228 190L242 152M280 190L266 152" stroke="${woodD}" stroke-width="5" stroke-linecap="round"/>`
-        + drum(254, 126, 37)
-        + `<path d="M206 102l-11 -7M201 126h-13M206 150l-11 7" stroke="${ln}" stroke-width="3.5" stroke-linecap="round"/>`
-        + shade(322, 176, 24) + friend('dragon', 322, 148, .3, 0, true)
-        + `<path d="M304 146L282 122" stroke="${ln}" stroke-width="7" stroke-linecap="round"/><path d="M304 146L282 122" stroke="${wood}" stroke-width="3.5" stroke-linecap="round"/><circle cx="281" cy="121" r="5" fill="${red}" stroke="${ln}" stroke-width="2.5"/>`
-        + bubble(292, 50, 112, 32, 318, 124, '一, 二, 三!', 18)
-        + shade(92, 185, 38) + arm(68, 134, 52, 112) + arm(116, 134, 132, 112) + lion(92, 142, .46, 'fire', 3) + paw(50, 109, -22) + paw(134, 109, 22) },
-
-    /* 6. The happy ending: festival night, fireworks, the whole town greets the lion on the drum */
-    { at: 1, cap: 'Shi Shi dances for the whole town. Now everybody says hello to him.', says: [['你好，狮狮！', 'nǐ hǎo, Shīshi', 'hello, Shi Shi!']],
-      art: () => bg('#2A1E5E', '#7A3F9E')
-        + burst(52, 62, 28, gold) + burst(308, 66, 32, '#FFB4A6') + burst(340, 128, 16, gold) + burst(20, 124, 15, '#FFB4A6')
-        + star(118, 62, 4, '#FFE58A') + star(250, 66, 4, gold) + star(86, 112, 3, '#fff') + star(282, 116, 3, '#fff')
-        + `<path d="M-10 152H34V124H104V152H126V110H234V152H258V126H326V152H370V220H-10Z" fill="#3B2A78"/>` + roof(69, 124, 70, 10, '#2F2168', '#2F2168') + roof(180, 110, 108, 12, '#2F2168', '#2F2168') + roof(292, 126, 68, 10, '#2F2168', '#2F2168')
-        + [[58, 134], [84, 134], [146, 124], [214, 124], [280, 136], [306, 136]].map(([x, y]) => `<rect x="${x - 6}" y="${y}" width="12" height="10" fill="#FFD98A" opacity=".85"/>`).join('')
-        + string('M-4 64Q90 92 180 78T364 64', '#1B1340', [[40, 100, gold], [112, 110, gold], [250, 110, gold], [322, 100, gold]])
-        + `<path d="M-10 172H370V220H-10Z" fill="#4A3589"/><path d="M-10 172H370" stroke="${ln}" stroke-width="3"/>`
-        + friend('dragon', 46, 164, .27, -6) + friend('tiger', 106, 172, .22, 0, true) + friend('panda', 256, 172, .23, 0, false, true) + friend('rabbit', 314, 164, .27, 6, false, true)
-        + `<rect x="146" y="154" width="68" height="36" rx="8" fill="${red}" stroke="${ln}" stroke-width="3.5"/><path d="M148 164H212M148 180H212" stroke="${gold}" stroke-width="3"/>${[160, 180, 200].map(x => `<circle cx="${x}" cy="172" r="2.4" fill="${gold}"/>`).join('')}<ellipse cx="180" cy="154" rx="34" ry="7" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/>`
-        + arm(156, 104, 136, 74) + arm(204, 104, 224, 74) + lion(180, 110, .48, 'star') + paw(134, 71, -22) + paw(226, 71, 22)
-        + [[104, 50, 20, red], [262, 52, -30, gold], [150, 66, 40, '#8FD3C0'], [222, 62, -15, '#FF9AA6'], [78, 88, 60, gold], [290, 92, 10, '#8FD3C0'], [128, 92, -40, '#FF9AA6'], [240, 96, 30, red]].map(([x, y, r, c]) => `<rect x="${x}" y="${y}" width="7" height="4" rx="1" fill="${c}" transform="rotate(${r} ${x} ${y})"/>`).join('')
-        + `<path d="M84 12H276L288 29L276 46H84L72 29Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M90 18H270" stroke="#fff" stroke-width="2" opacity=".6"/>${hz(180, 30, '你好,狮狮!', 20, 0, fl)}` },
-  ];
-  return { 1: { title: 'Shi Shi says hello', zh: '你好', pages } };
+  const part2 = { at: 1, name: 'Part 2', says: [['你好！我叫狮狮', 'nǐ hǎo! wǒ jiào Shīshi', 'hello! my name is Shi Shi'], ['请', 'qǐng', 'please, come in'], ['谢谢', 'xièxie', 'thank you']], panels: [
+    /* 4. Shi Shi is back, and this time he can say it */
+    { clip: '0,0 196,0 162,241 0,252', box: [0, 0, 196, 252], art: () => `<rect x="-10" y="-10" width="220" height="270" fill="#FFC44D"/>` + rays(88, 176, 280, 16, '#FFE08A', .95)
+      + lion(88, 178, .8, 'fire', -4, false) + star(22, 112, 8, '#fff') + star(166, 150, 6, '#fff') + star(150, 30, 5, '#fff')
+      + shout(72, 40, 64, 27, '你好!', 25) + bubble(108, 94, 112, 30, 96, 120, '我叫狮狮!', 16) },
+    /* 5. Hu Hu bows him in */
+    { clip: '204,0 360,0 360,228 170,241', box: [170, 0, 190, 241], art: () => `<rect x="150" y="-10" width="220" height="260" fill="#5CC8A8"/>` + rays(282, 170, 260, 14, '#8FE0C4', .95)
+      + friend('tiger', 286, 164, .8, 9) + hzO(342, 118, '!', 34, 12, gold) + `<path d="M228 124l-12 -8M222 146h-14" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`
+      + shout(276, 58, 58, 36, '请!', 36, '#2E9E6B') + note(204, 200, 134, ['“Please, come in!”']) },
+    /* 6. The happy ending: the lion dances on the drum, the whole town says hello */
+    { clip: '0,259 360,235 360,600 0,600', box: [0, 235, 360, 365], art: () => sky('f', 225, 385, '#261B5C', '#B0478C')
+      + burst(46, 300, 30, gold) + burst(318, 290, 34, '#FFB4A6') + burst(346, 384, 16, gold) + burst(238, 272, 12, '#FFE58A')
+      + star(118, 286, 4, '#FFE58A') + star(96, 372, 3, '#fff') + star(280, 366, 3, '#fff')
+      + `<path d="M-10 500H30V468H104V500H122V452H238V500H256V470H330V500H370V560H-10Z" fill="#3B2A78"/>` + roof(67, 468, 74, 11, '#2F2168', '#2F2168') + roof(180, 452, 116, 13, '#2F2168', '#2F2168') + roof(293, 470, 74, 11, '#2F2168', '#2F2168')
+      + [[52, 480], [82, 480], [142, 468], [218, 468], [278, 482], [308, 482]].map(([x, y]) => `<rect x="${x - 7}" y="${y}" width="14" height="11" fill="#FFD98A" opacity=".85"/>`).join('')
+      + string('M-4 360Q90 392 180 374T364 356', '#1B1340', [[38, 396, gold], [112, 408, gold], [250, 408, gold], [324, 394, gold]])
+      + `<path d="M-10 542H370V610H-10Z" fill="#4A3589"/><path d="M-10 542H370" stroke="${ln}" stroke-width="3"/>`
+      + friend('dragon', 44, 530, .36, -6) + friend('tiger', 110, 548, .3, 0, true) + friend('panda', 252, 548, .31, 0, false, true) + friend('rabbit', 318, 530, .36, 6, false, true)
+      + `<rect x="140" y="510" width="80" height="46" rx="9" fill="${red}" stroke="${ln}" stroke-width="3.5"/><path d="M142 522H218M142 544H218" stroke="${gold}" stroke-width="3"/>${[156, 180, 204].map(x => `<circle cx="${x}" cy="533" r="2.8" fill="${gold}"/>`).join('')}<ellipse cx="180" cy="510" rx="40" ry="8" fill="#FFF3D6" stroke="${ln}" stroke-width="3"/>`
+      + arm(150, 446, 124, 408, 11) + arm(210, 446, 236, 408, 11) + lion(180, 453, .62, 'star') + paw(122, 404, -22, .8) + paw(238, 404, 22, .8)
+      + confetti([[100, 344, 20, red], [262, 348, -30, gold], [150, 352, 40, '#8FD3C0'], [222, 346, -15, '#FF9AA6'], [70, 430, 60, gold], [296, 436, 10, '#8FD3C0'], [130, 384, -40, '#FF9AA6'], [236, 380, 30, red], [60, 350, 12, '#8FD3C0'], [306, 352, -20, '#FF9AA6']])
+      + `<path d="M84 300H276L288 317L276 334H84L72 317Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M90 306H270" stroke="#fff" stroke-width="2" opacity=".6"/>${hz(180, 318, '你好,狮狮!', 20, 0, fl)}`
+      + shout(296, 448, 46, 22, '谢谢!', 18)
+      + note(176, 568, 154, ['The lion dances after all.']) + `<rect x="14" y="560" width="30" height="30" rx="6" fill="#B23A2C" stroke="${ln}" stroke-width="2.5" transform="rotate(-6 29 575)"/>${hz(29, 575.5, '完', 19, -6, '#fff')}` },
+  ] };
+  return { 1: { title: 'The lion at the gate', zh: '你好', pages: [part1, part2] } };
 })();
-const comicSvg = pg => `<svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${pg.art()}</svg>`;
-/* how far a unit's story has come: steps = words of the unit in the word bank + those of them that are proven */
+/* one panel of a part, clipped to its slanted shape */
+const comicPanel = (pg, i) => `<clipPath id="cmc${pg.at}${i}"><polygon points="${pg.panels[i].clip}"/></clipPath><g clip-path="url(#cmc${pg.at}${i})">${pg.panels[i].art()}</g>`;
+/* a whole part: its panels on the dark sheet */
+const comicSvg = pg => `<svg viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="360" height="600" fill="#241210"/>${pg.panels.map((_, i) => comicPanel(pg, i)).join('')}</svg>`;
+const comicThumb = (pg, i) => `<svg viewBox="${pg.panels[i].box.join(' ')}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${comicPanel(pg, i)}</svg>`;
+/* how far a unit's comic has come: steps = words of the unit in the word bank + those of them that are proven */
 function comicState(un) {
   const St = COMIC[un], ws = [...new Set(LESSONS.filter(L => L.u === un - 1).flatMap(L => L.words))];
   let inBank = 0, proven = 0;
   for (const h of ws) { const w = bankHas(h); if (w) { inBank++; if (w.pf?.at) proven++; } }
   const total = ws.length * 2, steps = inBank + proven;
-  const need = St.pages.map(pg => Math.ceil(pg.at * total - 1e-9));   // the step each page opens at
+  const need = St.pages.map(pg => Math.ceil(pg.at * total - 1e-9));   // the step each part opens at
   return { ws, inBank, proven, steps, total, p: steps / total, need, open: need.filter(n => steps >= n).length, done: steps >= total };
 }
-const comicSeen = un => db.comic?.[un] || { open: 1, p: 0 };   // what you have already seen of a unit's story
-const ST_FLAG = `<svg viewBox="0 0 30 46" aria-hidden="true"><defs><clipPath id="cmFlagC"><path d="M5 5H27L23 12.5L27 20H5Z"/></clipPath></defs><path d="M5 4V44" stroke="#3B1A12" stroke-width="3.5" stroke-linecap="round"/><path d="M5 5H27L23 12.5L27 20H5Z" fill="#fff"/><g clip-path="url(#cmFlagC)" fill="#3B1A12">${[0, 1, 2, 3].flatMap(i => [0, 1, 2].filter(j => (i + j) % 2 === 0).map(j => `<rect x="${5 + i * 5.5}" y="${5 + j * 5}" width="5.5" height="5"/>`)).join('')}</g><path d="M5 5H27L23 12.5L27 20H5Z" fill="none" stroke="#3B1A12" stroke-width="2.5" stroke-linejoin="round"/><circle cx="5" cy="4" r="3" fill="#F4C14E" stroke="#3B1A12" stroke-width="2"/></svg>`;
-/* the road: Shi Shi's face stands as far along as the steps taken, a dot marks where each page opens, the flag is the end.
-   from: where you last saw him (0 to 1); given, he walks from there to where he is now */
+const comicSeen = un => db.comic?.[un] || { open: 0, p: 0 };   // what you have already seen of a unit's comic
+const CM_FLAG = `<svg viewBox="0 0 30 46" aria-hidden="true"><defs><clipPath id="cmFlagC"><path d="M5 5H27L23 12.5L27 20H5Z"/></clipPath></defs><path d="M5 4V44" stroke="#3B1A12" stroke-width="3.5" stroke-linecap="round"/><path d="M5 5H27L23 12.5L27 20H5Z" fill="#fff"/><g clip-path="url(#cmFlagC)" fill="#3B1A12">${[0, 1, 2, 3].flatMap(i => [0, 1, 2].filter(j => (i + j) % 2 === 0).map(j => `<rect x="${5 + i * 5.5}" y="${5 + j * 5}" width="5.5" height="5"/>`)).join('')}</g><path d="M5 5H27L23 12.5L27 20H5Z" fill="none" stroke="#3B1A12" stroke-width="2.5" stroke-linejoin="round"/><circle cx="5" cy="4" r="3" fill="#F4C14E" stroke="#3B1A12" stroke-width="2"/></svg>`;
+/* the road: Shi Shi's face stands as far along as the steps taken; the flag is the end, where part 2 opens.
+   from: where you last saw him (0 to 1); given, he walks from there to where he is now once the road is on screen */
 function comicTrack(st, from) {
   const mood = st.done ? 'star' : st.p >= .7 ? 'fire' : st.steps ? 'happy' : 'lost', walk = from != null && from < st.p;
   return `<div class="cm-track${walk ? ' walk' : ''}${st.done ? ' done' : ''}" role="img" aria-label="Shi Shi has taken ${st.steps} of ${st.total} steps to the finish flag" style="--p:${st.p.toFixed(4)}${walk ? `;--from:${from.toFixed(4)}` : ''}">
-    <span class="cm-road"><i></i></span>
-    <span class="cm-lane">${st.need.slice(1, -1).map(n => `<i class="cm-stop${st.steps >= n ? ' on' : ''}" style="left:${(n / st.total * 100).toFixed(1)}%"></i>`).join('')}<span class="cm-flag">${ST_FLAG}</span><span class="cm-shi">${shiFace(mood)}</span></span></div>`;
+    <span class="cm-road"><i></i></span><span class="cm-lane"><span class="cm-flag">${CM_FLAG}</span><span class="cm-shi">${shiFace(mood)}</span></span></div>`;
 }
-function ComicCard(un) {   // on the lessons page, at the top of the unit: the newest page, the title and the road
-  const St = COMIC[un], st = comicState(un), n = St.pages.length;
+function ComicCard(un) {   // on the lessons page, at the top of the unit: a panel (the cliffhanger, later the ending), the title and the road
+  const St = COMIC[un], st = comicState(un);
   return `<div class="cm-card" data-act="comic-open" data-u="${un}">
-    <button class="cm-open" aria-label="Shi Shi’s comic: ${esc(St.title)}, page ${st.open} of ${n}"><span class="cm-thumb">${comicSvg(St.pages[st.open - 1])}</span>
-      <span class="cm-meta"><small>Shi Shi’s comic</small><b>${esc(St.title)}</b><span>${st.done ? `All ${n} pages are open` : `Page ${st.open} of ${n} · ${plural(st.need[st.open] - st.steps, 'step')} to page ${st.open + 1}`}</span></span>${I.chev}</button>
+    <button class="cm-open" aria-label="Shi Shi’s comic: ${esc(St.title)}, part ${st.open} of 2"><span class="cm-thumb">${comicThumb(St.pages[st.done ? 1 : 0], 2)}</span>
+      <span class="cm-meta"><small>Shi Shi’s comic</small><b>${esc(St.title)}</b><span>${st.done ? 'Both parts are open' : `Part 1 of 2 · ${plural(st.total - st.steps, 'step')} to the ending`}</span></span>${I.chev}</button>
     ${comicTrack(st)}</div>`;
 }
-/* the comic, full screen: the road on top (Shi Shi walks on from where you last saw him), the open pages with what is
-   said in them, and the ones still to come. demo: the whole story, for a look at it (nothing is saved) */
+/* the comic, full screen on a dark sheet: part 1, the road (Shi Shi walks on from where you last saw him), then part 2
+   or the lock that holds it. demo: both parts, for a look at them (nothing is saved) */
 function comicOpen(un, demo) {
-  const St = COMIC[un], real = comicState(un), n = St.pages.length;
-  const st = demo ? { ...real, inBank: real.ws.length, proven: real.ws.length, steps: real.total, p: 1, open: n, done: true } : real;
-  const was = demo ? { open: 1, p: 0 } : comicSeen(un), fresh = st.open > was.open;
+  const St = COMIC[un], real = comicState(un);
+  const st = demo ? { ...real, inBank: real.ws.length, proven: real.ws.length, steps: real.total, p: 1, open: 2, done: true } : real;
+  const was = demo ? { open: 1, p: 0 } : comicSeen(un), ending = st.open > 1 && was.open === 1, first = !was.open;
   if (!demo) { (db.comic ||= {})[un] = { open: st.open, p: st.p }; save(); }
-  LOG.add('comic', { unit: un, page: st.open, steps: st.steps, fresh, demo: !!demo });
-  const pages = St.pages.map((pg, i) => {
-    if (i >= st.open) return `<div class="cm-page locked"><div class="cm-lock">${LOCK_I}<b>Page ${i + 1}</b>${i === st.open ? `<span>${plural(st.need[i] - st.steps, 'more step')}</span>` : ''}</div></div>`;
-    const isNew = fresh && i >= was.open;
-    return `<figure class="cm-page${isNew ? ' new' : ''}"${isNew ? ` style="--k:${i - was.open}"` : ''}><div class="cm-art">${comicSvg(pg)}${isNew ? '<em>New</em>' : ''}</div>
-      <figcaption><p class="cm-cap">${pg.cap}</p>${pg.says.length ? `<p class="cm-says">${pg.says.map(([zh, py, en]) => `<span><b lang="zh">${zh}</b><i>${py}</i>${en}</span>`).join('')}</p>` : ''}</figcaption></figure>`;
-  }).join('');
-  layer(`<div class="ob-top cm-top"><button class="icon-btn" data-act="mo-close" aria-label="Close">${I.close}</button><span>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</span></div>
-    <header class="cm-head"><small>${fresh ? st.done ? 'The last page is open' : st.open - was.open > 1 ? 'New pages' : 'A new page' : 'Shi Shi’s comic'}</small><h2>${esc(St.title)} <span lang="zh">${St.zh}</span></h2></header>
+  LOG.add('comic', { unit: un, part: st.open, steps: st.steps, first, ending, demo: !!demo });
+  const sheet = (pg, cls = '') => `<figure class="cm-sheet${cls}" aria-label="${pg.name}">${comicSvg(pg)}</figure>
+    <p class="cm-says">${pg.says.map(([zh, py, en]) => `<span><b lang="zh">${zh}</b><i>${py}</i>${en}</span>`).join('')}</p>`;
+  layer(`<div class="cm-bar"><button class="icon-btn" data-act="mo-close" aria-label="Close">${I.close}</button><b>${esc(St.title)}</b><span>Unit ${un}</span></div>
+    ${sheet(St.pages[0])}
     <div class="cm-way">${comicTrack(st, was.p)}
       <p><b>${st.steps} of ${st.total} steps.</b> ${st.done ? 'Every word of this unit is proven. Shi Shi made it to the flag.' : 'Shi Shi takes a step for each word of this unit that goes into your word bank, and one more when you prove it: right again on a later day.'}</p>
       <p class="cm-count">${st.inBank} of ${st.ws.length} words in your word bank · ${st.proven} proven</p></div>
-    <div class="cm-pages">${pages}</div>
-    ${st.done ? '<p class="cm-end"><i lang="zh">完</i>The end</p>' : ''}
-    ${moDock(st.done ? 'Close' : 'Keep going')}`, 'cm');
-  if (fresh) {
-    try { (st.done ? fanfare : chime)(); } catch (_) {}
-    const still = stillMotion();
-    setTimeout(() => $('#ob.cm .cm-page.new')?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' }), still ? 0 : 2200);
+    ${st.open > 1 ? sheet(St.pages[1], ending ? ' new' : '') : `<div class="cm-lock">${LOCK_I}<b>Part 2 · the ending</b><span>Opens when Shi Shi reaches the flag: ${plural(st.total - st.steps, 'more step')}</span></div>`}
+    ${moDock(st.done ? 'Close' : first ? 'Start the unit' : 'Keep going')}`, 'cm');
+  const ob = $('#ob'), track = ob.querySelector('.cm-track.walk'), still = stillMotion();
+  if (track) new IntersectionObserver((es, o) => { if (es.some(e => e.isIntersecting)) { track.classList.add('go'); o.disconnect(); } }, { root: ob, threshold: .9 }).observe(track);
+  if (ending) {   // the ending has just opened: look at the road while he walks to the flag, then the new page
+    try { fanfare(); } catch (_) {}
+    ob.querySelector('.cm-way').scrollIntoView({ block: 'center' });
+    setTimeout(() => $('#ob.cm .cm-sheet.new')?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' }), still ? 0 : 2400);
   }
 }
-function comicMoment() {   // back on the lessons page with a page you have not seen yet: the comic opens on it, once
+function comicMoment() {   // on the lessons page with a part you have not seen yet: the comic opens on it, once
   if ($('#ob') || S.ob || $('#sheet-root.open')) return false;
   for (const un in COMIC) if (comicState(+un).open > comicSeen(un).open) { comicOpen(+un); return true; }
   return false;
@@ -3932,7 +3900,7 @@ function StrokesView() {
 function mountCourse() {
   const P = S.cPart;
   if (P !== 'tones') S.ear = null;   // the ear test starts over when you come back to it
-  if (!P && !S.cBasics) setTimeout(() => { if (S.view === 'course' && !S.cPart && !S.cBasics) comicMoment(); }, 420);   // a new page of the unit's story
+  if (!P && !S.cBasics) setTimeout(() => { if (S.view === 'course' && !S.cPart && !S.cBasics) comicMoment(); }, 420);   // a part of the unit's comic you have not seen
   if (!S.H) loadHsk().then(() => { if (S.view === 'course' && S.cPart === P && (!P || P === 'strokes')) { S.instant = true; render(); } }, () => {});
   if (P === 'tones') mountTones();
   else if (P === 'radicals') mountRadicals();
@@ -8339,7 +8307,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.44';
+const APP_VERSION = '2.45';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -8403,7 +8371,7 @@ function devSheet() {
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
-      ${p('devComic', 'Show: Unit 1 comic, all pages', 'The whole comic with Shi Shi at the flag. Your own progress stays as it is')}
+      ${p('devComic', 'Show: Unit 1 comic, both parts', 'The whole comic with Shi Shi at the flag. Your own progress stays as it is')}
     </div>
     <div class="day-h" style="margin-top:20px">Start over</div>
     <button class="btn btn-danger wide" id="devReset">${I.trash}Reset all progress</button>
