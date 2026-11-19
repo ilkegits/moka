@@ -110,6 +110,10 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 /* ---------- top bar ---------- */
 .bar{display:flex;align-items:center;gap:12px;height:60px;position:sticky;top:0;z-index:5;
   background:color-mix(in srgb,var(--paper) 80%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);margin:0 -20px;padding:0 10px}
+/* Instagram-style: scrolling down carries the bar away with the page, scrolling up slides it straight back (--barY is set by the scroll code) */
+#app>.screen>.bar{transform:translate3d(0,var(--barY,0px),0)}
+#app.bar-anim>.screen>.bar{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){#app.bar-anim>.screen>.bar{transition:none}}
 .bar-title{flex:1;text-align:center;font-weight:600;font-size:17px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:opacity .2s}
 .icon-btn:active{opacity:.4;transition:none}
@@ -864,7 +868,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 :root[data-theme="dark"] #tabbar{background:#2A2620;box-shadow:0 14px 30px -12px rgba(0,0,0,.8)}   /* dark mode: the capsule stays dark so its pale icons still read */
 #frame.tabs #tabbar{display:flex}
 #frame.tabs .screen{padding-bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom))}
-#frame.tabs .dock{bottom:0;margin-bottom:calc(-1 * (var(--tabh) + 26px + env(safe-area-inset-bottom)));padding-bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom));background:linear-gradient(transparent, var(--paper) 16px)}
+#frame.tabs .dock{bottom:0;margin-bottom:calc(-1 * (var(--tabh) + 26px + env(safe-area-inset-bottom)));padding-bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom));background:none}
 .tab-pill{position:absolute;top:7px;left:18px;width:calc(var(--tabw) - 18px);height:calc(var(--tabh) - 16px);border-radius:999px;background:var(--seal);
   transition:transform .42s cubic-bezier(.65,0,.35,1) .12s}
 .tab{position:relative;z-index:1;flex:none;width:var(--tabw);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -6679,7 +6683,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.22';
+const APP_VERSION = '2.23';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -7656,6 +7660,25 @@ document.addEventListener('click', e => {
   }, { passive: false });
   document.addEventListener('touchend', () => release(true));
   document.addEventListener('touchcancel', () => release(false));
+})();
+
+/* top bar, Instagram style: going down, it scrolls off with the page; the moment you scroll back up, it slides back in.
+   Phones scroll the window, the desktop phone frame scrolls #app, so both are watched. */
+(() => {
+  const app = $('#app'), H = 60;   // the bar's height
+  let last = 0, off = 0, up = 0;
+  const set = (o, anim) => { off = o; app.classList.toggle('bar-anim', anim); app.style.setProperty('--barY', -o + 'px'); };
+  const onScroll = () => {
+    const se = document.scrollingElement;
+    const max = Math.max(0, se.scrollHeight - se.clientHeight, app.scrollHeight - app.clientHeight);
+    const y = Math.min(max, Math.max(0, se.scrollTop, app.scrollTop));   // ignore iPhone rubber-banding past either end
+    const dy = y - last; last = y;
+    if (y <= 0) { up = 0; if (off) set(0, false); return; }
+    if (dy > 0) { up = 0; if (off < H) set(Math.min(H, off + dy), false); }
+    else if (dy < 0 && off && (up -= dy) > 4) { up = 0; set(0, true); }
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  app.addEventListener('scroll', onScroll, { passive: true });
 })();
 
 /* pictures can't be saved, copied or dragged out; no long-press menus outside typing fields; no zoom gestures (iOS ignores the viewport setting) */
