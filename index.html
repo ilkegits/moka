@@ -1299,10 +1299,6 @@ svg.sil{filter:brightness(0);opacity:.28}
 .rd-head{display:flex;align-items:center;justify-content:space-between;margin:18px 2px 10px}
 .rd-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink);display:flex;align-items:baseline;gap:8px}
 .rd-head .hm-streak{margin-right:-6px}
-.rd-today{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:var(--jade-soft);font-size:14px;line-height:1.3;color:var(--ink-2)}
-.rd-today i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--jade);color:#fff}
-.rd-today i svg.i{width:14px;height:14px;stroke-width:3}
-.rd-today b{font-weight:700;color:var(--ink)}
 .rd-hero{margin:0 0 26px;border-radius:22px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);overflow:hidden}
 .rd-scene{display:block;width:100%;height:auto}
 .rd-body{padding:14px 18px 12px}
@@ -1310,12 +1306,6 @@ svg.sil{filter:brightness(0);opacity:.28}
 .rd-title{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:2px 0 0}
 .rd-title h3{margin:0;font:600 32px/1.25 var(--hanzi);letter-spacing:.04em;color:var(--ink)}
 .rd-title span{font-size:16px;color:var(--ink-2)}
-.rd-know{margin:12px 0 0}
-.rd-know-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink-2)}
-.rd-know-top b{font-weight:700;color:var(--ink)}
-.rd-know-top em{font-style:normal;font-size:13px;font-weight:700;color:var(--jade)}
-.rd-bar{display:block;height:10px;margin-top:7px;border-radius:6px;background:var(--fill);overflow:hidden}
-.rd-bar i{display:block;height:100%;border-radius:6px;background:var(--jade)}
 .rd-meta{margin:10px 0 16px;font-size:13px;line-height:1.4;color:var(--muted)}
 .rd-keep{display:flex;align-items:center;gap:5px;margin:-8px 0 16px;font-size:13.5px;font-weight:700;color:#C2591B}
 .rd-keep .flame{flex:none;width:18px;height:18px}
@@ -4779,7 +4769,6 @@ function ReadView() {
   return `<div class="screen fade-in">
     <div class="top-gap"></div>
     <div class="rd-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
-    ${readToday ? `<p class="rd-today"><i>${I.check}</i><span><b>You read today.</b> ${st.n > 1 ? `Day ${st.n} of your streak.` : 'Your streak starts here.'}</span></p>` : ''}
     ${!s ? '' : s.opened ? `<div class="read-tools" style="margin-top:0">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
         ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are new: not in your word bank yet.</p>' : empty}
         ${StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>')}`
@@ -4813,16 +4802,13 @@ function riffleBook(from) {
   el.outerHTML = readScene(s, storyKnow(s).mine.filter(h => bankHas(h)), from);
   hero.classList.remove('flip'); hero.offsetWidth; hero.classList.add('flip');
 }
-/* the next story waits behind a cover: the picture, its title, how much of it you can read already, and one button */
+/* the next story waits behind a cover: the picture, its title and one button */
 function StoryCover(s, st, readToday) {
   const K = storyKnow(s), fresh = K.n - K.mine.length, reads = db.readDone.filter(x => x.zh === s.zh).length;
-  const fit = K.f >= .9 ? 'Easy read' : K.f >= .7 ? 'Good fit' : K.f >= .4 ? 'A stretch' : 'Lots of new words';
   const hint = st.today ? '' : st.n ? `Finish it to keep your ${st.n}-day streak` : 'Finish it to start a streak';
   return `<article class="rd-hero">${readScene(s, K.mine.filter(h => bankHas(h)))}
       <div class="rd-body"><div class="rd-eye">${readToday ? 'Another story' : 'Today’s story'}</div>
         <div class="rd-title"><h3>${esc(s.zh)}</h3><span>${esc(s.en)}</span></div>
-        ${db.bank.length ? `<div class="rd-know"><div class="rd-know-top"><span>You know <b>${K.mine.length} of ${K.n}</b> words</span><em>${fit}</em></div>
-          <span class="rd-bar"><i style="width:${Math.max(4, Math.round(K.f * 100))}%"></i></span></div>` : ''}
         <p class="rd-meta">${plural(s.lines.length, 'sentence')}${fresh && db.bank.length ? ` · ${plural(fresh, 'new word')}` : ''}${reads === 1 ? ' · read it again and its book turns gold' : ''}</p>
         ${hint ? `<p class="rd-keep">${FLAME}${hint}</p>` : ''}
         <button class="btn btn-seal wide" data-act="read-start">${I.read}Start reading</button>
@@ -8769,7 +8755,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.73';
+const APP_VERSION = '2.74';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
