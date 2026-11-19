@@ -972,6 +972,27 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-seg i.full b{background:var(--jade)}
 .mp-seg.one{grid-template-columns:1fr}.mp-seg.one i{height:10px;border-radius:5px}
 .mp-veil{filter:blur(16px) saturate(.5) brightness(.8)}
+/* Shi Shi, broke: his bag upside down, a moth fluttering out, and what he says in a speech bubble */
+.bk-h{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);margin:0}
+.bk{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:4px}
+.bk-art{width:262px;height:auto;display:block;overflow:visible}
+.bk-bag{transform-box:fill-box;transform-origin:50% 0;animation:bkShake 2.4s ease-in-out infinite}
+@keyframes bkShake{0%,58%,100%{transform:rotate(0)}64%{transform:rotate(-7deg)}70%{transform:rotate(6deg)}76%{transform:rotate(-4deg)}82%{transform:rotate(2deg)}}
+.bk-dust{animation:bkDust 2.4s ease-out infinite;opacity:0}
+@keyframes bkDust{0%,62%{opacity:0;transform:translateY(-6px)}74%{opacity:.9}100%{opacity:0;transform:translateY(8px)}}
+.bk-moth{animation:bkMoth 3.2s ease-in-out infinite alternate}
+.bk-shake{animation:bkDust 2.4s ease-out infinite;opacity:0}
+@keyframes bkMoth{from{transform:translate(0,0)}to{transform:translate(6px,-10px)}}
+.bk-wings{transform-box:fill-box;transform-origin:50% 100%;animation:bkFlap .18s ease-in-out infinite alternate}
+@keyframes bkFlap{from{transform:scaleX(1)}to{transform:scaleX(.35)}}
+.bk-say{position:relative;margin:6px 6px 16px;padding:12px 16px;border-radius:18px;background:var(--card);box-shadow:var(--ring),0 8px 18px -12px rgba(60,30,10,.5);font:600 18px/1.3 var(--display);color:var(--ink)}
+.bk-say::before{content:"";position:absolute;left:34%;top:-9px;width:18px;height:18px;background:var(--card);box-shadow:-1.5px -1.5px 0 0 var(--line-2);transform:rotate(45deg);border-radius:3px 0 0 0}
+.bk-bar{align-self:stretch;margin:0 2px}
+.bk-how{margin:10px 0 16px;font-size:13px;color:var(--muted)}
+.bk-go{flex-direction:column;gap:1px;padding-top:10px;padding-bottom:10px}
+.bk-go span{font-size:17px}
+.bk-go small{font-size:12px;font-weight:600;opacity:.85}
+@media (prefers-reduced-motion:reduce){.bk-bag,.bk-dust,.bk-moth,.bk-wings,.bk-shake{animation:none}.bk-dust,.bk-shake{opacity:.7}}
 /* a monument you do not own yet: only its silhouette, grey on grey (shop, its card, its page) */
 .shop-pic.sil,.shop-hero.sil,.mp-scene.sil{background:linear-gradient(#DCD9D2,#C8C4BB)}
 .shop-pic.sil img,.shop-hero.sil img{object-fit:contain;padding:7% 0 3%;filter:brightness(0);opacity:.24}
@@ -2694,6 +2715,7 @@ function shiFace(mood, fill = 1) {
     star: [brow('M62 70Q76 56 90 68') + brow('M138 70Q124 56 110 68'), star(76) + star(124), grin],   // star-struck: a big run, a perfect lesson
     proud: [brow('M62 72Q76 62 90 70') + brow('M138 72Q124 62 110 70'), arc(76, 1) + arc(124, 1), '<path d="M84 119Q101 135 118 115" fill="none" stroke="#7E1D19" stroke-width="5" stroke-linecap="round"/>'],   // eyes shut, pleased with you
     fire: [brow('M60 73L90 84') + brow('M140 73L110 84'), eye(76) + eye(124), '<path d="M78 116Q100 144 122 116Z" fill="#fff" stroke="#7E1D19" stroke-width="4" stroke-linejoin="round"/><path d="M82 119.5H118" stroke="#7E1D19" stroke-width="2.5"/>'],   // fired up: frown of focus and a toothy grin
+    broke: [brow('M64 80Q76 70 89 70') + brow('M136 80Q124 70 111 70'), arc(76, 1) + arc(124, 1), '<path d="M86 120Q100 134 114 120Q100 124 86 120Z" fill="#7E1D19" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/><path d="M148 52Q139 67 148 74Q157 67 148 52Z" fill="#D8F2FF" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/>'],   // broke but cheerful: a sheepish grin and a sweat drop
     oops: [brow('M63 80Q77 74 90 70') + brow('M137 80Q123 74 110 70'), eye(76) + eye(124), '<path d="M84 124Q92 117 100 124T116 124" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/><path d="M146 56Q138 70 146 76Q154 70 146 56Z" fill="#D8F2FF" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/>'],   // oops: wobbly mouth and a sweat drop
     up: [brow('M62 76Q76 62 90 74') + brow('M138 76Q124 62 110 74'), [76, 124].map(x => `<ellipse cx="${x}" cy="93" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="${x + 1}" cy="87.5" r="3.4" fill="#fff"/><circle cx="${x - 2.5}" cy="96" r="1.4" fill="#fff"/>`).join(''), '<path d="M89 123Q100 131 111 123" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],   // dreamy, looking up
   }[mood] || [];
@@ -6489,17 +6511,17 @@ function mapCard(lv) {   // what a tap on a monument shows: its name and what it
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
   const med = `<div class="tm-med">${Trail.mini(lv, st, true)}</div>`;
   const head = `<small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h3>${c.name} <span>${c.nzh}</span></h3>`;
-  if (!st.done) { const can = st.n >= st.total, cur = trailCur(trailStates()) === lv - 1;   // one in the shop: what it is, its price, and how to make it your goal
+  if (!st.done) { const can = st.n >= st.total, cur = trailCur(trailStates()) === lv - 1;   // one you do not own: what it is, its price, and one button, Buy
     return `<div class="tm-card tm-ui" role="dialog" aria-label="${c.name}: ${st.total} coins">${x}${med}
     <div class="tm-body">${head}<p class="tm-price">${coinSvg()}<b>${coinFmt(st.total)}</b> coins${can ? '<em>You can buy it</em>' : cur ? `<span>· ${coinFmt(st.total - st.n)} to go</span>` : ''}</p><p class="tm-about">${TRAIL_ABOUT[lv - 1]}</p></div>
-    <div class="tm-acts">${can || cur ? '' : `<button class="btn btn-ghost" data-act="map-wish" data-lv="${lv}">Save for it</button>`}<button class="btn btn-seal" data-act="shop-item" data-lv="${lv}"><span class="qa-glyph">店</span>${can ? 'Buy it in the shop' : 'See it in the shop'}</button></div></div>`; }
+    <div class="tm-acts">${buyBtn(lv, st.total)}</div></div>`; }
   return `<div class="tm-card tm-ui done" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
     <div class="tm-body">${head}<p>${st.seen ? '' : '<em>New</em>'}Yours · worth ${coinFmt(st.total)} coins</p></div>
     <div class="tm-acts"><button class="btn btn-seal" data-act="map-visit" data-lv="${lv}">Visit</button></div></div>`;
 }
 /* ---------- the Shop (商店): every monument, cheapest first, with its picture and its price in coins ----------
-   Tap one for a closer look: Buy it if you have the coins, or else Save for it (db.monWish: the Map's bottom bar then
-   counts toward it) and earn the rest. Bought, it is yours at once: the map dives into its city and it is revealed. */
+   Tap one for a closer look; it has one button, Buy. Short of coins, Shi Shi shows his empty bag and sends you to the
+   next lesson (brokeSheet). Bought, it is yours at once: the map dives into its city and it is revealed. */
 const TRAIL_ABOUT = ['Pink spheres on a spire, high over a river full of ships.', 'A pagoda by a still lake, where a white snake was once locked away.',
   'A golden tower on a hill above the great river. A poet watched a crane fly from it.', 'A twisted tower, slim at the waist, taller than any other in the land.',
   'Houses on stilts stacked up a cliff, glowing where two rivers meet.', 'A white and red palace on a hill, nearer the sky than any other.',
@@ -6515,11 +6537,7 @@ function shopHtml(lv) {
   const top = `<div class="shop-top"><h3>Shop <span class="cal-zh">商店</span></h3><span class="shop-bal" aria-label="${coinFmt(bal)} coins">${coinSvg()}<b>${coinFmt(bal)}</b></span></div>`;
   if (lv) {
     const c = TRAIL[lv - 1], st = sts[lv - 1], can = !st.done && bal >= st.total, wish = db.monWish === lv;
-    const act = st.done ? `<button class="btn btn-seal wide" data-act="shop-see" data-lv="${lv}">See it on your map</button>`
-      : can ? `<button class="btn btn-seal wide shop-buy" data-act="shop-buy" data-lv="${lv}">Buy for ${coinSvg()}${coinFmt(st.total)}</button>`
-      : `<div class="shop-need"><span class="tm-now-bar"><i style="width:${gBar(st.n / st.total)}%"></i><b>${coinBarLab(st)}</b></span>
-          <p>${coinFmt(st.total - st.n)} more coins to go.${wish ? ' You are saving for this one.' : ''}</p></div>
-        <div class="row-btns">${wish ? '' : `<button class="btn btn-ghost" data-act="shop-wish" data-lv="${lv}">Save for it</button>`}${EARN(lv)}</div>`;
+    const act = st.done ? `<button class="btn btn-seal wide" data-act="shop-see" data-lv="${lv}">See it on your map</button>` : buyBtn(lv, st.total, ' wide');   // short of coins, Buy brings up Shi Shi with his empty bag (brokeSheet)
     return `${top}<div class="shop-det"><button class="shop-back" data-act="shop-back">${I.back}<span>All monuments</span></button>
       <div class="shop-hero${st.done ? '' : ' sil'}">${st.done ? `<img src="mon/${c.id}.webp" alt="The ${esc(c.name)} in ${esc(c.en)}"><i class="shop-own">Yours</i>` : `<img src="mon/${c.id}-i.webp" alt="The shape of the ${esc(c.name)}: buy it to see it">`}</div>
       <small class="tm-city">${esc(c.en)} <b>${c.zh}</b></small><h4>${c.name} <span>${c.nzh}</span></h4>
@@ -6531,6 +6549,45 @@ function shopHtml(lv) {
       <b>${c.name}</b><small>${esc(c.en)}</small><span class="shop-price">${st.done ? 'On your map' : `${coinSvg()}${coinFmt(st.total)}`}</span></button>`; };
   return `${top}<p class="muted shop-sub">Buy a monument and it stands on your map. ${own ? `${own} of ${TRAIL.length} are yours.` : 'Start with a small one.'}</p>
     <div class="shop-grid">${sts.slice().sort((a, b) => a.done - b.done || a.total - b.total).map(card).join('')}</div>${earnHow()}`;
+}
+const buyBtn = (lv, price, cls = '') => `<button class="btn btn-seal shop-buy${cls}" data-act="map-buy" data-lv="${lv}">Buy for ${coinSvg()}${coinFmt(price)}</button>`;
+function mapBuy(lv) {   // the one Buy button: with the coins it is bought at once; without them Shi Shi shows his empty bag
+  const c = TRAIL[lv - 1]; if (!c || monOwns(lv)) return;
+  if (coinBal() >= c.price) shopBuy(lv); else brokeSheet(lv);
+}
+/* Shi Shi, broke but cheerful: he holds his money bag upside down, a moth flutters out, and he points you to the next
+   lesson. What he says depends on how close you are; there are two ways to say each, so it does not get stale */
+function brokeShi() {
+  const ink = '#7E1D19', red = '#D64E45', gold = '#F6D682';
+  return `<svg class="bk-art" viewBox="0 0 330 214" aria-hidden="true"><ellipse cx="140" cy="206" rx="116" ry="6" fill="#8A6A3A" opacity=".16"/>`
+    + shiFace('broke').replace('<svg class="shi-face"', '<svg x="-2" y="20" width="168" height="168"')
+    + `<g class="bk-shake" stroke="#B9A98E" stroke-width="3" stroke-linecap="round" fill="none"><path d="M168 74q-6 10 0 20M160 64q-8 16 0 34"/><path d="M282 132q6 10 0 20M290 124q8 14 0 30"/></g>`
+    + `<g transform="rotate(-14 222 62)"><g class="bk-bag"><path d="M204 62C190 72 172 98 174 126C176 146 186 158 191 162Q222 176 253 162C258 158 268 146 270 126C272 98 254 72 240 62Q222 54 204 62Z" fill="${red}" stroke="${ink}" stroke-width="4" stroke-linejoin="round"/>`
+    + `<path d="M186 104Q180 124 187 144" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".28"/>`
+    + `<circle cx="222" cy="112" r="15" fill="#EFE6D6" stroke="#B9A98E" stroke-width="3" stroke-dasharray="5 4"/>`   // where the coin was: only its outline
+    + `<path d="M186 150Q222 166 258 150" fill="none" stroke="${gold}" stroke-width="5" stroke-linecap="round"/><path d="M186 150Q222 166 258 150" fill="none" stroke="#C8901F" stroke-width="1.6" stroke-dasharray="3 4" stroke-linecap="round"/>`
+    + `<path d="M186 166Q222 150 258 166Q256 186 222 188Q188 186 186 166Z" fill="#F2A79C" stroke="${ink}" stroke-width="4" stroke-linejoin="round"/><ellipse cx="222" cy="172" rx="25" ry="9" fill="#5A1410"/>`   // its mouth, open and empty, the lining showing
+    + `<ellipse cx="222" cy="58" rx="12" ry="10" fill="#E5483F" stroke="${ink}" stroke-width="4"/><path d="M217 51v5M227 51v5" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/></g></g>`
+    + `<g class="bk-dust" fill="#CDBFA8"><circle cx="240" cy="196" r="4.5"/><circle cx="256" cy="203" r="3.2"/><circle cx="268" cy="194" r="2.6"/></g>`
+    + `<g class="bk-moth"><path d="M264 182Q306 186 304 112" fill="none" stroke="#B9A98E" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round"/>`
+    + `<g transform="translate(306 96) rotate(14)"><g class="bk-wings"><path d="M0 2C-14 -16 -26 -6 -16 6Q-8 10 0 2Z" fill="#EADCC2" stroke="#7A5A34" stroke-width="2.2" stroke-linejoin="round"/><path d="M0 2C14 -16 26 -6 16 6Q8 10 0 2Z" fill="#EADCC2" stroke="#7A5A34" stroke-width="2.2" stroke-linejoin="round"/>`
+    + `<circle cx="-12" cy="-2" r="2.6" fill="#C9AE84"/><circle cx="12" cy="-2" r="2.6" fill="#C9AE84"/></g>`
+    + `<ellipse cy="2" rx="3.2" ry="7" fill="#7A5A34"/><path d="M-1.5 -4l-4 -6M1.5 -4l4 -6" stroke="#7A5A34" stroke-width="1.6" stroke-linecap="round"/></g></g></svg>`;
+}
+function brokeSheet(lv) {
+  const c = TRAIL[lv - 1], st = trailState(lv), left = st.total - st.n, k = st.n / st.total, L = coinFmt(left), the = theName(c);
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const say = k >= .8 ? pick([`So close! Only ${L} coins left, and ${the} is ours!`, `Just ${L} more coins! I can almost touch it!`])
+    : k >= .5 ? pick([`More than halfway! ${L} coins to go. Let's grab them!`, `We're over halfway there! ${L} more and it's ours.`])
+    : st.n ? pick([`My bag's a bit light… ${L} more coins and ${the} is ours!`, `Only ${L} coins to go. A lesson or two and we're on our way!`])
+    : pick([`Oops, my bag is empty! Let's fill it up together.`, `Not a coin in here yet… but one lesson starts filling it!`]);
+  const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();
+  const go = due ? `Unit ${due} test` : n ? 'Next lesson' : 'Learn words', sub = due ? 'Pass it and 100 coins drop in' : n ? `Lesson ${n} · ${esc(LESSONS[n - 1].title)}` : `HSK ${openLevel()} words`;
+  LOG.add('shop-broke', { lv, have: st.n, price: st.total });
+  openSheet(`<div class="bk"><h3 class="bk-h">Not enough coins yet</h3>${brokeShi()}<p class="bk-say">${say}</p>
+    <span class="tm-now-bar bk-bar"><i style="width:${gBar(k)}%"></i><b>${coinFmt(st.n)} / ${coinFmt(st.total)}</b></span>
+    <p class="bk-how">Every lesson puts ${PAY.les} coins in the bag, and every word you prove ${PAY.word} more.</p>
+    <button class="btn btn-seal wide bk-go" data-act="map-build" data-lv="${lv}"><span>${go}</span><small>${sub}</small></button></div>`);
 }
 function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to the page asked for
   const body = $('#shopBody'); LOG.add('shop', { lv: lv || 0, coins: coinBal() });
@@ -8586,7 +8643,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.60';
+const APP_VERSION = '2.61';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9331,6 +9388,7 @@ const A = {
   'shop-item': t => shopSheet(+t.dataset.lv),
   'shop-back': () => shopSheet(),
   'shop-buy': t => shopBuy(+t.dataset.lv),
+  'map-buy': t => mapBuy(+t.dataset.lv),
   'shop-wish': t => { db.monWish = +t.dataset.lv; save(); LOG.add('shop-wish', { lv: db.monWish }); shopSheet(db.monWish); mapRepin(); },
   'map-wish': t => { db.monWish = +t.dataset.lv; save(); LOG.add('shop-wish', { lv: db.monWish, from: 'map' }); Trail.CAM.sel = 0; mapRepin(); },
   'shop-see': t => { closeSheet(); const lv = +t.dataset.lv; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapPick(lv), 300); else nav('#/map/' + lv); },
