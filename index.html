@@ -119,8 +119,9 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .hm-streak .flame{width:30px;height:30px;flex:none;margin-right:1px}
 .hm-streak b{font-family:var(--display);font-size:21px;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .hm-streak:not(.on) b{color:var(--muted)}
-/* Learn and Read have no headline, just a little room at the top; Profile keeps only its settings button, on the right */
-.top-gap{height:18px;flex:none}
+/* one place for every tab's headline (Lessons, Map, Read): a 60px row at the very top, the same height as the Decks bar, so the
+   headline and any button beside it sit at the same spot on every tab; Profile keeps only its settings button, on the right */
+.screen .pg-head{height:60px;margin-top:0;margin-bottom:14px;align-items:center;flex:none}
 .bar-end{justify-content:flex-end}
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
@@ -749,7 +750,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-stage::before{content:"";position:absolute;inset:0 0 auto;height:128px;z-index:1;pointer-events:none;background:linear-gradient(var(--paper) 38%,transparent)}
 .tm-stage::after{content:"";position:absolute;inset:0;z-index:5;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .2s .24s}
 .tm-stage.mp-going::after{opacity:1}
-.tm-head{position:absolute;z-index:2;left:22px;right:22px;top:18px;margin:0;pointer-events:none}
+.tm-head{position:absolute;z-index:2;left:22px;right:22px;top:0;margin:0;pointer-events:none}
 .mp-sum{font-size:13px;font-weight:600;color:var(--ink-2)}
 #tmTex{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .6s;pointer-events:none}
 #tmProps{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .6s;pointer-events:none}
@@ -956,7 +957,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
 .tm-tr{display:flex;align-items:center;gap:8px}
 /* the Shop: a round red badge under the coins, a little market stall poking over its top, its name on a ribbon across the bottom */
-.tm-shopb{position:absolute;z-index:2;right:18px;top:68px;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tm-shopb{position:absolute;z-index:2;right:18px;top:61px;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tm-shopb-d{position:absolute;left:4px;top:8px;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 50% 30%,#E8463A,#B41D17 70%);
   box-shadow:inset 0 -4px 0 rgba(90,10,5,.3),0 10px 16px -8px rgba(60,10,5,.7)}
 .tm-shopb svg{position:absolute;left:2px;top:-11px;width:60px;height:58px;overflow:visible;filter:drop-shadow(0 2px 0 rgba(90,10,5,.35))}
@@ -1298,7 +1299,7 @@ svg.sil{filter:brightness(0);opacity:.28}
    heading, and a shelf of thread-bound books that fills as you finish stories */
 .rd-head{display:flex;align-items:center;justify-content:space-between;margin:18px 2px 10px}
 .rd-head h2{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink);display:flex;align-items:baseline;gap:8px}
-.rd-head .hm-streak{margin-right:-6px}
+.rd-head .hm-streak{margin-right:-12px}
 .rd-hero{margin:0 0 26px;border-radius:22px;background:var(--card);box-shadow:var(--ring),var(--shadow-sm);overflow:hidden}
 .rd-scene{display:block;width:100%;height:auto}
 .rd-body{padding:14px 18px 12px}
@@ -4193,8 +4194,7 @@ function LearnView() {
         <span class="scene-go">Practise${I.chev}</span></span></button>`
     : `<p class="learn-none">No words yet. Finish an HSK 1 lesson and its words land here, or <button class="link-btn" data-act="open-hsk" style="padding:0">add words you know</button>.</p>`;
   return `<div class="screen fade-in">
-    <div class="top-gap"></div>
-    ${head('HSK course', '课程', 1)}
+    <div class="section-head cal-head pg-head"><h2>HSK course <span class="cal-zh">课程</span></h2></div>
     ${CourseBlock()}
     ${head('My word bank', '生词本')}
     <div class="learn-list">${bankBlk}</div>
@@ -4767,8 +4767,7 @@ function ReadView() {
   const st = practiceStreak(), tk = dayKey(Date.now()), readToday = db.readDone.some(x => dayKey(x.done) === tk);
   const empty = '<p class="read-note">Your word bank is empty, so this story uses common words. <button class="link-btn" data-act="open-hsk" style="padding:0">Add words you know</button></p>';
   return `<div class="screen fade-in">
-    <div class="top-gap"></div>
-    <div class="rd-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
+    <div class="rd-head pg-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
     ${!s ? '' : s.opened ? `<div class="read-tools" style="margin-top:0">${pyBtn}<button class="pill" data-act="read-new">${I.shuffle}Different story</button></div>
         ${db.bank.length ? '<p class="read-note">Tap a word to see what it means. <u>Underlined</u> words are new: not in your word bank yet.</p>' : empty}
         ${StoryCard(s, '<button class="btn btn-seal wide story-done" data-act="read-finish">I finished this story</button>')}`
@@ -6600,7 +6599,7 @@ function TrailView() {
   if (S.mapFrom && !S.mapShow) C.sel = S.mapFrom;   // back from a monument's page: its card is open again (not when you come back to watch one you just bought land)
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
+      <div class="section-head cal-head tm-head pg-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
       <button class="tm-shopb tm-ui" data-act="shop" aria-label="Open the shop"><span class="tm-shopb-d"></span>${shopPile()}<span class="tm-shopb-t">Shop</span></button>
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
     </div>
@@ -8755,7 +8754,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.74';
+const APP_VERSION = '2.75';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
