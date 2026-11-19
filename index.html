@@ -103,29 +103,26 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .bar-title{flex:1;text-align:center;font-weight:600;font-size:17px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:opacity .2s}
 .icon-btn:active{opacity:.4;transition:none}
-.bar .icon-btn{color:var(--seal)}
-.bar .icon-btn svg.i{stroke-width:2.1}
+.bar .icon-btn,.pg-tr .icon-btn{color:var(--seal)}
+.bar .icon-btn svg.i,.pg-tr .icon-btn svg.i{stroke-width:2.1}
 .icon-btn.lg{width:52px;height:52px;background:var(--fill);color:var(--ink)}
 .brand{display:flex;align-items:center;gap:10px;flex:1;padding-left:6px}
 .logo{width:36px;height:36px;display:block;margin-right:-2px}
 .seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:7px;background:var(--seal);color:var(--seal-ink);
   font-family:var(--hanzi);font-weight:600;font-size:18px;transform:rotate(-4deg);box-shadow:0 2px 6px -2px rgba(178,58,44,.6)}
 .brand-name{font-family:"Baloo 2",var(--ui);font-weight:800;font-size:23px;line-height:1;letter-spacing:-.01em;padding-top:3px}
-/* home bar: the menu button (opens the side menu) on the left, the ShiCards name in the middle, your streak flame on the right */
-.bar-home{display:grid;grid-template-columns:1fr auto 1fr}
-.bar-home .hm-menu{justify-self:start}
 .hm-streak{justify-self:end;display:flex;align-items:center;gap:1px;height:42px;padding:0 8px 0 4px;border-radius:21px;transition:opacity .2s}
 .hm-streak:active{opacity:.4;transition:none}
 .hm-streak .flame{width:30px;height:30px;flex:none;margin-right:1px}
 .hm-streak b{font-family:var(--display);font-size:21px;font-weight:600;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .hm-streak:not(.on) b{color:var(--muted)}
-/* one place for every tab's headline (Lessons, Map, Read): a 60px row at the very top, the same height as the Decks bar, so the
-   headline and any button beside it sit at the same spot on every tab; Profile keeps only its settings button, on the right */
+/* one place for every tab's headline (Decks, Lessons, Map, Read, Profile): a 60px row at the very top, the headline on the left
+   and its buttons (streak flame, menu) on the right, so they sit at the same spot on every tab */
 .screen .pg-head{height:60px;margin-top:0;margin-bottom:14px;align-items:center;flex:none}
-.bar-end{justify-content:flex-end}
+.pg-tr{display:flex;align-items:center;margin-right:-12px}
+.pg-head + .hd-stack{margin-top:0}
 .bar-head{flex:1;margin:0;padding-left:10px;font-weight:700;font-size:32px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
 .bar-zh{font-family:var(--hanzi);font-weight:600;font-size:27px;color:var(--seal);letter-spacing:.04em;margin-left:4px}
-.logo-mid{justify-self:center;font-family:"Satoshi",system-ui,sans-serif;font-weight:700;font-size:17px;line-height:1;letter-spacing:-.01em;color:var(--ink)}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:16px;font:600 16.5px/1.08 var(--display);transition:opacity .2s, background .2s}
@@ -4460,8 +4457,8 @@ function ProfileView() {
   const written = cards.filter(c => (c.hist || []).length).length;
   const pct = hist.length ? Math.round(hist.filter(Boolean).length / hist.length * 100) + '%' : '–';
   return `<div class="screen fade-in">
-    <header class="bar bar-end">
-      <button class="icon-btn" data-act="settings" aria-label="App settings">${I.menu}</button></header>
+    <div class="section-head cal-head pg-head"><h2>Profile <span class="cal-zh">我的</span></h2>
+      <span class="pg-tr"><button class="icon-btn" data-act="settings" aria-label="App settings">${I.menu}</button></span></div>
     <section class="me">
       <input class="me-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
       <div class="me-sub">So ShiCards can greet you · stays on this phone</div>
@@ -5014,8 +5011,8 @@ const goLab = (n, total, fmt = String, unit = '') => !n || n * 2 >= total ? `${f
 function Home() {
   const notice = db.freeze.notice; if (notice) { db.freeze.notice = null; save(); setTimeout(() => toast(notice), 600); }
   return `<div class="screen fade-in">
-    <header class="bar bar-home">${MenuBtn()}<span class="logo-mid">ShiCards</span>
-      ${StreakBtn()}</header>
+    <div class="section-head cal-head pg-head"><h2>Decks <span class="cal-zh">卡片</span></h2>
+      <span class="pg-tr">${StreakBtn()}${MenuBtn()}</span></div>
     ${HotdStack()}
     <div class="section-head"><h2>Your decks</h2>${db.decks.length ? `<span class="sh-n">${plural(db.decks.length, 'deck')}</span>` : ''}</div>
     <button class="deck-new" data-act="new-deck">
@@ -8754,7 +8751,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.75';
+const APP_VERSION = '2.76';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
