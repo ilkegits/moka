@@ -558,22 +558,29 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 @keyframes hintDraw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.tzg .hint .hs{animation-duration:.01s}}
 .tzg.revealed .hint{opacity:0}
-/* Shi Shi when a writing answer is wrong: in the bottom section (a different character), or small in the box's corner (one part) */
-.w-lfb{margin-bottom:12px;animation:lesUp .3s cubic-bezier(.2,.8,.3,1) both}
-.w-lfb .lfb-txt b{font-size:17px}
-.w-lfb .lfb-shi{animation:wShiIn .5s .05s cubic-bezier(.2,.9,.3,1.3) both}
-.w-shi{position:absolute;right:-17px;bottom:-17px;z-index:4;width:50px;height:50px;pointer-events:none;transform-origin:50% 90%;animation:wShiIn .5s cubic-bezier(.2,.9,.3,1.3) both}
-.w-shi .shi-face{width:100%;height:100%;display:block}
-.w-shi-bub{position:relative;display:block;width:fit-content;max-width:300px;margin:10px auto 8px;padding:9px 13px 10px;border-radius:14px;background:var(--card);box-shadow:0 0 0 1.5px rgba(120,95,60,.14),0 4px 12px rgba(60,40,20,.12);
-  font-size:13.5px;line-height:1.4;color:var(--ink-2);text-align:left;transform-origin:85% 0;animation:wBubIn .35s .22s cubic-bezier(.2,.9,.3,1.2) both}
-.w-shi-bub::before{content:"";position:absolute;right:26px;top:-6px;width:12px;height:12px;border-radius:2px;background:var(--card);transform:rotate(45deg);box-shadow:-1.5px -1.5px 0 0 rgba(120,95,60,.14)}
-.w-shi-want{display:block;font-weight:600;color:var(--ink)}
-.note .w-shi-bub .hz,.w-shi-bub .hz{font-family:var(--hanzi);font-size:19px;font-weight:600;color:var(--jade);margin-right:1px;vertical-align:-2px}
-.w-shi-not{display:block}
-.note .w-shi-not .hz,.w-shi-not .hz{color:var(--seal)}
-.w-shi-bub small{display:block;margin-top:3px;font-size:11.5px;color:var(--muted)}
-@keyframes wShiIn{from{transform:translateY(14px) scale(.4);opacity:0}60%{transform:translateY(-3px) scale(1.08);opacity:1}to{transform:none}}
-@keyframes wBubIn{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+/* Shi Shi when a writing answer is wrong: he slides in from the right edge of the screen, leaning in, and a speech bubble
+   pops out beside him (the character you wrote instead, or which part goes where). Tap him and he slides back out. */
+.shi-side{position:absolute;left:0;right:0;z-index:30;display:flex;justify-content:flex-end;align-items:flex-end;padding:30px 0 6px 20px;overflow:hidden;pointer-events:none;translate:0 -100%}
+.ss-bub{position:relative;max-width:min(280px,calc(100% - 96px));margin:0 4px 50px 0;padding:10px 14px 11px;border-radius:16px;background:var(--card);pointer-events:auto;
+  box-shadow:0 0 0 1.5px rgba(120,95,60,.14),0 10px 24px -8px rgba(60,40,20,.3);font-size:14px;line-height:1.4;color:var(--ink-2);text-align:left;
+  transform-origin:100% 80%;transform:scale(.3);opacity:0;animation:ssBub .38s .42s cubic-bezier(.2,.9,.3,1.3) forwards}
+.ss-bub::after{content:"";position:absolute;right:-6px;bottom:16px;width:14px;height:14px;border-radius:3px;background:var(--card);transform:rotate(45deg);box-shadow:1.5px -1.5px 0 0 rgba(120,95,60,.1)}
+.ss-t{display:block;font-size:16px;font-weight:800;color:var(--ink)}
+.ss-bub .hz{font-family:var(--hanzi);font-size:21px;font-weight:600;color:var(--seal);vertical-align:-2px}
+.ss-t.ok .hz{color:var(--jade)}
+.ss-bub > span{display:block}
+.ss-g{white-space:nowrap;font-weight:500;font-size:14px;color:var(--ink-2)}
+.ss-bub small{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
+.ss-lion{flex:none;width:104px;height:104px;margin-right:-22px;pointer-events:auto;transform-origin:100% 100%;transform:translateX(130%) rotate(35deg);
+  animation:ssIn .62s .04s cubic-bezier(.3,1.35,.5,1) forwards}
+.ss-lion .shi-face{width:100%;height:100%;display:block;transform-origin:70% 90%;animation:ssBob 2.6s 1s ease-in-out infinite}
+.shi-side.out .ss-lion{animation:ssOut .34s cubic-bezier(.5,0,.8,.4) forwards}
+.shi-side.out .ss-bub{animation:ssBubOut .2s ease-in forwards}
+@keyframes ssIn{from{transform:translateX(130%) rotate(35deg)}to{transform:rotate(-10deg)}}
+@keyframes ssOut{from{transform:rotate(-10deg)}to{transform:translateX(130%) rotate(35deg)}}
+@keyframes ssBob{0%,100%{transform:none}50%{transform:translateY(-4px) rotate(-3deg)}}
+@keyframes ssBub{to{transform:none;opacity:1}}
+@keyframes ssBubOut{from{transform:none;opacity:1}to{transform:scale(.3);opacity:0}}
 /* the end of a writing round: Shi Shi jumps up big and cheers, with paper confetti */
 .ws-end{padding-top:6px}
 .ws-stage{position:relative;height:300px;margin:4px auto 10px;max-width:350px}
@@ -584,7 +591,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .ws-bit{position:absolute;left:calc(50% - 34px);bottom:150px;width:8px;height:11px;border-radius:2px;opacity:0}
 .ws-score{font-size:17px;color:var(--ink-2);margin-top:2px}
 .ws-score b{font-family:var(--display);font-size:46px;font-weight:600;color:var(--ink);line-height:1;vertical-align:-6px;margin-right:4px}
-@media (prefers-reduced-motion:reduce){.w-lfb,.w-lfb .lfb-shi,.w-shi,.w-shi-bub{animation:none}.ws-lion,.ws-bubble{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.ss-lion,.ss-lion .shi-face,.ss-bub{animation:none;transform:rotate(-10deg)}.ss-bub{transform:none;opacity:1}.ws-lion,.ws-bubble{transform:none;opacity:1}}
 .note .hz{font-family:var(--hanzi);font-size:18px;font-weight:600;color:var(--seal);vertical-align:-2px}
 .tzg .hint .hg{transition:opacity .45s ease-out}
 .tzg .hint .hg.gone{opacity:0}
@@ -4630,7 +4637,7 @@ function writeDock() {
   if (W.revealed && W.judge && W.judge.ok !== null)
     return W.judge.ok
       ? `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Count as wrong</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Next</button></div>`
-      : `${missStrip()}<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="1">I was right</button><button class="btn btn-primary" data-act="grade" data-ok="0">Next</button></div>`;
+      : `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="1">I was right</button><button class="btn btn-primary" data-act="grade" data-ok="0">Next</button></div>`;
   if (W.revealed || W.guidedDone)
     return `<div class="row-btns"><button class="btn btn-ghost" data-act="grade" data-ok="0">Missed it</button><button class="btn btn-jade" data-act="grade" data-ok="1">${I.check}Got it</button></div>`;
   if (guided) return `<button class="btn btn-quiet wide" data-act="skip">Skip card</button>`;
@@ -5091,27 +5098,36 @@ function showVerdict() {   // the checker's answer: green or red ring per box, t
   if (M) {
     const back = (W.tries[W.order[W.i]] || 0) < 2;   // a miss comes back at the end of the round (twice at most)
     M.cheer = back ? 'It comes back at the end of the round. You’ve got this!' : ['Next time you’ve got it!', 'So close. You’ll get it next time!'][W.i % 2];
-    if (M.kind === 'part') { M.corner = missCorner(M); boxes[M.i]?.insertAdjacentHTML('beforeend', M.corner.face); }
     LOG.add('write-shi', { kind: M.kind, box: M.i + 1, wrote: M.w, want: M.want, got: M.got, pos: M.pos });
   }
-  $('#note').innerHTML = M?.corner ? M.corner.say + 'Tap a box to watch the stroke order.'
-    : (W.judge && !M ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
+  $('#note').innerHTML = (W.judge && !M ? judgeNote(chars) + '<br>' : '') + 'Tap a box to watch the stroke order.';
   $('#wdock').innerHTML = writeDock();
+  if (M) showShiSide(M);
   if (W.judge?.ok != null) { W.sounded = true; W.judge.ok ? chime() : buzz(); }
 }
-/* Shi Shi in the bottom section: what you wrote instead (清 qīng · clear), or why it isn't right yet, and a kind word */
-function missStrip() {
-  const M = S.write.miss; if (!M || M.kind === 'part') return '';
-  const x = M.kind === 'char' ? charInfo(M.w) : null;
-  return `<div class="lfb w-lfb" role="status"><span class="lfb-shi">${shiFace('miss')}</span><span class="lfb-txt">${M.kind === 'char'
-    ? `<b>You wrote <span class="lfb-hz">${esc(M.w)}</span></b><span>${x.p ? esc(x.p) : ''}${x.p && x.en ? ' · ' : ''}${x.en ? esc(x.en) : ''}</span>`
-    : `<b>${esc(M.why)}</b>`}<small>${esc(M.cheer)}</small></span></div>`;
+/* Shi Shi slides in from the side of the screen with a speech bubble: what you wrote instead (清 qīng · clear),
+   which part goes where (Left part: 日, not 氵, that makes 清), or why it isn't right yet, and a kind word */
+const ssLabel = n => { const x = partInfo(n), g = [x.p, x.en].filter(Boolean).map(esc).join(' · ');   // 子 zǐ · child, the reading kept on one line
+  return `<b class="hz">${esc(n)}</b>${g ? ` <span class="ss-g">${g}</span>` : ''}`; };
+function shiSide(M) {
+  const n = $$('#grid .tzg').length > 1 ? ` in box ${M.i + 1}` : '';
+  let say;
+  if (M.kind === 'part') {
+    const pos = M.pos ? M.pos[0].toUpperCase() + M.pos.slice(1) + ' part' : 'This part';
+    say = `<strong class="ss-t ok">${pos}${n}: ${ssLabel(M.want)}</strong>${M.got ? `<span>not ${ssLabel(M.got)}${M.w ? `, that makes <b class="hz">${esc(M.w)}</b>` : ''}</span>` : M.w ? `<span>yours reads <b class="hz">${esc(M.w)}</b></span>` : ''}`;
+  } else if (M.kind === 'char') {
+    const x = charInfo(M.w);
+    say = `<strong class="ss-t">You wrote <b class="hz">${esc(M.w)}</b>${n}</strong><span>${x.p ? esc(x.p) : ''}${x.p && x.en ? ' · ' : ''}${x.en ? esc(x.en) : ''}</span>`;
+  } else say = `<strong class="ss-t">${esc(M.why)}</strong>`;
+  return `<div class="shi-side" role="status"><div class="ss-bub">${say}<small>${esc(M.cheer)}</small></div><div class="ss-lion">${shiFace(M.kind === 'part' ? 'peek' : 'miss')}</div></div>`;
 }
-/* Shi Shi small in the corner of the box when one part is wrong: which part goes there (and what you put instead) */
-function missCorner(M) {   // his face on the box's bottom corner; what he says goes just under the box, so the character stays clear
-  const pos = M.pos ? M.pos[0].toUpperCase() + M.pos.slice(1) + ' part: ' : 'This part: ';
-  return { face: `<span class="w-shi">${shiFace('peek')}</span>`,
-    say: `<div class="w-shi-bub" role="status"><span class="w-shi-want">${pos}${partLabel(M.want)}</span>${M.got ? `<span class="w-shi-not">not ${partLabel(M.got)}${M.w ? `, that makes <b class="hz">${esc(M.w)}</b>` : ''}</span>` : M.w ? `<span class="w-shi-not">yours reads <b class="hz">${esc(M.w)}</b></span>` : ''}<small>${esc(M.cheer)}</small></div>` };
+function showShiSide(M) {   // just above the Next buttons, over the screen; tap him and he slides back out
+  $('.shi-side')?.remove();
+  const app = $('#app'), dock = $('#wdock'); if (!dock) return;
+  app.insertAdjacentHTML('beforeend', shiSide(M));
+  const el = $('.shi-side', app), ar = app.getBoundingClientRect();
+  el.style.top = (dock.getBoundingClientRect().top - ar.top + app.scrollTop + 6) + 'px';
+  el.onclick = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 360); };
 }
 function initGuided(boxes, chars, s) {
   const W = S.write;
@@ -6066,7 +6082,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.12';
+const APP_VERSION = '2.13';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

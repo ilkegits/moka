@@ -1,1 +1,1 @@
-{"version": "2.12", "notes": "A tidier look: labels like Hanzi of the day and Story time are no longer in shouting capitals, the daily cards lose the yellow glow patch for a clean flat red, the empty word bank tip reads left to right, the Read tab has a title like the other tabs (Stories 故事), and pop-up messages no longer end in emoji"}
+{"version": "2.13", "notes": "When you write the wrong character or get one part wrong, Shi Shi now slides in from the side of the screen with a speech bubble telling you what you wrote, instead of a message box. Tap him and he slides away"}
