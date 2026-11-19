@@ -917,7 +917,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-play.tm-go:active{transform:translateY(3px);box-shadow:inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
 .tm-tr{display:flex;align-items:center;gap:8px}
-/* the Shop: a round red badge under the coins, gold coins spilling over its top, its name on a ribbon across the bottom */
+/* the Shop: a round red badge under the coins, a little market stall poking over its top, its name on a ribbon across the bottom */
 .tm-shopb{position:absolute;z-index:2;right:18px;top:68px;width:64px;height:72px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tm-shopb-d{position:absolute;left:4px;top:8px;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 50% 30%,#E8463A,#B41D17 70%);
   box-shadow:inset 0 -4px 0 rgba(90,10,5,.3),0 10px 16px -8px rgba(60,10,5,.7)}
@@ -6494,13 +6494,20 @@ function TrailView() {
 }
 const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
   return due ? `Unit ${due} test` : n ? `Lesson ${n}` : `HSK ${openLevel()} words`; };
-const shopPile = () => {   // a stack of cash coins seen from the side, and one standing up in front of it
-  const K = '#8A4A06', B = '#FFC21F', R = '#E89B0C', H = '#FFF3B0';
-  let s = '';
-  for (const [x, y] of [[19, 41], [19, 35], [19, 29], [19, 23], [37, 44], [37, 38]]) s += `<path d="M${x - 12} ${y}v5a12 4.6 0 0 0 24 0v-5" fill="${R}" stroke="${K}" stroke-width="1.6"/><ellipse cx="${x}" cy="${y}" rx="12" ry="4.6" fill="${B}" stroke="${K}" stroke-width="1.6"/>`;
-  s += `<path d="M16.6 21.8h4.8v2.4h-4.8Z" fill="${R}"/><path d="M34.6 36.8h4.8v2.4h-4.8Z" fill="${R}"/>`;
-  s += `<g transform="translate(28 14) rotate(14 12 12)"><path d="M1.7 12a10.3 10.3 0 1 0 20.6 0a10.3 10.3 0 1 0-20.6 0ZM9.5 9.5h5v5h-5Z" fill-rule="evenodd" fill="${B}" stroke="${K}" stroke-width="1.7"/><circle cx="12" cy="12" r="7.4" fill="none" stroke="${R}" stroke-width="1.2"/><path d="M5.2 8.6a7.6 7.6 0 0 1 3.6-3.5" fill="none" stroke="${H}" stroke-width="1.5" stroke-linecap="round"/></g>`;
-  s += `<path d="M48 6l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2Z" fill="${H}" stroke="${K}" stroke-width=".9" stroke-linejoin="round"/>`;
+const shopPile = () => {   // a little market stall: a striped awning, its scalloped edge poking out over the disc, above a shop front
+  const K = '#7A2410', G = '#FFC21F', C = '#FFF6E6', top = [15, 39], bot = [7, 47], y0 = 11, y1 = 24, n = 6;
+  const at = (e, k) => e[0] + (e[1] - e[0]) * k / n, w = (bot[1] - bot[0]) / n;
+  let s = `<rect x="11.5" y="23" width="31" height="23" rx="2.5" fill="${C}" stroke="${K}" stroke-width="1.3"/>`
+    + `<rect x="15.5" y="29.5" width="11" height="8.5" rx="1.5" fill="#B41D17"/><path d="M15.5 34h11M21 29.5v8.5" stroke="${G}" stroke-width="1.2"/>`
+    + `<path d="M29.5 46V31.5a1.5 1.5 0 0 1 1.5-1.5h6a1.5 1.5 0 0 1 1.5 1.5V46" fill="#8E1A12"/><circle cx="35.6" cy="38.6" r=".9" fill="${G}"/>`
+    + `<path d="M13.5 41.5h13" stroke="${G}" stroke-width="2.4" stroke-linecap="round"/>`;
+  for (let k = 0; k < n; k++) {   // the stripes, then a half-round flap under each
+    const f = k % 2 ? C : G;
+    s += `<path d="M${at(top, k)} ${y0}L${at(top, k + 1)} ${y0}L${at(bot, k + 1)} ${y1}L${at(bot, k)} ${y1}Z" fill="${f}"/>`
+      + `<path d="M${at(bot, k)} ${y1}a${w / 2} ${w / 2} 0 0 0 ${w} 0Z" fill="${f}" stroke="${K}" stroke-width="1.3" stroke-linejoin="round"/>`;
+  }
+  s += `<path d="M${top[0]} ${y0}H${top[1]}L${bot[1]} ${y1}H${bot[0]}Z" fill="none" stroke="${K}" stroke-width="1.3" stroke-linejoin="round"/>`
+    + `<rect x="${top[0] - 1.5}" y="${y0 - 3}" width="${top[1] - top[0] + 3}" height="4" rx="2" fill="#E8463A" stroke="${K}" stroke-width="1.3"/>`;
   return `<svg viewBox="0 0 54 52" aria-hidden="true">${s}</svg>`;
 };
 function mapHud() {   // along the bottom, as in a game: Play (the shop is the round button up top); once every monument is yours, that too
@@ -8632,7 +8639,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.70';
+const APP_VERSION = '2.71';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
