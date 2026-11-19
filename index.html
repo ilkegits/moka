@@ -804,6 +804,19 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-cta .btn{min-width:68%;box-shadow:0 0 0 4px var(--paper),0 10px 20px -8px rgba(120,30,20,.55)}
 .mp-cta .qa-glyph{width:26px;height:26px;font-size:16px;transform:none;background:var(--seal-ink);color:var(--seal)}
 .mp-hint{margin:10px 12px 0;text-align:center;font-size:13px;color:var(--muted)}
+.mp-hint .mp-more{display:block;margin:2px auto 0;padding:6px 2px;font-size:14px;font-weight:600}
+.mp-lant{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:11px 12px;border-radius:12px;background:var(--card);box-shadow:var(--ring);font-size:13px;line-height:1.4;color:var(--ink-2)}
+.mp-lant-i{flex:none;width:14px;height:17px;margin-top:1px;border-radius:50%/45%;background:#D9412F;box-shadow:inset 0 3px 0 -1px #E8B44C,inset 0 -3px 0 -1px #E8B44C}
+/* Fast build: the lesson's answer cards, with a line under them saying what happened */
+.fb-note{margin:14px 2px 0;padding:11px 14px;border-radius:12px;font-size:14.5px;line-height:1.4}
+.fb-note.ok{background:color-mix(in srgb,var(--jade) 12%,var(--card));color:var(--jade)}
+.fb-note.no{background:var(--seal-soft);color:var(--seal)}
+.fb-end h1{margin:8px 0 6px}
+.fb-end .muted{max-width:320px}
+.fb-seg{width:100%;margin-top:22px;padding:14px 16px;border-radius:16px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.fb-seg .mp-seg{display:grid}
+.fb-seg small{display:block;margin-top:9px;font-size:12.5px;color:var(--muted)}
+.fb-acts{display:grid;gap:10px}
 .mp-info{margin:22px 2px 0}
 .mp-info h2{margin:0 0 6px;font-family:var(--display);font-weight:600;font-size:21px}
 .mp-count{margin:0 0 10px;font-size:14px;color:var(--ink-2)}
@@ -858,6 +871,20 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .bank-hero .bank-num{font-size:76px}
 .bank-hero .bank-lbl{font-size:15px;color:var(--ink-2)}
 .bank-hero .bank-lbl small{display:block;font-size:13px;color:var(--muted)}
+/* the word bank by stage: known (ticked or placed), proven (they build the temples), mastered (they hang lanterns) */
+.bank-stages{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 22px}
+.bank-stages .bs{padding:10px 10px 11px;border-radius:12px;background:var(--card);box-shadow:var(--ring)}
+.bank-stages .bs b{display:block;font-family:var(--display);font-weight:600;font-size:24px;line-height:1.05;font-variant-numeric:lining-nums}
+.bank-stages .bs span{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.bank-stages .bs small{display:block;margin-top:2px;font-size:11.5px;line-height:1.3;color:var(--muted)}
+.bank-stages p{grid-column:1/-1;margin:2px 2px 0;font-size:12.5px;line-height:1.4;color:var(--muted)}
+.w-dot{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;font-style:normal}
+.w-dot.known{box-shadow:inset 0 0 0 1.5px var(--muted)}
+.w-dot.proven{background:var(--jade)}
+.w-dot.mastered{background:#E2AE45;box-shadow:0 0 0 2px color-mix(in srgb,#E2AE45 30%,transparent)}
+.word .hz{position:relative;padding-right:11px}
+.word .hz .w-dot{position:absolute;right:0;top:3px}
+.word-row.st-known .hz{color:var(--muted)}
 .char-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:26px}
 .char-grid span{width:40px;height:40px;display:grid;place-items:center;border-radius:9px;background:var(--card);box-shadow:var(--shadow-sm);font-family:var(--hanzi);font-size:23px}
 /* grouped list: rows inside one rounded group, hairlines start where the text starts (--sep) */
@@ -1993,6 +2020,23 @@ db.days = db.days && typeof db.days === 'object' ? db.days : {};   // per day ("
 // streak freezes: have = how many are saved up (at most 2), days = the days a freeze covered, run/given = the 7-day rewards of the current streak
 db.freeze = Object.assign({ have: 1, days: [], run: null, given: 0 }, db.freeze);
 db.mapSeen = db.mapSeen && typeof db.mapSeen === 'object' ? db.mapSeen : {};   // Map: { HSK level: temple pieces you have seen built }
+/* v2.35: temples are built by proven words (w.pf, see proveWord), no longer by every word in the word bank. Once, for
+   phones that already have words: a word you got right on a later day than you first met it counts as proven, and every
+   piece already standing stays standing (db.mapKeep = { HSK level: pieces }), so nobody loses what they built. */
+if (!db.pfMig) {
+  const keep = {}, per = {}, dk = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
+  for (const w of db.bank) {
+    const s = w.srs; if (w.hsk) per[w.hsk] = (per[w.hsk] || 0) + 1;
+    if (!w.pf && s && s.n >= 1 && s.seen && s.first && dk(s.seen) !== dk(s.first)) w.pf = { d: dk(s.first), at: s.seen };
+  }
+  for (const lv of [1, 2, 3, 4, 5]) {
+    const total = { 1: 294, 2: 197, 3: 487, 4: 972, 5: 1547 }[lv], n = per[lv] || 0;
+    const k = Math.max(db.mapSeen[lv] || 0, [.06, .15, .27, .40, .54, .68, .84, 1].filter(t => n >= Math.max(2, Math.ceil(t * total))).length);
+    if (k) keep[lv] = k;
+  }
+  db.mapKeep = keep; db.pfMig = 1;
+}
+db.mapKeep = db.mapKeep && typeof db.mapKeep === 'object' ? db.mapKeep : {};
 save();
 
 const deckById = id => id === 'les' ? S.les?.wd : id === 'bank' ? bankDeck() : id === 'today' ? (S.today || todayDeck()) : db.decks.find(d => d.id === id);
@@ -2013,6 +2057,7 @@ function parse() {
   if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(5, Math.max(0, +p[1] || 0)) || null };
+  if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(5, Math.max(1, +p[1] || 1)) };
   if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
@@ -2031,6 +2076,8 @@ function route() {
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
   if (S.view === 'lesson') r.test ? utRoute(r.test) : lesRoute(r.les);
+  if (S.view === 'build') { if (!S.fb || S.fb.lv !== r.city || S.fb.done) fbStart(r.city); }   // Fast build: a round of known words to prove
+  else if (S.fb) { clearTimeout(S.fb.timer); S.fb = null; }
   // what you used last, for the slot under the word bank on the Decks page
   if (d && S.deckId !== 'bank' && S.deckId !== 'today' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
   if (S.view === 'read' && !S.readId && db.readCur?.opened) { db.last = { t: 'read' }; save(); }
@@ -2306,6 +2353,7 @@ function render() {
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); }
   else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'map') { app.innerHTML = MapView(); mountMap(); }
+  else if (S.view === 'build') { app.innerHTML = BuildView(); }
   else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
   else if (S.view === 'profile') { app.innerHTML = ProfileView(); }
   else if (S.view === 'streak') { app.innerHTML = StreakView(); }
@@ -3312,6 +3360,7 @@ function lesAct(k, b) {
       }
       if (E.ok || Q.again || E.test) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E) sayZh(Q.w.h); }, 350);
+      if (!Q.again) proveWord(Q.w.h, E.ok);   // a word already in your word bank, right again on another day
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
       lesPaint(); if (E.ok) lesAutoNext(); return;
     }
@@ -3326,6 +3375,7 @@ function lesAct(k, b) {
         const ok = k === 'fyes';
         if (ok) { E.combo++; E.best = Math.max(E.best, E.combo); lesGain(Q.again ? 5 : 10 + 5 * Math.min(E.combo - 1, 3)); chime(); }
         else { E.combo = 0; if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); E.q.push({ t: 'flip', w: Q.w, again: true }); } }
+        if (!Q.again) proveWord(Q.w.h, ok);
         LOG.add('lesson-card', { n: E.n, hz: Q.w.h, knew: ok, again: !!Q.again });
         lesStep();
       }
@@ -3348,7 +3398,7 @@ function lesStep() {   // on to the next card or task
 function finishLesson() {
   const E = S.les, now = Date.now(), add = E.words.filter(w => !bankHas(w.h));
   add.slice().reverse().forEach(w => db.bank.unshift({ id: uid(), hanzi: w.h, pinyin: w.p, en: w.en, added: now, hsk: S.H?.byHz.get(w.h)?.lv || 1,
-    src: 'lesson', les: E.n, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));
+    src: 'lesson', les: E.n, pf: { d: dayKey(now) }, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));   // right once today: right again on another day proves it
   const again = E.q.filter(x => x.again).length, pct = Math.round((E.nq - again) / E.nq * 100);   // cards you knew the first time; the writing doesn't count here
   const seals = 1 + (pct >= 80) + (E.nWrite > 0 && !E.skipW);
   const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts;
@@ -3617,7 +3667,7 @@ const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '�
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 function practiceDays() {   // the days you practised cards, wrote, finished a lesson or finished a story
   const days = new Set(db.readDone.map(s => dayKey(s.done)));
-  for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length || v?.les?.length) days.add(k);
+  for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length || v?.les?.length || v?.fb) days.add(k);
   return days;
 }
 /* A freeze covers a day you missed so the streak lives on. You start with one, get one more for every 7 days in a row
@@ -5029,11 +5079,19 @@ const TRAIL = [
     pieces: ['first marble terrace', 'second terrace', 'third terrace', 'red round walls', 'lower blue roof', 'middle blue roof', 'top roof and gold', 'festival night'] },
 ];
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
-function trailState(lv) {
-  const mine = db.bank.filter(w => trailLv(w) === lv), n = mine.length, total = S.H?.levels[lv]?.length || HSK_COUNT[lv];
-  const need = TRAIL_TH.map(t => Math.max(2, Math.ceil(t * total))), k = need.filter(x => n >= x).length;
-  return { lv, n, total, need, k, started: n > 0, done: k === 8, seen: db.mapSeen?.[lv] ?? 0, words: mine.slice(0, 4) };
+function trailState(lv) {   // n = proven words of the level (they build), open = known ones a Fast build can prove, mast = mastered
+  const mine = db.bank.filter(w => trailLv(w) === lv), pv = mine.filter(w => w.pf?.at), n = pv.length, total = S.H?.levels[lv]?.length || HSK_COUNT[lv];
+  const need = TRAIL_TH.map(t => Math.max(2, Math.ceil(t * total))), k = Math.max(db.mapKeep?.[lv] || 0, need.filter(x => n >= x).length), now = Date.now();
+  return { lv, n, total, need, k, started: mine.length > 0, done: k === 8, seen: db.mapSeen?.[lv] ?? 0, words: (pv.length ? pv : mine).slice(0, 4),
+    open: mine.length - n, mast: pv.filter(w => w.pf.m).length, due: pv.filter(w => w.srs?.due <= now).length };
 }
+/* the city you are building in: the first unfinished one from your own level up (an HSK 3 learner starts in Shanghai,
+   not Chengdu); once those are done, the unfinished ones below it */
+const trailStart = () => Math.min(5, Math.max(1, db.prefs.level || 1));
+const trailCur = sts => { const i = sts.findIndex(x => !x.done && x.lv >= trailStart()); return i >= 0 ? i : sts.findIndex(x => !x.done); };
+/* mastered words hang lanterns over a temple: 2 for each step of 5, 15, 30 and 50% of the level mastered */
+const LANT_TH = [.05, .15, .30, .50];
+const trailLanterns = st => st.mast ? 2 * LANT_TH.filter(t => st.mast >= Math.max(3, Math.ceil(t * st.total))).length : 0;
 const Trail = (() => {
   const K = Temple.kit, f = K.f, INK = K.INK;
   /* China, clockwise from the far north (lon, lat): the Amur and Ussuri, North Korea, the coast, Vietnam, Laos, Myanmar,
@@ -5377,7 +5435,7 @@ const Trail = (() => {
   const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   function map(states) {
     if (CAM.x == null) Object.assign(CAM, home());
-    const [under, over] = drawn(), cur = states.findIndex(x => !x.done), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
+    const [under, over] = drawn(), cur = trailCur(states), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
       <svg id="tmSvg" ${box} role="group" aria-label="A map of China with the monuments you have built. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
     TRAIL.map((c, i) => ({ c, st: states[i], i })).filter(o => o.st.k || o.i === cur).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st, i }) => {   // northern ones first, so nearer ones overlap them; a level with nothing built yet is not on the map, unless it is the one you are building
@@ -5725,12 +5783,28 @@ const Trail = (() => {
     if (k >= 1 && k < 8) s += scaffold(T.box);
     return s;
   }
+  function lanterns(m, lit, night) {   // mastered words: red lanterns on a rope across the sky; dim while proven words wait for review
+    if (!m) return '';
+    const pt = t => [(1 - t) * (1 - t) * -6 + 2 * t * (1 - t) * 180 + t * t * 366, (1 - t) * (1 - t) * 26 + 2 * t * (1 - t) * 84 + t * t * 26];
+    let s = `<g class="mp-lants${lit ? ' lit' : ''}"><path d="M-6 26Q180 84 366 26" fill="none" stroke="${INK}" stroke-width="1.4" opacity=".75"/>`;
+    for (let i = 0; i < m; i++) {
+      const [x, y] = pt((i + 1) / (m + 1)), body = lit ? '#D9412F' : '#9A6A60', rib = lit ? '#A82A1E' : '#7A5149';
+      s += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(1.3)">`
+        + (lit ? `<circle cy="11" r="${night ? 15 : 11}" fill="url(#mpLantGlow)"/>` : '')
+        + `<path d="M0 0v4" stroke="${INK}" stroke-width="1.1"/><rect x="-3.4" y="3.4" width="6.8" height="2.4" rx=".6" fill="#E8B44C" stroke="${INK}" stroke-width=".9"/>`
+        + `<ellipse cy="11" rx="7" ry="6.2" fill="${body}" stroke="${INK}" stroke-width="1.3"/><ellipse cy="11" rx="2.8" ry="6" fill="none" stroke="${rib}" stroke-width="1"/>`
+        + (lit ? `<ellipse cx="-2.6" cy="9" rx="1.6" ry="2.6" fill="#FFB38A" opacity=".75"/>` : '')
+        + `<rect x="-3.4" y="16.2" width="6.8" height="2.4" rx=".6" fill="#E8B44C" stroke="${INK}" stroke-width=".9"/><path d="M0 18.6v6M-1.4 19v4.6M1.4 19v4.6" stroke="#E8B44C" stroke-width="1" stroke-linecap="round"/></g>`;
+    }
+    return s + `</g><defs><radialGradient id="mpLantGlow"><stop offset="0" stop-color="#FFD98A" stop-opacity="${night ? .75 : .45}"/><stop offset="1" stop-color="#FFD98A" stop-opacity="0"/></radialGradient></defs>`;
+  }
   function scene(lv, st, night, from) {
     const T = TT[lv - 1], P0 = K.pal(night), P = T.pal ? T.pal(P0) : P0, ctx = { n: st.n, started: st.started, words: st.words };
     K.reset();
     let s = `<svg viewBox="0 0 360 252" aria-hidden="true" style="--plan:${P.plan}">${K.defs(P)}${defs(P)}${T.back(P, st.k)}`;
     const rev = from != null && from < st.k;
     s += rev ? `<g class="mp-old">${layer(T, from, P, ctx)}</g><g class="mp-new">${layer(T, st.k, P, ctx)}</g>` : layer(T, st.k, P, ctx);
+    if (st.started) s += lanterns(trailLanterns(st), !st.due, night);
     if (st.k < Math.min(8, T.board || 8)) s += K.sign(42, 246, st.n, P);
     if (rev) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
@@ -5742,7 +5816,7 @@ function MapView() {
   if (!S.H) loadHsk().then(() => { if (S.view === 'map') { S.instant = true; render(); } }, () => {});
   return S.mapLv ? CityView(S.mapLv) : TrailView();
 }
-const trailSeg = st => TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
+const trailSeg = st => TRAIL_TH.map((_, i) => { const lo = i ? st.need[i - 1] : 0, p = i < st.k ? 1 : Math.max(0, Math.min(1, (st.n - lo) / (st.need[i] - lo)));
   return `<i class="${p >= 1 ? 'full' : p > 0 ? 'part' : ''}"><b style="width:${(p * 100).toFixed(1)}%"></b></i>`; }).join('');
 function TrailView() {
   const sts = TRAIL.map(c => trailState(c.lv)), built = sts.reduce((a, x) => a + x.k, 0), C = Trail.CAM;
@@ -5755,10 +5829,11 @@ function TrailView() {
   </div>`;
 }
 function mapHud() {   // along the bottom, as in a game: how far the monument you are on has come, and one big button that goes on building it
-  const sts = TRAIL.map(c => trailState(c.lv)), i = sts.findIndex(x => !x.done), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv;
+  const sts = TRAIL.map(c => trailState(c.lv)), i = trailCur(sts), st = sts[i < 0 ? sts.length - 1 : i], lv = st.lv;
   return `<div class="tm-hud tm-ui"><button class="tm-now" data-act="map-city" data-lv="${lv}" aria-label="HSK ${lv}: ${st.k} of 8 pieces built. Show it on the map">
       <span class="tm-now-t"><small>HSK ${lv}</small><span class="tm-now-bar"><i style="width:${(st.k / 8 * 100).toFixed(0)}%"></i><b>${st.k}/8</b></span></span><span class="tm-med s">${Trail.mini(lv, st)}</span></button>
-    <button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>${i < 0 ? 'Add more words' : st.started ? 'Continue building' : 'Build now'}</span></button></div>`;
+    ${st.open && i >= 0 ? `<button class="tm-play" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>Fast build</span></button>`
+      : `<button class="tm-play" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span><span>${i < 0 ? 'Add more words' : st.started ? 'Continue building' : 'Build now'}</span></button>`}</div>`;
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and how far along it is; the marker of one not begun tells you only its level
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
@@ -5767,11 +5842,12 @@ function mapCard(lv) {   // what a tap on a monument shows: its name and how far
     <div class="tm-body"><small class="tm-city">HSK ${lv}</small><h3>Undiscovered <span>未知</span></h3><p>Something will stand here. Your first HSK ${lv} word breaks ground.</p></div>
     <div class="tm-acts">${go('Build now')}</div></div>`;
   const m = st.k < 8 ? st.need[st.k] - st.n : 0;
-  const line = st.done ? 'All 8 pieces built.' : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'word')}` : `Ground broken · first piece in ${plural(m, 'word')}`;
+  const line = st.done ? 'All 8 pieces built.' : st.k ? `${st.k} of 8 pieces · next piece in ${plural(m, 'proven word')}` : `Ground broken · first piece in ${plural(m, 'proven word')}`;
+  const fast = st.open && !st.done ? `<button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button>` : '';
   return `<div class="tm-card tm-ui${st.done ? ' done' : ''}" role="dialog" aria-label="${c.name}, ${esc(c.en)}">${x}${med}
     <div class="tm-body"><small class="tm-city">${esc(c.en)} <b>${c.zh}</b> · HSK ${lv}</small><h3>${c.name} <span>${c.nzh}</span></h3><div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
       <p>${st.k > st.seen ? '<em>New</em>' : ''}${line}</p></div>
-    <div class="tm-acts"><button class="btn btn-ghost" data-act="map-visit" data-lv="${lv}">Visit</button>${go(st.done ? 'Add more words' : 'Continue building')}</div></div>`;
+    <div class="tm-acts"><button class="btn btn-ghost" data-act="map-visit" data-lv="${lv}">Visit</button>${fast || go(st.done ? 'Add more words' : 'Continue building')}</div></div>`;
 }
 function mapPick(lv) {   // tap a monument: the map flies to it and its card comes up
   const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
@@ -5781,8 +5857,8 @@ function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) { s.inne
 function trailNext(lv) {   // what Continue building does, in words
   if (lv === 1) { const due = utDue(), n = lesNext();
     if (due) return `Next: the Unit ${due} test, then the lessons go on.`;
-    if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. Its words join your word bank when you finish.`; }
-  return `Tick the HSK ${lv} words you already know. They join your word bank and the temple grows.`;
+    if (n) return `Next: Lesson ${n} · ${esc(LESSONS[n - 1].title)}. Its words join your word bank, and build once you get them right again on another day.`; }
+  return `Tick the HSK ${lv} words you already know, then prove them in a Fast build. Only proven words build the temple.`;
 }
 function trailGo(lv) {
   LOG.add('map-build', { lv });
@@ -5791,15 +5867,85 @@ function trailGo(lv) {
     if (n) { nav(`#/course/1/lesson/${n}`); return; } }
   nav('#/hsk/' + lv);
 }
+/* ---------- Fast build ----------
+   Prove the words you already know: up to 12 known words of one HSK level, each with four meanings to choose from. A right
+   answer proves the word at once, and proven words build that city's temple; a wrong one sends the word to your review
+   (back in 10 minutes), so the round is practice, not a free pass. */
+const FB_N = 12;
+function fbStart(lv) {
+  clearTimeout(S.fb?.timer);
+  const st = trailState(lv), pool = db.bank.filter(w => trailLv(w) === lv && !w.pf?.at && w.en);
+  S.fb = pool.length ? { lv, q: shuffle(pool).slice(0, FB_N), qi: 0, ans: null, right: 0, proven: 0, k0: st.k, opts: null } : { lv, q: [], none: true };
+  if (!S.H) loadHsk().then(() => { if (S.view === 'build' && S.fb?.lv === lv && !S.fb.qi && S.fb.ans == null) { fbStart(lv); fbPaint(); } }, () => {});
+  if (pool.length) LOG.add('fast-build-start', { lv, words: S.fb.q.length, waiting: pool.length });
+}
+function fbOpts(w) {   // its meaning and three others from the same level that can't be mistaken for it
+  const lv = trailLv(w), out = [w.en], seen = new Set([w.en.toLowerCase()]);
+  const list = S.H?.levels[lv]?.length ? S.H.levels[lv].map(meanOf) : db.bank.map(x => x.en);   // the HSK list's meanings; your own typed ones only while it loads
+  for (const e of shuffle(list)) {
+    if (out.length >= 4) break;
+    if (!e || e.length < 2 || seen.has(e.toLowerCase())) continue;
+    seen.add(e.toLowerCase()); out.push(e);
+  }
+  return shuffle(out);
+}
+const fbPaint = () => { S.instant = true; render(); };
+function BuildView() {
+  const F = S.fb, close = `<button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button>`;
+  if (!F || F.none) return `<div class="screen fade-in les-scr"><div class="les-top">${close}</div><div class="les-end fb-end"><h1>Nothing to prove here</h1>
+    <p class="muted">No words you already know are waiting in HSK ${F?.lv || ''}. Tick the ones you know in the HSK lists, then come back.</p></div>
+    <div class="les-dock"><button class="btn btn-seal wide" data-act="map-build" data-lv="${F?.lv || 1}">Tick words I know</button></div></div>`;
+  if (F.done) return fbEnd();
+  const w = F.q[F.qi], done = F.ans != null; F.opts ||= fbOpts(w);
+  const ok = done && F.opts[F.ans] === w.en, prog = (F.qi + (done ? 1 : 0)) / F.q.length;
+  const cls = (e, i) => !done ? '' : e === w.en ? (ok ? ' ok pick' : ' ok reveal') : i === F.ans ? ' no' : '';
+  return `<div class="screen fade-in les-scr fb-scr"><div class="les-top">${close}<span class="les-bar"><i style="width:${Math.max(3, prog * 100)}%"></i></span>
+      <span class="les-pts" aria-label="${plural(F.proven, 'word')} proven"><i>砖</i><b>${F.proven}</b></span></div>
+    <div class="les-body"><p class="les-ask">What does it mean?<span>Fast build · HSK ${F.lv}</span></p>
+      <div class="les-big"><span class="les-hz" style="font-size:${lesHz(w.hanzi)}px">${esc(w.hanzi)}</span><button class="les-snd" data-act="say" data-h="${esc(w.hanzi)}" aria-label="Hear it">${I.sound}</button></div>
+      <div class="les-opts list${done ? ' answered' : ''}">${F.opts.map((e, i) => `<button class="les-opt${cls(e, i)}" data-act="fb-opt" data-i="${i}"${done ? ' disabled' : ''}><span class="lo-en">${esc(e)}</span>${ok && e === w.en ? '<span class="lo-stamp" aria-hidden="true">对</span>' : ''}</button>`).join('')}</div>
+      ${done ? `<p class="fb-note ${ok ? 'ok' : 'no'}" role="status">${ok ? `<b>Proven</b> ${esc(w.pinyin || '')}` : `<b>${esc(w.hanzi)} · ${esc(w.pinyin || '')}</b> means “${esc(w.en)}”. It goes to your review.`}</p>` : ''}</div>
+    ${done && !ok ? '<div class="les-dock"><button class="btn btn-seal wide" data-act="fb-next">Continue</button></div>' : ''}</div>`;
+}
+function fbPick(i) {
+  const F = S.fb; if (!F || F.done || F.ans != null) return;
+  const w = F.q[F.qi], ok = F.opts[i] === w.en; F.ans = i;
+  if (ok) { F.right++; if (proveWord(w.hanzi, true, true)) F.proven++; chime(); F.timer = setTimeout(fbNext, 950); }
+  else { srsGrade(w, 0); buzz(); }
+  save(); LOG.add('fast-build-answer', { lv: F.lv, hz: w.hanzi, ok });
+  fbPaint();
+}
+function fbNext() {
+  const F = S.fb; if (!F || F.ans == null || S.view !== 'build') return;
+  clearTimeout(F.timer); F.ans = null; F.opts = null;
+  if (++F.qi >= F.q.length) {
+    F.done = true; const day = db.days[dayKey(Date.now())] ||= { decks: {} }; day.fb = (day.fb || 0) + 1; save();   // counts for the streak
+    const st = trailState(F.lv); LOG.add('fast-build-done', { lv: F.lv, right: F.right, of: F.q.length, proven: F.proven, pieces: st.k - F.k0 });
+  }
+  fbPaint();
+}
+function fbEnd() {
+  const F = S.fb, c = TRAIL[F.lv - 1], st = trailState(F.lv), add = st.k - F.k0, miss = F.q.length - F.right;
+  const what = st.done ? `Every piece of the ${c.name} is built.` : add > 0 ? `${add > 1 ? `${add} new pieces stand` : 'A new piece stands'} in ${esc(c.en)}.`
+    : `Next piece in ${plural(st.need[st.k] - st.n, 'proven word')}.`;
+  return `<div class="screen fade-in les-scr"><div class="les-top"><button class="icon-btn" data-act="fb-quit" aria-label="Close">${I.close}</button></div>
+    <div class="les-end fb-end"><span class="les-end-shi">${shiFace(miss ? 'cheer' : 'star')}</span>
+      <h1>${F.proven ? `${plural(F.proven, 'word')} proven` : 'Keep going'}</h1>
+      <p class="muted">${what}${miss ? ` ${plural(miss, 'word')} went to your review.` : ''}</p>
+      <div class="fb-seg"><span class="mp-seg" aria-hidden="true">${trailSeg(st)}</span><small>${st.n} of ${st.total} HSK ${F.lv} words proven · ${st.open} waiting</small></div></div>
+    <div class="les-dock fb-acts">${add > 0 || st.done ? `<button class="btn btn-seal wide" data-act="fb-see"><span class="qa-glyph">建</span>See it built</button>` : ''}
+      ${st.open ? `<button class="btn ${add > 0 ? 'btn-ghost' : 'btn-seal'} wide" data-act="fb-again">Another round</button>` : ''}
+      ${!(add > 0 || st.done) ? `<button class="btn btn-ghost wide" data-act="fb-see">Back to ${esc(c.en)}</button>` : ''}</div></div>`;
+}
 function CityView(lv) {
   const c = TRAIL[lv - 1], st = trailState(lv), from = st.k > st.seen ? st.seen : null;
   if ((db.mapSeen ||= {})[lv] !== st.k) { db.mapSeen[lv] = st.k; save(); }
   const label = !st.started ? 'Start building' : st.done ? 'Add more words' : 'Continue building';
   const m = st.k < 8 ? st.need[st.k] - st.n : 0, cap = s => s[0].toUpperCase() + s.slice(1);
   const next = !st.started ? `Your first HSK ${lv} word breaks ground here.` : st.done ? `Every piece is built. ${esc(c.en)} is finished.`
-    : `Next piece in ${plural(m, 'more word')}.`;
+    : `Next piece in ${plural(m, 'more proven word')}.`;
   const built = from != null ? c.pieces.slice(from, st.k) : [];
-  const step = (name, i) => { const need = i < 0 ? 1 : st.need[i], done = st.n >= need, cur = !done && (i < 0 || st.k === i);
+  const step = (name, i) => { const need = i < 0 ? 1 : st.need[i], done = i < 0 ? st.started : i < st.k, cur = !done && (i < 0 || st.k === i);
     return `<li class="${done ? 'done' : cur ? 'cur' : ''}"><span class="mp-tick">${done ? I.check : ''}</span><span class="mp-st-n">${done ? cap(name) : cur ? 'Next piece' : '???'}</span><small>${done ? 'Built' : cur ? `${need - st.n} more` : plural(need, 'word')}</small></li>`; };
   const enter = S.mapZoomIn; S.mapZoomIn = false;
   return `<div class="screen mp-city${enter ? ' mp-enter' : ' fade-in'}">
@@ -5807,13 +5953,17 @@ function CityView(lv) {
     <div class="mp-scene${from != null ? ' rv' : ''}">${Trail.scene(lv, st, Temple.night(), from)}
       <span class="mp-chip"><i>${lv}</i>HSK ${lv}</span>
       ${built.length ? `<div class="mp-built" role="status"><span class="mp-built-s">新</span><span><b>Built</b>${esc(built.length > 1 ? `${built.length} new pieces, last the ${built.at(-1)}` : built[0])}</span></div>` : ''}</div>
-    <div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${label}</button></div>
-    <p class="mp-hint">${trailNext(lv)}</p>
+    ${st.open && !st.done ? `<div class="mp-cta"><button class="btn btn-seal" data-act="fast-build" data-lv="${lv}"><span class="qa-glyph">建</span>Fast build</button></div>
+    <p class="mp-hint">${plural(st.open, 'word')} you already know ${st.open === 1 ? 'is' : 'are'} waiting. Get each one right once and it is proven. <button class="link-btn mp-more" data-act="map-build" data-lv="${lv}">${lv === 1 ? 'Or go on with the lessons' : 'Or tick more words'}</button></p>`
+    : `<div class="mp-cta"><button class="btn btn-seal" data-act="map-build" data-lv="${lv}"><span class="qa-glyph">建</span>${label}</button></div>
+    <p class="mp-hint">${trailNext(lv)}</p>`}
     <section class="mp-info">
       <h2>${st.started ? c.name : 'Undiscovered'} <span class="cal-zh">${st.started ? c.nzh : '未知'}</span></h2>
-      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} HSK ${lv} words in your word bank</p>
+      <p class="mp-count"><b>${st.n.toLocaleString('en')}</b> of ${st.total.toLocaleString('en')} HSK ${lv} words proven</p>
       <div class="mp-seg" aria-hidden="true">${trailSeg(st)}</div>
       <p class="mp-next">${next}</p>
+      ${st.started ? `<p class="mp-lant"><span class="mp-lant-i" aria-hidden="true"></span><span>${!st.mast ? 'A word you still know three weeks after proving it is mastered. Mastered words hang red lanterns over the temple.'
+        : `${plural(st.mast, 'mastered word')} · ${trailLanterns(st)} of 8 lanterns.${st.due && trailLanterns(st) ? ` ${plural(st.due, 'word')} ${st.due === 1 ? 'is' : 'are'} due for review: review ${st.due === 1 ? 'it' : 'them'} and the lanterns light again.` : ''}`}</span></p>` : ''}
     </section>
     <section class="mp-steps"><h3>The pieces</h3><ol>${step('ground broken', -1)}${c.pieces.map(step).join('')}</ol></section>
   </div>`;
@@ -5905,7 +6055,22 @@ const gradeLabel = (c, g) => { const p = srsPlan(c, g); return whenLabel(p ? p.d
 function srsGrade(c, g) {
   const now = Date.now();
   c.srs = Object.assign(c.srs || { first: now }, srsPlan(c, g, now) || {}, { seen: now });
+  proveWord(c.hanzi, g === 2);
   save();
+}
+/* ---------- proven words: what builds the temples on the Map ----------
+   A word in the word bank is known (you ticked it, onboarding placed it, or you added it), proven (you got it right in
+   practice on two different days) or mastered (still right three weeks or more after it was proven). Only proven words
+   build the temples, so ticking a list builds nothing by itself. In a Fast build a known word is proven with one right
+   answer. w.pf = { d: the day of the first right answer, at: when it was proven, m: when it was mastered } */
+const MASTER_GAP = 21 * DAY;
+const wStage = w => w.pf?.m ? 'mastered' : w.pf?.at ? 'proven' : 'known';
+function proveWord(hz, ok, fast) {   // a right answer in practice; returns 'proven' or 'mastered' when the word moves up
+  const w = ok && hz && bankHas(hz); if (!w) return null;
+  const now = Date.now(), today = dayKey(now), pf = w.pf ||= {};
+  if (!pf.at) { const two = pf.d && pf.d !== today; pf.d ||= today; if (fast || two) { pf.at = now; return 'proven'; } return null; }
+  if (!pf.m && now - pf.at >= MASTER_GAP) { pf.m = now; return 'mastered'; }
+  return null;
 }
 /* today's pile: every card that is due, then up to 5 new ones a day (your own decks before the word bank); a word that is
    in two places is asked once */
@@ -6747,7 +6912,7 @@ function gradeWrite(ok) {
   if (S.write?.les) return lesWriteGraded(ok);
   const W = S.write, d = curDeck(), id = W.order[W.i], c = cardById(d, id), first = !(id in W.results);
   if (!W.sounded) ok ? chime() : buzz();                              // graded by you (offline, or Show me): the sound now
-  if (first) { W.results[id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); }   // the score and the memory count first tries
+  if (first) { W.results[id] = ok; c.hist = [...(c.hist || []), ok ? 1 : 0].slice(-12); proveWord(c.hanzi, ok); }   // the score and the memory count first tries
   save(); noteDeck(d, c.id);
   W.tries[id] = (W.tries[id] || 0) + 1; W.last[id] = ok;
   if (!ok && W.tries[id] < 3) W.order.push(id);                       // missed: it comes back after the round's new words
@@ -7270,19 +7435,23 @@ function quickAddSheet() {
 }
 
 function BankView() {
-  const chars = bankCharList(), n = db.bank.length;
+  const chars = bankCharList(), n = db.bank.length, cnt = { known: 0, proven: 0, mastered: 0 };
+  db.bank.forEach(w => cnt[wStage(w)]++);
   return `<div class="screen fade-in">
     <header class="bar"><button class="icon-btn" data-act="home" aria-label="Back">${I.back}</button><div class="bar-title">Word bank</div><div style="width:42px"></div></header>
     <section class="bank-hero"><div class="bank-num">${chars.length}</div>
       <div class="bank-lbl">${chars.length === 1 ? 'character' : 'characters'} you know<small>${plural(n, 'word')} in your word bank</small></div></section>
+    ${n ? `<section class="bank-stages" aria-label="Your words by stage">${[['known', 'Known', 'Ticked or placed'], ['proven', 'Proven', 'Right on two days'], ['mastered', 'Mastered', 'Still right 3 weeks on']]
+      .map(([k, t, d]) => `<div class="bs bs-${k}"><b>${cnt[k].toLocaleString('en')}</b><span><i class="w-dot ${k}"></i>${t}</span><small>${d}</small></div>`).join('')}
+      <p>Proven words build the temples on the Map. Prove the ones you know in a Fast build there.</p></section>` : ''}
     <div class="group"><button class="row" data-act="open-hsk" style="--sep:58px"><span class="icon-sq">汉</span>
       <span class="row-main"><span class="row-t">HSK word lists</span><span class="row-s">Tick the words you already know</span></span><span class="chev">${I.chev}</span></button></div>
     ${n ? `${searchField('bankQ', 'Search hanzi, pinyin or English')}
       <div class="section-head"><h2>Characters</h2></div>
       <div class="char-grid">${chars.map(c => `<span>${esc(c)}</span>`).join('')}</div>
       <div class="section-head"><h2>Words</h2><span class="muted" style="font-size:12.5px">newest first</span></div>
-      <div class="group word-list" id="bankWords">${db.bank.map(w => `<button class="row word word-row" style="--sep:76px" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
-          <span class="hz">${esc(w.hanzi)}</span><span class="row-main"><span class="wp">${esc(w.pinyin)}</span><span class="we">${esc(w.en || '—')}</span></span>${w.hsk ? `<span class="row-val">${HSK_NAME(w.hsk)}</span>` : ''}<span class="chev">${I.chev}</span></button>`).join('')}</div>
+      <div class="group word-list" id="bankWords">${db.bank.map(w => `<button class="row word word-row st-${wStage(w)}" style="--sep:76px" data-act="bank-word" data-id="${w.id}" data-s="${esc((w.hanzi + ' ' + normPy(w.pinyin || '') + ' ' + (w.pinyin || '') + ' ' + (w.en || '')).toLowerCase())}">
+          <span class="hz">${esc(w.hanzi)}<i class="w-dot ${wStage(w)}" title="${wStage(w)}"></i></span><span class="row-main"><span class="wp">${esc(w.pinyin)}</span><span class="we">${esc(w.en || '—')}</span></span>${w.hsk ? `<span class="row-val">${HSK_NAME(w.hsk)}</span>` : ''}<span class="chev">${I.chev}</span></button>`).join('')}</div>
       <p class="muted" style="font-size:11.5px;margin:18px 2px 0">Meanings from CC-CEDICT (mdbg.net, CC BY-SA 4.0)</p>`
     : `<div class="empty"><div class="big">字</div><p>Your word bank is empty. Finish an HSK 1 lesson and its words land here by themselves. You can also tick words you know in the HSK lists, or add them one by one with Quick add.</p></div>`}
     <div class="dock row-btns">${n ? `<button class="btn btn-ghost" data-act="practise-bank">${I.flip}Practise</button>` : ''}<button class="btn btn-primary" data-act="quick-add"><span class="qa-glyph">字</span>Quick add</button></div>
@@ -7529,7 +7698,7 @@ function HskView() {
   const inBank = new Set(db.bank.map(w => w.hanzi));
   if (!lv) return `<div class="screen fade-in">${head}
     <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
-      <div class="muted">Open a level and tick the words you already know. They go straight into your word bank.</div></section>
+      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them in a Fast build on the Map to build that city's temple.</div></section>
     <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
       const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
@@ -7659,7 +7828,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.36';
+const APP_VERSION = '2.37';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -7843,7 +8012,7 @@ const GOALS = [[5, 'Casual'], [10, 'Regular'], [15, 'Serious'], [20, 'Intense']]
 const newPerDay = () => db.prefs.goalMin ? Math.max(2, Math.round(db.prefs.goalMin * .4)) : NEW_PER_DAY;
 let actT = 0;
 ['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { actT = Date.now(); }, { capture: true, passive: true }));
-const practising = () => S.view === 'study' || S.view === 'write' || S.view === 'lesson' || !!$('.story') || !!$('.hdx') || !!(S.ob && ['check', 'words', 'read'].includes(OB_STEPS[S.ob.i]));
+const practising = () => S.view === 'study' || S.view === 'write' || S.view === 'lesson' || S.view === 'build' || !!$('.story') || !!$('.hdx') || !!(S.ob && ['check', 'words', 'read'].includes(OB_STEPS[S.ob.i]));
 setInterval(() => {
   if (document.hidden || Date.now() - actT > 6e4 || !practising()) return;
   const d = db.days[dayKey(Date.now())] ||= { decks: {} }; d.sec = (d.sec || 0) + 5;
@@ -8354,6 +8523,12 @@ const A = {
   'map-close': () => mapClose(),
   'map-back': () => { S.instant = true; goBack('#/map'); },
   'map-build': t => trailGo(+t.dataset.lv),
+  'fast-build': t => { LOG.add('fast-build-open', { lv: +t.dataset.lv }); nav('#/build/' + t.dataset.lv); },
+  'fb-opt': t => fbPick(+t.dataset.i),
+  'fb-next': () => fbNext(),
+  'fb-again': () => { fbStart(S.fb.lv); render(); window.scrollTo(0, 0); },
+  'fb-see': () => { const lv = S.fb?.lv || 1; history.replaceState(history.state, '', '#/map/' + lv); route(); },
+  'fb-quit': () => goBack('#/map/' + (S.fb?.lv || 1)),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
   'c1-open': () => nav('#/course/1'),
