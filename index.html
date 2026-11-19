@@ -769,9 +769,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-scaf{fill:none;stroke:#8A5A2B;stroke-width:1.1;stroke-linecap:round}
 .tm-tape{fill:none;stroke:#D9A53A;stroke-width:.8;stroke-dasharray:2 1.2}
 .tm-spark{fill:#F4C95A;animation:wtTw 1.6s ease-in-out infinite alternate}
-.tm-ping{fill:none;stroke:#E2AE45;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
+.tm-ping{fill:none;stroke:#FFC21F;stroke-width:1.8;transform-box:fill-box;transform-origin:center;animation:mpPing 2s ease-out infinite}
 @keyframes mpPing{from{transform:scale(.9);opacity:.9}to{transform:scale(1.7);opacity:0}}
-.tm-ring{fill:none;stroke:#E2AE45;stroke-width:1.7;stroke-dasharray:4 3;opacity:0}
+.tm-ring{fill:none;stroke:#FFC21F;stroke-width:1.7;stroke-dasharray:4 3;opacity:0}
 .tm-pin.sel .tm-ring,.tm-pin.cur .tm-ring{opacity:1;animation:tmRing 1.1s linear infinite}
 @keyframes tmRing{to{stroke-dashoffset:-14}}
 .tm-mon{transform-box:fill-box;transform-origin:50% 100%}
@@ -780,8 +780,8 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-pin:focus-visible .tm-shade{fill:var(--seal);opacity:.55}
 .tm-hov{animation:tmHover 1.2s ease-in-out infinite alternate}
 @keyframes tmHover{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-.tm-bpin{fill:var(--seal);stroke:#3B2A20;stroke-width:1.1;stroke-linejoin:round}
-.tm-bface{fill:#FFF4DC;stroke:#3B2A20;stroke-width:.8}
+.tm-bpin{fill:#E8322A;stroke:#8E1810;stroke-width:1.1;stroke-linejoin:round}
+.tm-bface{fill:#FFF4DC;stroke:#8E1810;stroke-width:.8}
 .tm-q rect{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
 .tm-q text{font:700 12px var(--display);fill:var(--seal-ink)}
 /* the bar along the bottom: progress on the monument you are on, and the button that goes on building it */
@@ -792,7 +792,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-now-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .tm-now-t small{font:600 14px var(--display);color:var(--ink)}
 .tm-now-bar{position:relative;display:block;height:17px;border-radius:9px;background:var(--fill);overflow:hidden}
-.tm-now-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:#E2AE45}
+.tm-now-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:#FFC21F}
 .tm-now-bar b{position:absolute;inset:0;display:grid;place-items:center;font:700 11px var(--ui);color:var(--ink)}
 .tm-med.s{flex:none;width:46px;height:46px}
 .tm-med.s svg{left:5px;top:6px;width:36px;height:30px}
@@ -817,7 +817,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-card h3{margin:1px 0 8px;font-family:var(--display);font-weight:600;font-size:22px;line-height:1.1;letter-spacing:-.01em}
 .tm-card h3 span{font-family:var(--hanzi);font-size:17px;color:var(--seal);margin-left:4px;white-space:nowrap}
 .tm-card p{margin:7px 0 0;font-size:13px;line-height:1.4;color:var(--ink-2)}
-.tm-card p em{font-style:normal;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;background:#E2AE45;color:#3A2508;margin-right:6px}
+.tm-card p em{font-style:normal;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;background:#FFD43B;color:#3A2508;margin-right:6px}
 .tm-acts{grid-column:1/-1;display:flex;gap:8px;margin-top:10px}
 .tm-acts .btn{flex:1;height:46px;font-size:15px;padding:0 12px}
 .tm-acts .btn-ghost{flex:0 0 32%}
@@ -835,7 +835,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .cp-bag{transform-box:view-box;transform-origin:184px 196px}
 .les-end-shi.bag,.done-shi.bag{width:192px;height:160px}
 .cp-big{width:228px;height:190px;margin:0 auto;animation:donePop .7s cubic-bezier(.2,.9,.3,1.3) both}
-.cp-gain{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 6px;margin:8px auto 2px;color:#8A5A12}
+.cp-gain{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 6px;margin:8px auto 2px;color:#9A5200}
 .cp-gain .cp-ic{width:26px;height:26px}
 .cp-gain .cp-ic .coin{width:100%;height:100%}
 .cp-gain b{display:inline-block;min-width:2.4ch;font:600 27px/1.1 var(--display);font-variant-numeric:tabular-nums}
@@ -849,20 +849,20 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .cp-row .cp-gain{margin:0;justify-content:flex-start}
 .cp-row .cp-gain small{text-align:left}
 .tm-wallet{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:var(--card);
-  box-shadow:var(--ring),0 6px 14px -8px rgba(60,35,10,.5);font:600 16px var(--display);color:#6B4312;font-variant-numeric:tabular-nums}
+  box-shadow:var(--ring),0 6px 14px -8px rgba(60,35,10,.5);font:600 16px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
 .tm-wallet .coin{width:22px;height:22px}
-.tm-wallet.can{box-shadow:var(--ring),0 0 0 2.5px #E2AE45,0 6px 14px -8px rgba(60,35,10,.5)}
-.tm-now>em{position:absolute;left:12px;top:-10px;font:700 10.5px var(--ui);font-style:normal;padding:3px 7px;border-radius:7px;background:#F6CF6B;color:#4A2E03;box-shadow:0 0 0 2px var(--card)}
+.tm-wallet.can{box-shadow:var(--ring),0 0 0 2.5px #FFC21F,0 6px 14px -8px rgba(60,35,10,.5)}
+.tm-now>em{position:absolute;left:12px;top:-10px;font:700 10.5px var(--ui);font-style:normal;padding:3px 7px;border-radius:7px;background:#FFD43B;color:#4A2E03;box-shadow:0 0 0 2px var(--card)}
 .tm-ghost{opacity:.42}
 .tm-ghost.can{opacity:.62}
 .tm-gauge0{fill:none;stroke:#FFF8E6;stroke-width:2.6;opacity:.75}
-.tm-gauge{fill:none;stroke:#E2AE45;stroke-width:2.6;stroke-linecap:round}
+.tm-gauge{fill:none;stroke:#FFC21F;stroke-width:2.6;stroke-linecap:round}
 .tm-buy-near,#tmSvg.near .tm-buy-far{display:none}
 #tmSvg.near .tm-buy-near{display:inline}
 .tm-tag{fill:var(--card);stroke:#3B2A20;stroke-width:.7}
 .tm-tagp{fill:#3B2A20}
 .tm-tagt{font:700 7px var(--ui);fill:#4A3A2C;font-variant-numeric:tabular-nums}
-.tm-buy.can .tm-tag{fill:#F9D97E}
+.tm-buy.can .tm-tag{fill:#FFD43B}
 .tm-buy.can .tm-tagt{fill:#3A2508}
 .tm-pin.sel .tm-buy{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:50% 100%}
 .tm-price span{color:var(--muted);font-weight:600}
@@ -872,16 +872,16 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-wallet:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tm-now-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tm-now-s{font-size:12.5px;font-weight:600;color:var(--muted)}
-.tm-now.ready{box-shadow:var(--ring),0 0 0 2.5px #E2AE45,0 14px 26px -14px rgba(50,25,8,.6)}
-.tm-now.ready .tm-now-bar i{background:linear-gradient(90deg,#E2AE45,#F6D27A)}
+.tm-now.ready{box-shadow:var(--ring),0 0 0 2.5px #FFC21F,0 14px 26px -14px rgba(50,25,8,.6)}
+.tm-now.ready .tm-now-bar i{background:linear-gradient(90deg,#FFB800,#FFE066)}
 .tm-price{display:flex;align-items:center;gap:5px}
 .tm-price .coin{width:18px;height:18px}
-.tm-price b{font-weight:800;color:#6B4312}
+.tm-price b{font-weight:800;color:#8A4A06}
 .mp-cbar{margin-top:8px}
 .fb-seg .tm-now-bar{width:100%;max-width:300px;margin:0 auto 6px}
 .shop-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .shop-top h3{margin:0}
-.shop-bal{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:#FBF0D6;box-shadow:inset 0 0 0 1.5px #E8C77E;font:600 17px var(--display);color:#6B4312;font-variant-numeric:tabular-nums}
+.shop-bal{display:flex;align-items:center;gap:6px;padding:5px 12px 5px 6px;border-radius:12px;background:#FFF4C7;box-shadow:inset 0 0 0 1.5px #FFC21F;font:600 17px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
 .shop-bal .coin{width:23px;height:23px}
 .shop-sub{margin:8px 0 14px;font-size:13.5px}
 .shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -895,7 +895,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-it small{margin:1px 10px 0;font-size:12px;font-weight:600;color:var(--muted)}
 .shop-price{display:flex;align-items:center;gap:5px;margin:8px 10px 0;padding:3px 9px 3px 4px;border-radius:9px;background:var(--fill);font:700 13px var(--ui);color:var(--ink-2);font-variant-numeric:tabular-nums}
 .shop-price .coin{width:17px;height:17px}
-.shop-it.can .shop-price{background:#F6D27A;color:#4A2E08;box-shadow:inset 0 0 0 1.5px #D9A441}
+.shop-it.can .shop-price{background:#FFD43B;color:#4A2E08;box-shadow:inset 0 0 0 1.5px #F0A500}
 .shop-it.own .shop-price{padding-left:0;background:none;color:var(--jade)}
 .shop-own{position:absolute;right:8px;top:8px;padding:3px 8px;border-radius:7px;background:var(--seal);color:var(--seal-ink);font:700 11.5px var(--ui);font-style:normal;transform:rotate(4deg);box-shadow:0 2px 6px rgba(80,20,10,.35)}
 .shop-how{margin:18px 0 6px;padding:12px 14px;border-radius:14px;background:var(--card-2);box-shadow:var(--ring)}
@@ -903,7 +903,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-how ul{list-style:none;margin:8px 0 6px;padding:0}
 .shop-how li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13.5px;border-top:1px solid var(--line)}
 .shop-how li:first-child{border-top:0}
-.shop-how em{display:flex;align-items:center;gap:4px;font-style:normal;font-weight:800;color:#8A5A12}
+.shop-how em{display:flex;align-items:center;gap:4px;font-style:normal;font-weight:800;color:#9A5200}
 .shop-how em .coin{width:16px;height:16px}
 .shop-how small{display:block;font-size:12px;line-height:1.4;color:var(--muted)}
 .shop-back{display:flex;align-items:center;gap:2px;margin:12px 0 10px -6px;font-size:13.5px;font-weight:700;color:var(--ink-2)}
@@ -915,7 +915,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .shop-about{margin:0 0 10px;font-size:14px;line-height:1.45;color:var(--ink-2)}
 .shop-cost{display:flex;align-items:center;gap:6px;margin:0 0 14px;font-size:14px;font-weight:600;color:var(--ink-2)}
 .shop-cost .coin{width:22px;height:22px}
-.shop-cost b{font:600 21px var(--display);color:#6B4312}
+.shop-cost b{font:600 21px var(--display);color:#8A4A06}
 .shop-buy{display:flex;align-items:center;justify-content:center;gap:6px}
 .shop-buy .coin{width:20px;height:20px}
 .shop-need p{margin:6px 0 12px;font-size:13.5px;color:var(--ink-2)}
@@ -5858,10 +5858,10 @@ function takePay() {   // what came in since the bag was last filled on screen: 
   return n ? { n, bal: coinBal() } : null;
 }
 function coinSvg(big) {   // a cash coin: round, a square hole, a raised rim; the big one is cast with 狮狮通宝 (read top, bottom, right, left)
-  const K = '#2A211A', B = '#E0A94A', R = '#A86F22', H = '#FCE3A2';
+  const K = '#8A4A06', B = '#FFC21F', R = '#E89B0C', H = '#FFF3B0';
   if (!big) return `<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.7 12a10.3 10.3 0 1 0 20.6 0a10.3 10.3 0 1 0-20.6 0ZM9.5 9.5h5v5h-5Z" fill-rule="evenodd" fill="${B}" stroke="${K}" stroke-width="1.7"/>`
     + `<circle cx="12" cy="12" r="7.4" fill="none" stroke="${R}" stroke-width="1.2"/><path d="M5.2 8.6a7.6 7.6 0 0 1 3.6-3.5" fill="none" stroke="${H}" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-  const z = (x, y, t) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="#6B4312" style="font-family:var(--hanzi)">${t}</text>`;
+  const z = (x, y, t) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="#A65A00" style="font-family:var(--hanzi)">${t}</text>`;
   return `<svg class="coin" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 32a27 27 0 1 0 54 0a27 27 0 1 0-54 0ZM26.5 26.5h11v11h-11Z" fill-rule="evenodd" fill="${B}" stroke="${K}" stroke-width="2.4"/>`
     + `<circle cx="32" cy="32" r="22.5" fill="none" stroke="${R}" stroke-width="1.8"/><path d="M24 24h16v16H24Z" fill="none" stroke="${R}" stroke-width="1.8"/>`
     + `<path d="M12.5 21a22 22 0 0 1 10.5-9.5" fill="none" stroke="${H}" stroke-width="2.6" stroke-linecap="round"/>` + z(32, 17.5, '狮') + z(32, 46.5, '狮') + z(46.5, 32, '通') + z(17.5, 32, '宝') + '</svg>';
@@ -5877,7 +5877,7 @@ function bagShi(mood = 'cheer') {
     + `<path d="M146 136Q139 156 147 176" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".28"/>`
     + `<path d="M150 119Q184 138 218 119" fill="none" stroke="${gold}" stroke-width="5" stroke-linecap="round"/><path d="M150 119Q184 138 218 119" fill="none" stroke="#C8901F" stroke-width="1.6" stroke-dasharray="3 4" stroke-linecap="round"/>`
     + `<path d="M212 124q6 14 2 26M216 123q9 12 9 24" fill="none" stroke="#C8901F" stroke-width="3" stroke-linecap="round"/><circle cx="212" cy="124" r="5" fill="${gold}" stroke="${ink}" stroke-width="2.5"/>`
-    + `<circle cx="184" cy="163" r="15" fill="${gold}" stroke="${ink}" stroke-width="3"/><rect x="179" y="158" width="10" height="10" fill="${red}" stroke="${ink}" stroke-width="2.4"/>`
+    + `<circle cx="184" cy="163" r="15" fill="#FFC21F" stroke="${ink}" stroke-width="3"/><rect x="179" y="158" width="10" height="10" fill="${red}" stroke="${ink}" stroke-width="2.4"/>`
     + `</g>${paw(148)}</svg>`;
   return `<span class="cp-shi">${back}<span class="cp-rain"></span>${front}</span>`;
 }
@@ -8643,7 +8643,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.61';
+const APP_VERSION = '2.62';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
