@@ -697,7 +697,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 /* the terrain map fills the page and runs under the tab bar; the title, the zoom buttons and the monument card float on it */
 #frame.tabs .screen.mp-page{padding-bottom:0}
 .tm-stage{position:relative;flex:1;min-height:440px;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
-  --tm-ink:#5A4636;background:radial-gradient(130% 80% at 62% 44%,#B9DDD6,#9CCBC6 60%,#86BAB8)}
+  background:radial-gradient(130% 80% at 62% 44%,#ACE1F2,#86D0EA 60%,#6DC1E4)}
 .tm-stage.tm-grab{cursor:grabbing}
 .tm-stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .tm-stage::before{content:"";position:absolute;inset:0 0 auto;height:128px;z-index:1;pointer-events:none;background:linear-gradient(var(--paper) 38%,transparent)}
@@ -707,30 +707,17 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .mp-sum{font-size:13px;font-weight:600;color:var(--ink-2)}
 #tmTex{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .6s;pointer-events:none}
 #tmTex.on{opacity:1}
-/* what is drawn as lines: the sea and the countries around under the painted land, the coast, rivers, Wall and clouds over it */
-.tm-grid{fill:none;stroke:#fff;stroke-width:.5;opacity:.28}
-.tm-wave{fill:none;stroke:#fff;stroke-width:.8;stroke-linecap:round;opacity:.65}
-.tm-shelf2{fill:none;stroke:#CDE9E1;stroke-width:30;stroke-linejoin:round;opacity:.3}
-.tm-shelf{fill:none;stroke:#D6EFE7;stroke-width:13;stroke-linejoin:round;opacity:.75}
-.tm-far2{fill:#BDB79E}
-.tm-far{fill:#E4DFCB;stroke:var(--tm-ink);stroke-width:.5;stroke-opacity:.35;stroke-linejoin:round}
-.tm-farm{fill:none;stroke:#BDB79E;stroke-width:1;stroke-linecap:round}
-.tm-side{fill:#8E6F4E;stroke:var(--tm-ink);stroke-width:1.1;stroke-linejoin:round}
-.tm-land{fill:#EBDDB4}
-.tm-edge{fill:none;stroke:var(--tm-ink);stroke-width:1.3;stroke-linejoin:round}
-.tm-river2{fill:none;stroke:#2F5F78;stroke-width:2.5;stroke-linecap:round;opacity:.45}
-.tm-river{fill:none;stroke:#6FB2CB;stroke-width:1.5;stroke-linecap:round}
-.tm-wall{fill:none;stroke:var(--tm-ink);stroke-width:2.6;stroke-linecap:round;opacity:.85}
-.tm-wall2{fill:none;stroke:#E4D9BF;stroke-width:1.3;stroke-dasharray:2 1.4}
-.tm-rose{fill:none;stroke:var(--tm-ink);stroke-width:.7;stroke-linejoin:round;opacity:.5}
-.tm-rose-t{font:700 7px var(--hanzi);fill:var(--tm-ink);opacity:.6}
-.tm-mast{fill:none;stroke:#3B2A20;stroke-width:.8;stroke-linecap:round}
-.tm-hull{fill:#7A4E2C;stroke:#3B2A20;stroke-width:.5;stroke-linejoin:round}
-.tm-sail{fill:var(--seal);stroke:#3B2A20;stroke-width:.4;stroke-linejoin:round}
-.tm-bob{transform-box:fill-box;transform-origin:50% 100%;animation:tmBob 3.4s ease-in-out infinite alternate}
-@keyframes tmBob{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
-.tm-sky{fill:#fff;opacity:.72;pointer-events:none}
-.tm-skysh{fill:#2A2A3A;opacity:.12;pointer-events:none}
+/* what is drawn as lines: the shallows and the countries around under the painted land, the rivers, the Wall and clouds over it */
+.tm-shelf2{fill:none;stroke:#C4EEF4;stroke-width:34;stroke-linejoin:round;opacity:.28}
+.tm-shelf{fill:none;stroke:#DDF6F5;stroke-width:13;stroke-linejoin:round;opacity:.6}
+.tm-far{fill:#E6EDD6}
+.tm-lift{fill:#2F6F86;stroke:#2F6F86;stroke-width:5;stroke-linejoin:round;opacity:.2}
+.tm-land{fill:#DDE6A6;stroke:#F8EFC8;stroke-width:5;stroke-linejoin:round}
+.tm-river2{fill:none;stroke:#3E8FB8;stroke-width:2.8;stroke-linecap:round;opacity:.25}
+.tm-river{fill:none;stroke:#8FD6EF;stroke-width:1.7;stroke-linecap:round}
+.tm-wall{fill:none;stroke:#FFF8DC;stroke-width:1.7;stroke-linecap:round;stroke-dasharray:.1 3.2;opacity:.95}
+.tm-sky{fill:#fff;opacity:.9;pointer-events:none}
+.tm-skysh{fill:#1F4B5A;opacity:.1;pointer-events:none}
 /* the monuments, and the marker hovering over the one you are building */
 .tm-pin{cursor:pointer;outline:none}
 .tm-shade{fill:#3B2A20;opacity:.22}
@@ -5078,12 +5065,13 @@ const Trail = (() => {
   const WALL = [[98.2, 39.8], [100.5, 38.9], [102.6, 37.9], [104.2, 37.6], [106.2, 38.5], [107.6, 37.9], [109.5, 38.7], [111.3, 39.7], [113, 40.3], [114.9, 40.6], [116.3, 40.45],
     [117.8, 40.3], [119.8, 40]];
   /* ---- the terrain map ----
-     The Map tab's picture: a flat map of China, painted like the relief plate of an atlas. The land is one picture, painted
-     once per visit onto a canvas from a hand-made model of the country's heights: tinted by the kind of country (snow,
-     plateau, desert, loess, farmland, grassland, forest), shaded as if the sun stood in the north-west so every range
-     stands up, then covered with forests on the hills, fields on the plains and dunes in the deserts. Under it lie the sea
-     and the rest of Asia, drawn as lines; over it the coast, the two great rivers and the Great Wall in ink, and clouds.
-     One finger drags it; a pinch, the wheel or a double tap zooms. No buttons.
+     The Map tab's picture: a flat map of China, quiet and uncluttered. The land is one picture, painted once per visit
+     onto a canvas from a hand-made model of the country's heights: wide soft fields of colour for each kind of country
+     (plateau, desert, loess, farmland, grassland, forest), gently lit from the north-west, with soft snowy mountains along
+     the real ranges, a few low mounds, and little woods with open meadow between them. No outlines. Under it lie a blue
+     sea with pale shallows and the countries around in haze; over it the two great rivers, the Great Wall as a dotted
+     line, and a few clouds. One finger drags it; a pinch, the wheel or a double tap zooms, from the whole country down to
+     one city. No buttons.
      CAM is the camera: the spot it looks at (x, y in world units) and z = pixels per unit.
      The monuments are the app's own drawings, standing on top in screen space where their cities are. */
   const UX = 9, UY = 10, CS = UX / UY, LON_A = 62, LAT_A = 64;   // world units per degree; a little flatter north to south, as if the map leans away from you
@@ -5171,43 +5159,33 @@ const Trail = (() => {
     return Math.max(0, e);
   }
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-  const TINT = { land: '#EBDDB4', plat: '#D9D1B8', sand: '#EDC67C', loess: '#E0C088', plain: '#DCD78E', grass: '#BFD38A', wood: '#8FBE7C', south: '#A3CB7C', basin: '#B7D986' };   // the colour of each kind of country
-  const WOODS = { wood: .95, south: .8, basin: .3, plain: .06, grass: .07, loess: .04 };   // how thickly trees stand in each
-  const WAVES = [[124, 34], [126, 30.4], [128.4, 26], [124.4, 24], [130, 33], [134, 30], [132, 24.6], [127, 20], [119, 20.4], [116, 17.6], [112.4, 15.6], [118, 13.6], [125, 16.4], [113, 11.6], [88.6, 16],
-    [90, 12], [86, 9.6], [92.6, 7.6], [132.4, 38.6], [135.4, 40.4], [140, 30], [134.6, 17.6], [140.6, 22.6], [129, 12], [66, 18], [68.6, 13.6], [63, 9.6], [138, 12.6], [123.4, 37.4], [146, 36], [120.6, 38.6]];
-  const HILLS = [[70, 48], [78, 50], [88, 52], [98, 50], [106, 47], [100, 46], [112, 50], [124, 56], [134, 54], [110, 56], [92, 58], [76, 58], [66, 42], [68, 34], [72, 28], [78, 24], [82, 20],
-    [76, 16], [86, 24], [96, 22], [100, 18], [103, 15], [96, 18], [127.6, 37], [138, 36], [64, 56], [120, 60], [140, 60], [150, 62], [104, 62], [63, 30], [84, 56], [70, 62], [114, 2], [101, 0]];
+  const TINT = { land: '#DDE6A6', plat: '#D3DFC0', sand: '#F1DFA6', loess: '#E4DC9C', plain: '#CCE38C', grass: '#B4DD82', wood: '#93D078', south: '#9FD974', basin: '#AEDF7C' };   // the colour of each kind of country
+  const WOODS = { wood: .7, south: .4, basin: .18, plain: .08, grass: .08, loess: .04 };   // how often a little wood stands in each
   let DRAWN = null, CHINA_D = '';
   function drawn() {   // the parts drawn as lines, made once: [what lies under the painted land, what lies over it]
     if (DRAWN) return DRAWN;
     const far = [ASIA, ...ISLES].map(loop).join(''), china = CHINA_D = [CHINA, HAINAN, TAIWAN].map(loop).join('');
-    let g = ''; for (let lon = 40; lon <= 170; lon += 10) g += `M${wp(lon, 0)[0]} -400V1100`; for (let lat = -30; lat <= 90; lat += 10) g += `M-300 ${wp(0, lat)[1]}H1300`;
-    let a = `<path class="tm-grid" d="${g}"/><path class="tm-wave" d="${WAVES.map(q => { const [x, y] = wp(q[0], q[1]); return `M${f(x - 5)} ${f(y)}q2.5 -2.4 5 0t5 0`; }).join('')}"/>`;
-    a += `<path class="tm-shelf2" d="${far}${china}"/><path class="tm-shelf" d="${far}${china}"/><path class="tm-far2" d="${far}" transform="translate(0 3)"/><path class="tm-far" d="${far}"/>`;
-    a += `<path class="tm-farm" d="${HILLS.map(q => { const [x, y] = wp(q[0], q[1]); return `M${f(x - 3)} ${f(y)}q3 -3.6 6 0`; }).join('')}"/>`;   // low hills on the countries around
-    [[126.5, 27.5], [115.5, 18.2], [124, 36]].forEach(([lon, lat], i) => { const [x, y] = wp(lon, lat);   // junks out at sea
-      a += `<g transform="translate(${f(x)} ${f(y)})"><g class="tm-bob" style="animation-delay:-${i * 1.3}s"><path class="tm-mast" d="M0 0V-10"/><path class="tm-sail" d="M.7 -9.6Q5.8 -6.4 5 -1.6H.7Z"/><path class="tm-sail" d="M-.7 -8.2Q-4.2 -5.6 -3.6 -1.6H-.7Z"/><path class="tm-hull" d="M-6.4 -1Q0 1.6 7.4 -1L5.4 2.4H-4.6Z"/></g></g>`; });
-    const [rx, ry] = wp(133.5, 20.5);
-    a += `<g transform="translate(${f(rx)} ${f(ry)})"><circle class="tm-rose" r="8"/><path class="tm-rose" d="M0 -12L2.2 -2.2L12 0L2.2 2.2L0 12L-2.2 2.2L-12 0L-2.2 -2.2Z"/><text class="tm-rose-t" y="-14.5" text-anchor="middle">北</text></g>`;
-    a += `<path class="tm-side" d="${china}" transform="translate(0 6)"/><path class="tm-land" d="${china}"/>`;
-    let b = `<path class="tm-river2" d="${line(YANGTZE)}"/><path class="tm-river2" d="${line(YELLOW)}"/><path class="tm-river" d="${line(YANGTZE)}"/><path class="tm-river" d="${line(YELLOW)}"/>`;
-    b += `<path class="tm-edge" d="${china}"/><path class="tm-wall" d="${line(WALL)}"/><path class="tm-wall2" d="${line(WALL)}"/>`;
-    [[86, 47, 1], [128, 17, 1.2], [122, 46.5, .8]].forEach(([lon, lat, k], i) => { const [x, y] = wp(lon, lat), c = (dx, dy) => `<ellipse cx="${f(x + dx)}" cy="${f(y + dy)}" rx="${f(24 * k)}" ry="${f(6.5 * k)}"/><ellipse cx="${f(x - 9 * k + dx)}" cy="${f(y - 4.5 * k + dy)}" rx="${f(12 * k)}" ry="${f(7 * k)}"/><ellipse cx="${f(x + 7 * k + dx)}" cy="${f(y - 7 * k + dy)}" rx="${f(14 * k)}" ry="${f(9 * k)}"/>`;
-      b += `<g class="wt-drift" style="animation-delay:-${i * 11}s"><g class="tm-skysh">${c(7, 13)}</g><g class="tm-sky">${c(0, 0)}</g></g>`; });   // clouds, and their shadows on the land
+    const a = `<path class="tm-shelf2" d="${far}${china}"/><path class="tm-shelf" d="${far}${china}"/><path class="tm-far" d="${far}"/>
+      <path class="tm-lift" d="${china}" transform="translate(0 2.6)"/><path class="tm-land" d="${china}"/>`;   // shallow water round every coast, the countries around in haze, China's pale rim and the shadow that lifts it
+    let b = `<path class="tm-river2" d="${line(YANGTZE)}"/><path class="tm-river2" d="${line(YELLOW)}"/><path class="tm-river" d="${line(YANGTZE)}"/><path class="tm-river" d="${line(YELLOW)}"/><path class="tm-wall" d="${line(WALL)}"/>`;
+    [[87, 47.5, 1.1], [129, 18, 1.3], [124, 45, .8]].forEach(([lon, lat, k], i) => { const [x, y] = wp(lon, lat), c = (dx, dy) => `<ellipse cx="${f(x + dx)}" cy="${f(y + dy)}" rx="${f(24 * k)}" ry="${f(6.5 * k)}"/><ellipse cx="${f(x - 9 * k + dx)}" cy="${f(y - 4.5 * k + dy)}" rx="${f(12 * k)}" ry="${f(7 * k)}"/><ellipse cx="${f(x + 7 * k + dx)}" cy="${f(y - 7 * k + dy)}" rx="${f(14 * k)}" ry="${f(9 * k)}"/>`;
+      b += `<g class="wt-drift" style="animation-delay:-${i * 11}s"><g class="tm-skysh">${c(8, 15)}</g><g class="tm-sky">${c(0, 0)}</g></g>`; });   // a few clouds, and their shadows
     return DRAWN = [a, b];
   }
-  /* The painted land: one canvas for the life of the page, filled a few rows at a time so nothing freezes.
-     First the height of every eighth of a degree; from those a small picture, each dot the colour of its country lit or
-     shaded by its slope; that picture stretched smooth over the whole canvas; then the lakes, the forests, the fields and
-     the dunes at full size, a little paper grain, and the whole cut to China's outline. */
+  /* The painted land: one canvas for the life of the page, filled a few rows at a time so nothing freezes. It is meant to be
+     calm: wide soft fields of colour and only a few things standing on them.
+     First the height of every quarter of a degree; from those a small picture, each dot the colour of its country, a little
+     lighter or darker with its slope; that picture stretched smooth over the whole canvas. Then, from north to south so each
+     stands in front of the ones behind: soft snowy mountains along the real ranges, low mounds on the high ground and in the
+     deserts, and little woods of two or three trees with open meadow between them. No outlines anywhere. */
   const TEX = { cv: null, ready: false, lon: 72.5, lat: 54.6, dlon: 63.5, dlat: 37.2, pxu: 4, wait: [] };
   function bake(done) {
     if (TEX.ready) { done(); return; } TEX.wait.push(done); if (TEX.cv) return;
     drawn(); const cv = TEX.cv = document.createElement('canvas'), ctx = cv.getContext('2d'); cv.id = 'tmTex';
-    const P = TEX.pxu, W = cv.width = Math.round(TEX.dlon * UX * P), H = cv.height = Math.round(TEX.dlat * UY * P), GS = .2, nx = Math.ceil(TEX.dlon / GS), ny = Math.ceil(TEX.dlat / GS);
+    const P = TEX.pxu, W = cv.width = Math.round(TEX.dlon * UX * P), H = cv.height = Math.round(TEX.dlat * UY * P), GS = .25, nx = Math.ceil(TEX.dlon / GS), ny = Math.ceil(TEX.dlat / GS);
     const E = new Float32Array(nx * ny), M = new Uint8Array(nx * ny), [X0, Y0] = wp(TEX.lon, TEX.lat), px = (lon, lat) => { const [x, y] = wp(lon, lat); return [(x - X0) * P, (y - Y0) * P]; };
     const outline = new Path2D(CHINA_D), mk = document.createElement('canvas'), kc = mk.getContext('2d'); mk.width = nx; mk.height = ny;   // where China is, and a little way past its edge so the shading has neighbours
-    kc.setTransform(nx / (TEX.dlon * UX), 0, 0, ny / (TEX.dlat * UY), -X0 * nx / (TEX.dlon * UX), -Y0 * ny / (TEX.dlat * UY)); kc.lineWidth = 10; kc.lineJoin = 'round'; kc.fill(outline); kc.stroke(outline);
+    kc.setTransform(nx / (TEX.dlon * UX), 0, 0, ny / (TEX.dlat * UY), -X0 * nx / (TEX.dlon * UX), -Y0 * ny / (TEX.dlat * UY)); kc.lineWidth = 12; kc.lineJoin = 'round'; kc.fill(outline); kc.stroke(outline);
     const A = kc.getImageData(0, 0, nx, ny).data; for (let k = 0; k < nx * ny; k++) M[k] = A[k * 4 + 3] > 20 ? 1 : 0;
     const cell = (lon, lat) => { const i = Math.floor((lon - TEX.lon) / GS), j = Math.floor((TEX.lat - lat) / GS); return i < 0 || j < 0 || i >= nx || j >= ny ? -1 : j * nx + i; };
     let j = 0;
@@ -5217,68 +5195,65 @@ const Trail = (() => {
     };
     const kindAt = (lon, lat) => { let k = pip(lon, lat, CHINA) ? 'land' : 'south'; for (const [name, pts] of BIOME) if (pip(lon, lat, pts)) k = name; return k; };
     const paint = () => {
-      // the kinds of country as soft-edged patches: painted small, then stretched
-      const s = document.createElement('canvas'), sc = s.getContext('2d'), m = document.createElement('canvas'), mc = m.getContext('2d', { willReadFrequently: true }), q = 4; s.width = Math.ceil(nx / q); s.height = Math.ceil(ny / q); m.width = nx; m.height = ny;
-      const poly = (c, pts, k) => { c.beginPath(); pts.forEach(([lon, lat], i) => c[i ? 'lineTo' : 'moveTo']((lon - TEX.lon) / GS / k, (TEX.lat - lat) / GS / k)); c.closePath(); };
-      sc.fillStyle = TINT.land; sc.fillRect(0, 0, s.width, s.height); sc.lineJoin = 'round';
-      for (const pts of [HAINAN, TAIWAN]) { poly(sc, pts, q); sc.fillStyle = sc.strokeStyle = TINT.south; sc.lineWidth = 3; sc.fill(); sc.stroke(); }
-      for (const [k, pts] of BIOME) { poly(sc, pts, q); sc.fillStyle = TINT[k]; sc.fill(); }
-      mc.imageSmoothingQuality = 'high'; mc.drawImage(s, 0, 0, nx, ny);
-      const img = mc.getImageData(0, 0, nx, ny), d = img.data, stone = hex(TINT.plat), at = (i, jj, self) => { const k = jj * nx + i; return i >= 0 && jj >= 0 && i < nx && jj < ny && M[k] ? E[k] : self; };
+      // the kinds of country as patches with very soft edges: painted, then shrunk and stretched twice, which blurs them
+      const m = document.createElement('canvas'), mc = m.getContext('2d', { willReadFrequently: true }), s = document.createElement('canvas'), sc = s.getContext('2d'); m.width = nx; m.height = ny;
+      const poly = pts => { mc.beginPath(); pts.forEach(([lon, lat], i) => mc[i ? 'lineTo' : 'moveTo']((lon - TEX.lon) / GS, (TEX.lat - lat) / GS)); mc.closePath(); };
+      mc.fillStyle = TINT.land; mc.fillRect(0, 0, nx, ny); mc.lineJoin = 'round';
+      for (const pts of [HAINAN, TAIWAN]) { poly(pts); mc.fillStyle = mc.strokeStyle = TINT.south; mc.lineWidth = 10; mc.fill(); mc.stroke(); }
+      for (const [k, pts] of BIOME) { poly(pts); mc.fillStyle = TINT[k]; mc.fill(); }
+      mc.imageSmoothingQuality = sc.imageSmoothingQuality = 'high';
+      for (const q of [5, 9]) { s.width = Math.ceil(nx / q); s.height = Math.ceil(ny / q); sc.drawImage(m, 0, 0, s.width, s.height); mc.drawImage(s, 0, 0, nx, ny); }
+      const img = mc.getImageData(0, 0, nx, ny), d = img.data, stone = [228, 232, 220], at = (i, jj, self) => { const k = jj * nx + i; return i >= 0 && jj >= 0 && i < nx && jj < ny && M[k] ? E[k] : self; };
       for (let jj = 0; jj < ny; jj++) for (let i = 0; i < nx; i++) { const k = jj * nx + i, o = k * 4; if (!M[k]) continue;
-        const e = E[k], lat = TEX.lat - (jj + .5) * GS, gx = (at(i + 1, jj, e) - at(i - 1, jj, e)) * .0003, gy = (at(i, jj - 1, e) - at(i, jj + 1, e)) * .0003;
+        const e = E[k], gx = (at(i + 1, jj, e) - at(i - 1, jj, e)) * .00016, gy = (at(i, jj - 1, e) - at(i, jj + 1, e)) * .00016;
         const sun = (.5 * gx - .5 * gy + .707) / Math.hypot(gx, gy, 1) / .707;   // 1 on level ground, more on slopes that face the north-west, less on those that face away
-        let r = d[o], g = d[o + 1], b = d[o + 2], t = Math.min(.9, Math.max(0, (e - 2500) / 1300));
-        r += (stone[0] - r) * t; g += (stone[1] - g) * t; b += (stone[2] - b) * t;   // high ground turns to stone
-        const line = 5150 - Math.min(1, Math.max(0, (lat - 36) / 4)) * 1750; t = Math.min(.55, Math.max(0, (e - line) / 500)); r += (255 - r) * t; g += (253 - g) * t; b += (246 - b) * t;   // and above the snow line, to snow
-        if (sun > 1) { t = Math.min(.5, (sun - 1) * 1.4); r += (255 - r) * t; g += (251 - g) * t; b += (232 - b) * t; }
-        else { t = Math.min(.5, (1 - sun) * 1.05); r += (98 - r) * t; g += (80 - g) * t; b += (100 - b) * t; }   // shadows lean to violet
-        const n = 1 + (noise(i / 1.6, jj / 1.6) - .5) * .07; d[o] = Math.min(255, r * n); d[o + 1] = Math.min(255, g * n); d[o + 2] = Math.min(255, b * n); }
+        let r = d[o], g = d[o + 1], b = d[o + 2], t = Math.min(.8, Math.max(0, (e - 2600) / 1700));
+        r += (stone[0] - r) * t; g += (stone[1] - g) * t; b += (stone[2] - b) * t;   // high ground pales towards stone
+        if (sun > 1) { t = Math.min(.3, (sun - 1) * .9); r += (255 - r) * t; g += (253 - g) * t; b += (235 - b) * t; }
+        else { t = Math.min(.26, (1 - sun) * .7); r += (70 - r) * t; g += (110 - g) * t; b += (120 - b) * t; }   // shadows lean to blue-green, gently
+        d[o] = r; d[o + 1] = g; d[o + 2] = b; }
       mc.putImageData(img, 0, 0); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(m, 0, 0, W, H);
-      for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = px(lon, lat); ctx.beginPath(); ctx.ellipse(x, y, rx * UX * P * .8, ry * UY * P * .8, -.2, 0, 6.3); ctx.fillStyle = '#5E9DB4'; ctx.fill(); ctx.strokeStyle = 'rgba(40,70,90,.55)'; ctx.lineWidth = 1.2; ctx.stroke(); }
-      const farFrom = (lon, lat) => { for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < .8) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.2) return false; return true; };
-      for (let b = 0; b < 196; b++) for (let a = 0; a < 302; a++) {   // dunes, fields and forests, the northern ones first so the southern ones overlap them
-        const h1 = hash(a, b), h2 = hash(b + 400, a), lon = TEX.lon + (a + h1 * .9) * .21, lat = TEX.lat - (b + h2 * .9) * .19, c = cell(lon, lat); if (c < 0 || !M[c]) continue;
-        const e = E[c], kind = kindAt(lon, lat), [x, y] = px(lon, lat), h3 = hash(a * 3 + 1, b * 7 + 2);
-        if (kind === 'sand') { if (h3 < .05 && e < 1900) { ctx.beginPath(); ctx.moveTo(x - 9, y); ctx.quadraticCurveTo(x, y - 8, x + 9, y); ctx.quadraticCurveTo(x, y - 3, x - 9, y); ctx.fillStyle = 'rgba(190,140,70,.4)'; ctx.fill(); ctx.strokeStyle = 'rgba(120,85,40,.5)'; ctx.lineWidth = .8; ctx.stroke(); } continue; }
-        if (!farFrom(lon, lat)) continue;
-        const hilly = Math.min(1, Math.max(0, (e - 120) / 500)), wild = (WOODS[kind] || 0) * (.25 + .75 * hilly) * (noise(lon * .9, lat * 1.1) > .43 ? 1 : .12) * Math.max(0, 1 - e / 2900);   // woods keep to the hills; the plains are farmed
-        if (h1 < wild) { const pine = lat > 41 || e > 1700, r = 2.5 + h3 * 1.3;
-          ctx.fillStyle = 'rgba(45,45,25,.2)'; ctx.beginPath(); ctx.ellipse(x + 1.6, y + 1.5, r, r * .8, 0, 0, 6.3); ctx.fill();
-          if (pine) { ctx.beginPath(); ctx.moveTo(x, y - r * 1.9); ctx.lineTo(x + r, y + r * .6); ctx.lineTo(x - r, y + r * .6); ctx.closePath(); ctx.fillStyle = h3 > .5 ? '#3F7A5F' : '#4C8A66'; ctx.fill(); ctx.strokeStyle = '#24493A'; ctx.lineWidth = .7; ctx.stroke(); }
-          else { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.3); ctx.fillStyle = h3 > .55 ? '#5E9A5A' : '#6FAA62'; ctx.fill(); ctx.strokeStyle = '#34603A'; ctx.lineWidth = .7; ctx.stroke(); ctx.beginPath(); ctx.arc(x - r * .3, y - r * .32, r * .45, 0, 6.3); ctx.fillStyle = 'rgba(190,225,150,.55)'; ctx.fill(); } }
-        else if (h2 < .1 && e < 260 && (kind === 'plain' || kind === 'basin' || kind === 'south')) {   // a patch of fields
-          ctx.save(); ctx.translate(x, y); ctx.transform(1, 0, -.35, 1, 0, 0); ctx.lineWidth = .5; ctx.strokeStyle = 'rgba(90,70,40,.45)';
-          [[-6, -4, '#C9DE8E'], [0, -4, '#E9D58C'], [-6, 0, '#E9D58C'], [0, 0, '#B9D684']].forEach(([dx, dy, col]) => { ctx.fillStyle = col; ctx.globalAlpha = .8; ctx.fillRect(dx, dy, 6, 4); ctx.globalAlpha = 1; ctx.strokeRect(dx, dy, 6, 4); }); ctx.restore(); }
-        else if (kind === 'grass' && h2 > .93) { ctx.strokeStyle = 'rgba(60,110,70,.7)'; ctx.lineWidth = .9; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 4); ctx.moveTo(x - 2.4, y); ctx.lineTo(x - 3.8, y - 3); ctx.moveTo(x + 2.4, y); ctx.lineTo(x + 3.8, y - 3); ctx.stroke(); }
-      }
-      /* the mountains: peaks drawn in ink along the real ranges, the high ones capped with snow, and smaller hills wherever
-         the ground is high; all of them from north to south, so each stands in front of the ones behind it */
-      const peaks = [], ROCK = { stone: ['#DDD5BE', '#A99F8A'], sand: ['#E6C88E', '#BC9862'], green: ['#A9CB83', '#6F9E5E'], pine: ['#8FB98A', '#4F8463'] };
-      const rise = (lon, lat, hm, wide) => { const c = cell(lon, lat); if (c < 0 || !M[c] || !farFrom(lon, lat)) return; const kind = kindAt(lon, lat), e = Math.max(E[c], hm), [x, y] = px(lon, lat);
-        const tone = kind === 'sand' ? 'sand' : e > 2300 || kind === 'plat' || kind === 'loess' || kind === 'land' ? 'stone' : lat > 41 ? 'pine' : 'green', line = 5150 - Math.min(1, Math.max(0, (lat - 36) / 4)) * 1750;
-        peaks.push({ x, y, h: (5 + hm / 620) * P * wide, tone, snow: e > line - 250 ? Math.min(.62, .3 + (e - line + 250) / 2400) : 0, soft: tone === 'green' || tone === 'pine' || hm < 1500, k: hash(Math.round(x), Math.round(y)) }); };
+      for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = px(lon, lat); ctx.beginPath(); ctx.ellipse(x, y, rx * UX * P * .85, ry * UY * P * .85, -.2, 0, 6.3); ctx.fillStyle = '#86CFEA'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3; ctx.stroke(); }
+      const clear = (lon, lat, room) => { for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
+      const things = [], ok = (lon, lat) => { const c = cell(lon, lat); return c >= 0 && M[c] && pip(lon, lat, CHINA) ? c : -1; };
+      // mountains: one soft peak every degree and a half or so along each real range; the low ranges are green mounds instead
       for (const [hm, wd, pts] of RIDGE) { let n = 0;
-        for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (.34 + hm / 16000)));
-          for (let k = 0; k <= steps; k++, n++) { const t = k / steps, h1 = hash(n * 7 + 3, Math.round(hm)), h2 = hash(n * 11, Math.round(hm) + 5), ox = (h1 - .5) * wd * .9, oy = (h2 - .5) * wd * .8;
-            rise(a[0] + (b[0] - a[0]) * t + ox, a[1] + (b[1] - a[1]) * t + oy, hm * (.72 + h2 * .4), 1);
-            if (wd > .5) rise(a[0] + (b[0] - a[0]) * t - ox * 1.6 + .2, a[1] + (b[1] - a[1]) * t + (h1 > .5 ? wd : -wd) * .7, hm * (.5 + h1 * .25), .8); } } }
-      for (let b = 0; b < 62; b++) for (let a = 0; a < 106; a++) { const h1 = hash(a + 900, b), h2 = hash(b, a + 900), lon = TEX.lon + (a + h1) * .6, lat = TEX.lat - (b + h2) * .6, c = cell(lon, lat); if (c < 0 || !M[c]) continue;   // hills on the high ground between the ranges
-        const e = E[c]; if (e > 900 && hash(a * 5, b * 3) < (e > 3400 ? .42 : .3)) rise(lon, lat, Math.min(2600, e * .42), .72); }
-      peaks.sort((p, q) => p.y - q.y);
-      for (const { x, y, h, tone, snow, soft, k } of peaks) { const w = h * (soft ? .95 : .7), ax = x + (k - .5) * w * .3, ay = y - h, [lit, dark] = ROCK[tone];
-        const body = () => { ctx.beginPath(); ctx.moveTo(x - w, y); if (soft) { ctx.quadraticCurveTo(x - w * .5, y - h * .95, ax, ay); ctx.quadraticCurveTo(x + w * .55, y - h * .9, x + w, y); } else { ctx.lineTo(ax - w * .22, ay + h * .3); ctx.lineTo(ax, ay); ctx.lineTo(ax + w * .3, ay + h * .34); ctx.lineTo(x + w, y); } ctx.closePath(); };
-        ctx.fillStyle = 'rgba(55,40,60,.16)'; ctx.beginPath(); ctx.moveTo(x - w * .2, y); ctx.lineTo(x + w * 1.5, y + h * .16); ctx.lineTo(x + w, y - h * .05); ctx.closePath(); ctx.fill();   // its shadow, thrown south-east
-        body(); ctx.fillStyle = lit; ctx.fill();
-        ctx.save(); body(); ctx.clip();
-        ctx.beginPath(); ctx.moveTo(ax, ay - 2); ctx.lineTo(ax + w * .16, ay + h * .42); ctx.lineTo(ax - w * .04, ay + h * .66); ctx.lineTo(ax + w * .2, y + 2); ctx.lineTo(x + w + 2, y + 2); ctx.lineTo(x + w + 2, ay - 2); ctx.closePath(); ctx.fillStyle = dark; ctx.fill();   // the side away from the sun
-        if (snow) { const sy = ay + h * snow; ctx.beginPath(); ctx.moveTo(x - w, ay - 2); ctx.lineTo(x + w, ay - 2); ctx.lineTo(x + w, sy); for (let n = 1; n <= 6; n++) ctx.lineTo(x + w - n * w / 3, sy + (n % 2 ? h * .1 : -h * .04)); ctx.closePath();
-          ctx.fillStyle = '#FFFDF6'; ctx.fill(); ctx.beginPath(); ctx.moveTo(ax, ay - 2); ctx.lineTo(ax + w * .16, ay + h * .42); ctx.lineTo(ax - w * .04, ay + h * .66); ctx.lineTo(x + w + 2, ay + h * .7); ctx.lineTo(x + w + 2, ay - 2); ctx.closePath(); ctx.fillStyle = 'rgba(150,160,190,.4)'; ctx.fill(); }
-        ctx.restore();
-        body(); ctx.strokeStyle = '#5A4636'; ctx.lineWidth = soft ? 1 : 1.25; ctx.lineJoin = 'round'; ctx.stroke(); }
-      const gr = document.createElement('canvas'), gc = gr.getContext('2d'); gr.width = gr.height = 96; const gd = gc.createImageData(96, 96);   // paper grain
-      for (let k = 0; k < 96 * 96; k++) { const v = hash(k, 77) > .5 ? 255 : 0; gd.data[k * 4] = gd.data[k * 4 + 1] = gd.data[k * 4 + 2] = v; gd.data[k * 4 + 3] = 9; } gc.putImageData(gd, 0, 0);
-      ctx.fillStyle = ctx.createPattern(gr, 'repeat'); ctx.fillRect(0, 0, W, H);
+        for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (hm > 2400 ? (wd < .65 ? 2.5 : 1.8) : 1.6)));
+          for (let k = i ? 1 : 0; k <= steps; k++, n++) { const t = k / steps, h1 = hash(n * 7 + 3, Math.round(hm)), lon = a[0] + (b[0] - a[0]) * t + (h1 - .5) * wd * .5, lat = a[1] + (b[1] - a[1]) * t + (hash(n, Math.round(hm) + 9) - .5) * wd * .5, c = ok(lon, lat);
+            if (c < 0 || !clear(lon, lat, 1.5)) continue; const kind = kindAt(lon, lat), [x, y] = px(lon, lat), size = (.8 + h1 * .35);
+            if (hm > 2400) things.push({ t: 'peak', x, y, h: (11 + hm / 520) * P * size, tone: kind === 'sand' && hm < 4400 ? 'sand' : 'stone', snow: hm > (lat > 39 ? 3600 : 4700) ? .5 : hm > 3200 ? .22 : 0, k: h1 });
+            else things.push({ t: 'mound', x, y, h: (5.5 + hm / 420) * P * size, tone: kind === 'sand' || kind === 'loess' || kind === 'land' ? 'dry' : lat > 41 ? 'pine' : 'green', k: h1 }); } } }
+      // a few low mounds on the high ground between the ranges and in the deserts
+      for (let b = 0; b < 16; b++) for (let a = 0; a < 27; a++) { const h1 = hash(a + 900, b), h2 = hash(b, a + 900), lon = TEX.lon + (a + .2 + h1 * .6) * 2.4, lat = TEX.lat - (b + .2 + h2 * .6) * 2.4, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.6)) continue;
+        const e = E[c], kind = kindAt(lon, lat), [x, y] = px(lon, lat);
+        if (e > 3600 && h1 < .22) things.push({ t: 'peak', x, y, h: (13 + h2 * 5) * P, tone: 'stone', snow: .3, k: h2 });
+        else if (kind === 'sand' && e < 1900 && h2 < .45) things.push({ t: 'mound', x, y, h: (4.5 + h1 * 2.5) * P, tone: 'sand', k: h1 });
+        else if (e > 900 && e < 3200 && kind !== 'sand' && h2 < .3) things.push({ t: 'mound', x, y, h: (6 + h1 * 3) * P, tone: kind === 'loess' || kind === 'land' || kind === 'plat' ? 'dry' : 'green', k: h1 }); }
+      // little woods: two to four trees together, with open meadow between one wood and the next
+      for (let b = 0; b < 30; b++) for (let a = 0; a < 44; a++) { const h1 = hash(a, b), h2 = hash(b + 400, a), lon = TEX.lon + (a + .15 + h1 * .7) * 1.45, lat = TEX.lat - (b + .15 + h2 * .7) * 1.25, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.5)) continue;
+        const e = E[c], kind = kindAt(lon, lat); if (hash(a * 3 + 1, b * 7 + 2) > (WOODS[kind] || 0) * Math.max(0, 1 - e / 2800)) continue;
+        const [x, y] = px(lon, lat), pine = lat > 41 || e > 1700, n = 2 + Math.floor(h1 * 2.6);
+        for (let k = 0; k < n; k++) { const ang = h2 * 6.3 + k * 2.2, far = k ? (5 + hash(a + k, b) * 3.5) * P : 0; things.push({ t: pine ? 'pine' : 'tree', x: x + Math.cos(ang) * far, y: y + Math.sin(ang) * far * .6, r: (3.3 + hash(a, b + k * 5) * 1.5) * P, k: hash(a * 5 + k, b) }); } }
+      things.sort((p, q) => p.y - q.y);
+      const TONE = { stone: ['#F4F6EF', '#B6C6B4', '#93A9A2'], sand: ['#FBEFC6', '#EBCF8E', '#D2B274'], dry: ['#EEF0C0', '#CFDD98', '#B0C684'], green: ['#C6EE98', '#8FD06E', '#6DB85C'], pine: ['#B4E29A', '#7CC47A', '#5BA86A'] };   // top, side in the light, side in shade
+      const bell = (x, y, w, h, lean) => { ctx.beginPath(); ctx.moveTo(x - w, y); ctx.bezierCurveTo(x - w * .5, y - h * .08, x - w * .22 + lean, y - h, x + lean, y - h); ctx.bezierCurveTo(x + w * .22 + lean, y - h, x + w * .5, y - h * .08, x + w, y); ctx.closePath(); };
+      const shade = (x, y, w, h) => { const g = ctx.createRadialGradient(x + w * .35, y + h * .05, 0, x + w * .35, y + h * .05, w * 1.25); g.addColorStop(0, 'rgba(40,85,80,.2)'); g.addColorStop(1, 'rgba(40,85,80,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x + w * .35, y + h * .05, w * 1.25, w * .42, 0, 0, 6.3); ctx.fill(); };   // a soft shadow on the ground, thrown south-east
+      for (const o of things) { const { x, y, k } = o;
+        if (o.t === 'peak' || o.t === 'mound') { const h = o.h, w = h * (o.t === 'peak' ? .78 : 1.5), lean = (k - .5) * w * .22, [top, lit, dark] = TONE[o.tone];
+          shade(x, y, w * .9, h);
+          const g = ctx.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, o.snow ? '#FFFFFF' : top); if (o.snow) g.addColorStop(o.snow, '#FFFFFF'); g.addColorStop(Math.min(.9, (o.snow || 0) + .22), lit); g.addColorStop(1, lit + '00');   // it melts into the ground at its foot
+          bell(x, y, w, h, lean); ctx.fillStyle = g; ctx.fill();
+          ctx.save(); bell(x, y, w, h, lean); ctx.clip();   // the side away from the sun
+          const s2 = ctx.createLinearGradient(0, y - h, 0, y); s2.addColorStop(0, o.snow ? 'rgba(150,175,215,.5)' : dark + 'CC'); if (o.snow) s2.addColorStop(o.snow, 'rgba(150,175,215,.45)'); s2.addColorStop(Math.min(.9, (o.snow || 0) + .22), dark + 'CC'); s2.addColorStop(1, dark + '00');
+          ctx.beginPath(); ctx.moveTo(x + lean, y - h - 2); ctx.quadraticCurveTo(x + lean + w * .2, y - h * .45, x + w * .12, y + 2); ctx.lineTo(x + w + 2, y + 2); ctx.lineTo(x + w + 2, y - h - 2); ctx.closePath(); ctx.fillStyle = s2; ctx.fill(); ctx.restore(); }
+        else { const r = o.r; shade(x, y, r * .95, r * .6);
+          if (o.t === 'pine') { const tier = (yy, ww, hh, c1, c2) => { ctx.beginPath(); ctx.moveTo(x, yy - hh); ctx.quadraticCurveTo(x + ww * .5, yy - hh * .3, x + ww, yy); ctx.quadraticCurveTo(x, yy + ww * .22, x - ww, yy); ctx.quadraticCurveTo(x - ww * .5, yy - hh * .3, x, yy - hh); ctx.fillStyle = c2; ctx.fill();
+              ctx.beginPath(); ctx.moveTo(x, yy - hh); ctx.quadraticCurveTo(x - ww * .5, yy - hh * .3, x - ww, yy); ctx.quadraticCurveTo(x - ww * .4, yy + ww * .16, x, yy + ww * .1); ctx.closePath(); ctx.fillStyle = c1; ctx.fill(); };
+            tier(y - r * .2, r * .95, r * 1.7, '#58A877', '#3F8B66'); tier(y - r * 1.15, r * .7, r * 1.5, '#66B683', '#4A9770'); }
+          else { ctx.fillStyle = '#8C6B48'; ctx.fillRect(x - r * .11, y - r * .75, r * .22, r * .8);
+            ctx.beginPath(); ctx.arc(x + r * .1, y - r * 1.3, r, 0, 6.3); ctx.fillStyle = k > .5 ? '#4FA254' : '#57AA58'; ctx.fill();
+            ctx.beginPath(); ctx.arc(x - r * .08, y - r * 1.42, r * .9, 0, 6.3); ctx.fillStyle = k > .5 ? '#6CBE5E' : '#76C664'; ctx.fill();
+            ctx.beginPath(); ctx.arc(x - r * .3, y - r * 1.68, r * .45, 0, 6.3); ctx.fillStyle = 'rgba(190,235,140,.7)'; ctx.fill(); } } }
       ctx.globalCompositeOperation = 'destination-in'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); ctx.fillStyle = '#000'; ctx.fill(outline); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
       TEX.ready = true; TEX.wait.splice(0).forEach(fn => fn());
     };
@@ -5332,7 +5307,7 @@ const Trail = (() => {
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`;
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
-  const zHome = () => CAM.w / 236, zMin = () => zHome() * .86, zMax = () => zHome() * 3;   // you cannot pull back much further than the five cities side to side
+  const zHome = () => CAM.w / 400, zMin = () => CAM.w / 650, zMax = () => CAM.w / 85;   // from the whole country across the screen down to one city
   const CORE = [[82, 33], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [111, 24], [104, 25], [99, 29], [90, 31]];   // China's heartland
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
     let lon = o.x / UX + LON_A, lat = LAT_A - o.y / UY;
@@ -5340,7 +5315,7 @@ const Trail = (() => {
     const [x, y] = wp(lon, lat); return { x, y, z: cl(o.z, zMin(), zMax()) };
   }
   const view = (lon, lat, z, fy = .5) => { const [x, y] = wp(lon, lat); return { x, y: y - (fy - .5) * CAM.h / z, z }; };   // this place, fy of the way down the screen
-  const home = () => view(112.2, 31.6, zHome());   // the five cities side to side
+  const home = () => view(109, 33, zHome());   // the eastern two thirds of the country
   const mScale = () => 1.5 * Math.pow(CAM.z / 1.5, .6);   // monuments grow more slowly than the land
   const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
@@ -5421,7 +5396,7 @@ const Trail = (() => {
     if (from) { Object.assign(CAM, clampV(view(...SITE[from], zMax(), .56))); apply(); fly(near(from), 700); }
     else if (!first && goal) fly(goal, 500);   // redrawn mid-flight (the HSK lists arrived): carry on to where it was going
   }
-  const near = lv => view(...SITE[lv], cl(CAM.z, zHome() * 1.6, zHome() * 2.2), .4);   // close on a monument, clear of its card
+  const near = lv => view(...SITE[lv], cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
   const focus = lv => CAM.api?.fly(near(lv), 560);
   const dive = lv => CAM.api?.fly(view(...SITE[lv], zMax(), .56), 440);
   /* ---- the five temples ---- */
@@ -7629,7 +7604,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.32';
+const APP_VERSION = '2.33';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
