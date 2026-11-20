@@ -30,7 +30,7 @@
 :root{
   --paper:#F4EEE3; --paper-deep:#EAE1D0; --card:#FCF9F3; --card-2:#F7F1E6;
   --ink:#1E1A15; --ink-2:#4A433A; --muted:#978C7C; --line:#E3D8C6; --line-2:#D2C4AD;
-  --seal:#B23A2C; --seal-btn:#C8241E; --seal-ink:#FFF8F2; --seal-soft:rgba(178,58,44,.09);
+  --seal:#B23A2C; --seal-btn:#FF3040; --seal-btn-top:#FF5C69; --seal-ink:#FFF8F2; --seal-soft:rgba(178,58,44,.09);
   --jade:#3F7A5F; --jade-soft:rgba(63,122,95,.12);
   --grid:rgba(178,58,44,.55);
   --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 18px 36px -18px rgba(70,45,20,.35), 0 3px 8px -4px rgba(70,45,20,.18);
@@ -136,7 +136,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
   box-shadow:var(--halo),inset 0 -2px 0 var(--edge),inset 0 2px 0 rgba(255,255,255,.22),0 6px 12px -10px var(--drop)}
 .btn:disabled{box-shadow:var(--halo,0 0 #0000);transform:none}
 .btn-primary{background:var(--ink);color:var(--paper);--edge:rgba(0,0,0,.4);--drop:rgba(30,20,10,.6)}
-.btn-seal{background:var(--seal-btn);color:var(--seal-ink)}   /* the red buttons: a touch redder than the seal red of stamps and badges */
+.btn-seal{background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink)}   /* the red buttons: v3.05 the bright pinkish red of the map's Play (#FF3040), brighter than the seal red of stamps and badges */
 .btn-seal{text-shadow:0 1.5px 0 rgba(90,10,5,.45)}   /* their white words sit on a small dark shadow of their own (not the map's Play: ilkem wants its words plain) */
 .btn-jade{background:var(--jade);color:#fff;--edge:rgba(0,40,30,.3);--drop:rgba(20,90,70,.6)}
 .btn-ghost{background:color-mix(in srgb,var(--paper) 88%,#785F3C);color:var(--ink);--edge:rgba(90,60,25,.2);--drop:rgba(60,35,10,.35)}   /* solid, so nothing shows through in the bottom bar */
@@ -329,7 +329,7 @@ button.pill.on{box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 8px 14px -10px rgba(30
 .hs-tzg.quizzing .hs-svg{display:none}
 .hs-ctl{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px}
 .hs-ctl .icon-btn{background:var(--fill);color:var(--ink)}
-.hs-ctl .hs-play{width:56px;height:56px;background:var(--seal);color:var(--seal-ink)}
+.hs-ctl .hs-play{width:56px;height:56px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink)}
 .hs-ctl .hs-play svg.i{width:24px;height:24px}
 .hs-cap{text-align:center;font-size:13.5px;color:var(--muted);margin-top:8px;min-height:20px}
 .hs-strip{display:flex;gap:6px;margin:14px -20px 18px;padding:2px 20px 4px;overflow-x:auto;scrollbar-width:none}
@@ -811,7 +811,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-now-bar b{position:absolute;inset:0;display:grid;place-items:center;font:700 11px var(--ui);color:var(--ink)}
 .tm-med.s{flex:none;width:46px;height:46px}
 .tm-med.s svg{left:5px;top:6px;width:36px;height:30px}
-.tm-play{flex:0 0 47%;display:flex;align-items:center;justify-content:center;gap:9px;min-height:62px;padding:0 14px 4px;border-radius:18px;background:var(--seal-btn);color:var(--seal-ink);font:600 17px/1.08 var(--display);text-align:left;
+.tm-play{flex:0 0 47%;display:flex;align-items:center;justify-content:center;gap:9px;min-height:62px;padding:0 14px 4px;border-radius:18px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font:600 17px/1.08 var(--display);text-align:left;
   box-shadow:inset 0 -5px 0 rgba(60,10,5,.3),inset 0 2px 0 rgba(255,255,255,.22),0 14px 24px -10px rgba(120,30,20,.75);transition:transform .08s,box-shadow .08s}
 .tm-play:active{transform:translateY(3px);box-shadow:inset 0 -2px 0 rgba(60,10,5,.3),inset 0 2px 0 rgba(255,255,255,.22),0 8px 14px -10px rgba(120,30,20,.75)}
 .tm-play:focus-visible,.tm-now:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -979,7 +979,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
    It has its own spot and a fixed width, so a monument's card, the buy moment or a new label never move it */
 .tm-gobar{position:absolute;z-index:3;right:20px;bottom:calc(var(--tabh) + 46px + env(safe-area-inset-bottom))}
 .tm-play.tm-go{flex:none;width:184px;min-height:60px;margin:0;padding:0 28px 4px;border-radius:20px;
-  background:linear-gradient(#FF5C69,#FF3040 55%);font:700 23px/1 var(--display);letter-spacing:.01em;text-align:center;white-space:nowrap;
+  background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);font:700 23px/1 var(--display);letter-spacing:.01em;text-align:center;white-space:nowrap;
   box-shadow:inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
 .tm-play.tm-go:active{transform:translateY(3px);box-shadow:inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
@@ -1439,7 +1439,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .rpop-say:active{opacity:.5}
 .rpop-parts{display:flex;flex-direction:column;gap:3px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(244,238,227,.14);font-size:12.5px;color:rgba(244,238,227,.75)}
 .rpop-parts b{font-family:var(--hanzi);font-weight:600;font-size:15px;color:var(--paper);margin-right:7px}
-.rpop-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:36px;margin-top:9px;border-radius:9px;background:var(--seal);color:var(--seal-ink);font-size:13.5px;font-weight:700}
+.rpop-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:36px;margin-top:9px;border-radius:9px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font-size:13.5px;font-weight:700}
 .rpop-add svg.i{width:15px;height:15px;stroke-width:2.4}
 
 /* ---------- side menu ---------- */
@@ -1740,7 +1740,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .lv-pips i.boss{margin-left:3px;border-radius:2px;transform:rotate(45deg)}
 .lv-pips i.boss.on{background:var(--seal)}
 .lv > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
-.lv em{flex:none;padding:8px 14px 9px;border-radius:12px;background:var(--seal);color:var(--seal-ink);font:600 14.5px/1 var(--display);font-style:normal;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28)}
+.lv em{flex:none;padding:8px 14px 9px;border-radius:12px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font:600 14.5px/1 var(--display);font-style:normal;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28)}
 /* ---------- a unit's campaign: a dotted path through its lessons to the final boss ---------- */
 .un-map{position:relative;width:100%;margin:2px auto 14px}
 .un-map > svg{position:absolute;inset:0;width:100%;height:100%}
@@ -1841,7 +1841,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .les-big{display:flex;align-items:center;justify-content:center;gap:14px;min-height:136px;margin-bottom:18px}
 .les-en{font-size:28px;font-weight:800;letter-spacing:-.01em;text-align:center;line-height:1.2}
 .les-snd{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
-.les-play{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 -6px 0 rgba(0,0,0,.2)}
+.les-play{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);box-shadow:inset 0 -6px 0 rgba(0,0,0,.2)}
 .les-play:active{transform:translateY(2px)}
 .les-play svg.i{width:42px;height:42px}
 .les-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -1996,7 +1996,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ear-bar{flex:1;height:10px;border-radius:6px;background:var(--fill);overflow:hidden}
 .ear-bar i{display:block;height:100%;border-radius:6px;background:var(--c1);transition:width .3s}
 .ear-q{display:flex;align-items:center;gap:16px;margin-bottom:14px}
-.ear-play{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18)}
+.ear-play{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18)}
 .ear-play:active{transform:translateY(2px)}
 .ear-play svg.i{width:30px;height:30px}
 .ear-reveal{flex:1;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
@@ -9452,7 +9452,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.04';
+const APP_VERSION = '3.05';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
