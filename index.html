@@ -1794,22 +1794,39 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-sign-board small{font:800 10.5px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#F4C14E}
 .un-sign-board b{max-width:100%;font:900 19px/1.15 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1.5px 0 #6E120B}
 .un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
-.un-side-w{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;margin:0 -20px 14px}
-.un-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
-.un-scroll::-webkit-scrollbar{display:none}
-.un-track{position:relative}
-.un-track .un-bg{left:0;right:0}
-.un-track .un-bg::before{height:44px}
-.un-track .un-bg::after{content:"";position:absolute;inset:auto 0 0;height:44px;z-index:1;background:linear-gradient(transparent,var(--paper))}
-.un-side .un-map{margin:0}
-.un-peek{position:absolute;right:12px;top:14px;z-index:4;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 14px;border-radius:18px;background:var(--card);color:var(--ink);font:700 13px/1 var(--ui);box-shadow:var(--ring),0 6px 14px -6px rgba(40,20,10,.5);transition:opacity .3s}
-.un-peek b{font-size:20px;line-height:.6;color:var(--seal)}
-.un-peek.gone{opacity:0;pointer-events:none}
 .un-bg canvas.uw-tab{opacity:0;transition:opacity .5s}
 .un-bg canvas.uw-tab.on{opacity:1}
-.un-round .un-node:not(.front):not(.un-boss) small{display:none}
-.un-round .un-boss{transform:translate(-50%,-112px) scale(.78);transform-origin:50% 112px}
-.un-round .un-boss small{display:none}
+/* v3.18: the course as one strip of units you swipe to the right through (ucPane), the sign with a pill under it */
+.uc{height:100dvh;min-height:0;overflow:hidden}
+.uc>.bar{height:112px;flex:none}
+.uc .un-sign{flex-direction:column;align-items:center}
+.uc-pill{position:relative;z-index:2;display:flex;align-items:center;gap:2px;max-width:100%;margin-top:9px;padding:3px;border-radius:999px;background:var(--card);box-shadow:var(--ring),0 5px 12px -6px rgba(40,20,10,.5)}
+.uc-pill b{min-width:0;padding:0 6px;font:700 12.5px/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--seal);font:700 22px/1 var(--ui);background:var(--fill)}
+.uc-pill button:disabled{opacity:.3}
+.uc-scroll{position:relative;z-index:1;flex:1;min-height:0;margin:0 -20px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain}
+.uc-scroll::-webkit-scrollbar,.uc-in::-webkit-scrollbar{display:none}
+.uc-strip{position:relative;display:flex;height:100%;width:max-content}
+.uc-pane{position:relative;flex:none;height:100%;scroll-snap-align:start}
+.uc-in{height:100%;overflow:hidden}
+.uc-snake .uc-in{overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:contain}
+.uc-stage{position:relative}
+.uc-stage .un-bg{left:0;right:0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 30px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,transparent,#000 30px,#000 calc(100% - 30px),transparent)}
+.uc-stage .un-bg::before{height:36px}
+.uc-stage .un-bg::after{content:"";position:absolute;inset:auto 0 0;height:36px;z-index:1;background:linear-gradient(transparent,var(--paper))}
+.uc .un-map{position:absolute;margin:0}
+.uc-pane.locked .uc-stage{filter:grayscale(.8) brightness(.9) contrast(.92)}
+.uc-pane.locked .un-map{pointer-events:none}
+.uc-pane.locked .un-shi{display:none}
+.uc-lock{position:absolute;top:44%;z-index:3;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:min(250px,80vw);padding:16px 18px 15px;border-radius:20px;text-align:center;
+  background:color-mix(in srgb,var(--card) 92%,transparent);box-shadow:var(--ring),0 12px 26px -12px rgba(40,20,10,.6)}
+.uc-lock svg.i{width:26px;height:26px;color:var(--seal)}
+.uc-lock b{font:600 16px/1.2 var(--display)}
+.uc-lock small{font-size:13px;color:var(--muted);line-height:1.3}
+.uc .un-hud{flex:none;position:relative;bottom:auto;margin:10px 0 calc(12px + env(safe-area-inset-bottom))}
+.un-grip{position:absolute;z-index:0;touch-action:pan-y}
+.uc-round .un-node{touch-action:pan-y}
+.uc-round .un-node:not(.front):not(.un-boss) small{display:none}
 .un-spin{position:absolute;z-index:2;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;white-space:nowrap}
 .un-spin button{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--card);color:var(--seal);font:700 26px/1 var(--ui);box-shadow:var(--ring),0 4px 10px -4px rgba(40,20,10,.5)}
 .un-spin em{padding:5px 10px;border-radius:10px;background:color-mix(in srgb,var(--card) 85%,transparent);font:600 12.5px/1 var(--ui);font-style:normal;color:var(--muted)}
@@ -1821,10 +1838,17 @@ button.st-d:active{transform:scale(.9);transition:none}
   background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 2px 6px -2px rgba(40,20,10,.35)}
 .un-node.locked small{color:var(--muted)}
 .un-node.done small{opacity:.78}
-.un-boss{width:132px;transform:translate(-50%,-112px)}
-.un-boss-fig{position:relative;display:block;width:132px;height:150px;transition:transform .15s;filter:drop-shadow(0 4px 0 rgba(40,18,8,.25))}
+.un-boss{width:150px;transform:translate(-50%,-142px)}
+.un-boss-fig{position:relative;display:block;width:150px;height:167px;transition:transform .15s;filter:drop-shadow(0 4px 0 rgba(40,18,8,.25))}
+.uc-chal{position:absolute;left:50%;top:160px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:26px;padding:0 11px;border-radius:13px;white-space:nowrap;
+  background:var(--card);color:var(--muted);font:700 13px/1 var(--ui);font-style:normal;box-shadow:0 0 0 2px var(--line-2),0 4px 10px -4px rgba(40,20,10,.5)}
+.uc-chal svg.i{width:15px;height:15px}
+.un-boss.cur .uc-chal{background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);box-shadow:inset 0 -3px 0 rgba(60,10,5,.28),0 4px 12px -3px rgba(200,40,20,.6);animation:ucChal 1.6s ease-in-out infinite}
+.un-boss.won .uc-chal{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
+@keyframes ucChal{50%{transform:translateX(-50%) scale(1.07)}}
+.uc-round .un-boss{transform:translate(-50%,-142px) scale(.72);transform-origin:50% 142px}
 .un-boss-fig svg{display:block;width:100%;height:100%;overflow:visible}
-.un-boss-aura{position:absolute;left:50%;top:58px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;
+.un-boss-aura{position:absolute;left:50%;top:96px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(255,70,40,.55),rgba(255,120,40,.28) 55%,transparent);animation:unAura 2.2s ease-in-out infinite}
 .un-boss.won .un-boss-aura{background:radial-gradient(closest-side,rgba(255,214,90,.6),rgba(255,214,90,.2) 60%,transparent);animation:none}
 .un-boss.cur .un-boss-fig{animation:unBreath 2.2s ease-in-out infinite;transform-origin:50% 100%}
@@ -1879,7 +1903,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes cmHint{50%{opacity:.35}}
 .cm-go{width:100%;height:54px;font-size:17px;animation:donePop .45s cubic-bezier(.2,.9,.3,1.3) both}
 .cm-hint[hidden],.cm-go[hidden]{display:none}
-@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.cm-go,.un-shi .shi-body,.un-shi.hop .shi-body,.un-shi.chomp .shi-body,.un-boss-aura,.un-boss.cur .un-boss-fig{animation:none}.un-shi.hop{transition:none}}
+@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.un-boss.cur .uc-chal,.cm-go,.un-shi .shi-body,.un-shi.hop .shi-body,.un-shi.chomp .shi-body,.un-boss-aura,.un-boss.cur .un-boss-fig{animation:none}.un-shi.hop{transition:none}}
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
 .les-sh-top{text-align:center}
 .les-sh-top small{font-size:13px;font-weight:700;color:var(--c1)}
@@ -3473,7 +3497,7 @@ function CourseView() {
     <section class="c1-top"><h1 class="c1-title">HSK 1 <span class="c1-zh">入门</span></h1>
       ${L.length ? `<p class="muted">${L.length} words · ${n} you know.</p>` : ''}</section>
     <div class="section-head"><h2>Units <span class="cal-zh">单元</span></h2><span class="muted les-count">${done} of ${LESSONS.length} lessons done</span></div>
-    <p class="muted les-intro">Each unit is a path of short lessons with a final boss at the end. A lesson is a small deck of hanzi cards: meet each word, trace its characters, turn the cards, then write from memory. Finished words go into your word bank by themselves.</p>
+    <p class="muted les-intro">Each unit is a path of short lessons that ends at the shrine of Hu Hu, the challenger: beat his challenge to open the next unit. A lesson is a small deck of hanzi cards: meet each word, trace its characters, turn the cards, then write from memory. Finished words go into your word bank by themselves.</p>
     ${UnitLevels()}
   </div>`;
 }
@@ -3537,7 +3561,8 @@ const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the cha
    The lessons page lists the units as levels (UnitLevels). A tap on a unit opens its campaign (#/course/1/unit/n): a
    glowing dotted path through its lessons that ends at the final boss, which is the unit test, over a pale picture of
    where its comic starts. Shi Shi stands on the card of the lesson you are on and hops on when you come back from one
-   you finished; Hu Hu, the boss, waits at the end on his stone with a finish flag.
+   you finished; (v3.18) Hu Hu, the challenger, waits at the end in his shrine, and the units are one strip you swipe
+   to the right through (ucPane).
    A unit can have a comic about Shi Shi in two parts (COMIC[unit]), as in a game's story mode. Each part is one page
    of slanted panels on a dark sheet, drawn with the Learn tab's scene kit (CRS.kit) on a 360 by 600 canvas, and is
    played one panel per tap (comicPlay): a tap anywhere brings the next panel, and after the last one a button
@@ -3993,7 +4018,7 @@ const unitOpen = un => un === 1 || utPassed(un - 1) || unitLessons(un).some(L =>
 function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = utPassed(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
 function unitGo(un) {   // tap a unit: its comic first (the first time, and again each time you come back to a unit you have won), whose Start button opens the campaign
   if (!LES_UNITS[un - 1]) return;
-  if (!unitOpen(un)) { toast(`Beat the Unit ${un - 1} boss first`); return; }
+  if (!unitOpen(un)) { toast(`Beat Hu Hu's challenge in Unit ${un - 1} first`); return; }
   const go = () => nav(`#/course/1/unit/${un}`);
   if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go();
 }
@@ -4017,71 +4042,136 @@ function unitNodes(n) {
   pts.push([180, TOP + Math.ceil(n / 3) * ROW + 52]);
   return pts;
 }
-/* each unit lays its campaign out its own way, after the place its comic starts:
-   snake  the lessons snake down the page three to a row (the town gate, the school, the snow)
-   side   one long street you swipe along, Hu Hu waiting at the far end (the walk to the party, the market, the train)
-   round  a round restaurant table with a lazy Susan: the steamers ride on the turntable round Hu Hu, who stands in the
-          middle, and you spin it to bring a lesson to the front, where Shi Shi sits (the restaurant, the present's table) */
-const UNIT_LAY = { 2: 'side', 3: 'side', 6: 'side', 4: 'round', 8: 'round' };
-const UN_RND = { cx: 180, cy: 300, rx: 114, ry: 66 };
-const unRnd = { rot: 0 };   // how far the table on screen is turned, in lessons: lesson rot is at the front
-const unRndAng = (i, n, rot = unRnd.rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
-/* a unit's map in units of 1/360 of its width: lay, pts (each lesson's foot, then the boss's), W by H, and on the
-   table each steamer's size (the back ones are further away) */
+/* the course is one long strip you swipe to the right through: every unit you have opened, side by side, and after
+   them the next one, greyed out under a lock (you can look at it, not play it, and the strip ends there). Each unit
+   lays its lessons out its own way, and the next one takes over where it ends:
+   side   a street you swipe along (units 1, 3, 5, 7)
+   snake  a page the lessons snake down, three to a row (units 2 and 6)
+   round  a round table with a lazy Susan: the steamers ride on the turntable round Hu Hu's shrine in the middle, and
+          you spin it to bring a lesson to the front, where Shi Shi sits (units 4 and 8)
+   Every unit ends at the shrine of Hu Hu, the challenger: beating his challenge (the unit test) opens the next unit */
+const UNIT_LAY = { 1: 'side', 2: 'snake', 3: 'side', 4: 'round', 5: 'side', 6: 'snake', 7: 'side', 8: 'round' };
+const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
+const unRnd = {};   // how far each round table is turned, in lessons: lesson unRnd[un] is at the front
+const unRndAng = (i, n, rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
+/* a unit's map in units of 1/360 of a phone's width: lay, pts (each lesson's foot, then the shrine's), W by H, and on
+   the table each steamer's size (the back ones are further away) */
 function unitMap(un, n) {
   const lay = UNIT_LAY[un] || 'snake';
-  if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [120 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 270, 330]); return { lay, pts, W: pts[n][0] + 150, H: 580 }; }
-  if (lay === 'round') { const a = Array.from({ length: n }, (_, i) => unRndAng(i, n)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
+  if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 250, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
+  if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
 }
-/* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the boss; at the table he keeps his seat by the front */
+/* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
-  return i === pts.length - 1 ? [x - 98, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
-function UnitView(un) {
-  const [en] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, C = COMIC[un];
-  const next = lesNext(), due = utDue(), r = db.utests[un], bossOpen = st.nd === n;
-  const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at), eat = !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
-  unRnd.rot = eat >= 0 ? eat : Math.min(st.at, n - 1);   // the table comes turned to the lesson you are on (or the one he is about to eat)
-  const m = unitMap(un, n), { pts, W, H, lay } = m;
+  return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
+const ucPanes = () => { const k = LES_UNITS.findIndex((_, u) => !unitOpen(u + 1)); return k < 0 ? LES_UNITS.length : k + 1; };   // units on the strip: the open ones and the first locked one
+const ucMe = () => { const k = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)); return k < 0 ? LES_UNITS.length : k + 1; };   // the unit Shi Shi is in: the first one not won
+const ucPane$ = u => document.querySelector(`.uc-pane[data-u="${u}"]`);
+const ucLabel = u => esc(COMIC[u]?.title || LES_UNITS[u - 1][1]);
+function ucPane(u) {
+  const st = unitState(u), n = st.ls.length, me = st.open && u === ucMe(), r = db.utests[u], chal = st.nd === n;
+  const seen = Math.min(db.unitAt?.[u] ?? st.at, st.at), eat = me && !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
+  unRnd[u] = eat >= 0 ? eat : Math.min(st.at, n - 1);   // a table comes turned to the lesson you are on (or the one he is about to eat)
+  const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd.rot ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
-  const boss = `<button class="un-node un-boss${st.won ? ' won' : bossOpen ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${un}" aria-label="Final boss, the unit test${st.won ? ', beaten' : bossOpen ? '' : ', locked'}">
-      <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small><i lang="zh" aria-hidden="true">王</i>Final boss</small></button>`;
-  const L = st.ls[st.nd], last = un === LES_UNITS.length;
-  const hud = !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat the Unit ${un - 1} boss first</b></span>`
-    : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
-    : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
+  const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
+      <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
+  const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
+  const R = UN_RND, table = lay === 'round' ? `<span class="un-grip" style="left:${((R.cx - R.rx - 64) / W * 100).toFixed(2)}%;top:${((R.cy - R.ry - 70) / H * 100).toFixed(2)}%;width:${((R.rx + 64) * 2 / W * 100).toFixed(2)}%;height:${((R.ry + 70) * 2 / H * 100).toFixed(2)}%"></span>`
+    + `<span class="un-spin" style="${pct([R.cx, R.cy + R.ry + 118])}"><button data-spin="-1"${off} aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1"${off} aria-label="Turn the table on">›</button></span>` : '';
+  return `<section class="uc-pane uc-${lay}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${u}, ${esc(LES_UNITS[u - 1][0])}${st.open ? '' : ', locked'}">
+    <div class="uc-in"><div class="uc-stage"><div class="un-bg" aria-hidden="true"><canvas class="uw"></canvas></div>
+      <div class="un-map" data-w="${W}" data-h="${H}">${table}${nodes}${shrine}${shi}</div></div></div>
+    ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${u} · ${esc(LES_UNITS[u - 1][0])}</b><small>Beat Hu Hu's challenge in Unit ${u - 1} to open it</small></div>`}</section>`;
+}
+function ucHud(u) {
+  const st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(), due = utDue(), L = st.ls[st.nd], last = u === LES_UNITS.length;
+  return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${u - 1}</b><i>His challenge opens Unit ${u}</i></span>`
+    : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${u + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[u][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
+    : st.nd === n ? `<span class="un-hud-t"><small>Hu Hu's challenge</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${u}">Challenge</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
-  const bg = '<div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div>', side = lay === 'side';
-  return `<div class="screen fade-in c1 un un-${lay}">${side ? '' : bg}<header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${un}</small><b>${esc(en)}</b></span></div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
-    ${side ? `<div class="un-side-w"><div class="un-scroll"><div class="un-track" style="width:${(W / 3.6).toFixed(2)}%">${bg}` : ''}<div class="un-map" style="aspect-ratio:${W}/${H}">
-      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}${lay === 'round' ? `<span class="un-spin" style="${pct([UN_RND.cx, UN_RND.cy + UN_RND.ry + 118])}"><button data-spin="-1" aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1" aria-label="Turn the table on">›</button></span>` : ''}</div>${side ? `</div></div><button class="un-peek" aria-label="Go to the final boss">Final boss<b>›</b></button></div>` : ''}
-    <div class="un-hud">${hud}</div></div>`;
+}
+function UnitView(un) {
+  const k = ucPanes(), u = Math.min(un, k);
+  return `<div class="screen fade-in c1 un uc"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
+    <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${u}</small><b>${esc(LES_UNITS[u - 1][0])}</b></span>
+      <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > 1 ? '' : ' disabled'}>‹</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < k ? '' : ' disabled'}>›</button></span></div>
+    <button class="icon-btn" data-act="comic-replay" data-u="${u}" aria-label="Watch the comic again">${COMIC_I}</button></header>
+    <div class="uc-scroll"><div class="uc-strip">${Array.from({ length: k }, (_, i) => ucPane(i + 1)).join('')}</div></div>
+    <div class="un-hud">${ucHud(u)}</div></div>`;
+}
+/* size every unit on the strip to the space between the sign and the card at the bottom: a street is as high as that
+   and as long as it needs, a table fits inside it, a snake page is as wide as the screen and scrolls down */
+function ucFit() {
+  const sc = $('.uc-scroll'); if (!sc) return; const vw = sc.clientWidth, vh = sc.clientHeight;
+  sc.querySelectorAll('.uc-pane').forEach(p => {
+    const map = p.querySelector('.un-map'), stg = p.querySelector('.uc-stage'), W = +map.dataset.w, H = +map.dataset.h;
+    let mw = vw, mh = vw * H / W, pw = vw, sh = Math.max(vh, mh);
+    if (p.classList.contains('uc-side')) { mh = vh; mw = vh * W / H; pw = Math.max(vw, mw); sh = vh; }
+    else if (p.classList.contains('uc-round')) { const k = Math.min(vw / W, vh / H); mw = W * k; mh = H * k; sh = vh; }
+    p.style.width = pw + 'px'; stg.style.width = pw + 'px'; stg.style.height = sh + 'px';
+    Object.assign(map.style, { width: mw + 'px', height: mh + 'px', left: (pw - mw) / 2 + 'px', top: (sh - mh) / 2 + 'px' });
+    const lk = p.querySelector('.uc-lock'); if (lk) lk.style.left = Math.min(pw, vw) / 2 + 'px';
+  });
+}
+let ucU = 0, ucEat = null, ucQuiet;
+/* the unit in the middle of the screen becomes the one the sign, the pill, the comic button and the card are about */
+function ucWhich() { const sc = $('.uc-scroll'), x = sc.scrollLeft + sc.clientWidth / 2; let u = 1; sc.querySelectorAll('.uc-pane').forEach(p => { if (p.offsetLeft <= x) u = +p.dataset.u; }); return u; }
+function ucSet(u) {
+  if (u === ucU) return; ucU = u; const k = ucPanes(), b = $('.un-sign-board');
+  if (b) { b.querySelector('small').textContent = `Unit ${u}`; b.querySelector('b').textContent = LES_UNITS[u - 1][0]; }
+  const pl = $('.uc-pill'); if (pl) { pl.querySelector('b').innerHTML = ucLabel(u); pl.querySelector('[data-uc="-1"]').disabled = u <= 1; pl.querySelector('[data-uc="1"]').disabled = u >= k; }
+  const cb = $('.uc [data-act="comic-replay"]'); if (cb) cb.dataset.u = u;
+  const hud = $('.uc .un-hud'); if (hud) hud.innerHTML = ucHud(u);
+  if (S.cUnit !== u) { S.cUnit = u; history.replaceState(history.state, '', `#/course/1/unit/${u}`); }
+}
+/* go to a unit: its start (a street from where you came in) */
+function ucGo(u, smooth = !stillMotion()) { const sc = $('.uc-scroll'), p = ucPane$(u); if (sc && p) sc.scrollTo({ left: p.offsetLeft, behavior: smooth ? 'smooth' : 'auto' }); }
+/* bring a point of a unit's map into view: along the street, or down the snake page */
+function ucFocus(u, fx, fy, smooth) {
+  const sc = $('.uc-scroll'), p = ucPane$(u); if (!sc || !p) return;
+  const map = p.querySelector('.un-map').getBoundingClientRect(), x = map.left + fx * map.width, y = map.top + fy * map.height, how = smooth && !stillMotion() ? 'smooth' : 'auto';
+  if (p.classList.contains('uc-side')) { const s = sc.getBoundingClientRect(), to = sc.scrollLeft + x - s.left - sc.clientWidth * .35;
+    sc.scrollTo({ left: Math.max(p.offsetLeft, Math.min(to, p.offsetLeft + p.offsetWidth - sc.clientWidth)), behavior: how }); }
+  else { if (!smooth) sc.scrollLeft = p.offsetLeft; if (p.classList.contains('uc-snake')) { const inn = p.querySelector('.uc-in'), r = inn.getBoundingClientRect(); inn.scrollTo({ top: inn.scrollTop + y - r.top - inn.clientHeight * .45, behavior: how }); } }
+}
+/* paint the towns near the screen and let go of the far ones (a street's town is a big picture) */
+function ucPaint() {
+  const sc = $('.uc-scroll'); if (!sc) return; const a = sc.scrollLeft, w = sc.clientWidth;
+  sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = p.offsetLeft, r = l + p.offsetWidth, near = r > a - w && l < a + 2 * w;
+    if (near && !p.dataset.p) { if (unitWorld(u, ucEat?.u === u ? { skip: ucEat.i } : {})) p.dataset.p = 1; }
+    else if (p.dataset.p && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; } });
 }
 function mountUnit(un) {
-  const st = unitState(un), shi = $('#unShi'), eat = shi?.dataset.eat;
+  const sc = $('.uc-scroll'); if (!sc) return;
+  const k = ucPanes(), go = Math.min(un, k), me = ucMe(), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
+  ucFit(); ucU = 0; ucEat = eat != null ? { u: me, i: +eat } : null;
+  const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
+  if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else sc.scrollLeft = ucPane$(go).offsetLeft;
+  ucSet(go); ucPaint();
+  let raf = 0;
+  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); });
+    clearTimeout(ucQuiet); ucQuiet = setTimeout(() => {   // settled on a unit you have not met yet: its comic first
+      const u = ucWhich(); if (S.view === 'course' && unitOpen(u) && COMIC[u] && !comicSeen(u).p1 && !$('#ob') && !$('.uw-anim')) comicPlay(u, 0); }, 450); }, { passive: true });
+  document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
+  $('.uc .un-hud').onclick = e => { const b = e.target.closest('[data-ucgo]'); if (b) ucGo(+b.dataset.ucgo); };
+  for (let u = 1; u <= k; u++) if (UNIT_LAY[u] === 'round' && unitOpen(u)) unitTableGrip(u);
   // Shi Shi eats the baozi of the lesson you just finished, if there is one, then hops on; only then is the new place remembered
-  const lay = UNIT_LAY[un] || 'snake', sc = $('.un-scroll');
-  const hop = () => { if (!shi?.isConnected) return; const [, l, t] = shi.dataset.to.match(/left:([^;]+);top:([^;]+)/); if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; }
-    if (sc) sc.scrollTo({ left: parseFloat(l) / 100 * sc.firstElementChild.offsetWidth - sc.clientWidth * .3, behavior: stillMotion() ? 'auto' : 'smooth' });   // the street follows him
-    if (lay === 'round') unitSpin(un, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
+  const hop = () => { if (!shi?.isConnected) return; const [fx, fy, l, t] = at(shi, shi.dataset.to);
+    if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; if (ucU === me) ucFocus(me, fx, fy, true); }   // the street follows him
+    if (UNIT_LAY[me] === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
     if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
-    if (db.unitAt?.[un] !== st.at) { (db.unitAt ||= {})[un] = st.at; save(); } };
-  if (sc) {   // the street opens where Shi Shi is; the tab on the right takes you to the boss, and goes once you are there
-    sc.scrollLeft = shi ? shi.offsetLeft - sc.clientWidth * .3 : 0;
-    const pk = $('.un-peek'), at = () => pk.classList.toggle('gone', sc.scrollLeft + sc.clientWidth > sc.scrollWidth - 80);
-    sc.addEventListener('scroll', at, { passive: true }); at(); pk.onclick = () => sc.scrollTo({ left: sc.scrollWidth, behavior: stillMotion() ? 'auto' : 'smooth' });
-  }
-  if (lay === 'round') unitTableGrip(un);
-  if (eat != null) { unitWorld(un, { skip: +eat }); setTimeout(() => { if (shi?.isConnected) unitEat(un, +eat, () => setTimeout(hop, 250)); }, 450); }
-  else { unitWorld(un); setTimeout(hop, stillMotion() ? 0 : 520); }
-  document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if (S.view === 'course' && S.cUnit === un && !$('.uw-anim')) unitWorld(un); });
-  // the boss was beaten somewhere else: the ending plays here
-  if (COMIC[un] && st.won && comicSeen(un).p1 && !comicSeen(un).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === un && !$('#ob')) comicPlay(un, 1); }, 760);
+    if (db.unitAt?.[me] !== st.at) { (db.unitAt ||= {})[me] = st.at; save(); } };
+  if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => { ucEat = null; setTimeout(hop, 250); }); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
+  document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if ($('.uc-scroll') === sc && !$('.uw-anim')) sc.querySelectorAll('.uc-pane[data-p]').forEach(p => unitWorld(+p.dataset.u, ucEat?.u === +p.dataset.u ? { skip: ucEat.i } : {})); });
+  // Hu Hu was beaten somewhere else: the ending plays here
+  if (COMIC[go] && utPassed(go) && comicSeen(go).p1 && !comicSeen(go).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === go && !$('#ob')) comicPlay(go, 1); }, 760);
 }
 function comicReplay(un, demo = { demo: 1 }) {   // another look: part 1, and the ending if you have won it
   const both = !!comicSeen(un).p2 || demo.all;
@@ -4118,14 +4208,14 @@ const unitSegs = pts => pts.slice(1).map(([x1, y1], k) => { const [x0, y0] = pts
   return [[x0, y0], [(x0 + x1) / 2, y0], [(x0 + x1) / 2, y1], [x1, y1]]; });
 /* where everything stands, in pixels of the backdrop: each steamer's foot, the boss's plaza and the dots of the path */
 function uwGeo(un) {
-  const box = $('#unBg'), map = $('.un-map'); if (!box || !map) return null;
-  const st = unitState(un), n = st.ls.length, m = unitMap(un, n), pts = m.pts, FOOT = 24;
+  const P = ucPane$(un), box = P?.querySelector('.un-bg'), map = P?.querySelector('.un-map'); if (!box || !map) return null;
+  const st = unitState(un), n = st.ls.length, m = unitMap(un, n), pts = m.pts, FOOT = 24, rot = unRnd[un] ?? 0;
   const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / m.W; if (!B.width || !B.height) return null;
   const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
   const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
   const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k };
   if (m.lay === 'round') {   // on the table the path runs round the turntable, from the first lesson to the last
-    for (let i = 0; i < n - 1; i++) { const a0 = unRndAng(i, n), a1 = unRndAng(i + 1, n);
+    for (let i = 0; i < n - 1; i++) { const a0 = unRndAng(i, n, rot), a1 = unRndAng(i + 1, n, rot);
       for (let t = 0; t <= 1; t += .02) { const a = a0 + (a1 - a0) * t, p = px([UN_RND.cx + UN_RND.rx * Math.cos(a), UN_RND.cy + UN_RND.ry * Math.sin(a)]), q = trail[trail.length - 1];
         if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 40 * o.sc) || (q && Math.hypot(q.x - p[0], q.y - p[1]) < 12)) continue;
         trail.push({ x: p[0], y: p[1], done: i < st.at }); } }
@@ -4205,7 +4295,7 @@ function uwSteamer(c, lights, x, y, ch, state, a = {}) {
 
 function unitWorld(un, o = {}) {
   const G = uwGeo(un); if (!G) return null;
-  const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2.5);
+  const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2);
   cv.width = Math.round(W * D); cv.height = Math.round(H * D); cv.style.width = W + 'px'; cv.style.height = H + 'px';
   const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
   const pal = UW_PAL[un] || UW_PAL[1], night = pal.glow === 'night', warm = !!pal.glow;
@@ -4377,16 +4467,16 @@ function uwDot(c, x, y, done) {
   c.fillStyle = done ? '#FFC23A' : '#FFF4DC'; c.beginPath(); c.ellipse(x, y, 3.6, 2, 0, 0, 7); c.fill();
   if (done) { c.fillStyle = '#FFF8DA'; c.beginPath(); c.ellipse(x, y - .3, 1.6, .9, 0, 0, 7); c.fill(); }
 }
-/* the round table's turntable as it stands now (unRnd.rot): the disc, the path round it and the steamers, the far ones
+/* the round table's turntable as it stands now (unRnd[un]): the disc, the path round it and the steamers, the far ones
    smaller, painted back to front on their own canvas over the town so turning it repaints only this. The steamer
    skip is left out (it is being eaten on the canvas above). Its lessons' buttons move with it, and the one at the
    front shows its name */
 function unitTable(un, skip) {
   const G = uwGeo(un); if (!G || G.lay !== 'round') return;
   let cv = G.box.querySelector('canvas.uw-tab'); if (!cv) { cv = document.createElement('canvas'); cv.className = 'uw-tab'; G.box.querySelector('canvas.uw').after(cv); }
-  const D = Math.min(devicePixelRatio || 1, 2.5), w = Math.round(G.W * D), h = Math.round(G.H * D);
+  const D = Math.min(devicePixelRatio || 1, 2), w = Math.round(G.W * D), h = Math.round(G.H * D);
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
-  const c = cv.getContext('2d'), k = G.k, x = G.boss.x, y = G.boss.y - 6 * k, RX = (UN_RND.rx + 44) * k, RY = (UN_RND.ry + 30) * k, n = G.spots.length, turn = -unRnd.rot * 2 * Math.PI / n;
+  const c = cv.getContext('2d'), k = G.k, x = G.boss.x, y = G.boss.y - 6 * k, RX = (UN_RND.rx + 44) * k, RY = (UN_RND.ry + 30) * k, n = G.spots.length, turn = -unRnd[un] * 2 * Math.PI / n;
   c.setTransform(D, 0, 0, D, 0, 0); c.clearRect(0, 0, G.W, G.H);
   c.fillStyle = 'rgba(40,10,8,.35)'; c.beginPath(); c.ellipse(x + 4, y + 6, RX, RY, 0, 0, 7); c.fill();
   let g = c.createLinearGradient(x - RX, y - RY, x + RX, y + RY); g.addColorStop(0, '#E7D9C4'); g.addColorStop(1, '#BFA98C'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, RX, RY, 0, 0, 7); c.fill();
@@ -4397,30 +4487,30 @@ function unitTable(un, skip) {
   G.trail.forEach(d => uwDot(c, d.x, d.y, d.done));
   G.spots.filter(s => s.i !== skip).sort((a, b) => a.y - b.y).forEach(s => { c.save(); c.translate(s.x, s.y); c.scale(s.sc, s.sc); c.translate(-s.x, -s.y); uwSteamer(c, null, s.x, s.y, s.ch, s.state); c.restore(); });
   cv.classList.add('on');
-  const m = unitMap(un, n), f = ((Math.round(unRnd.rot) % n) + n) % n;
-  document.querySelectorAll('.un-map .un-node[data-i]').forEach(b => { const i = +b.dataset.i; b.style.left = (m.pts[i][0] / m.W * 100).toFixed(2) + '%'; b.style.top = (m.pts[i][1] / m.H * 100).toFixed(2) + '%'; b.classList.toggle('front', i === f); });
+  const m = unitMap(un, n), f = ((Math.round(unRnd[un]) % n) + n) % n;
+  ucPane$(un).querySelectorAll('.un-map .un-node[data-i]').forEach(b => { const i = +b.dataset.i; b.style.left = (m.pts[i][0] / m.W * 100).toFixed(2) + '%'; b.style.top = (m.pts[i][1] / m.H * 100).toFixed(2) + '%'; b.classList.toggle('front', i === f); });
 }
 /* turn the table so lesson to comes to the front, the short way round */
 let unSpinT = 0;
 function unitSpin(un, to, ms = 560) {
-  const n = unitLessons(un).length, from = unRnd.rot, id = ++unSpinT; to = from + ((((to - from) % n) + n * 1.5) % n - n / 2);
-  if (stillMotion() || Math.abs(to - from) < .001) { unRnd.rot = to; unitTable(un); return; }
-  const t0 = performance.now(), step = now => { if (id !== unSpinT || !$('.un-round')) return; const t = Math.min(1, (now - t0) / ms), e = 1 - (1 - t) ** 3;
-    unRnd.rot = from + (to - from) * e; unitTable(un); if (t < 1) requestAnimationFrame(step); else unRnd.rot = ((Math.round(to) % n) + n) % n; };
+  const n = unitLessons(un).length, from = unRnd[un] ?? 0, id = ++unSpinT; to = from + ((((to - from) % n) + n * 1.5) % n - n / 2);
+  if (stillMotion() || Math.abs(to - from) < .001) { unRnd[un] = to; unitTable(un); return; }
+  const t0 = performance.now(), step = now => { if (id !== unSpinT || !ucPane$(un)) return; const t = Math.min(1, (now - t0) / ms), e = 1 - (1 - t) ** 3;
+    unRnd[un] = from + (to - from) * e; unitTable(un); if (t < 1) requestAnimationFrame(step); else unRnd[un] = ((Math.round(to) % n) + n) % n; };
   requestAnimationFrame(step);
 }
 /* swipe the table, or tap its arrows, to turn it; it settles with a lesson at the front. A swipe is not a tap */
 function unitTableGrip(un) {
-  const map = $('.un-round .un-map'); if (!map) return;
-  let g = null, quiet = 0;
-  map.addEventListener('pointerdown', e => { if (!e.isPrimary || $('.uw-anim') || e.target.closest('.un-spin')) return; g = { id: e.pointerId, x: e.clientX, y: e.clientY, r: unRnd.rot, on: false }; });
+  const map = ucPane$(un)?.querySelector('.un-map'); if (!map) return;
+  let g = null, quiet = 0;   // only a swipe that starts on the table turns it; anywhere else it moves the strip
+  map.addEventListener('pointerdown', e => { if (!e.isPrimary || $('.uw-anim') || !e.target.closest('.un-grip, .un-node')) return; g = { id: e.pointerId, x: e.clientX, y: e.clientY, r: unRnd[un], on: false }; });
   map.addEventListener('pointermove', e => { if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
     if (!g.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } if (Math.abs(dx) < 10) return; g.on = true; ++unSpinT; try { map.setPointerCapture(g.id); } catch (_) {} }
-    const was = Math.round(unRnd.rot); unRnd.rot = g.r - dx / 90; unitTable(un); if (Math.round(unRnd.rot) !== was) haptic(6); });
-  const end = e => { if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return; quiet = performance.now() + 350; unitSpin(un, Math.round(unRnd.rot), 280); };
+    const was = Math.round(unRnd[un]); unRnd[un] = g.r - dx / 90; unitTable(un); if (Math.round(unRnd[un]) !== was) haptic(6); });
+  const end = e => { if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return; quiet = performance.now() + 350; unitSpin(un, Math.round(unRnd[un]), 280); };
   map.addEventListener('pointerup', end); map.addEventListener('pointercancel', end);
   map.addEventListener('click', e => { if (performance.now() < quiet) { e.stopPropagation(); e.preventDefault(); } }, true);
-  map.querySelectorAll('[data-spin]').forEach(b => b.onclick = () => { if (!$('.uw-anim')) { haptic(8); unitSpin(un, Math.round(unRnd.rot) + +b.dataset.spin); } });
+  map.querySelectorAll('[data-spin]').forEach(b => b.onclick = () => { if (!$('.uw-anim')) { haptic(8); unitSpin(un, Math.round(unRnd[un]) + +b.dataset.spin); } });
 }
 
 /* one bite: a short soft crunch, a burst of noise through a low filter with a little drop in pitch under it */
@@ -4437,7 +4527,7 @@ function uwChomp() {
    lid drops back and the steamer fades to done. then: what happens after (Shi Shi hops on) */
 function unitEat(un, i, then) {
   const G = unitWorld(un, { skip: i }), s = G?.spots[i], shi = $('#unShi'); if (!s || !shi) { then(); return; }
-  const cv = document.createElement('canvas'), D = Math.min(devicePixelRatio || 1, 2.5); cv.className = 'uw-anim'; G.box.append(cv);
+  const cv = document.createElement('canvas'), D = Math.min(devicePixelRatio || 1, 2); cv.className = 'uw-anim'; G.box.append(cv);
   cv.width = Math.round(G.W * D); cv.height = Math.round(G.H * D); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px';
   const c = cv.getContext('2d'), side = shi.getBoundingClientRect().left + 36 < s.x + G.box.getBoundingClientRect().left ? -1 : 1;
   const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 - (1 - t) ** 3, back = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 + 2.7 * (t - 1) ** 3 + 1.7 * (t - 1) ** 2;
@@ -4462,7 +4552,58 @@ function unitEat(un, i, then) {
   requestAnimationFrame(frame);
 }
 let uwRz;
-addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { if (S.view === 'course' && S.cUnit && !$('.uw-anim')) unitWorld(S.cUnit); }, 150); });
+addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { const sc = $('.uc-scroll'); if (!sc || $('.uw-anim')) return; const p = ucPane$(ucU), off = p ? sc.scrollLeft - p.offsetLeft : 0;
+  ucFit(); if (p) sc.scrollLeft = p.offsetLeft + off; sc.querySelectorAll('.uc-pane[data-p]').forEach(q => delete q.dataset.p); ucPaint(); }, 150); });
+/* Hu Hu, the challenger: a tiger's head on two little feet, like Shi Shi. cocky: one brow up, a fang out, arms folded;
+   fire: your challenge is open, fists up; dizzy: beaten, spiral eyes and a plaster */
+function huHu(mood = 'cocky') {
+  const L = '#5A2608', O = '#F7A03C', S = '#3A1806', W = '#FFF6E8', K = '#24140A', dizzy = mood === 'dizzy';
+  const tube = (d, w) => `<path d="${d}" fill="none" stroke="${L}" stroke-width="${w + 8}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${O}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const paw = (x, y) => `<circle cx="${x}" cy="${y}" r="10" fill="${O}" stroke="${L}" stroke-width="4"/>`;
+  const wedge = (x, y, d, len = 15) => `<path d="M${x} ${y - 4}L${x + d * len} ${y}L${x} ${y + 4}Z" fill="${S}"/>`;
+  const spiral = (x, y) => `<path d="M${x} ${y}m-1 0a2.5 2.5 0 1 1 3 2.6a5 5 0 1 1 -6.5 -5.6a8 8 0 1 1 -3.5 9.5" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/>`;
+  const face = dizzy
+    ? spiral(74, 80) + spiral(126, 80) + `<path d="M86 116Q93 110 100 116T114 116" fill="none" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/>`
+      + `<g transform="rotate(28 132 52)"><rect x="114" y="46" width="36" height="12" rx="5" fill="${W}" stroke="${L}" stroke-width="2.5"/><path d="M128 49v6M136 49v6" stroke="#E0C9A8" stroke-width="2"/></g>`
+    : `<path d="M58 82Q72 70 88 82Q72 92 58 82Z" fill="#FFE14D" stroke="${K}" stroke-width="3"/><ellipse cx="76" cy="82" rx="2.8" ry="6.5" fill="${K}"/>`
+      + `<path d="M50 64H94V86L56 75Z" fill="${O}"/><path d="M54 73L94 85" stroke="${K}" stroke-width="6.5" stroke-linecap="round"/>`
+      + `<path d="M112 81Q127 68 142 79Q128 91 112 81Z" fill="#FFE14D" stroke="${K}" stroke-width="3"/><ellipse cx="127" cy="80.5" rx="2.8" ry="6.5" fill="${K}"/><circle cx="129.5" cy="77.5" r="1.6" fill="#fff"/>`
+      + `<path d="M106 64H148V72Q128 70 110 79Z" fill="${O}"/><path d="M108 68Q126 54 148 62" fill="none" stroke="${K}" stroke-width="6.5" stroke-linecap="round"/>`
+      + `<path d="M84 115Q99 121 117 110Q121 108 122 103" fill="none" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/><path d="M106 117L109.5 127L113 115Z" fill="#fff" stroke="${K}" stroke-width="2" stroke-linejoin="round"/>`
+      + (mood === 'fire' ? `<g transform="translate(166 34)" stroke="#E5483F" stroke-width="4" fill="none" stroke-linecap="round"><path d="M-9 -3Q-3 -3 -3 -9M3 -9Q3 -3 9 -3M9 3Q3 3 3 9M-3 9Q-3 3 -9 3"/></g>` : '');
+  const ruff = k => `<path d="M${100 + k * 50} 78L${100 + k * 74} 90L${100 + k * 56} 96L${100 + k * 72} 110L${100 + k * 48} 106Z" fill="${O}" stroke="${L}" stroke-width="4" stroke-linejoin="round"/>`;
+  const arms = mood === 'fire' ? tube('M48 112L26 84', 13) + tube('M152 112L174 84', 13) + paw(24, 80) + paw(176, 80)
+    : dizzy ? tube('M50 116L34 140', 13) + tube('M150 116L166 140', 13) + paw(32, 144) + paw(168, 144) : '';
+  const folded = mood === 'cocky' ? tube('M52 124Q76 150 118 138', 14) + tube('M148 124Q124 150 82 138', 14) + paw(118, 138) + paw(82, 138) : '';
+  return `<svg class="hu-hu" viewBox="10 14 180 156" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="100" cy="164" rx="46" ry="6" fill="#000" opacity=".2"/>`
+    + `<ellipse cx="80" cy="156" rx="15" ry="8" fill="${O}" stroke="${L}" stroke-width="4"/><ellipse cx="120" cy="156" rx="15" ry="8" fill="${O}" stroke="${L}" stroke-width="4"/>` + arms
+    + `<g transform="rotate(${dizzy ? 7 : -6} 100 112)">`
+    + `<circle cx="54" cy="42" r="19" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="55" cy="44" r="9" fill="#E8707A"/><circle cx="146" cy="42" r="19" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="145" cy="44" r="9" fill="#E8707A"/>`
+    + ruff(-1) + ruff(1) + `<ellipse cx="100" cy="84" rx="64" ry="52" fill="${O}" stroke="${L}" stroke-width="5"/>`
+    + `<path d="M86 44H114M88 53H112M84 62H116M100 44V62" stroke="${S}" stroke-width="5" stroke-linecap="round"/>` + wedge(37, 82, 1) + wedge(37, 98, 1) + wedge(163, 82, -1) + wedge(163, 98, -1)
+    + `<circle cx="89" cy="108" r="14" fill="${W}"/><circle cx="111" cy="108" r="14" fill="${W}"/><path d="M92 97Q100 92 108 97Q105 105 100 106Q95 105 92 97Z" fill="#E8707A" stroke="${L}" stroke-width="2.5" stroke-linejoin="round"/>`
+    + face + `</g>` + folded
+    + (dizzy ? [[70, 20], [100, 8], [132, 16]].map(([x, y]) => `<path d="M${x} ${y - 7}L${x + 2} ${y - 2}L${x + 7} ${y}L${x + 2} ${y + 2}L${x} ${y + 7}L${x - 2} ${y + 2}L${x - 7} ${y}L${x - 2} ${y - 2}Z" fill="#FFD15C" stroke="${L}" stroke-width="1.5"/>`).join('') : '')
+    + `</svg>`;
+}
+/* the challenger's shrine at the end of every unit: a little red hall on stone steps under a curled double roof, the
+   plaque 挑战 (challenge) on its front, two lanterns, and Hu Hu waiting in its doorway */
+function huShrine(mood) {
+  const won = mood === 'dizzy', roof = '#25314E', ridge = won ? '#F4C14E' : '#E9B949';
+  return `<svg viewBox="0 0 180 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">`
+    + `<defs><linearGradient id="huIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A0C08"/><stop offset="1" stop-color="#7A1E14"/></linearGradient></defs>`
+    + `<path d="M10 198H170L162 186H18Z" fill="#6E6058"/><path d="M18 186H162L156 176H24Z" fill="#9C8C80"/><path d="M24 176H156L152 170H28Z" fill="#B8AA9C"/>`
+    + `<rect x="34" y="66" width="112" height="104" fill="url(#huIn)"/>`
+    + (won ? `<rect x="34" y="66" width="112" height="104" fill="#FFD15C" opacity=".22"/>` : '')
+    + [28, 140].map(x => `<rect x="${x}" y="60" width="12" height="112" rx="2" fill="#C2392B" stroke="#7A130C" stroke-width="2"/><rect x="${x - 2}" y="164" width="16" height="7" rx="2" fill="${ridge}"/>`).join('')
+    + `<rect x="20" y="54" width="140" height="13" rx="2" fill="#B02A1E" stroke="#7A130C" stroke-width="2"/><path d="M26 60.5H154" stroke="${ridge}" stroke-width="2" stroke-dasharray="6 5"/>`
+    + `<path d="M0 50Q16 58 34 50L60 28H120L146 50Q164 58 180 50L172 62Q150 66 90 66Q30 66 8 62Z" fill="${roof}"/><path d="M8 62Q30 66 90 66Q150 66 172 62" fill="none" stroke="${ridge}" stroke-width="2.5"/>`
+    + `<path d="M40 30Q52 33 64 24L78 10H102L116 24Q128 33 140 30L134 38H46Z" fill="${roof}"/><path d="M76 10H104" stroke="${ridge}" stroke-width="4" stroke-linecap="round"/><circle cx="74" cy="10" r="3.5" fill="${ridge}"/><circle cx="106" cy="10" r="3.5" fill="${ridge}"/>`
+    + `<rect x="62" y="30" width="56" height="22" rx="3" fill="#7A130C" stroke="${ridge}" stroke-width="2.5"/><text x="90" y="46.5" text-anchor="middle" font-family="'Noto Serif SC','Songti SC',serif" font-weight="900" font-size="15" fill="#F4C14E">挑战</text>`
+    + [48, 132].map(x => `<path d="M${x} 67V74" stroke="#2A140D" stroke-width="1.5"/><rect x="${x - 4}" y="73" width="8" height="2.5" fill="${ridge}"/><ellipse cx="${x}" cy="82" rx="7.5" ry="8.5" fill="#E5483F" stroke="#8E1F14" stroke-width="1.5"/><rect x="${x - 4}" y="89.5" width="8" height="2.5" fill="${ridge}"/>`).join('')
+    + huHu(mood).replace(/^<svg[^>]*>/, '<svg x="33" y="80" width="114" height="99" viewBox="10 14 180 156">')
+    + `</svg>`;
+}
 /* the final boss of every unit: Hu Hu, full height on his stone, arms folded, one brow up, a fang out, the champion's
    belt on. Beaten, he is dizzy: spiral eyes, a plaster, the belt gone */
 function bossTiger(beaten) {
@@ -4541,11 +4682,11 @@ function startLesson(n) {
 function utSheet(un) {   // tap a unit test on the path
   if (!unitDone(un)) { toast(`Finish the lessons in Unit ${un} first`); return; }
   const r = db.utests[un], n = LESSONS.filter(L => L.u === un - 1).length * UT_PER, last = un === LES_UNITS.length;
-  openSheet(`<div class="les-sh-top"><small>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</small><h3>Unit test</h3></div>
+  openSheet(`<div class="les-sh-top"><small>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</small><h3>Hu Hu's challenge</h3></div>
     <p class="ut-sh-what">${n} words from this unit, and two characters to write from memory. Each question comes once.</p>
     <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${last ? 'finishes HSK 1 and opens HSK 2' : `opens Unit ${un + 1} · ${esc(LES_UNITS[un][0])}`}</span></div>
     ${r?.pass ? `<p class="muted les-sh-note">Passed with ${r.best}%. Take it again any time.</p>` : r ? `<p class="muted les-sh-note">Your best so far: ${r.best}%.</p>` : ''}
-    <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Take it again' : 'Start the test'}</button>`);
+    <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Challenge him again' : 'Take the challenge'}</button>`);
 }
 function utRoute(un) {   // opening #/course/1/test/un
   if (!LES_UNITS[un - 1] || !unitDone(un)) { history.replaceState(history.state, '', '#/course/1'); S.view = 'course'; S.cPart = null; S.cBasics = false; return; }
@@ -10072,7 +10213,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.17';
+const APP_VERSION = '3.18';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -10194,7 +10335,7 @@ function devSheet() {
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
       ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
       ${p('devEat', 'Play: Shi Shi eats a baozi', 'Opens the unit you are on as if you had just finished its last lesson: the lid lifts and he eats it')}
-      ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after the boss')}
+      ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after Hu Hu\'s challenge')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
     <div class="list-group">
