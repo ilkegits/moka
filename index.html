@@ -4192,7 +4192,7 @@ function ucPaint() {
   const sc = $('.uc-scroll'); if (!sc) return; const a = sc.scrollLeft, w = sc.clientWidth;
   sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = p.offsetLeft, r = l + p.offsetWidth, near = r > a - w && l < a + 2 * w;
     if (near && !p.dataset.p) { if (unitWorld(u, ucEat?.u === u ? { skip: ucEat.i } : {})) p.dataset.p = 1; }
-    else if (p.dataset.p && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; } });
+    else if (p.dataset.p && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; delete p._glow; } });
 }
 function mountUnit(un) {
   const sc = $('.uc-scroll'); if (!sc) return;
@@ -4510,8 +4510,39 @@ function unitWorld(un, o = {}) {
   if (pal.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { c.beginPath(); c.arc(rnd() * W, rnd() * H, 1.2 + rnd() * 1.8, 0, 7); c.fill(); } }
   const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H);
   cv.classList.add('on');
-  if (round) unitTable(un, o.skip);
+  if (round) unitTable(un, o.skip); else uwGlowSet(box.closest('.uc-pane'), G);
   return G;
+}
+/* the path's light: every dot of the path glows all the time (gold where you have been, warm white ahead), twinkling
+   a little, and a wave of light runs along it from the first steamer to the shrine, again and again. It is drawn on a
+   small canvas of its own over each town (uwGlowSet keeps the dots and how far along the path each one is), only for
+   the units on screen; with reduced motion it just glows */
+let uwGlowRaf = 0;
+const UW_SPR = {};
+function uwSpr(done) {
+  return UW_SPR[done] ||= (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    r.addColorStop(0, done ? 'rgba(255,214,110,1)' : 'rgba(255,244,214,1)'); r.addColorStop(.25, done ? 'rgba(255,180,50,.75)' : 'rgba(255,226,170,.6)'); r.addColorStop(1, 'rgba(255,170,40,0)');
+    g.fillStyle = r; g.fillRect(0, 0, 64, 64); return c; })();
+}
+function uwGlowSet(p, G) {
+  if (!p || !G) return; const box = G.box;
+  let cv = box.querySelector('canvas.uw-glow'); if (!cv) { cv = document.createElement('canvas'); cv.className = 'uw-glow'; const an = box.querySelector('.uw-anim'); an ? an.before(cv) : box.append(cv); }
+  const w = Math.round(G.W), h = Math.round(G.H); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; cv.style.width = w + 'px'; cv.style.height = h + 'px'; }
+  let s = 0; p._glow = G.trail.map((d, k, a) => { if (k) s += Math.min(40, Math.hypot(d.x - a[k - 1].x, d.y - a[k - 1].y)); return { x: d.x, y: d.y, done: d.done, s }; }); p._glowLen = s;
+  if (!uwGlowRaf) uwGlowRaf = requestAnimationFrame(uwGlowTick);
+}
+function uwGlowTick(now) {
+  uwGlowRaf = 0; const sc = $('.uc-scroll'); if (!sc) return;
+  const a = sc.scrollLeft, w = sc.clientWidth, still = stillMotion();
+  sc.querySelectorAll('.uc-pane[data-p]').forEach(p => {
+    const l = p.offsetLeft, cv = p.querySelector('canvas.uw-glow'); if (!still && (l + p.offsetWidth < a || l > a + w) || !cv || !p._glow) return;
+    const c = cv.getContext('2d'), head = still ? -1e9 : (now * .13) % (p._glowLen + 300) - 150;   // the wave: 130 px a second
+    c.clearRect(0, 0, cv.width, cv.height); c.globalCompositeOperation = 'lighter';
+    p._glow.forEach(d => { const k = Math.exp(-((d.s - head) ** 2) / 3200), tw = still ? 1 : .8 + .2 * Math.sin(now / 520 + d.s / 19);
+      const r = (d.done ? 13 : 10.5) * (1 + .55 * k); c.globalAlpha = Math.min(1, (d.done ? .62 : .42) * tw + .85 * k); c.drawImage(uwSpr(d.done), d.x - r, d.y - r * .62, 2 * r, 1.24 * r); });
+    c.globalAlpha = 1;
+  });
+  if (!still) uwGlowRaf = requestAnimationFrame(uwGlowTick);
 }
 /* one dot of the path on the ground, gold where you have been */
 function uwDot(c, x, y, done) {
@@ -4538,7 +4569,7 @@ function unitTable(un, skip) {
   for (let a = 0; a < 12; a++) { const t = turn + a * Math.PI / 6; c.beginPath(); c.moveTo(x + Math.cos(t) * RX * .3, y + Math.sin(t) * RY * .3); c.lineTo(x + Math.cos(t) * RX * .96, y + Math.sin(t) * RY * .96); c.stroke(); }
   c.strokeStyle = 'rgba(90,50,30,.3)'; c.setLineDash([3, 4]); c.beginPath(); c.ellipse(x, y, RX * .62, RY * .62, 0, 0, 7); c.stroke(); c.setLineDash([]);
   c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.beginPath(); c.ellipse(x, y, RX - 2, RY - 2, 0, Math.PI * 1.05, Math.PI * 1.45); c.stroke();
-  G.trail.forEach(d => uwDot(c, d.x, d.y, d.done));
+  G.trail.forEach(d => uwDot(c, d.x, d.y, d.done)); uwGlowSet(G.box.closest('.uc-pane'), G);
   G.spots.filter(s => s.i !== skip).sort((a, b) => a.y - b.y).forEach(s => { c.save(); c.translate(s.x, s.y); c.scale(s.sc, s.sc); c.translate(-s.x, -s.y); uwSteamer(c, null, s.x, s.y, s.ch, s.state); c.restore(); });
   cv.classList.add('on');
   const m = unitMap(un, n), f = ((Math.round(unRnd[un]) % n) + n) % n;
@@ -10289,7 +10320,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.22';
+const APP_VERSION = '3.23';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
