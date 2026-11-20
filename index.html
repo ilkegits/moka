@@ -656,7 +656,8 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 #sheet-root.open .scrim{opacity:1}
 .sheet{position:absolute;left:0;right:0;bottom:var(--kb);margin:0 auto;max-width:480px;background:var(--paper);border-radius:28px 28px 0 0;
   padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:calc(100% - var(--kb) - 30px);overflow-y:auto;
-  transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.85,.25,1), bottom .15s;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+  transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.85,.25,1), bottom .15s;box-shadow:0 -10px 40px rgba(0,0,0,.18);scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}   /* a scrollbar down the side squares off the top corner on computers; phones never show one */
 #sheet-root.open .sheet{transform:none}
 /* deck picker: a second pop-up stacked on the first */
 #sheet-root .picker{position:absolute;inset:0;z-index:2}
@@ -1008,7 +1009,10 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-shopb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:14px}
 @media (prefers-reduced-motion:reduce){.tm-shopb .tm-lan,.tm-shopb-n{animation:none}}
 .tm-showing .tm-shopb{opacity:0;pointer-events:none}
-/* across from it: a gold medallion with your newest monument, the number you own on its bottom edge; a tap flies to that monument */
+/* across from it: a gold medallion with your newest monument, the number you own on its bottom edge; a tap opens your monuments (libSheet) */
+.lib-n{padding:5px 12px;border-radius:12px;background:#FFF4C7;box-shadow:inset 0 0 0 1.5px #FFC21F;font:600 15px var(--display);color:#8A4A06;font-variant-numeric:tabular-nums}
+.lib .shop-it b{margin-top:9px}
+.lib-more{display:block;margin:18px auto 4px}
 .tm-monb{position:absolute;z-index:2;left:18px;top:58px;width:64px;height:74px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tm-monb svg{display:block;width:64px;height:74px;overflow:visible;filter:drop-shadow(0 5px 4px rgba(60,20,0,.3))}
 .tm-monb.none .tm-monb-pic{filter:brightness(0);opacity:.28}
@@ -6882,7 +6886,7 @@ const shopBtn = sts => {   // the Shop lantern; lit, with a count, once you can 
 const monBtn = sts => {   // across from the Shop: a gold medallion with your newest monument and how many you own on its bottom edge; none yet: the next one, grey
   const own = sts.filter(x => x.done), n = own.length, K = '#5A0F08';
   const lv = n ? own.reduce((a, b) => ((db.monOwn?.[b.lv] || b.lv) >= (db.monOwn?.[a.lv] || a.lv) ? b : a)).lv : sts.find(x => !x.done).lv, c = TRAIL[lv - 1];
-  return `<button class="tm-monb tm-ui${n ? '' : ' none'}" data-act="map-city" data-lv="${lv}" aria-label="${n} of ${TRAIL.length} monuments are yours. Show ${c.name}"><svg viewBox="0 0 64 74" aria-hidden="true">
+  return `<button class="tm-monb tm-ui${n ? '' : ' none'}" data-act="mon-lib" aria-label="${n} of ${TRAIL.length} monuments are yours. Open your monuments"><svg viewBox="0 0 64 74" aria-hidden="true">
     <defs><radialGradient id="tmMonGold" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#FFE98F"/><stop offset=".55" stop-color="#FFC21F"/><stop offset="1" stop-color="#D98A0E"/></radialGradient><clipPath id="tmMonClip"><circle cx="32" cy="31" r="21"/></clipPath></defs>
     <circle cx="32" cy="31" r="29" fill="url(#tmMonGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
     <image class="tm-monb-pic" href="mon/${c.id}-i.webp" x="9" y="8" width="46" height="46" clip-path="url(#tmMonClip)"/>
@@ -6989,6 +6993,16 @@ function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to th
   if (lv && !monOwns(lv) && coinBal() >= TRAIL[lv - 1].price) new Image().src = `mon/${TRAIL[lv - 1].id}-t.webp`;   // shopPeek: one you can buy, its turntable fetched ahead for the moment you buy it
   if (body) { body.innerHTML = shopHtml(lv); body.closest('.sheet').scrollTop = 0; return; }
   openSheet(`<div class="shop" id="shopBody">${shopHtml(lv)}</div>`);
+}
+function libSheet() {   // the medallion on the map: every monument you have collected, newest first; tap one and the map flies to it
+  const own = TRAIL.filter(c => monOwns(c.lv)).sort((a, b) => (db.monOwn?.[b.lv] || b.lv) - (db.monOwn?.[a.lv] || a.lv)), left = TRAIL.length - own.length;
+  LOG.add('mon-lib', { own: own.length });
+  const top = `<div class="shop-top"><h3>Your monuments <span class="cal-zh">收藏</span></h3><span class="lib-n">${own.length} of ${TRAIL.length}</span></div>`;
+  if (!own.length) return openSheet(`<div class="shop lib">${top}<p class="muted shop-sub">Buy your first monument in the shop and it shows up here.</p><button class="btn btn-seal wide" data-act="shop">Open the shop</button></div>`);
+  const card = c => `<button class="shop-it own" data-act="mon-go" data-lv="${c.lv}" aria-label="${c.name}, ${esc(c.en)}. Show it on the map">
+    <span class="shop-pic"><img src="mon/${c.id}.webp" alt="" loading="lazy"></span><b>${c.name}</b><small>${esc(c.en)}</small></button>`;
+  openSheet(`<div class="shop lib">${top}<p class="muted shop-sub">Tap one to see it on your map.</p><div class="shop-grid">${own.map(card).join('')}</div>
+    ${left ? `<button class="link-btn lib-more" data-act="shop">${left} more to collect in the shop</button>` : ''}</div>`);
 }
 function shopBuy(lv) {
   const c = TRAIL[lv - 1]; if (!c || monOwns(lv) || coinBal() < c.price) return;
@@ -9035,7 +9049,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.93';
+const APP_VERSION = '2.94';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9789,6 +9803,8 @@ const A = {
   shop: () => shopSheet(),
   'coin-intro-shop': () => closeLayer(() => shopSheet()),
   'shop-item': t => shopSheet(+t.dataset.lv),
+  'mon-lib': () => libSheet(),
+  'mon-go': t => { closeSheet(); const lv = +t.dataset.lv; setTimeout(() => mapPick(lv), 300); },
   'shop-back': () => shopSheet(),
   'shop-buy': t => shopBuy(+t.dataset.lv),
   'map-buy': t => mapBuy(+t.dataset.lv),
