@@ -1736,8 +1736,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* ---------- HSK 1 lessons: the card deck, then the lesson screens ---------- */
 .les-count{font-size:13px;font-weight:700}
 .les-intro{margin:-4px 2px 4px;font-size:14px;line-height:1.4}
-/* a lesson's hanzi card, as it stands on its unit's path. A card you finished lies face up
-   with a red 完 seal on it, the next one has a red edge, and the ones still to come lie face down with a lattice back */
+/* a lesson's hanzi card, as it stands on its unit's path. A card you finished lies face up and fades half away into the
+   picture behind, the next one has a red edge, and the ones still to come lie face down with a lattice back */
 .ld-card{position:relative;display:block;width:100%;aspect-ratio:1;padding:7px;border-radius:13px;background:var(--card);
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2);transition:transform .15s}
 .ld-face{position:relative;display:grid;place-items:center;width:100%;height:100%;color:var(--grid)}
@@ -1749,8 +1749,6 @@ button.st-d:active{transform:scale(.9);transition:none}
   box-shadow:inset 0 0 0 6px var(--card-2),inset 0 0 0 7.5px var(--line-2),0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
 .ld-card.down .ld-face{color:var(--muted)}
 .ld-card.down svg.i{width:22px;height:22px;padding:5px;box-sizing:content-box;border-radius:50%;background:var(--card-2)}
-.ld-seal{position:absolute;right:-6px;bottom:-6px;width:27px;height:27px;display:grid;place-items:center;border-radius:6px;background:var(--seal);color:#fff;
-  font:700 15px/1 var(--hanzi);transform:rotate(-8deg);box-shadow:inset 0 0 0 1.5px var(--seal),inset 0 0 0 3px rgba(255,255,255,.7),0 2px 5px -1px rgba(126,29,25,.4)}
 /* ---------- units as levels: the list on the lessons page ---------- */
 .lv-list{display:flex;flex-direction:column;gap:12px;margin:6px 0 4px}
 .lv{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border-radius:20px;background:var(--card);text-align:left;box-shadow:0 0 0 1.5px var(--line-2),0 4px 0 var(--line-2);transition:transform .12s}
@@ -1778,34 +1776,53 @@ button.st-d:active{transform:scale(.9);transition:none}
 .lv-pips i.boss.on{background:var(--seal)}
 .lv > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
 .lv em{flex:none;padding:8px 14px 9px;border-radius:12px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font:600 14.5px/1 var(--display);font-style:normal;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28)}
-/* ---------- a unit's campaign: a dotted path through its lessons to the final boss ---------- */
-.un-map{position:relative;width:100%;margin:2px auto 14px}
-.un-map > svg{position:absolute;inset:0;width:100%;height:100%}
-.un-wm{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:600 150px/1 var(--hanzi);white-space:nowrap;color:var(--ink);opacity:.045;pointer-events:none}
-.un-path{fill:none;stroke:var(--line-2);stroke-width:7;stroke-linecap:round;stroke-dasharray:.1 15}
-.un-path.done{stroke:#E8A72C}
+/* ---------- a unit's campaign: a glowing dotted path through its lessons to the final boss ----------
+   Behind it all, the place the unit's comic starts as a pale picture of big pixels with a 田字格 grid on top (.un-bg) */
+.un{position:relative}
+.un-bg{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:0;overflow:hidden;pointer-events:none;background:var(--paper)}
+.un-bg canvas{display:block;image-rendering:pixelated;opacity:0;filter:saturate(.8);transition:opacity .5s}
+.un-bg canvas.on{opacity:.7}
+.un-bg::after{content:"";position:absolute;inset:0;background-image:var(--tzg)}
+.un-bg::before{content:"";position:absolute;inset:0 0 auto;height:110px;z-index:1;background:linear-gradient(var(--paper),transparent)}
+.un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
+.un-map > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.un-path{fill:none;stroke:#FFF9EA;stroke-width:6.5;stroke-linecap:round;stroke-dasharray:.1 15;opacity:.9}
+.un-path.halo{stroke:#FFF1C8;stroke-width:15;opacity:.75}
+.un-path.rim{stroke:rgba(90,58,30,.3);stroke-width:9.5}
+.un-path.done{stroke:#FFC23A;stroke-width:8.5;opacity:1}
+.un-path.done.halo{stroke:#FFB01C;stroke-width:24;animation:unGlow 2.6s ease-in-out infinite}
+.un-path.done.core{stroke:#FFF8DA;stroke-width:3.4}
+@keyframes unGlow{50%{opacity:.5}}
 .un-node{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;width:76px;padding:0;transform:translate(-50%,-38px)}
 .un-node .ld-card{width:76px}
-.un-node:active .ld-card,.un-boss:active .un-boss-face{transform:translateY(2px)}
-.un-node small{width:112px;font-size:12px;font-weight:700;line-height:1.2;text-align:center;color:var(--ink)}
+.un-node.done .ld-card{opacity:.5;box-shadow:0 0 0 1.5px var(--line-2)}
+.un-node:active .ld-card,.un-boss:active .un-boss-fig{transform:translateY(2px)}
+.un-node small{width:max-content;max-width:132px;padding:3px 9px 4px;border-radius:10px;font-size:12px;font-weight:700;line-height:1.2;text-align:center;color:var(--ink);
+  background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 2px 6px -2px rgba(40,20,10,.35)}
 .un-node.locked small{color:var(--muted)}
-.un-boss{width:104px;transform:translate(-50%,-52px)}
-.un-boss-face{display:block;width:104px;height:104px;border-radius:50%;overflow:hidden;background:#FFE3B0;box-shadow:0 0 0 3px #3B1A12,0 5px 0 #3B1A12;transition:transform .15s}
-.un-boss-face svg{display:block;width:100%;height:100%}
-.un-boss.cur .un-boss-face{box-shadow:0 0 0 3px #3B1A12,0 0 0 6.5px var(--seal),0 6px 0 4px var(--seal)}
-.un-boss.locked .un-boss-face{filter:grayscale(1);opacity:.5}
-.un-boss.won .un-boss-face{background:#FFE9A8}
-.un-boss .cm-flag{position:absolute;right:-20px;top:-22px;width:30px;height:46px}
+.un-node.done small{opacity:.78}
+.un-boss{width:132px;transform:translate(-50%,-112px)}
+.un-boss-fig{position:relative;display:block;width:132px;height:150px;transition:transform .15s;filter:drop-shadow(0 4px 0 rgba(40,18,8,.25))}
+.un-boss-fig svg{display:block;width:100%;height:100%;overflow:visible}
+.un-boss-aura{position:absolute;left:50%;top:58px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,70,40,.55),rgba(255,120,40,.28) 55%,transparent);animation:unAura 2.2s ease-in-out infinite}
+.un-boss.won .un-boss-aura{background:radial-gradient(closest-side,rgba(255,214,90,.6),rgba(255,214,90,.2) 60%,transparent);animation:none}
+.un-boss.cur .un-boss-fig{animation:unBreath 2.2s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes unAura{50%{transform:scale(1.12);opacity:.7}}
+@keyframes unBreath{50%{transform:scale(1.025,.985)}}
+.un-boss.locked .un-boss-aura{display:none}
+.un-boss.locked .un-boss-fig{filter:brightness(0) drop-shadow(0 0 1.5px rgba(255,244,226,.95));opacity:.62}
+.un-boss .cm-flag{position:absolute;right:-12px;top:14px;width:30px;height:46px}
 .un-boss .cm-flag svg{display:block;width:100%;height:100%}
 .un-boss.locked .cm-flag{opacity:.45}
-.un-boss-tag{position:absolute;left:50%;top:92px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:13px;background:var(--card);color:var(--muted);font:700 13px/1 var(--ui);font-style:normal;box-shadow:0 0 0 2px var(--line-2);white-space:nowrap}
+.un-boss-tag{position:absolute;left:50%;top:134px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:13px;background:var(--card);color:var(--muted);font:700 13px/1 var(--ui);font-style:normal;box-shadow:0 0 0 2px var(--line-2);white-space:nowrap}
 .un-boss-tag svg.i{width:15px;height:15px}
 .un-boss.won .un-boss-tag{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
-.un-boss small{margin-top:12px;font:600 14px/1.1 var(--display)}
-.un-shi{position:absolute;z-index:3;width:56px;height:56px;margin-left:-28px;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(59,26,18,.3))}
+.un-boss small{margin-top:14px;font:600 14px/1.1 var(--display)}
+.un-shi{position:absolute;z-index:3;width:72px;height:68px;margin-left:-36px;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(59,26,18,.3))}
 .un-shi.hop{transition:left .9s cubic-bezier(.45,0,.3,1),top .9s cubic-bezier(.45,0,.3,1)}
-.un-shi .shi-face{display:block;width:100%;height:100%;animation:unBob 1.5s ease-in-out infinite}
-.un-shi.hop .shi-face{animation:cmHop .3s 3 ease-in-out,unBob 1.5s .9s ease-in-out infinite}
+.un-shi .shi-body{display:block;width:100%;height:100%;overflow:visible;animation:unBob 1.5s ease-in-out infinite}
+.un-shi.hop .shi-body{animation:cmHop .3s 3 ease-in-out,unBob 1.5s .9s ease-in-out infinite}
 @keyframes unBob{50%{transform:translateY(-5px)}}
 @keyframes cmHop{50%{transform:translateY(-9px) rotate(-7deg)}}
 .un-hud{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:4;display:flex;align-items:center;gap:12px;min-height:74px;margin-top:auto;padding:10px 10px 10px 18px;border-radius:22px;background:var(--card);box-shadow:var(--ring),0 14px 26px -14px rgba(50,25,8,.6)}
@@ -1834,7 +1851,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes cmHint{50%{opacity:.35}}
 .cm-go{width:100%;height:54px;font-size:17px;animation:donePop .45s cubic-bezier(.2,.9,.3,1.3) both}
 .cm-hint[hidden],.cm-go[hidden]{display:none}
-@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.cm-go,.un-shi .shi-face,.un-shi.hop .shi-face{animation:none}.un-shi.hop{transition:none}}
+@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.cm-go,.un-shi .shi-body,.un-shi.hop .shi-body,.un-path.done.halo,.un-boss-aura,.un-boss.cur .un-boss-fig{animation:none}.un-shi.hop{transition:none}}
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
 .les-sh-top{text-align:center}
 .les-sh-top small{font-size:13px;font-weight:700;color:var(--c1)}
@@ -3486,15 +3503,16 @@ const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d=
 const LES_LEAD = (() => { const seen = new Set(); return LESSONS.map(L => { const cs = L.words.flatMap(hanChars), c = cs.find(x => !seen.has(x)) || cs[0]; cs.forEach(x => seen.add(x)); return c; }); })();
 const ldHzSize = (h, big) => { const n = [...h].length; return (big ? [0, 58, 33, 23, 18] : [0, 46, 28, 20, 15])[n] || (big ? 15 : 12); };
 /* one hanzi card: the character in a tianzige, a 完 seal once the lesson is done; face down (lattice back, lock) while locked */
-const ldCard = (h, cls = '', big, st = '') => `<span class="ld-card${cls}"${st ? ` style="${st}"` : ''}><span class="ld-face">${cls.includes('down') ? LOCK_I : `${TZG}<span class="ld-hz" style="font-size:${ldHzSize(h, big)}px">${esc(h)}</span>`}</span>${cls.includes('fin') ? '<span class="ld-seal" aria-hidden="true">完</span>' : ''}</span>`;
+const ldCard = (h, cls = '', big, st = '') => `<span class="ld-card${cls}"${st ? ` style="${st}"` : ''}><span class="ld-face">${cls.includes('down') ? LOCK_I : `${TZG}<span class="ld-hz" style="font-size:${ldHzSize(h, big)}px">${esc(h)}</span>`}</span></span>`;
 const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the characters to trace, the ones to write from memory
   const nc = new Set(L.words.flatMap(hanChars)).size, tr = Math.min(4, nc, L.words.length), rc = Math.min(2, tr);
   return `${plural(L.words.length, 'card')} · trace ${tr} · write ${rc} from memory`;
 };
 /* ---------- Units as levels: comic, campaign, final boss ----------
    The lessons page lists the units as levels (UnitLevels). A tap on a unit opens its campaign (#/course/1/unit/n): a
-   dotted path through its lessons that ends at the final boss, which is the unit test. Shi Shi's face stands on the
-   path at the lesson you are on and hops on when you come back from one you finished; a finish flag marks the boss.
+   glowing dotted path through its lessons that ends at the final boss, which is the unit test, over a pale picture of
+   where its comic starts. Shi Shi stands on the card of the lesson you are on and hops on when you come back from one
+   you finished; Hu Hu, the boss, waits at the end on his stone with a finish flag.
    A unit can have a comic about Shi Shi in two parts (COMIC[unit]), as in a game's story mode. Each part is one page
    of slanted panels on a dark sheet, drawn with the Learn tab's scene kit (CRS.kit) on a 360 by 600 canvas, and is
    played one panel per tap (comicPlay): a tap anywhere brings the next panel, and after the last one a button
@@ -3503,7 +3521,7 @@ const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the cha
    both again: part 1 on the tap, the ending after the boss.
    db.comic = { unit: { p1, p2 } } is when you watched each part; db.unitAt = { unit: n } is where on the path you
    last saw Shi Shi. Every HSK 1 unit has a comic: Unit 1 here, units 2 to 8 just below. */
-const { COMIC, bossFace } = (() => {
+const { COMIC } = (() => {
   const { red, gold, gold2, ln, fl, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, roof, lantern, burst, bubble } = CRS.kit;
   const sky = (id, y, h, a, b) => `<defs><linearGradient id="cmg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-10" y="${y}" width="380" height="${h}" fill="url(#cmg${id})"/>`;
   /* comic rays: wedges fanning out from a point */
@@ -3602,9 +3620,7 @@ const { COMIC, bossFace } = (() => {
   part1.panels.push({ ...part1.panels[2], clip: '206,370.4 360,379 360,600 214,600', box: [206, 370, 154, 230], say: [['不！', 'bù', 'no!']] });
   Object.assign(part1.panels[2], { clip: '0,359 198,370 206,600 0,600', box: [0, 359, 206, 241], say: [['一、二、三', 'yī, èr, sān', 'one, two, three']] });
   part1.thumb = 3;
-  /* the final boss of every unit: Hu Hu's head, frowning until he is beaten */
-  const bossFace = angry => `<svg viewBox="30 24 140 126" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${friend('tiger', 100, 100, 1)}${angry ? frown : ''}</svg>`;
-  return { COMIC: { 1: { title: 'The lion at the gate', pages: [part1, part2] } }, bossFace };
+  return { COMIC: { 1: { title: 'The lion at the gate', pages: [part1, part2] } } };
 })();
 /* ---------- the comics of HSK 1 units 2 to 8 ----------
    Same rules as Unit 1: part 1 ends at the worst moment and says nothing of a part 2, part 2 is the happy ending,
@@ -3973,7 +3989,7 @@ function UnitLevels() {
 function unitNodes(n) {
   const X = [64, 180, 296], ROW = 178, TOP = 122;
   const pts = Array.from({ length: n }, (_, i) => { const r = i / 3 | 0, c = i % 3; return [r % 2 ? X[2 - c] : X[c], TOP + r * ROW + (c === 1 ? -26 : 0)]; });
-  pts.push([180, TOP + Math.ceil(n / 3) * ROW + 22]);
+  pts.push([180, TOP + Math.ceil(n / 3) * ROW + 52]);
   return pts;
 }
 function unitPath(pts) {   // one smooth line through the nodes; where a row turns back at the edge it loops outward
@@ -3983,30 +3999,32 @@ function unitPath(pts) {   // one smooth line through the nodes; where a row tur
     else d += `C${(x0 + x1) / 2} ${y0} ${(x0 + x1) / 2} ${y1} ${x1} ${y1}`; }
   return d;
 }
-const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return [x, y - (i === pts.length - 1 ? 120 : 90)]; };   // Shi Shi stands over the node he is at
+const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return i === pts.length - 1 ? [x - 98, y - 44] : [x, y - 110]; };   // Shi Shi stands on the card he is at, or beside the boss
 function UnitView(un) {
-  const [en, zh] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, pts = unitNodes(n), H = pts[n][1] + 104, C = COMIC[un];
+  const [en] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, pts = unitNodes(n), H = pts[n][1] + 96, C = COMIC[un];
   const next = lesNext(), due = utDue(), r = db.utests[un], bossOpen = st.nd === n;
   const pct = ([x, y]) => `left:${(x / 3.6).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
-  const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at);
+  const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at), all = unitPath(pts), trod = st.at ? unitPath(pts.slice(0, Math.min(st.at, n) + 1)) : '';
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done || cur ? '' : ' locked'}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       ${ldCard(LES_LEAD[L.n - 1], done ? ' fin' : cur ? ' cur' : ' down')}<small>${esc(L.title)}</small></button>`; }).join('');
   const boss = `<button class="un-node un-boss${st.won ? ' won' : bossOpen ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${un}" aria-label="Final boss, the unit test${st.won ? ', beaten' : bossOpen ? '' : ', locked'}">
-      <span class="un-boss-face">${bossFace(!st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small>Final boss</small></button>`;
+      <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small>Final boss</small></button>`;
   const L = st.ls[st.nd], last = un === LES_UNITS.length;
   const hud = !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat the Unit ${un - 1} boss first</b></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
     : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
-  return `<div class="screen fade-in c1 un"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
-    <div class="un-map" style="aspect-ratio:360/${H}"><span class="un-wm" lang="zh" aria-hidden="true">${zh}</span>
-      <svg viewBox="0 0 360 ${H}" aria-hidden="true" focusable="false"><path class="un-path" d="${unitPath(pts)}"/>${st.at ? `<path class="un-path done" d="${unitPath(pts.slice(0, Math.min(st.at, n) + 1))}"/>` : ''}</svg>
-      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, seen))}" data-to="${pct(unitShiAt(pts, st.at))}">${shiFace(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
+  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" style="--tzg:${unitGrid(un)}" aria-hidden="true"><canvas></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
+    <div class="un-map" style="aspect-ratio:360/${H}">
+      <svg viewBox="0 0 360 ${H}" aria-hidden="true" focusable="false"><defs><filter id="unGlow" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+        <path class="un-path halo" d="${all}" filter="url(#unGlow)"/><path class="un-path rim" d="${all}"/><path class="un-path" d="${all}"/>${st.at ? `<path class="un-path done halo" d="${trod}" filter="url(#unGlow)"/><path class="un-path done" d="${trod}"/><path class="un-path done core" d="${trod}"/>` : ''}</svg>
+      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, seen))}" data-to="${pct(unitShiAt(pts, st.at))}">${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
     <div class="un-hud">${hud}</div></div>`;
 }
 function mountUnit(un) {
   const st = unitState(un), shi = $('#unShi');
+  unitBgDraw(un);
   // Shi Shi hops on from where you last saw him; only then is the new place remembered
   setTimeout(() => { if (!shi?.isConnected) return; if (shi.getAttribute('style') !== shi.dataset.to) { shi.classList.add('hop'); shi.style.cssText = shi.dataset.to; }
     if (db.unitAt?.[un] !== st.at) { (db.unitAt ||= {})[un] = st.at; save(); } }, stillMotion() ? 0 : 520);
@@ -4016,6 +4034,189 @@ function mountUnit(un) {
 function comicReplay(un, demo = { demo: 1 }) {   // another look: part 1, and the ending if you have won it
   const both = !!comicSeen(un).p2 || demo.all;
   comicPlay(un, 0, both ? () => comicPlay(un, 1, null, { demo: 1, label: 'Close' }) : null, { demo: 1, label: both ? 'Next' : 'Close' });
+}
+/* ---------- a unit's backdrop: the place its comic starts, as a soft pixel picture on a 田字格 grid ----------
+   Each unit's campaign stands on a quiet picture of where its comic begins (Unit 1: the town gate on lantern festival
+   night). unitScene(un, h) draws it flat, without outlines, 360 wide and h high; unitBgDraw paints it into a canvas
+   one block per 4 screen pixels, so it shows as big soft pixels, and the CSS lays a 田字格 grid over it whose lines
+   fall on the block edges (a cell is 6 by 6 blocks). It is kept pale (.un-bg) so the path stays the thing to look at. */
+const UNIT_BG_PX = 4;
+function unitScene(un, h) {
+  let seed = un * 977 + 13;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const sky = (stops, y1 = h) => `<defs><linearGradient id="ubs" x1="0" y1="0" x2="0" y2="${y1}" gradientUnits="userSpaceOnUse">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect width="360" height="${h}" fill="url(#ubs)"/>`;
+  const band = (y, y2, a, b, id) => `<defs><linearGradient id="ubg${id}" x1="0" y1="${y}" x2="0" y2="${y2}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-10" y="${y}" width="380" height="${y2 - y}" fill="url(#ubg${id})"/>`;
+  const glow = (x, y, r, c, op = .5) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${op * .35}"/><circle cx="${x}" cy="${y}" r="${r * .6}" fill="${c}" opacity="${op * .5}"/>`;
+  const stars = (n, y0, y1, c = '#FFF6D8') => Array.from({ length: n }, () => `<circle cx="${(rnd() * 360).toFixed(0)}" cy="${(y0 + rnd() * (y1 - y0)).toFixed(0)}" r="${(1.6 + rnd() * 1.8).toFixed(1)}" fill="${c}"/>`).join('');
+  const cloud = (x, y, s, c = '#fff', op = .85) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}" opacity="${op}"><ellipse cx="0" cy="0" rx="34" ry="13"/><ellipse cx="-14" cy="-8" rx="16" ry="12"/><ellipse cx="10" cy="-12" rx="18" ry="15"/></g>`;
+  const roofP = (x, y, w, rh, c) => `<path d="M${x - w / 2 - 12} ${y}Q${x - w / 2 - 2} ${y - 3} ${x - w / 2 + 8} ${y - rh}H${x + w / 2 - 8}Q${x + w / 2 + 2} ${y - 3} ${x + w / 2 + 12} ${y}Z" fill="${c}"/>`;
+  const house = (x, base, w, ht, wall, roof, win) => `<rect x="${x - w / 2}" y="${base - ht}" width="${w}" height="${ht}" fill="${wall}"/>${roofP(x, base - ht + 2, w, 14, roof)}`
+    + (win ? `<rect x="${x - w * .3}" y="${base - ht * .62}" width="${w * .2}" height="${ht * .26}" fill="${win}"/><rect x="${x + w * .1}" y="${base - ht * .62}" width="${w * .2}" height="${ht * .26}" fill="${win}"/>` : '');
+  const lantern = (x, y, r = 9, c = '#E5483F', g = '#FFB347') => glow(x, y, r * 2.6, g, .55) + `<rect x="${x - r * .45}" y="${y - r * 1.05}" width="${r * .9}" height="${r * .4}" fill="#F4C14E"/><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .82}" fill="${c}"/><rect x="${x - r * .45}" y="${y + r * .7}" width="${r * .9}" height="${r * .4}" fill="#F4C14E"/>`;
+  const sag = (x1, y1, x2, y2, d) => `M${x1} ${y1}Q${(x1 + x2) / 2} ${(y1 + y2) / 2 + d} ${x2} ${y2}`;
+  const onSag = (x1, y1, x2, y2, d, t) => [x1 + (x2 - x1) * t, (1 - t) ** 2 * y1 + 2 * (1 - t) * t * ((y1 + y2) / 2 + d) + t * t * y2];
+  const string = (x1, y1, x2, y2, d, n, item, col = 'rgba(40,20,30,.45)') => `<path d="${sag(x1, y1, x2, y2, d)}" fill="none" stroke="${col}" stroke-width="2"/>`
+    + Array.from({ length: n }, (_, i) => { const [x, y] = onSag(x1, y1, x2, y2, d, (i + .5) / n); return item(x, y, i); }).join('');
+  const flag = cs => (x, y, i) => `<path d="M${x - 8} ${y - 1}H${x + 8}L${x} ${y + 14}Z" fill="${cs[i % cs.length]}"/>`;
+  const pine = (x, base, s, c, snow) => `<g transform="translate(${x} ${base}) scale(${s})"><rect x="-4" y="-14" width="8" height="16" fill="#6B4A32"/>${[[0, 46], [-22, 38], [-40, 30]].map(([y, w]) => `<path d="M${-w / 2} ${y - 12}L0 ${y - 52}L${w / 2} ${y - 12}Z" fill="${c}"/>${snow ? `<path d="M${-w / 4} ${y - 32}L0 ${y - 52}L${w / 4} ${y - 32}Z" fill="#fff"/>` : ''}`).join('')}</g>`;
+  const tree = (x, base, s, c, c2) => `<g transform="translate(${x} ${base}) scale(${s})"><rect x="-4" y="-22" width="8" height="24" fill="#7A5236"/><circle cx="0" cy="-40" r="22" fill="${c}"/><circle cx="-14" cy="-30" r="14" fill="${c}"/><circle cx="14" cy="-30" r="14" fill="${c2}"/></g>`;
+  const crowd = (y, n, c, op = .5) => Array.from({ length: n }, (_, i) => { const x = 10 + i * (340 / (n - 1)) + (rnd() - .5) * 14, s = .8 + rnd() * .4;
+    return `<g opacity="${op}" fill="${c}"><circle cx="${x}" cy="${y - 34 * s}" r="${9 * s}"/><path d="M${x - 13 * s} ${y}Q${x - 13 * s} ${y - 24 * s} ${x} ${y - 24 * s}Q${x + 13 * s} ${y - 24 * s} ${x + 13 * s} ${y}Z"/></g>`; }).join('');
+  const hz = h * .54, g = h * .62;   // the horizon, and where the near ground starts
+  let s = '';
+  if (un === 1) {   // lantern festival night at the town gate
+    s = sky([[0, '#1E1A50'], [.42, '#3F2A80'], [.62, '#86407E'], [1, '#86407E']])
+      + glow(292, h * .1, 46, '#FFF1C4', .7) + `<circle cx="292" cy="${h * .1}" r="20" fill="#FFF3D0"/>` + stars(26, 4, h * .4)
+      + [[66, h * .16, '#FFD15C'], [214, h * .22, '#FF9AA6'], [120, h * .3, '#8FE0C4']].map(([x, y, c]) => Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<circle cx="${x + 22 * Math.cos(a)}" cy="${y + 22 * Math.sin(a)}" r="3" fill="${c}"/>`; }).join('') + glow(x, y, 30, c, .4)).join('')
+      + `<path d="M-10 ${hz}V${hz - 30}H40V${hz - 52}H96V${hz - 26}H130V${hz - 40}H230V${hz - 30}H262V${hz - 58}H322V${hz - 34}H370V${hz}Z" fill="#40307A"/>`
+      + roofP(68, hz - 52, 56, 12, '#352765') + roofP(292, hz - 58, 60, 12, '#352765')
+      + [[52, hz - 40], [80, hz - 40], [276, hz - 46], [306, hz - 46]].map(([x, y]) => `<rect x="${x}" y="${y}" width="9" height="9" fill="#FFD98A" opacity=".8"/>`).join('')
+      + glow(180, g - 40, 120, '#FFD98A', .5)
+      + `<rect x="128" y="${g - 104}" width="104" height="104" fill="#FFD98A"/>`
+      + [-1, 1].map(k => `<rect x="${180 + k * 60 - 8}" y="${g - 118}" width="16" height="118" fill="#C2453B"/>`).join('')
+      + `<rect x="98" y="${g - 118}" width="164" height="14" fill="#3E6FA0"/>` + roofP(180, g - 118, 170, 22, '#24504A') + `<rect x="160" y="${g - 104}" width="40" height="20" fill="#F4C14E"/>`
+      + string(-10, h * .34, 370, h * .3, 34, 6, (x, y) => lantern(x, y + 12, 9))
+      + band(g, h, '#3B2C70', '#251C4E', 'g') + `<path d="M128 ${g}L60 ${h}H300L232 ${g}Z" fill="#FFD98A" opacity=".22"/>`
+      + [40, 320].map(x => `<rect x="${x - 2}" y="${h * .74}" width="4" height="${h * .12}" fill="#1A1438"/>` + lantern(x, h * .74, 11)).join('')
+      + string(-10, h * .9, 370, h * .88, 24, 7, (x, y) => lantern(x, y + 10, 7));
+  } else if (un === 2) {   // the evening of the party: seven o'clock on the tower
+    s = sky([[0, '#3A3488'], [.3, '#8C4F9C'], [.5, '#E77F86'], [.6, '#FFC07A'], [1, '#FFC07A']])
+      + glow(96, hz - 6, 60, '#FFE3A3', .8) + `<circle cx="96" cy="${hz - 6}" r="24" fill="#FFE0A0"/>` + stars(10, 4, h * .2)
+      + string(-10, h * .1, 370, h * .14, 30, 11, flag(['#FFD15C', '#FF7A8A', '#5CC8A8', '#6FA8DC']))
+      + string(-10, h * .2, 370, h * .17, 26, 11, flag(['#5CC8A8', '#FFD15C', '#FF7A8A']))
+      + [[52, h * .28, '#FF7A8A'], [300, h * .26, '#FFD15C'], [322, h * .33, '#5CC8A8'], [30, h * .36, '#6FA8DC']].map(([x, y, c]) => `<path d="M${x} ${y + 18}Q${x + 6} ${y + 40} ${x - 2} ${y + 60}" stroke="rgba(60,30,40,.4)" stroke-width="1.6" fill="none"/><ellipse cx="${x}" cy="${y}" rx="14" ry="17" fill="${c}"/>`).join('')
+      + `<rect x="196" y="${hz - 150}" width="54" height="150" fill="#6A3E6E"/>` + roofP(223, hz - 150, 60, 20, '#3A2A5A')
+      + `<circle cx="223" cy="${hz - 108}" r="20" fill="#FFF3D6"/><path d="M223 ${hz - 108}V${hz - 124}M223 ${hz - 108}L${223 - 9} ${hz - 108 + 13}" stroke="#3A2A5A" stroke-width="3.5" stroke-linecap="round"/>`
+      + house(60, hz + 4, 96, 70, '#7A4A72', '#43305E', '#FFD98A') + house(306, hz + 4, 92, 62, '#82506E', '#43305E', '#FFD98A') + house(140, hz + 4, 56, 44, '#8E5A78', '#4A3464', '#FFD98A')
+      + band(hz, h, '#6E8A5A', '#4A6040', 'g') + `<path d="M150 ${hz}Q190 ${h * .75} 120 ${h}H250Q250 ${h * .75} 200 ${hz}Z" fill="#D9B98A" opacity=".55"/>`
+      + [[46, h * .74], [318, h * .8], [70, h * .92]].map(([x, y]) => tree(x, y, 1.1, '#5A7A4A', '#4E6C40')).join('');
+  } else if (un === 3) {   // the market, where the little panda got lost
+    s = sky([[0, '#9FD8F5'], [.45, '#FFE9BE'], [1, '#FFE9BE']])
+      + cloud(80, h * .1, 1.1) + cloud(270, h * .17, .9) + cloud(170, h * .05, .7)
+      + string(-10, h * .26, 370, h * .24, 30, 6, (x, y) => lantern(x, y + 12, 9))
+      + `<rect x="-10" y="${hz - 70}" width="380" height="70" fill="#E8C690"/>`
+      + [0, 1, 2, 3, 4].map(i => { const x = i * 80 - 4, c = ['#E5483F', '#3E7FB1', '#F4C14E', '#5CC8A8', '#E5483F'][i];
+        return `<rect x="${x}" y="${hz - 104}" width="70" height="18" fill="${c}"/>${[0, 1, 2, 3, 4].map(k => `<path d="M${x + k * 14} ${hz - 86}a7 7 0 0 0 14 0Z" fill="${k % 2 ? '#FFF6E8' : c}"/>`).join('')}<rect x="${x + 4}" y="${hz - 86}" width="4" height="70" fill="#8A5A2E"/><rect x="${x + 62}" y="${hz - 86}" width="4" height="70" fill="#8A5A2E"/>`
+          + [0, 1, 2].map(k => `<circle cx="${x + 18 + k * 17}" cy="${hz - 24}" r="7" fill="${['#E5483F', '#F4A23C', '#8FD36A'][(i + k) % 3]}"/>`).join(''); }).join('')
+      + band(hz, h, '#E9D2A2', '#D7B57E', 'g') + crowd(hz + 40, 9, '#8C7AB0', .45)
+      + [h * .72, h * .84, h * .96].map(y => `<path d="M-10 ${y}H370" stroke="#C9A46C" stroke-width="3"/>`).join('')
+      + [[56, h * .78], [300, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="26" ry="10" fill="#B07A44"/>${[-12, 0, 12].map(d => `<circle cx="${x + d}" cy="${y - 8}" r="7" fill="${d ? '#E5483F' : '#F4A23C'}"/>`).join('')}`).join('');
+  } else if (un === 4) {   // the street with the restaurant 饭店
+    s = sky([[0, '#8FD3F0'], [.5, '#FFE6B8'], [1, '#FFE6B8']])
+      + cloud(70, h * .08, 1) + cloud(290, h * .14, 1.2)
+      + house(46, hz, 100, 120, '#E8D2A8', '#5A6E8A', '#BDE9FF') + house(326, hz, 96, 110, '#D9C2A0', '#5A6E8A', '#BDE9FF')
+      + `<rect x="100" y="${hz - 168}" width="160" height="168" fill="#C6402F"/>` + roofP(180, hz - 168, 176, 26, '#2D3F5E')
+      + `<rect x="138" y="${hz - 150}" width="84" height="30" fill="#F4C14E"/><rect x="156" y="${hz - 62}" width="48" height="62" fill="#7A2418"/>`
+      + `<rect x="112" y="${hz - 104}" width="36" height="30" fill="#FFD98A"/><rect x="212" y="${hz - 104}" width="36" height="30" fill="#FFD98A"/>`
+      + [120, 240].map(x => lantern(x, hz - 128, 10)).join('')
+      + [[150, -1], [180, 1], [210, -1]].map(([x, k]) => `<path d="M${x} ${hz - 196}q${k * 12} -14 0 -28t0 -28" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".7"/>`).join('')
+      + band(hz, h, '#C8BCA8', '#A99C88', 'g')
+      + [[70, h * .72], [290, h * .78], [150, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="40" ry="11" fill="#8A5A2E"/><rect x="${x - 3}" y="${y}" width="6" height="30" fill="#6B4428"/><path d="M${x - 16} ${y - 4}a16 12 0 0 0 32 0Z" fill="#FFF6E8"/><path d="M${x - 12} ${y - 6}Q${x} ${y - 14} ${x + 12} ${y - 6}" fill="#F4C14E"/>`).join('');
+  } else if (un === 5) {   // the school gate on the first day
+    s = sky([[0, '#86CDEF'], [.5, '#DDF3FF'], [1, '#DDF3FF']])
+      + cloud(60, h * .07, 1.1) + cloud(250, h * .12, 1.3) + cloud(320, h * .3, .8) + cloud(110, h * .26, .9)
+      + `<rect x="40" y="${hz - 120}" width="280" height="120" fill="#F2E3C4"/>` + roofP(180, hz - 120, 290, 22, '#2C5A4F')
+      + [0, 1].flatMap(r => [0, 1, 2, 3, 4, 5].map(c => `<rect x="${60 + c * 42}" y="${hz - 100 + r * 46}" width="24" height="26" fill="#9FD0EE"/>`)).join('')
+      + `<rect x="326" y="${hz - 190}" width="4" height="190" fill="#8A8A8A"/><path d="M330 ${hz - 188}H366V${hz - 164}H330Z" fill="#E5483F"/>`
+      + [-1, 1].map(k => `<rect x="${180 + k * 56 - 7}" y="${g - 104}" width="14" height="104" fill="#D9443A"/>`).join('') + roofP(180, g - 104, 130, 16, '#2C5A4F') + `<rect x="150" y="${g - 98}" width="60" height="22" fill="#F4C14E"/>`
+      + tree(18, hz + 8, 1.3, '#6FB05A', '#5E9C4C') + tree(344, hz + 10, 1.2, '#6FB05A', '#5E9C4C')
+      + band(hz, h, '#BCDB8C', '#94C06A', 'g')
+      + `<ellipse cx="180" cy="${h * .84}" rx="170" ry="${h * .1}" fill="none" stroke="#E0896A" stroke-width="16" opacity=".75"/><ellipse cx="180" cy="${h * .84}" rx="140" ry="${h * .065}" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>`;
+  } else if (un === 6) {   // dusk at the station, the last train home
+    s = sky([[0, '#26204C'], [.32, '#5A3470'], [.5, '#C25E66'], [.6, '#F09A6A'], [1, '#F09A6A']])
+      + stars(16, 4, h * .26) + `<circle cx="70" cy="${h * .12}" r="13" fill="#FFF1C4"/>` + glow(70, h * .12, 30, '#FFF1C4', .5)
+      + `<path d="M-10 ${hz}V${hz - 80}H34V${hz - 120}H80V${hz - 70}H116V${hz - 150}H164V${hz - 96}H206V${hz - 128}H252V${hz - 84}H290V${hz - 160}H338V${hz - 90}H370V${hz}Z" fill="#3A2A6A"/>`
+      + Array.from({ length: 28 }, () => { const x = Math.round(rnd() * 33) * 10 + 8, y = hz - 20 - Math.round(rnd() * 10) * 12; return `<rect x="${x}" y="${y}" width="6" height="7" fill="#FFD98A" opacity="${rnd() > .4 ? .9 : .4}"/>`; }).join('')
+      + `<rect x="-10" y="${hz + 4}" width="380" height="14" fill="#2C2252"/>` + [0, 1, 2, 3, 4].map(i => `<path d="M${i * 84 - 10} ${hz + 70}V${hz + 18}Q${i * 84 + 32} ${hz + 30} ${i * 84 + 74} ${hz + 18}V${hz + 70}" fill="none" stroke="#2C2252" stroke-width="10"/>`).join('')
+      + `<rect x="196" y="${hz - 28}" width="190" height="34" rx="12" fill="#D9E2EE"/><rect x="196" y="${hz - 12}" width="190" height="6" fill="#E5483F"/>` + [0, 1, 2, 3, 4].map(i => `<rect x="${212 + i * 32}" y="${hz - 22}" width="20" height="9" fill="#FFD98A"/>`).join('')
+      + band(hz + 18, h, '#3A2A64', '#231A44', 'g')
+      + [[60, h * .72], [300, h * .76]].map(([x, y]) => `<rect x="${x - 3}" y="${y}" width="6" height="${h * .14}" fill="#171230"/>` + glow(x, y, 34, '#FFD98A', .6) + `<circle cx="${x}" cy="${y}" r="8" fill="#FFE9B0"/>`).join('')
+      + `<path d="M150 ${h}L172 ${hz + 70}M210 ${h}L188 ${hz + 70}" stroke="#5A4A80" stroke-width="5"/>` + [.78, .86, .95].map(t => `<path d="M${180 - 30 * t * 1.2} ${h * t}H${180 + 30 * t * 1.2}" stroke="#5A4A80" stroke-width="5"/>`).join('');
+  } else if (un === 7) {   // snow day: pines, a snowman and the doctor's house
+    s = sky([[0, '#A6C4E2'], [.5, '#E8F2FB'], [1, '#E8F2FB']])
+      + cloud(80, h * .06, 1.3, '#F4F8FC') + cloud(280, h * .1, 1.1, '#F4F8FC')
+      + `<path d="M-10 ${hz}Q60 ${hz - 70} 140 ${hz - 20}T300 ${hz - 50}T380 ${hz - 10}V${hz}Z" fill="#D6E4F2"/>`
+      + house(250, hz + 6, 96, 74, '#F2E6D8', '#8A5A4A', '#FFE9B0') + `<path d="M${250 - 60} ${hz - 82}H${250 + 60}" stroke="#fff" stroke-width="8" stroke-linecap="round"/><rect x="238" y="${hz - 60}" width="24" height="24" fill="#fff"/><path d="M250 ${hz - 56}V${hz - 40}M242 ${hz - 48}H258" stroke="#E5483F" stroke-width="5"/>`
+      + pine(40, hz + 8, 1.2, '#4E7A6A', 1) + pine(96, hz + 4, .9, '#5A8A78', 1) + pine(336, hz + 8, 1.1, '#4E7A6A', 1)
+      + band(hz, h, '#F6FAFE', '#DDE8F2', 'g')
+      + [[90, h * .82], [270, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="60" ry="10" fill="#C8D8EA" opacity=".7"/>`).join('')
+      + `<circle cx="120" cy="${h * .76}" r="26" fill="#fff"/><circle cx="120" cy="${h * .76 - 36}" r="17" fill="#fff"/><path d="M120 ${h * .76 - 36}l14 4l-14 3Z" fill="#F4A23C"/><rect x="104" y="${h * .76 - 24}" width="32" height="6" fill="#E5483F"/>`
+      + Array.from({ length: 70 }, () => `<circle cx="${(rnd() * 360).toFixed(0)}" cy="${(rnd() * h).toFixed(0)}" r="${(2 + rnd() * 2.6).toFixed(1)}" fill="#fff" opacity=".9"/>`).join('');
+  } else {   // at home: the table the present is hidden under
+    s = sky([[0, '#F2C9A0'], [.6, '#E9B78A'], [1, '#E9B78A']])
+      + `<rect x="200" y="${h * .1}" width="120" height="${h * .22}" fill="#BDE3F5"/>` + cloud(240, h * .17, .6) + `<path d="M260 ${h * .1}V${h * .32}M200 ${h * .21}H320" stroke="#8A5A2E" stroke-width="7"/><rect x="194" y="${h * .1 - 6}" width="132" height="${h * .22 + 12}" fill="none" stroke="#8A5A2E" stroke-width="8"/>`
+      + `<rect x="40" y="${h * .12}" width="90" height="${h * .26}" fill="#5A3B1E"/><rect x="48" y="${h * .14}" width="74" height="${h * .22}" fill="#B8332C"/>`
+      + string(-10, h * .05, 370, h * .05, 30, 12, flag(['#E5483F', '#F4C14E', '#5CC8A8']))
+      + lantern(160, h * .22, 12) + lantern(340, h * .4, 10)
+      + band(hz, h, '#C98E55', '#A8703E', 'g') + [1, 2, 3, 4, 5].map(i => `<path d="M-10 ${hz + i * (h - hz) / 5}H370" stroke="#9A6436" stroke-width="3"/>`).join('')
+      + `<ellipse cx="180" cy="${h * .82}" rx="150" ry="${h * .07}" fill="#B8332C" opacity=".55"/>`
+      + `<rect x="54" y="${hz + 10}" width="252" height="20" rx="4" fill="#7A4A22"/>` + [70, 278].map(x => `<rect x="${x}" y="${hz + 28}" width="14" height="${h * .26}" fill="#6A3E1C"/>`).join('')
+      + `<rect x="150" y="${hz + 30 + h * .26 - 56}" width="62" height="56" fill="#E5483F"/><rect x="176" y="${hz + 30 + h * .26 - 56}" width="10" height="56" fill="#F4C14E"/><rect x="150" y="${hz + 30 + h * .26 - 34}" width="62" height="10" fill="#F4C14E"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="${Math.round(h)}" viewBox="0 0 360 ${Math.round(h)}">${s}</svg>`;
+}
+/* the grid line colour for a unit's 田字格: light on the night pictures, dark on the day ones */
+const UNIT_BG_LINE = { 1: '255,240,220', 2: '255,240,220', 6: '255,240,220' };
+function unitBgDraw(un) {
+  const box = $('#unBg'), cv = box?.querySelector('canvas'); if (!cv) return;
+  const P = UNIT_BG_PX, W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
+  const cw = Math.ceil(W / P), ch = Math.ceil(H / P), key = `${un}:${cw}x${ch}`;
+  if (cv.dataset.k === key) return; cv.dataset.k = key;
+  const img = new Image();
+  img.onload = () => { if (!cv.isConnected) return; cv.width = cw; cv.height = ch; const c = cv.getContext('2d'); c.imageSmoothingEnabled = true; c.drawImage(img, 0, 0, cw, ch);
+    cv.style.width = cw * P + 'px'; cv.style.height = ch * P + 'px'; cv.classList.add('on'); };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(unitScene(un, 360 * ch / cw));
+}
+addEventListener('resize', () => { if (S.view === 'course' && S.cUnit) unitBgDraw(S.cUnit); });
+/* the 田字格 tile laid over the backdrop: a cell is 6 blocks wide, its dashed cross falls on the block edges */
+const unitGrid = un => { const c = UNIT_BG_LINE[un] || '90,60,30', s = 6 * UNIT_BG_PX, m = s / 2, k = UNIT_BG_LINE[un] ? [.28, .2] : [.2, .14];
+  return `url('data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><path d="M0 .5H${s}M.5 0V${s}" stroke="rgba(${c},${k[0]})" stroke-width="1"/><path d="M${m} 0V${s}M0 ${m}H${s}" stroke="rgba(${c},${k[1]})" stroke-width="1" stroke-dasharray="2 2"/></svg>`)}')`; };
+
+/* the final boss of every unit: Hu Hu, full height on his stone, arms folded, one brow up, a fang out, the champion's
+   belt on. Beaten, he is dizzy: spiral eyes, a plaster, the belt gone */
+function bossTiger(beaten) {
+  const L = '#5A2608', O = '#F7A03C', S = '#3A1806', W = '#FFF6E8', K = '#24140A';
+  const tube = (d, w) => `<path d="${d}" fill="none" stroke="${L}" stroke-width="${w + 9}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${O}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const wedge = (x, y, d, len = 15) => `<path d="M${x} ${y - 4}L${x + d * len} ${y}L${x} ${y + 4}Z" fill="${S}"/>`;
+  const spiral = (x, y) => `<path d="M${x} ${y}m-1 0a2.5 2.5 0 1 1 3 2.6a5 5 0 1 1 -6.5 -5.6a8 8 0 1 1 -3.5 9.5" fill="none" stroke="${K}" stroke-width="3" stroke-linecap="round"/>`;
+  const face = beaten
+    ? spiral(74, 80) + spiral(126, 80) + `<path d="M86 116Q93 110 100 116T114 116" fill="none" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/>`
+      + `<g transform="rotate(28 132 52)"><rect x="114" y="46" width="36" height="12" rx="5" fill="${W}" stroke="${L}" stroke-width="2.5"/><path d="M128 49v6M136 49v6" stroke="#E0C9A8" stroke-width="2"/></g>`
+      + `<path d="M160 70Q168 82 164 88A5 5 0 0 1 154 86Q154 80 160 70Z" fill="#BDE9FF" stroke="#2F6E9A" stroke-width="2"/>`
+    : `<path d="M58 82Q72 70 88 82Q72 92 58 82Z" fill="#FFE14D" stroke="${K}" stroke-width="3"/><ellipse cx="76" cy="82" rx="2.8" ry="6.5" fill="${K}"/>`
+      + `<path d="M50 64H94V86L56 75Z" fill="${O}"/><path d="M54 73L94 85" stroke="${K}" stroke-width="6.5" stroke-linecap="round"/>`
+      + `<path d="M112 81Q127 68 142 79Q128 91 112 81Z" fill="#FFE14D" stroke="${K}" stroke-width="3"/><ellipse cx="127" cy="80.5" rx="2.8" ry="6.5" fill="${K}"/><circle cx="129.5" cy="77.5" r="1.6" fill="#fff"/>`
+      + `<path d="M106 64H148V72Q128 70 110 79Z" fill="${O}"/><path d="M108 68Q126 54 148 62" fill="none" stroke="${K}" stroke-width="6.5" stroke-linecap="round"/>`
+      + `<path d="M84 115Q99 121 117 110Q121 108 122 103" fill="none" stroke="${K}" stroke-width="3.5" stroke-linecap="round"/><path d="M106 117L109.5 127L113 115Z" fill="#fff" stroke="${K}" stroke-width="2" stroke-linejoin="round"/>`
+      + `<g transform="translate(166 34)" stroke="#E5483F" stroke-width="4" fill="none" stroke-linecap="round"><path d="M-9 -3Q-3 -3 -3 -9M3 -9Q3 -3 9 -3M9 3Q3 3 3 9M-3 9Q-3 3 -9 3"/></g>`;
+  const ruff = k => `<path d="M${100 + k * 50} 78L${100 + k * 74} 90L${100 + k * 56} 96L${100 + k * 72} 110L${100 + k * 48} 106Z" fill="${O}" stroke="${L}" stroke-width="4" stroke-linejoin="round"/>`;
+  return `<svg viewBox="0 0 200 228" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">`
+    + `<ellipse cx="100" cy="214" rx="72" ry="13" fill="#3E2F27"/><ellipse cx="100" cy="208" rx="68" ry="12" fill="#77634F"/><ellipse cx="100" cy="205" rx="58" ry="7" fill="#917C66"/>`
+    + tube('M128 178C162 184 180 160 168 134C160 116 170 100 182 98', 11) + `<circle cx="182" cy="98" r="7.5" fill="${S}"/><path d="M158 176l5 9M171 152l9 3M165 124l8 -5" stroke="${S}" stroke-width="4" stroke-linecap="round"/>`
+    + tube('M84 176L70 197', 20) + tube('M116 176L130 197', 20)
+    + `<ellipse cx="64" cy="201" rx="18" ry="9" fill="${O}" stroke="${L}" stroke-width="4.5"/><ellipse cx="136" cy="201" rx="18" ry="9" fill="${O}" stroke="${L}" stroke-width="4.5"/><path d="M58 197v6M66 196v7M142 197v6M134 196v7" stroke="${L}" stroke-width="2.5" stroke-linecap="round"/>`
+    + `<path d="M54 142Q50 106 100 104Q150 106 146 142Q148 188 100 190Q52 188 54 142Z" fill="${O}" stroke="${L}" stroke-width="5"/><ellipse cx="100" cy="164" rx="25" ry="20" fill="${W}"/>`
+    + wedge(57, 150, 1) + wedge(57, 166, 1, 12) + wedge(143, 150, -1) + wedge(143, 166, -1, 12)
+    + (beaten ? '' : `<rect x="58" y="172" width="84" height="13" rx="5" fill="#F4C14E" stroke="${L}" stroke-width="3.5"/><rect x="85" y="166" width="30" height="25" rx="6" fill="#E5483F" stroke="${L}" stroke-width="3.5"/><path d="M100 171l2.6 5.2 5.6.6-4.2 3.8 1.2 5.6-5.2-2.8-5.2 2.8 1.2-5.6-4.2-3.8 5.6-.6Z" fill="#FFE14D"/>`)
+    + tube('M142 122Q124 140 80 133', 17) + tube('M58 126Q80 156 120 145', 17)
+    + `<ellipse cx="124" cy="143" rx="12" ry="10" fill="${O}" stroke="${L}" stroke-width="4.5"/><path d="M118 139v6M124 138v6" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/><path d="M70 138l5 6M84 147l3 7M132 124l-5 6" stroke="${S}" stroke-width="4" stroke-linecap="round"/>" stroke="${S}" stroke-width="4" stroke-linecap="round"/>`
+    + `<g transform="rotate(${beaten ? 7 : -6} 100 112)">`
+    + `<circle cx="54" cy="42" r="19" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="55" cy="44" r="9" fill="#E8707A"/><circle cx="146" cy="42" r="19" fill="${O}" stroke="${L}" stroke-width="5"/><circle cx="145" cy="44" r="9" fill="#E8707A"/>`
+    + ruff(-1) + ruff(1)
+    + `<ellipse cx="100" cy="84" rx="64" ry="50" fill="${O}" stroke="${L}" stroke-width="5"/>`
+    + `<path d="M86 44H114M88 53H112M84 62H116M100 44V62" stroke="${S}" stroke-width="5" stroke-linecap="round"/>` + wedge(37, 82, 1) + wedge(37, 98, 1) + wedge(163, 82, -1) + wedge(163, 98, -1)
+    + `<circle cx="89" cy="108" r="14" fill="${W}"/><circle cx="111" cy="108" r="14" fill="${W}"/><path d="M92 97Q100 92 108 97Q105 105 100 106Q95 105 92 97Z" fill="#E8707A" stroke="${L}" stroke-width="2.5" stroke-linejoin="round"/>`
+    + face + `</g>`
+    + (beaten ? [[70, 20], [100, 8], [132, 16]].map(([x, y]) => `<path d="M${x} ${y - 7}L${x + 2} ${y - 2}L${x + 7} ${y}L${x + 2} ${y + 2}L${x} ${y + 7}L${x - 2} ${y + 2}L${x - 7} ${y}L${x - 2} ${y - 2}Z" fill="#FFD15C" stroke="${L}" stroke-width="1.5"/>`).join('') : '')
+    + `</svg>`;
+}
+/* Shi Shi from head to feet for the path: arms down as he walks, up when he cheers or has won, fists up for the boss */
+function shiBody(mood) {
+  const { arm, paw, lion } = CRS.kit, up = mood === 'cheer' || mood === 'star', fist = mood === 'fire';
+  const arms = up ? arm(-46, 30, -84, -18, 12) + arm(46, 30, 84, -18, 12) + paw(-88, -24, -24, .9) + paw(88, -24, 24, .9)
+    : fist ? arm(-48, 40, -80, 22, 12) + arm(48, 40, 80, 22, 12) + paw(-84, 16, -40, .9) + paw(84, 16, 40, .9)
+    : arm(-44, 44, -72, 70, 12) + arm(44, 44, 72, 70, 12) + paw(-74, 74, 200, .85) + paw(74, 74, 160, .85);
+  return `<svg class="shi-body" viewBox="-104 -92 208 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="48" ry="8" fill="#000" opacity=".2"/>${arms}${lion(0, 0, 1, mood)}</svg>`;
 }
 function lesSheet(n) {   // tap a lesson on the path: its words, and Start
   const L = LESSONS[n - 1], done = lesDone(n), next = lesNext(), due = utDue();
@@ -9540,7 +9741,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.07';
+const APP_VERSION = '3.08';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9636,6 +9837,7 @@ function devSheet() {
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
       ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
+      ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after the boss')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
     <div class="list-group">
@@ -9657,7 +9859,9 @@ function devSheet() {
     sh.querySelector('#devMile').onclick = play(function milestone() { const { n } = practiceStreak(); momentMile(MILES.includes(n) ? n : 7); });
     sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
-    sh.querySelector('#devComic').onclick = () => { closeSheet(); setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">Which unit?</h3><div class="list-group">${LES_UNITS.map(([en], u) => `<button class="list-btn" data-cu="${u + 1}"><span>Unit ${u + 1}<br><small>${esc(COMIC[u + 1]?.title || en)}</small></span><span class="side">${I.chev}</span></button>`).join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = play(function comicPreview() { comicReplay(+b.dataset.cu, { demo: 1, all: 1 }); }); })), 320); };
+    const unitPick = (title, f) => () => { closeSheet(); setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">${title}</h3><div class="list-group">${LES_UNITS.map(([en], u) => COMIC[u + 1] ? `<button class="list-btn" data-cu="${u + 1}"><span>Unit ${u + 1}<br><small>${esc(COMIC[u + 1].title)}</small></span><span class="side">${I.chev}</span></button>` : '').join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = () => { LOG.add('dev', `${f.name} ${b.dataset.cu}`); closeSheet(); setTimeout(() => f(+b.dataset.cu), 320); }; })), 320); };
+    sh.querySelector('#devComic').onclick = unitPick('Which unit?', function comicPreview(un) { comicReplay(un, { demo: 1, all: 1 }); });
+    sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
     sh.querySelector('#devLvZero').onclick = lvGo('levels reset', devLvZero, 'Levels are back to the start');
