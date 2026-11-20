@@ -8130,7 +8130,7 @@ const Trail = (() => {
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
-  const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 24;   // the view the map opens on is as far back as it goes; in, since v3.00 down to a few fields and woods (it was / 76, one city)
+  const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 75;   // the view the map opens on is as far back as it goes; in, since v3.33 no closer than a monument with its ponds and woods round it (v3.00 to v3.32 it was / 24, a few fields; before that / 76)
   const CORE = [[82, 33], [77, 39.4], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [126.4, 45.6], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [117.5, 25.0], [111, 24], [104, 25], [100.3, 25.8], [99, 29], [90, 31]];   // China's heartland, reaching out to the far monuments
   const HOME = [109, 33], EDGE = { w: 70, n: 60 };   // where the map opens; the furthest west and north the screen's edge may show (Kashgar and Harbin still fit, close up)
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
@@ -10591,7 +10591,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.32';
+const APP_VERSION = '3.33';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
