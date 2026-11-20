@@ -3612,7 +3612,7 @@ function unitPath(pts) {   // one smooth line through the nodes; where a row tur
 const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return [x, y - (i === pts.length - 1 ? 120 : 90)]; };   // Shi Shi stands over the node he is at
 function UnitView(un) {
   const [en, zh] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, pts = unitNodes(n), H = pts[n][1] + 104, C = COMIC[un];
-  const next = lesNext(), due = utDue(), words = st.ls.reduce((a, L) => a + L.words.length, 0), r = db.utests[un], bossOpen = st.nd === n;
+  const next = lesNext(), due = utDue(), r = db.utests[un], bossOpen = st.nd === n;
   const pct = ([x, y]) => `left:${(x / 3.6).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at);
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
@@ -3623,7 +3623,7 @@ function UnitView(un) {
   const L = st.ls[st.nd], last = un === LES_UNITS.length;
   const hud = !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat the Unit ${un - 1} boss first</b></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
-    : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>All ${words} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
+    : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
   return `<div class="screen fade-in c1 un"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
     <div class="un-map" style="aspect-ratio:360/${H}"><span class="un-wm" lang="zh" aria-hidden="true">${zh}</span>
@@ -3674,9 +3674,9 @@ function startLesson(n) {
 }
 function utSheet(un) {   // tap a unit test on the path
   if (!unitDone(un)) { toast(`Finish the lessons in Unit ${un} first`); return; }
-  const r = db.utests[un], n = LESSONS.filter(L => L.u === un - 1).reduce((a, L) => a + L.words.length, 0), last = un === LES_UNITS.length;
+  const r = db.utests[un], n = LESSONS.filter(L => L.u === un - 1).length * UT_PER, last = un === LES_UNITS.length;
   openSheet(`<div class="les-sh-top"><small>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</small><h3>Unit test</h3></div>
-    <p class="ut-sh-what">All ${n} words from this unit, and two characters to write from memory. Each question comes once.</p>
+    <p class="ut-sh-what">${n} words from this unit, and two characters to write from memory. Each question comes once.</p>
     <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${last ? 'finishes HSK 1 and opens HSK 2' : `opens Unit ${un + 1} · ${esc(LES_UNITS[un][0])}`}</span></div>
     ${r?.pass ? `<p class="muted les-sh-note">Passed with ${r.best}%. Take it again any time.</p>` : r ? `<p class="muted les-sh-note">Your best so far: ${r.best}%.</p>` : ''}
     <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Take it again' : 'Start the test'}</button>`);
@@ -3688,10 +3688,14 @@ function utRoute(un) {   // opening #/course/1/test/un
   if (S.H) startUnitTest(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startUnitTest(un); render(); } }, () => toast('Lessons need the internet the first time'));
 }
-/* a unit test: every word of the unit once, the four question kinds in turn, and two characters from memory a third and
+/* a unit test: (v3.01) three words from each lesson of the unit, the ones not proven yet first, so the boss is about half
+   as long as asking every word. The four question kinds in turn, and two characters from memory a third and
    two thirds of the way in. No second tries and no pairs at the end; 80% right passes */
+const UT_PER = 3;   // words the final boss asks from each lesson
 function startUnitTest(un) {
-  const ls = LESSONS.filter(L => L.u === un - 1), words = ls.flatMap(L => L.words).map(lesRow), T = ['hz2en', 'en2hz', 'ear', 'py'];
+  const ls = LESSONS.filter(L => L.u === un - 1), T = ['hz2en', 'en2hz', 'ear', 'py'];
+  const proven = h => !!bankHas(h)?.pf?.at;
+  const words = ls.flatMap(L => shuffle(L.words).sort((a, b) => proven(a) - proven(b)).slice(0, UT_PER)).map(lesRow);
   const q = shuffle(shuffle(words).map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
   if (wt[1]) q.splice(Math.round(nq * .66), 0, { t: 'write', mode: 'recall', ...wt[1] });
   if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
@@ -9128,7 +9132,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.01';
+const APP_VERSION = '3.02';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
