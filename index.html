@@ -24,6 +24,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
+<script src="course.js?v=331"></script>
 <style>
 /* ǖ ǘ ǚ ǜ (lǜ, nǚ) from a system font: Satoshi has no ü with tone marks and would show the mark beside the letter */
 @font-face{font-family:"PyMarks";src:local("Segoe UI"),local("SegoeUI"),local("Helvetica Neue"),local("HelveticaNeue"),local("Roboto"),local("Arial");unicode-range:U+01D5-01DC}
@@ -2640,10 +2641,12 @@ function parse() {
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'basics') return { view: 'course', deckId: null, basics: true, part: p[1] || null };
-  if (p[0] === 'course' && p[1] === '1' && p[2] === 'test') return { view: 'lesson', deckId: null, test: +p[3] || 0 };
-  if (p[0] === 'course' && p[1] === '1' && p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0 };
-  if (p[0] === 'course' && p[1] === '1' && p[2] === 'unit') return { view: 'course', deckId: null, unit: Math.min(LES_UNITS.length, Math.max(1, +p[3] || 1)) };   // a unit's campaign
-  if (p[0] === 'course' && p[1] === '1') return { view: 'course', deckId: null, part: p[2] || null };   // only HSK 1 has a course so far; its old /tones etc. links still open the Basics pages
+  if (p[0] === 'course' && lvHas(+p[1])) { const lv = +p[1];   // v3.31: every level with lessons has a course: #/course/<level>, /unit/<unit>, /lesson/<lesson>, /test/<unit>
+    if (lv > openLevel()) { history.replaceState(history.state, '', '#/learn'); return { view: 'learn', deckId: null }; }   // a level still locked: back to Lessons
+    if (p[2] === 'test') return { view: 'lesson', deckId: null, test: +p[3] || 0 };
+    if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0 };
+    if (p[2] === 'unit') return { view: 'course', deckId: null, clv: lv, unit: UNIT(+p[3])?.lv === lv ? +p[3] : lvUnits(lv)[0].un };   // a unit's campaign
+    return { view: 'course', deckId: null, clv: lv, part: lv === 1 ? p[2] || null : null }; }   // HSK 1's old /tones etc. links still open the Basics pages
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(TRAIL.length, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(TRAIL.length, Math.max(1, +p[1] || 1)) };
@@ -2656,7 +2659,7 @@ function route() {
   const r = parse(); S.view = r.view; S.deckId = r.deckId;
   S.mapLv = r.view === 'map' ? r.city || null : null; if (S.view === 'map' && !S.mapLv && fromCity) S.mapFrom = fromCity;
   if ((r.lv || null) !== S.hskLevel || !S.hskSel) S.hskSel = new Set();   // words ticked on an HSK level page, kept while you stay on it
-  S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null; S.cBasics = !!r.basics; S.cUnit = r.unit || null;
+  S.hskLevel = r.lv || null; S.readId = r.readId || null; S.cPart = r.part || null; S.cBasics = !!r.basics; S.cUnit = r.unit || null; S.cLv = r.clv || 1;
   const d = curDeck();
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) {
     if (S.deckId === 'today') { history.replaceState(history.state, '', '#/learn'); S.view = 'learn'; S.deckId = null; }
@@ -3309,7 +3312,7 @@ function CourseBlock() {
     const foot = locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
       : !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
       : `<span class="crs-bar"><i style="width:${gBar(f)}%"></i></span><span class="crs-pct">${goLab(x.k, x.n, String, ' words')}</span>`;
-    return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${locked ? 'crs-locked' : x.l === 1 ? 'c1-open' : 'hsk-level'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
+    return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${locked ? 'crs-locked' : lvHas(x.l) ? 'c1-open' : 'hsk-level'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
       <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg>${locked ? `<span class="crs-lock">${LOCK_I}</span>` : ''}</span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
@@ -3321,6 +3324,7 @@ function CourseBlock() {
    HSK levels are lessons only: the HSK 1 page holds the lessons path, still locked. The four foundation topics
    (tones, pinyin chart, radicals, stroke order) live under Basics instead: #/basics, #/basics/tones, /pinyin, /radicals, /strokes. */
 const C1 = '#35A877';   // HSK 1's own green, the same as its picture card
+const CRS_ZH = ['', '入门', '小吃街', '漓江', '古城', '中秋', '长城', '皇城'];   // each level's world, as the sign on its course page: the gate, the snack street, the Li River, the old town, Mid-Autumn, the Great Wall, the imperial city
 const TONE_C = ['var(--muted)', '#E5483F', '#E8A33C', '#2E9E6B', '#3E7FB1'];   // tone colours: 1 red, 2 gold, 3 green, 4 blue
 /* the pitch of each tone on a five-level scale (5 = high): 1 is 55, 2 is 35, 3 is 214, 4 is 51; the light tone is a short mid dot */
 const TONE_D = ['M44 30H56', 'M10 6H90', 'M10 30C40 28 70 22 90 6', 'M10 42C26 56 56 60 90 18', 'M10 6C40 14 70 34 90 54'];
@@ -3523,13 +3527,13 @@ function CourseView() {
   if (P === 'strokes') return StrokesView();
   if (S.cBasics) return BasicsView();
   if (S.cUnit) return UnitView(S.cUnit);
-  const L = S.H?.levels[1] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
-  const done = LESSONS.filter(x => lesDone(x.n)).length;
+  const lv = S.cLv || 1, L = S.H?.levels[lv] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
+  const all = lvLes(lv), done = all.filter(x => lesDone(x.n)).length;
   return `<div class="screen fade-in c1">${c1Head('')}
-    <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[1][1]()}</svg></div>
-    <section class="c1-top"><h1 class="c1-title">HSK 1 <span class="c1-zh">入门</span></h1>
-      ${L.length ? `<p class="muted">${L.length} words · ${n} you know.</p>` : ''}</section>
-    <div class="section-head"><h2>Units <span class="cal-zh">单元</span></h2><span class="muted les-count">${done} of ${LESSONS.length} lessons done</span></div>
+    <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[lv][1]()}</svg></div>
+    <section class="c1-top"><h1 class="c1-title">${HSK_NAME(lv)} <span class="c1-zh">${CRS_ZH[lv]}</span></h1>
+      ${L.length ? `<p class="muted">${L.length.toLocaleString('en')} words · ${n.toLocaleString('en')} you know.</p>` : ''}</section>
+    <div class="section-head"><h2>Units <span class="cal-zh">单元</span></h2><span class="muted les-count">${done} of ${all.length} lessons done</span></div>
     <p class="muted les-intro">Each unit is a path of short lessons that ends at the shrine of Hu Hu, the challenger: beat his challenge to open the next unit. A lesson is a small deck of hanzi cards: meet each word, trace its characters, turn the cards, then write from memory. Finished words go into your word bank by themselves.</p>
     ${UnitLevels()}
   </div>`;
@@ -3560,28 +3564,54 @@ const LES_UNITS = [
   ['Little words', '小词', [['This and that', '这 那 这些 那些 哪些 些'], ['Counting words', '个 本 件 一些 有些 有的'], ['Have and be', '有 没有 在 正在 的 了'],
     ['And, also, all', '和 也 都 还 再 只'], ['Can and may', '会 能 可以 不要 吧 对'], ['How', '怎么 怎么样 前 后 事 它 它们']]],
 ];
-const LESSONS = LES_UNITS.flatMap(([, , ls], u) => ls.map(([title, w]) => ({ u, title, words: w.split(' ') }))).map((L, i) => Object.assign(L, { n: i + 1 }));
+/* v3.31: every HSK level has units. HSK 1's are written out above; HSK 2 and up come from course.js (window.SHI_COURSE:
+   one text per level, a unit line "## English|中文" and under it its lessons "Title:word word word"). Numbers never
+   move once a level is out: HSK 1 keeps units 1 to 8 and lessons 1 to 49; level L's units are L*100+1 and on, its
+   lessons L*1000+1 and on, so db.lessons, db.utests, db.comic and db.unitAt of one level are untouched by another.
+   A unit is still [English, 中文, lessons], with lv (its level), un (its number) and k (its place in the level, from
+   1, the number people see); a lesson is { n, un, lv, k (its place in the level), i (among all lessons), title, words } */
+LES_UNITS.forEach((U, i) => Object.assign(U, { lv: 1, un: i + 1, k: i + 1 }));
+for (const [lv, txt] of Object.entries(window.SHI_COURSE || {})) { let k = 0; if (!(+lv >= 2 && +lv <= 7)) continue;
+  for (const line of String(txt).split('\n')) { const s = line.trim(); if (!s) continue;
+    if (s.startsWith('##')) { const [en, zh] = s.slice(2).split('|').map(x => x.trim()); LES_UNITS.push(Object.assign([en, zh || en, []], { lv: +lv, un: +lv * 100 + ++k, k })); }
+    else if (k) { const j = s.indexOf(':'); if (j > 0) LES_UNITS.at(-1)[2].push([s.slice(0, j).trim(), s.slice(j + 1).trim().replace(/\s+/g, ' ')]); } } }
+const UNIT_BY = new Map(LES_UNITS.map(U => [U.un, U])), UNIT = un => UNIT_BY.get(+un);
+const LV_UNITS = {}; LES_UNITS.forEach(U => (LV_UNITS[U.lv] ||= []).push(U));
+const lvUnits = lv => LV_UNITS[lv] || [], lvHas = lv => !!LV_UNITS[lv];
+const LESSONS = LES_UNITS.flatMap(U => U[2].map(([title, w]) => ({ un: U.un, lv: U.lv, title, words: w.split(' ') })));
+{ const at = {}; LESSONS.forEach((L, i) => { L.i = i; L.k = at[L.lv] = (at[L.lv] || 0) + 1; L.n = (L.lv === 1 ? 0 : L.lv * 1000) + L.k; }); }
+const LES_BY = new Map(LESSONS.map(L => [L.n, L])), LES = n => LES_BY.get(+n);
+const LV_LES = {}; LESSONS.forEach(L => (LV_LES[L.lv] ||= []).push(L));
+const lvLes = lv => LV_LES[lv] || [];
+const unitLv = un => UNIT(un)?.lv || 1, unK = un => UNIT(un)?.k ?? un, unitLast = un => { const U = UNIT(un); return !!U && U.k === lvUnits(U.lv).length; };
+const unitUrl = un => `#/course/${unitLv(un)}/unit/${un}`, utUrl = un => `#/course/${unitLv(un)}/test/${un}`, lesUrl = n => `#/course/${LES(n)?.lv || 1}/lesson/${n}`;
+const lvDoneSay = lv => lv < 7 ? `finishes ${HSK_NAME(lv)} and opens ${HSK_NAME(lv + 1)}` : `finishes ${HSK_NAME(lv)}`;
 /* plain meanings for lessons where the dictionary's first one is odd or too long ("年: grain; harvest") */
 const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome`.split('|').map(s => s.split('=')));
 const lesRows = new Map();
 function lesRow(h) {   // { h, p, en } for a lesson word
-  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') }); }
+  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: S.H.gloss?.get(h)?.p || r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') }); }
   return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
 }
 const lesDone = n => !!db.lessons[n]?.done;
-const lesNext = () => LESSONS.find(L => !lesDone(L.n))?.n || 0;   // 0: every lesson done
+const lvWon = lv => lvUnits(lv).every(U => utPassed(U.un));
+/* the level your lessons go on in (Play on the map): from where you started up to the highest level you have open, the
+   first one with a boss still standing; your highest level if all are beaten; 0 if it has no lessons */
+function playLv() { const b = openLevel(); for (let l = Math.min(b, db.prefs.level || 1); l <= b; l++) if (lvHas(l) && !lvWon(l)) return l; return lvHas(b) ? b : 0; }
+const lesNext = (lv = playLv()) => lvLes(lv).find(L => !lesDone(L.n))?.n || 0;   // a level's next lesson; 0: every lesson done
 const lesHz = (h, kind = 0) => { const n = [...h].length; return ([[0, 112, 92, 72, 58], [0, 44, 38, 30, 26], [0, 34, 30, 24, 20]][kind][n]) || [50, 24, 18][kind]; };
 /* unit tests: the next unit opens once you pass a test on every word of the unit before it. db.utests = { unit: { pass, best, last } }, unit from 1 */
 const UT_PASS = 80;   // % right to pass
 const utPassed = un => !!db.utests[un]?.pass;
-const unitDone = un => LESSONS.every(L => L.u !== un - 1 || lesDone(L.n));
+const unitDone = un => LESSONS.every(L => L.un !== un || lesDone(L.n));
 /* the unit test standing between you and the next lesson (its unit number), or 0: the next lesson starts a new unit, none of
    that unit is done yet, and the test before it isn't passed. Lessons you already finished stay open. All lessons done: the last test */
-function utDue() {
-  const n = lesNext(), last = LES_UNITS.length;
+function utDue(lv = playLv()) {
+  const us = lvUnits(lv); if (!us.length) return 0;
+  const n = lesNext(lv), last = us.at(-1).un;
   if (!n) return utPassed(last) ? 0 : last;
-  const L = LESSONS[n - 1]; if (!L.u || LESSONS.some(x => x.u === L.u && lesDone(x.n))) return 0;
-  return utPassed(L.u) ? 0 : L.u;   // L.u counts units from 0, so it is the number of the unit before
+  const L = LES(n); if (UNIT(L.un).k === 1 || LESSONS.some(x => x.un === L.un && lesDone(x.n))) return 0;
+  return utPassed(L.un - 1) ? 0 : L.un - 1;   // the unit before, in the same level
 }
 const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3.2 4M16.5 6h3a3 3 0 0 1-3.2 4M12 14v3.5M8.5 20.5h7M9.5 17.5h5"/></svg>`;
 /* each lesson's card face: the first character it brings in that no lesson before it had */
@@ -3709,6 +3739,7 @@ const { COMIC } = (() => {
    Same rules as Unit 1: part 1 ends at the worst moment and says nothing of a part 2, part 2 is the happy ending,
    bubbles use words of that unit (or of units before it). Each page has four panels in one of four layouts (LAY).
    Here a panel's art is drawn in its own box, from 0,0 to its width and height, and moved into place on the page. */
+let COMIC_KIT;   // v3.31: everything units 2 to 8 are drawn with, handed to the comics files of HSK 2 and up
 Object.assign(COMIC, (() => {
   const { red, gold, gold2, ln, fl, wood, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, roof, lantern, burst, bubble, xcloud } = CRS.kit;
   let gN = 0;   // gradients and clips need ids that are unique on the page (the levels list shows several thumbnails)
@@ -4004,6 +4035,7 @@ Object.assign(COMIC, (() => {
       + confetti([[100, 80, 20, red], [262, 80, -30, gold], [140, 100, 40, '#8FD3C0'], [224, 96, -15, '#FF9AA6'], [70, 120, 60, gold], [290, 130, 10, '#8FD3C0']]) + seal(326, 192, 26)],
   ])];
 
+  COMIC_KIT = { ...CRS.kit, uid, W, grad, rays, pop, clipR, shout, note, seal, onFriend, confetti, rnd, snow, stars, ground, speed, shiver, q, zz, card, sign, clock, table, steam, bowl, cup, coin, apple, board, door, win, moon, sun, gift, medal, cake, phone, train, plane, taxi, needle, dog, snowman, scarf, bedBack, blanket, crowd, awning, tears, glasses, docCap, flower, pandaTears, LAY, page };
   return {
     2: { title: 'The party at seven', pages: u2 },
     3: { title: 'The lost little panda', pages: u3 },
@@ -4014,6 +4046,16 @@ Object.assign(COMIC, (() => {
     8: { title: 'The hidden present', pages: u8 },
   };
 })());
+/* v3.31: the comics of HSK 2 and up are not in this file: comics/hsk<lv>.js holds a level's, fetched the first time its
+   course is opened (comicLoad) and added to COMIC by SHI_COMICS(lv, kit => ({ unit: { title, pages } })). The kit is
+   what HSK 1's units 2 to 8 are drawn with (COMIC_KIT). course.js says which levels have a file (SHI_COMIC_LV). */
+const comicLv = {};
+window.SHI_COMICS = (lv, make) => { try { Object.assign(COMIC, make(COMIC_KIT)); } catch (e) { console.error('comics', lv, e); } };
+function comicLoad(lv) {
+  if (!(window.SHI_COMIC_LV || []).includes(lv)) return Promise.resolve();
+  return comicLv[lv] ||= new Promise(res => { const s = document.createElement('script'); s.src = `comics/hsk${lv}.js?v=${APP_VERSION}`;
+    s.onload = () => res(true); s.onerror = () => { delete comicLv[lv]; s.remove(); res(false); }; document.head.append(s); });
+}
 /* one panel of a part, clipped to its slanted shape */
 const comicPanel = (pg, i) => `<clipPath id="cmc${pg.id}${i}"><polygon points="${pg.panels[i].clip}"/></clipPath><g clip-path="url(#cmc${pg.id}${i})">${pg.panels[i].art()}</g>`;
 const comicThumb = (pg, i = pg.thumb ?? 2) => `<svg viewBox="${pg.panels[i].box.join(' ')}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${comicPanel(pg, i)}</svg>`;
@@ -4045,25 +4087,25 @@ function comicPlay(un, part, then, o = {}) {
   setTimeout(show, 280);
 }
 
-const unitLessons = un => LESSONS.filter(L => L.u === un - 1);
-const unitOpen = un => un === 1 || utPassed(un - 1) || unitLessons(un).some(L => lesDone(L.n));
+const unitLessons = un => LESSONS.filter(L => L.un === un);
+const unitOpen = un => { const U = UNIT(un); return !!U && ((U.k === 1 ? U.lv <= openLevel() : utPassed(un - 1)) || unitLessons(un).some(L => lesDone(L.n))); };   // a level's first unit is open once the level is
 /* where a unit stands. at = the place on its path: 0 to n-1 the lesson you are on, n the boss, n+1 won */
 function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = utPassed(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
 function unitGo(un) {   // tap a unit: its comic first (the first time, and again each time you come back to a unit you have won), whose Start button opens the campaign
-  if (!LES_UNITS[un - 1]) return;
-  if (!unitOpen(un)) { toast(`Beat Hu Hu's challenge in Unit ${un - 1} first`); return; }
-  const go = () => nav(`#/course/1/unit/${un}`);
-  if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go();
+  if (!UNIT(un)) return;
+  if (!unitOpen(un)) { toast(`Beat Hu Hu's challenge in Unit ${unK(un) - 1} first`); return; }
+  const go = () => nav(unitUrl(un));
+  comicLoad(unitLv(un)).then(() => { if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go(); });
 }
 /* the lessons page: every unit as a level. Its picture is a panel of its comic (or its name in hanzi), the dots are
    its lessons and the diamond its boss */
-function UnitLevels() {
-  const cur = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1;   // the unit you are on (0: every boss beaten)
-  return `<div class="lv-list">${LES_UNITS.map(([en, zh], u) => {
-    const un = u + 1, st = unitState(un), C = COMIC[un], on = un === cur && st.open;
-    return `<button class="lv${st.won ? ' won' : st.open ? '' : ' locked'}${on ? ' cur' : ''}" data-act="unit-open" data-u="${un}" aria-label="Unit ${un}, ${esc(en)}${st.won ? ', won' : st.open ? `, ${st.nd} of ${st.ls.length} lessons done` : ', locked'}">
+function UnitLevels(lv = S.cLv || 1) {
+  const us = lvUnits(lv), cur = us.find(U => !utPassed(U.un))?.un || 0;   // the unit you are on (0: every boss beaten)
+  return `<div class="lv-list">${us.map(U => {
+    const [en, zh] = U, un = U.un, st = unitState(un), C = COMIC[un], on = un === cur && st.open;
+    return `<button class="lv${st.won ? ' won' : st.open ? '' : ' locked'}${on ? ' cur' : ''}" data-act="unit-open" data-u="${un}" aria-label="Unit ${U.k}, ${esc(en)}${st.won ? ', won' : st.open ? `, ${st.nd} of ${st.ls.length} lessons done` : ', locked'}">
       <span class="lv-pic">${C ? comicThumb(C.pages[st.won && comicSeen(un).p2 ? 1 : 0]) : `<span class="lv-zh" lang="zh" style="font-size:${[0, 30, 26, 19][[...zh].length] || 16}px">${zh}</span>`}${st.won ? `<i class="lv-badge">${TROPHY_I}</i>` : st.open ? '' : `<i class="lv-badge">${LOCK_I}</i>`}</span>
-      <span class="lv-main"><small>Unit ${un}</small><b>${esc(en)}</b>
+      <span class="lv-main"><small>Unit ${U.k}</small><b>${esc(en)}</b>
         <span class="lv-pips" aria-hidden="true">${st.ls.map((_, i) => `<i${i < st.nd ? ' class="on"' : ''}></i>`).join('')}<i class="boss${st.won ? ' on' : ''}"></i></span></span>
       ${on ? `<em>${st.nd ? 'Continue' : 'Play'}</em>` : I.chev}</button>`;
   }).join('')}</div>`;
@@ -4084,13 +4126,16 @@ function unitNodes(n) {
           you spin it to bring a lesson to the front, where Shi Shi sits (units 4 and 8)
    Every unit ends at the shrine of Hu Hu, the challenger: beating his challenge (the unit test) opens the next unit */
 const UNIT_LAY = { 1: 'side', 2: 'snake', 3: 'side', 4: 'round', 5: 'side', 6: 'snake', 7: 'side', 8: 'round' };
+/* v3.31: a unit of HSK 2 and up says its own look in UW_MORE (below, by the worlds): [palette, layout, landmarks]. One
+   without an entry takes them in turn; a table only seats seven steamers, so a longer unit gets a street instead */
+const unitLay = un => { const lay = UNIT_LAY[un] || UW_MORE[un]?.[1] || ['side', 'snake', 'side', 'round'][(unK(un) - 1) % 4]; return lay === 'round' && unitLessons(un).length > 7 ? 'side' : lay; };
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
 const unRnd = {};   // how far each round table is turned, in lessons: lesson unRnd[un] is at the front
 const unRndAng = (i, n, rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
 /* a unit's map in units of 1/360 of a phone's width: lay, pts (each lesson's foot, then the shrine's), W by H, and on
    the table each steamer's size (the back ones are further away) */
 function unitMap(un, n) {
-  const lay = UNIT_LAY[un] || 'snake';
+  const lay = unitLay(un);
   if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 250, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
@@ -4100,10 +4145,10 @@ function unitMap(un, n) {
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
   return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
-const ucPanes = () => { const k = LES_UNITS.findIndex((_, u) => !unitOpen(u + 1)); return k < 0 ? LES_UNITS.length : k + 1; };   // units on the strip: the open ones and the first locked one
-const ucMe = () => { const k = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)); return k < 0 ? LES_UNITS.length : k + 1; };   // the unit Shi Shi is in: the first one not won
+const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
+const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !utPassed(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
 const ucPane$ = u => document.querySelector(`.uc-pane[data-u="${u}"]`);
-const ucLabel = u => esc(COMIC[u]?.title || LES_UNITS[u - 1][1]);
+const ucLabel = u => esc(COMIC[u]?.title || UNIT(u)[1]);
 function ucPane(u) {
   const st = unitState(u), n = st.ls.length, me = st.open && u === ucMe(), r = db.utests[u], chal = st.nd === n;
   const seen = Math.min(db.unitAt?.[u] ?? st.at, st.at), eat = me && !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
@@ -4118,25 +4163,25 @@ function ucPane(u) {
   const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
   const R = UN_RND, table = lay === 'round' ? `<span class="un-grip" style="left:${((R.cx - R.rx - 64) / W * 100).toFixed(2)}%;top:${((R.cy - R.ry - 70) / H * 100).toFixed(2)}%;width:${((R.rx + 64) * 2 / W * 100).toFixed(2)}%;height:${((R.ry + 70) * 2 / H * 100).toFixed(2)}%"></span>`
     + `<span class="un-spin" style="${pct([R.cx, R.cy + R.ry + 118])}"><button data-spin="-1"${off} aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1"${off} aria-label="Turn the table on">›</button></span>` : '';
-  return `<section class="uc-pane uc-${lay}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${u}, ${esc(LES_UNITS[u - 1][0])}${st.open ? '' : ', locked'}">
+  return `<section class="uc-pane uc-${lay}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
     <div class="uc-in"><div class="uc-stage"><div class="un-bg" aria-hidden="true"><canvas class="uw"></canvas></div>
       <div class="un-map" data-w="${W}" data-h="${H}">${table}${nodes}${shrine}${shi}</div></div></div>
-    ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${u} · ${esc(LES_UNITS[u - 1][0])}</b><small>Beat Hu Hu's challenge in Unit ${u - 1} to open it</small></div>`}</section>`;
+    ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${unK(u)} · ${esc(UNIT(u)[0])}</b><small>Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</small></div>`}</section>`;
 }
 function ucHud(u) {
-  const st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(), due = utDue(), L = st.ls[st.nd], last = u === LES_UNITS.length;
-  return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${u - 1}</b><i>His challenge opens Unit ${u}</i></span>`
-    : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${u + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[u][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
+  const lv = unitLv(u), st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(lv), due = utDue(lv), L = st.ls[st.nd], last = unitLast(u), up = lv < 7 && lvHas(lv + 1);
+  return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${unK(u) - 1}</b><i>His challenge opens Unit ${unK(u)}</i></span>`
+    : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
     : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
 }
 function UnitView(un) {
-  const k = ucPanes(), u = Math.min(un, k);
+  const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1);
   return `<div class="screen fade-in c1 un uc"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
-    <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${u}</small><b>${esc(LES_UNITS[u - 1][0])}</b></span>
-      <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > 1 ? '' : ' disabled'}>${I.chev}</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < k ? '' : ' disabled'}>${I.chev}</button></span></div>
+    <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${unK(u)}</small><b>${esc(UNIT(u)[0])}</b></span>
+      <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > us[0] ? '' : ' disabled'}>${I.chev}</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < us.at(-1) ? '' : ' disabled'}>${I.chev}</button></span></div>
     <button class="icon-btn" data-act="comic-replay" data-u="${u}" aria-label="Watch the comic again">${COMIC_I}</button></header>
-    <div class="uc-scroll"><div class="uc-strip">${Array.from({ length: k }, (_, i) => ucPane(i + 1)).join('')}</div></div>
+    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>
     <div class="un-hud">${ucHud(u)}</div></div>`;
 }
 /* size every unit on the strip to the space between the sign and the card at the bottom: a street is as high as that
@@ -4156,15 +4201,15 @@ function ucFit() {
 }
 let ucU = 0, ucEat = null, ucPre = null, ucQuiet;   // ucPre: a baozi about to be eaten (its steamer still shown as it was); ucEat: the one being eaten (painted on the canvas above, not in the town)
 /* the unit in the middle of the screen becomes the one the sign, the pill, the comic button and the card are about */
-function ucWhich() { const sc = $('.uc-scroll'), x = sc.scrollLeft + sc.clientWidth / 2; let u = 1; sc.querySelectorAll('.uc-pane').forEach(p => { if (p.offsetLeft <= x) u = +p.dataset.u; }); return u; }
+function ucWhich() { const sc = $('.uc-scroll'), x = sc.scrollLeft + sc.clientWidth / 2; let u = 0; sc.querySelectorAll('.uc-pane').forEach(p => { if (!u || p.offsetLeft <= x) u = +p.dataset.u; }); return u; }
 let ucNew = 0;   // a unit you just moved on into: its comic plays once you stop there
 function ucSet(u) {
-  if (u === ucU) return; if (ucU && u === ucU + 1) ucNew = u; else if (u < ucU) ucNew = 0; ucU = u; const k = ucPanes(), b = $('.un-sign-board');
-  if (b) { b.querySelector('small').textContent = `Unit ${u}`; b.querySelector('b').textContent = LES_UNITS[u - 1][0]; }
-  const pl = $('.uc-pill'); if (pl) { pl.querySelector('b').innerHTML = ucLabel(u); pl.querySelector('[data-uc="-1"]').disabled = u <= 1; pl.querySelector('[data-uc="1"]').disabled = u >= k; }
+  if (u === ucU) return; if (ucU && u === ucU + 1) ucNew = u; else if (u < ucU) ucNew = 0; ucU = u; const us = ucList(unitLv(u)), b = $('.un-sign-board');
+  if (b) { b.querySelector('small').textContent = `Unit ${unK(u)}`; b.querySelector('b').textContent = UNIT(u)[0]; }
+  const pl = $('.uc-pill'); if (pl) { pl.querySelector('b').innerHTML = ucLabel(u); pl.querySelector('[data-uc="-1"]').disabled = u <= us[0]; pl.querySelector('[data-uc="1"]').disabled = u >= us.at(-1); }
   const cb = $('.uc [data-act="comic-replay"]'); if (cb) cb.dataset.u = u;
   const hud = $('.uc .un-hud'); if (hud) hud.innerHTML = ucHud(u);
-  if (S.cUnit !== u) { S.cUnit = u; history.replaceState(history.state, '', `#/course/1/unit/${u}`); }
+  if (S.cUnit !== u) { S.cUnit = u; history.replaceState(history.state, '', unitUrl(u)); }
 }
 /* the strip at rest across the line between two units: slide to whichever has more of the screen. true if it moves */
 function ucSnap() {
@@ -4180,16 +4225,17 @@ const ucHold = () => { const sc = $('.uc-scroll'); ucKeep = sc ? { x: sc.scrollL
    you tap Stop or when you leave the course */
 let ucAuto = null;
 function ucAutoplay() {
-  devLvKeep(); const now = Date.now(), id = now;
-  db.lessons = {}; db.utests = {}; db.unitAt = {}; db.comic = Object.fromEntries(LES_UNITS.map((_, i) => [i + 1, { p1: now, p2: now }])); save();
-  ucAuto = { id }; S.cUnit = 1; nav('#/course/1/unit/1');
+  devLvKeep(); const now = Date.now(), id = now, lv = lvHas(S.cLv) && S.view === 'course' ? S.cLv : 1, us = lvUnits(lv).map(U => U.un);
+  lvLes(lv).forEach(L => delete db.lessons[L.n]); us.forEach(u => { delete db.utests[u]; delete db.unitAt?.[u]; (db.comic ||= {})[u] = { p1: now, p2: now }; }); db.unitAt ||= {};
+  db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, lv); save();
+  ucAuto = { id }; S.cUnit = us[0]; S.cLv = lv; nav(unitUrl(us[0]));
   const bar = document.createElement('button'); bar.className = 'uc-auto'; bar.innerHTML = '<i></i>Autoplay · Stop'; document.body.append(bar); bar.onclick = () => ucAutoEnd('Stopped. Your real levels are back');
   const live = () => ucAuto?.id === id && S.view === 'course' && $('.uc');
   const wait = ms => new Promise(r => setTimeout(r, ms));
-  const draw = u => { ucHold(); S.cUnit = u; history.replaceState(history.state, '', `#/course/1/unit/${u}`); S.instant = true; render(); };
+  const draw = u => { ucHold(); S.cUnit = u; history.replaceState(history.state, '', unitUrl(u)); S.instant = true; render(); };
   (async () => {
     await wait(1200);
-    for (let u = 1; u <= LES_UNITS.length; u++) {
+    for (const u of us) {
       for (const L of unitLessons(u)) {   // a lesson done: back on the strip he eats its baozi and hops on
         if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
         db.unitAt[u] = unitState(u).at; db.lessons[L.n] = { done: Date.now() }; save(); draw(u);
@@ -4198,7 +4244,7 @@ function ucAutoplay() {
       await wait(900); if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
       db.utests[u] = { pass: Date.now(), last: Date.now(), best: 100 }; db.unitAt[u] = unitState(u).at; save(); draw(u);   // Hu Hu beaten
       await wait(1800); if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
-      if (u < LES_UNITS.length) { ucGo(u + 1); await wait(1900); }
+      if (u < us.at(-1)) { ucGo(u + 1); await wait(1900); }
     }
     ucAutoEnd('Autoplay done. Your real levels are back');
   })();
@@ -4226,7 +4272,7 @@ function ucPaint() {
 }
 function mountUnit(un) {
   const sc = $('.uc-scroll'); if (!sc) return;
-  const k = ucPanes(), go = Math.min(un, k), me = ucMe(), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
+  const us = ucList(unitLv(un)), go = us.includes(un) ? un : us.at(-1), me = ucMe(unitLv(un)), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
   ucFit(); ucU = 0; ucEat = null; ucPre = eat != null ? { u: me, i: +eat } : null;
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
   if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
@@ -4244,17 +4290,18 @@ function mountUnit(un) {
   const up = () => { touch = false; rest(220); }; sc.addEventListener('touchend', up, { passive: true }); sc.addEventListener('touchcancel', up, { passive: true });
   document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
   $('.uc .un-hud').onclick = e => { const b = e.target.closest('[data-ucgo]'); if (b) ucGo(+b.dataset.ucgo); };
-  for (let u = 1; u <= k; u++) if (UNIT_LAY[u] === 'round' && unitOpen(u)) unitTableGrip(u);
+  for (const u of us) if (unitLay(u) === 'round' && unitOpen(u)) unitTableGrip(u);
   // Shi Shi eats the baozi of the lesson you just finished, if there is one, then hops on; only then is the new place remembered
   const hop = () => { if (!shi?.isConnected) return; const [fx, fy, l, t] = at(shi, shi.dataset.to);
     if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; if (ucU === me) ucFocus(me, fx, fy, true); }   // the street follows him
-    if (UNIT_LAY[me] === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
+    if (unitLay(me) === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
     if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
     if (db.unitAt?.[me] !== st.at) { (db.unitAt ||= {})[me] = st.at; save(); } };
   if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => setTimeout(hop, 250)); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
   document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if ($('.uc-scroll') === sc && !$('.uw-anim')) sc.querySelectorAll('.uc-pane[data-p]').forEach(p => unitWorld(+p.dataset.u, ucEat?.u === +p.dataset.u ? { skip: ucEat.i } : {})); });
   // Hu Hu was beaten somewhere else: the ending plays here
-  if (COMIC[go] && utPassed(go) && comicSeen(go).p1 && !comicSeen(go).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === go && !$('#ob')) comicPlay(go, 1); }, 760);
+  comicLoad(unitLv(go)).then(got => { if (!sc.isConnected) return; if (got && unitLv(go) > 1) ucU = 0, ucSet(ucWhich());   // the comics just came: the pill takes their titles
+    if (COMIC[go] && utPassed(go) && comicSeen(go).p1 && !comicSeen(go).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === go && !$('#ob')) comicPlay(go, 1); }, 760); });
 }
 function comicReplay(un, demo = { demo: 1 }) {   // another look: part 1, and the ending if you have won it
   const both = !!comicSeen(un).p2 || demo.all;
@@ -4282,6 +4329,18 @@ const UW_PAL = {
   7: { snow: 1, grass: '#EEF3F8', grass2: '#E6EDF5', plaza: '#D6DFEA', wall: '#F2E6D8', wall2: '#E8D4C4', roof: '#8A5A4A', win: '#FFE9B0', tree: '#4E7A6A', tree2: '#5E8C7A', trunk: '#5A4030', rock: '#9AA4B4', shadow: 'rgba(60,80,130,.22)', grid: '60,80,120', vig: 'rgba(60,80,120,.14)' },
   8: { glow: 'dusk', grass: '#9AA868', grass2: '#A4B070', plaza: '#E2C49A', wall: '#C9584A', wall2: '#E0B080', roof: '#3A2E4E', win: '#FFD98A', tree: '#557A44', tree2: '#6A9054', trunk: '#6A4A30', rock: '#9A8E86', shadow: 'rgba(70,30,40,.28)', tint: 'rgba(255,150,90,.26)', grid: '70,40,30', vig: 'rgba(70,40,40,.2)' },
 };
+/* v3.31: the look of the units of HSK 2 and up: [palette (one of UW_PAL's, by number, or its own), layout, landmarks].
+   Landmarks are HSK 1's by number (1 the gate, 2 the clock tower, 3 market stalls, 4 the restaurant, 5 the school and its
+   flag, 6 the station, 7 the doctor's house and a snowman, 8 a house and the table with the present), 'sky' (sky
+   lanterns), 'pitch' (a football pitch) and 'fire' (fireworks). HSK 2 is the snack street by night */
+const UW_NIGHT_MKT = { glow: 'night', grass: '#4B3458', grass2: '#533A60', plaza: '#93718F', wall: '#C9497F', wall2: '#E3A27C', roof: '#34203F', win: '#FFD98A', tree: '#3C5A5C', tree2: '#4C6F6A', trunk: '#3A2A2A', rock: '#70668A', shadow: 'rgba(20,6,40,.36)', amb: 'rgba(70,16,70,.12)', grid: '255,225,240', vig: 'rgba(30,6,40,.5)' };
+const UW_NEW_YEAR = { glow: 'night', snow: 1, grass: '#AEBBD6', grass2: '#A5B2CE', plaza: '#9A93B8', wall: '#B5483E', wall2: '#C9A56A', roof: '#3A2E4E', win: '#FFC45E', tree: '#3E6A60', tree2: '#4E7C70', trunk: '#4A3424', rock: '#8E96AE', shadow: 'rgba(20,20,70,.3)', amb: 'rgba(30,20,90,.16)', grid: '40,50,110', vig: 'rgba(14,10,50,.5)' };
+const UW_MORE = {
+  201: [UW_NIGHT_MKT, 'round', [4, 3]], 202: [8, 'snake', [1, 3]], 203: [6, 'side', [6]],
+  204: [5, 'side', ['pitch', 3]], 205: [3, 'snake', [5]], 206: [UW_NEW_YEAR, 'round', [8, 'sky', 'fire']],
+};
+const uwPal = un => { const p = UW_MORE[un]?.[0] ?? UW_PAL[un] ?? (unK(un) - 1) % 8 + 1; return typeof p === 'object' ? p : UW_PAL[p] || UW_PAL[1]; };
+const uwMarks = un => UW_MORE[un]?.[2] || [un <= 8 ? un : (unK(un) - 1) % 8 + 1];
 const uwHex = c => c[0] === '#' ? [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)) : c.match(/\d+/g).slice(0, 3).map(Number);
 const uwSh = (c, k) => `rgb(${uwHex(c).map(v => Math.round(Math.max(0, Math.min(255, k >= 0 ? v + (255 - v) * k : v * (1 + k))))).join(',')})`;   // k > 0 lighter, k < 0 darker
 const UW_HZ = '"Noto Serif SC","Songti SC","STSong",serif';
@@ -4295,7 +4354,7 @@ function uwGeo(un) {
   const st = unitState(un), n = st.ls.length, m = unitMap(un, n), pts = m.pts, FOOT = 24, rot = unRnd[un] ?? 0;
   const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / m.W; if (!B.width || !B.height) return null;
   const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
-  const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
+  const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.i], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
   if (ucPre?.u === un) { const a = spots[ucPre.i], b = spots[ucPre.i + 1]; if (a) a.state = 'cur'; if (b?.state === 'cur') b.state = 'locked'; }   // until he eats it, the town looks as you left it
   const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k };
   if (m.lay === 'round') {   // on the table the path runs round the turntable, from the first lesson to the last
@@ -4382,7 +4441,7 @@ function unitWorld(un, o = {}) {
   const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2);
   cv.width = Math.round(W * D); cv.height = Math.round(H * D); cv.style.width = W + 'px'; cv.style.height = H + 'px';
   const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
-  const pal = UW_PAL[un] || UW_PAL[1], night = pal.glow === 'night', warm = !!pal.glow;
+  const pal = uwPal(un), marks = uwMarks(un), has = m => marks.includes(m), night = pal.glow === 'night', warm = !!pal.glow;
   let seed = un * 131 + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const TW = 44, TH = 22, ox = W / 2, oy = H * .5;
   const P = (i, j, z = 0) => [ox + (i - j) * TW / 2, oy + (i + j) * TH / 2 - z];
@@ -4471,55 +4530,67 @@ function unitWorld(un, o = {}) {
   const R = [.56, .5, .64, .3, .72, .8, .12].flatMap(fy => [.84, .16, .74, .26].map(fx => [fx, fy]));   // where a landmark may go (parts of the width and height), best first: beside the boss
 
   /* each unit's landmark, from its comic */
-  if (un === 1) at(spot(1, 5, R, 92), 1, 5, (gi, gj) => { const h = 70; gj += 2.5;
+  if (has(1)) at(spot(1, 5, R, 92), 1, 5, (gi, gj) => { const h = 70; gj += 2.5;
     return { sh: () => { shade(gi + .3, gj - 2 + .3, .4, .4, h); shade(gi + .3, gj + 2 + .3, .4, .4, h); shade(gi, gj - 2.6, 1, 6.2, 22); }, draw: () => {
       poly([P(gi + .5, gj - 1.7), P(gi + .5, gj + 2.3), P(gi + .5, gj + 2.3, h - 6), P(gi + .5, gj - 1.7, h - 6)], 'rgba(255,214,140,.35)');
       block(gi + .3, gj - 1.7, .4, .4, h, '#C2453B'); block(gi + .3, gj + 2.3, .4, .4, h, '#C2453B');
       block(gi + .2, gj - 2.4, .6, 5.8, 9, '#3E6FA0', h - 10); block(gi + .4, gj - .5, .2, 2, 12, '#F4C14E', h - 24);
       roof(gi + .1, gj - 2.6, .8, 6.2, h - 1, 14, '#2A5A4E', .5); block(gi + .25, gj - 1.2, .5, 3.4, 10, '#C2453B', h + 12); roof(gi + .2, gj - 1.4, .6, 3.8, h + 22, 12, '#2A5A4E', .45);
       lantern(...P(gi + .5, gj - 1, h - 18), 4.5); lantern(...P(gi + .5, gj + 2, h - 18), 4.5); lights.push([...P(gi + .5, gj + .3, 10), 110, .7]); } }; });
-  if (un === 2) at(spot(2, 2, R, 176), 2, 2, (ti, tj) => { const h = 150; return { sh: () => shade(ti, tj, 2, 2, h + 24), draw: () => {
+  if (has(2)) at(spot(2, 2, R, 176), 2, 2, (ti, tj) => { const h = 150; return { sh: () => shade(ti, tj, 2, 2, h + 24), draw: () => {
     block(ti, tj, 2, 2, h, '#8E5A78', 0, (f, q) => { if (f !== 'L') return; const p = q(.2, .8, .62, .86), cx = p.reduce((s, v) => s + v[0], 0) / 4, cy = p.reduce((s, v) => s + v[1], 0) / 4;
       c.save(); c.translate(cx, cy); c.transform(1, .5, 0, 1, 0, 0); c.fillStyle = '#FFF3D6'; c.beginPath(); c.arc(0, 0, 13, 0, 7); c.fill(); c.strokeStyle = '#3A2A5A'; c.lineWidth = 2.4; c.lineCap = 'round';
       c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -10); c.moveTo(0, 0); c.lineTo(-5.5, 8); c.stroke(); c.restore(); lights.push([cx, cy, 40, .6]); });
     roof(ti, tj, 2, 2, h, 26, '#3A2A5A', .3); } }; });
-  if (un === 3) [['#E5483F', R[0]], ['#3E7FB1', R[1]], ['#F4C14E', R[2]], ['#5CC8A8', R[3]]].forEach(([aw, cand]) => at(spot(2, 1, [cand, ...R]), 2, 1, (i, j) => ({ sh: () => shade(i, j, 2, 1, 40), draw: () => {
+  if (has(3)) [['#E5483F', R[0]], ['#3E7FB1', R[1]], ['#F4C14E', R[2]], ['#5CC8A8', R[3]]].forEach(([aw, cand]) => at(spot(2, 1, [cand, ...R]), 2, 1, (i, j) => ({ sh: () => shade(i, j, 2, 1, 40), draw: () => {
     block(i, j, 2, 1, 16, '#B07A44');
     [[0, '#E5483F'], [.33, '#F4A23C'], [.66, '#8FD36A']].forEach(([u, fc]) => { const [x2, y2] = P(i + .35 + u * 1.4, j + .5, 19); c.fillStyle = fc; c.beginPath(); c.arc(x2, y2, 4, 0, 7); c.fill(); });
     [[i + .05, j + .05], [i + 1.9, j + .05], [i + .05, j + .9], [i + 1.9, j + .9]].forEach(([a, b]) => block(a, b, .08, .08, 38, '#7A5236'));
     for (let k = 0; k < 6; k++) { const a = i - .15 + k * 2.3 / 6, b = j - .2; poly([P(a, b, 40), P(a + 2.3 / 6, b, 40), P(a + 2.3 / 6, b + 1.4, 30), P(a, b + 1.4, 30)], k % 2 ? '#FFF6E8' : aw); }
     poly([P(i - .15, j + 1.2, 30), P(i + 2.15, j + 1.2, 30), P(i + 2.15, j + 1.2, 26), P(i - .15, j + 1.2, 26)], uwSh(aw, -.3)); } })));
-  if (un === 4) at(spot(3, 2, R, 100), 3, 2, (i, j) => { const h = 50; return { sh: () => shade(i - .3, j - .3, 3.6, 2.6, h + 22), draw: () => {
+  if (has(4)) at(spot(3, 2, R, 100), 3, 2, (i, j) => { const h = 50; return { sh: () => shade(i - .3, j - .3, 3.6, 2.6, h + 22), draw: () => {
     block(i, j, 3, 2, h, '#C6402F', 0, (f, q) => { if (f === 'L') { poly(q(.25, .75, .64, .9), '#F4C14E'); poly(q(.38, .62, 0, .45), '#7A2418'); poly(q(.06, .26, .3, .58), pal.win); poly(q(.74, .94, .3, .58), pal.win); } else poly(q(.25, .75, .3, .6), pal.win); });
     roof(i, j, 3, 2, h, 24, '#2D3F5E', .4); lantern(...P(i + .1, j + 2.1, h - 12), 5); lantern(...P(i + 2.9, j + 2.1, h - 12), 5);
     c.save(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 4; c.lineCap = 'round'; [[.8, -1], [1.5, 1], [2.2, -1]].forEach(([u, k]) => { const [x, y] = P(i + u, j + 1, h + 30); c.beginPath(); c.moveTo(x, y); c.bezierCurveTo(x + k * 8, y - 10, x - k * 8, y - 18, x, y - 28); c.stroke(); }); c.restore(); } }; });
-  if (un === 5) { at(spot(4, 2, R, 62), 4, 2, (i, j) => { const h = 42; return { sh: () => shade(i - .3, j - .3, 4.6, 2.6, h + 20), draw: () => {
+  if (has(5)) { at(spot(4, 2, R, 62), 4, 2, (i, j) => { const h = 42; return { sh: () => shade(i - .3, j - .3, 4.6, 2.6, h + 20), draw: () => {
       block(i, j, 4, 2, h, '#F2E3C4', 0, (f, q) => { const n = f === 'L' ? 4 : 2; for (let k = 0; k < n; k++) { const u = (k + .5) / n; poly(q(u - .3 / n, u + .3 / n, .5, .82), pal.win); poly(q(u - .3 / n, u + .3 / n, .12, .4), pal.win); } });
       roof(i, j, 4, 2, h, 20, '#2C5A4F', .4); } }; });
     at(spot(1, 1, R), 1, 1, (i, j) => ({ sh: () => shade(i + .45, j + .45, .1, .1, 110), draw: () => { block(i + .45, j + .45, .1, .1, 110, '#9A9A9A'); const [x, y] = P(i + .5, j + .5, 106);
       c.fillStyle = '#E5483F'; c.beginPath(); c.moveTo(x + 2, y); c.quadraticCurveTo(x + 18, y - 4, x + 34, y + 4); c.lineTo(x + 34, y + 24); c.quadraticCurveTo(x + 18, y + 16, x + 2, y + 20); c.fill(); } })); }
-  if (un === 6) at(spot(5, 2, R), 5, 2, (i, j) => ({ sh: () => shade(i, j, 5, 2, 30), draw: () => {
+  if (has(6)) at(spot(5, 2, R), 5, 2, (i, j) => ({ sh: () => shade(i, j, 5, 2, 30), draw: () => {
     block(i, j + 1.2, 5, .8, 8, '#8A8494'); c.strokeStyle = '#B8B0C8'; c.lineWidth = 1.6; [.3, .8].forEach(v => { c.beginPath(); c.moveTo(...P(i - 1, j + v)); c.lineTo(...P(i + 6, j + v)); c.stroke(); });
     for (let k = 0; k < 2; k++) block(i + .2 + k * 2.3, j + .1, 2.1, .9, 24, '#D9E2EE', 0, (f, q) => { poly(q(0, 1, .3, .42), '#E5483F'); if (f === 'L') for (let m = 0; m < 3; m++) { const u = (m + .5) / 3, p = q(u - .1, u + .1, .52, .8); poly(p, pal.win); lights.push([p[0][0] + 3, p[0][1] - 4, 24, .5]); } });
     block(i + 2.6, j + 1.3, .12, .12, 60, '#2A2448'); const [x, y] = P(i + 2.66, j + 1.36, 62); c.fillStyle = '#FFF3D6'; c.beginPath(); c.arc(x, y, 8, 0, 7); c.fill(); lights.push([x, y, 30, .8]);
     c.strokeStyle = '#2A2448'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 6); c.moveTo(x, y); c.lineTo(x + 4, y + 2); c.stroke(); } }));
-  if (un === 7) { at(spot(2, 2, R), 2, 2, (i, j) => { const h = 34; return { sh: () => shade(i - .3, j - .3, 2.6, 2.6, h + 18), draw: () => {
+  if (has(7)) { at(spot(2, 2, R), 2, 2, (i, j) => { const h = 34; return { sh: () => shade(i - .3, j - .3, 2.6, 2.6, h + 18), draw: () => {
       block(i, j, 2, 2, h, '#F6F0E8', 0, (f, q) => { if (f === 'L') { const p = q(.36, .64, .35, .75), cx = p.reduce((s, v) => s + v[0], 0) / 4, cy = p.reduce((s, v) => s + v[1], 0) / 4; poly(p, '#fff'); c.fillStyle = '#E5483F'; c.fillRect(cx - 2, cy - 7, 4, 14); c.fillRect(cx - 7, cy - 2, 14, 4); } else poly(q(.3, .7, .35, .65), pal.win); });
       roof(i, j, 2, 2, h, 18, pal.roof, .35); c.strokeStyle = '#fff'; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i - .35, j + 2.35, h)); c.lineTo(...P(i + 2.35, j + 2.35, h)); c.stroke(); } }; });
     at(spot(1, 1, R), 1, 1, (i, j) => ({ sh: () => blob(i + .5, j + .5, 14, 40), draw: () => { const [x, y] = P(i + .5, j + .5);
       [[y - 12, 14], [y - 34, 10]].forEach(([cy, r]) => { const g = c.createRadialGradient(x - r * .4, cy - r * .4, 1, x, cy, r); g.addColorStop(0, '#fff'); g.addColorStop(1, '#C8D6E6'); c.fillStyle = g; c.beginPath(); c.arc(x, cy, r, 0, 7); c.fill(); });
       c.fillStyle = '#E5483F'; c.fillRect(x - 9, y - 26, 18, 4); c.fillStyle = '#F4A23C'; c.beginPath(); c.moveTo(x, y - 35); c.lineTo(x + 9, y - 33); c.lineTo(x, y - 31); c.fill(); } })); }
-  if (un === 8) { const hp = spot(3, 2, R); at(hp, 3, 2, (i, j) => ({ sh: () => shade(i - .3, j - .3, 3.6, 2.6, 52), draw: () => { block(i, j, 3, 2, 34, pal.wall, 0, wins); roof(i, j, 3, 2, 34, 18, pal.roof); } }));
+  if (has(8)) { const hp = spot(3, 2, R); at(hp, 3, 2, (i, j) => ({ sh: () => shade(i - .3, j - .3, 3.6, 2.6, 52), draw: () => { block(i, j, 3, 2, 34, pal.wall, 0, wins); roof(i, j, 3, 2, 34, 18, pal.roof); } }));
     at(spot(2, 1, R), 2, 1, (i, j) => ({ sh: () => shade(i, j, 2, 1, 22), draw: () => {
       [[0, 0], [1.85, 0], [0, .85], [1.85, .85]].forEach(([a, b]) => block(i + a, j + b, .15, .15, 18, '#6A3E1C'));
       block(i + .55, j + .25, .7, .5, 11, '#E5483F', 0, (f, q) => poly(q(.42, .58, 0, 1), '#F4C14E')); poly([P(i + .87, j + .25, 11), P(i + 1.03, j + .25, 11), P(i + 1.03, j + .75, 11), P(i + .87, j + .75, 11)], '#FFD866');
       block(i - .1, j - .1, 2.2, 1.2, 4, '#8A5A2E', 18); } })); }
+  /* v3.31: a football pitch, flat on the ground: stripes of grass, chalk lines, a goal at each end */
+  if (has('pitch')) at(spot(6, 4, R, 30), 6, 4, (i, j) => ({ draw: () => {
+    for (let k = 0; k < 6; k++) poly([P(i + k, j), P(i + k + 1, j), P(i + k + 1, j + 4), P(i + k, j + 4)], k % 2 ? '#6FBF5E' : '#63B254');
+    c.save(); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 1.8; c.lineJoin = 'round';
+    const line = pts => { c.beginPath(); pts.forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.stroke(); };
+    line([P(i + .2, j + .2), P(i + 5.8, j + .2), P(i + 5.8, j + 3.8), P(i + .2, j + 3.8), P(i + .2, j + .2)]); line([P(i + 3, j + .2), P(i + 3, j + 3.8)]);
+    line(Array.from({ length: 25 }, (_, k) => P(i + 3 + .8 * Math.cos(k * Math.PI / 12), j + 2 + .8 * Math.sin(k * Math.PI / 12))));
+    line([P(i + .2, j + 1.1), P(i + 1.1, j + 1.1), P(i + 1.1, j + 2.9), P(i + .2, j + 2.9)]); line([P(i + 5.8, j + 1.1), P(i + 4.9, j + 1.1), P(i + 4.9, j + 2.9), P(i + 5.8, j + 2.9)]);
+    c.lineWidth = 2.6; c.strokeStyle = '#fff'; [i + .2, i + 5.8].forEach(gi => { line([P(gi, j + 1.5), P(gi, j + 1.5, 16), P(gi, j + 2.5, 16), P(gi, j + 2.5)]);
+      c.save(); c.globalAlpha = .28; c.fillStyle = '#fff'; c.beginPath(); [P(gi, j + 1.5), P(gi, j + 1.5, 16), P(gi, j + 2.5, 16), P(gi, j + 2.5)].forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.fill(); c.restore(); });
+    c.restore(); const [bx, by] = P(i + 3.4, j + 2.3, 4); c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(bx + 2, by + 5, 5, 2.4, 0, 0, 7); c.fill();
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(bx, by, 4.6, 0, 7); c.fill(); c.fillStyle = '#2B2B33'; c.beginPath(); c.arc(bx, by, 1.8, 0, 7); c.fill(); } }));
 
   // lantern poles beside the path, now and then
   let lastY = -1e9; G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
   // houses and trees on the open ground (a long street gets more of them)
   const spread = G.lay === 'side' ? W / G.k / 360 : 1;
-  for (let t = 0, made = 0; t < 500 && made < Math.round((un === 3 ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
+  for (let t = 0, made = 0; t < 500 && made < Math.round((has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
     if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
   for (let t = 0, made = 0, most = Math.round(26 * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
     if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
@@ -4532,7 +4603,14 @@ function unitWorld(un, o = {}) {
   c.save(); c.globalCompositeOperation = 'lighter';
   lights.forEach(([x, y, r, a]) => { const g = c.createRadialGradient(x, y, 0, x, y, r), k = (night ? .32 : warm ? .2 : .12) * a; g.addColorStop(0, `rgba(255,190,90,${k})`); g.addColorStop(1, 'rgba(255,190,90,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, 2 * r, 2 * r); });
   c.restore();
-  if (un === 1) for (let k = 0; k < 7; k++) {   // sky lanterns drifting over the town
+  if (has('fire')) for (let k = 0; k < 4; k++) {   // v3.31: fireworks over the roofs: rings of sparks, each its own colour
+    const x = 50 + rnd() * (W - 100), y = 50 + rnd() * (H * .34), r = 26 + rnd() * 20, col = ['255,120,110', '255,210,110', '150,220,255', '255,150,220'][k];
+    c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, r * 1.5); g.addColorStop(0, `rgba(${col},.3)`); g.addColorStop(1, `rgba(${col},0)`); c.fillStyle = g; c.fillRect(x - r * 1.5, y - r * 1.5, r * 3, r * 3);
+    c.strokeStyle = `rgba(${col},.9)`; c.lineCap = 'round'; c.lineWidth = 1.8;
+    for (let a = 0; a < 14; a++) { const t = a * Math.PI / 7 + k; c.beginPath(); c.moveTo(x + r * .35 * Math.cos(t), y + r * .35 * Math.sin(t)); c.lineTo(x + r * Math.cos(t), y + r * Math.sin(t) + r * .08); c.stroke();
+      c.fillStyle = `rgba(${col},1)`; c.beginPath(); c.arc(x + r * 1.12 * Math.cos(t), y + r * 1.12 * Math.sin(t) + r * .12, 1.5, 0, 7); c.fill(); }
+    c.restore(); }
+  if (has(1) || has('sky')) for (let k = 0; k < 7; k++) {   // sky lanterns drifting over the town
     const x = 30 + rnd() * (W - 60), y = 60 + rnd() * (H * .6), s = 3 + rnd() * 2.4;
     c.fillStyle = 'rgba(8,6,30,.25)'; c.beginPath(); c.ellipse(x + 26, y + 70, s * 1.6, s * .7, 0, 0, 7); c.fill();
     c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, s * 6); g.addColorStop(0, 'rgba(255,200,110,.45)'); g.addColorStop(1, 'rgba(255,200,110,0)'); c.fillStyle = g; c.fillRect(x - s * 6, y - s * 6, s * 12, s * 12); c.restore();
@@ -4796,23 +4874,24 @@ function shiBody(mood) {
   return `<svg class="shi-body" viewBox="-104 -92 208 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="48" ry="8" fill="#000" opacity=".2"/>${arms}${lion(0, 0, 1, mood)}</svg>`;
 }
 function lesSheet(n) {   // tap a lesson on the path: its words, and Start
-  const L = LESSONS[n - 1], done = lesDone(n), next = lesNext(), due = utDue();
-  if (!done && due) { toast(`Pass the Unit ${due} test first`); return; }
-  if (!done && n !== next) { toast(`Finish lesson ${next} first`); return; }
-  openSheet(`<div class="les-sh-top"><small>Unit ${L.u + 1} · Lesson ${n}</small><h3>${esc(L.title)}</h3></div>
+  const L = LES(n), done = lesDone(n), next = lesNext(L.lv), due = utDue(L.lv);
+  if (!done && due) { toast(`Pass the Unit ${unK(due)} test first`); return; }
+  if (!done && n !== next) { toast(`Finish lesson ${LES(next)?.k ?? next} first`); return; }
+  openSheet(`<div class="les-sh-top"><small>Unit ${unK(L.un)} · Lesson ${L.k}</small><h3>${esc(L.title)}</h3></div>
     <div class="les-words">${L.words.map(h => { const w = lesRow(h); return `<span class="les-chip"><b>${esc(h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`; }).join('')}</div>
     <p class="muted les-sh-note">${lesPlan(L)}. ${done ? 'Done. Do it again any time.' : `Finish it and ${L.words.length === 1 ? 'this word goes' : 'these words go'} into your word bank.`}</p>
     <button class="btn btn-seal wide" data-act="les-go" data-n="${n}">${done ? 'Practise again' : 'Start lesson'}</button>`);
 }
-function lesRoute(n) {   // opening #/course/1/lesson/n
-  if (!LESSONS[n - 1] || !lesDone(n) && (n !== lesNext() || utDue())) { history.replaceState(history.state, '', '#/course/1'); S.view = 'course'; S.cPart = null; S.cBasics = false; return; }
+function lesRoute(n) {   // opening #/course/<level>/lesson/n
+  const lv = LES(n)?.lv;
+  if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { history.replaceState(history.state, '', '#/course/' + (lv || 1)); S.view = 'course'; S.cLv = lv || 1; S.cPart = null; S.cBasics = false; return; }
   if (S.les && !S.les.test && S.les.n === n && S.les.step !== 'done') return;   // back to a lesson you left: carry on
   S.les = null;
   if (S.H) startLesson(n);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n); render(); } }, () => toast('Lessons need the internet the first time'));
 }
 function startLesson(n) {
-  const L = LESSONS[n - 1], words = L.words.map(lesRow), wt = lesWriteTasks(n, words, 4);
+  const L = LES(n), words = L.words.map(lesRow), wt = lesWriteTasks(n, words, 4);
   // meet each word on its card; a word that brings one of the characters to write is traced right after it
   const q = words.flatMap(w => [{ t: 'meet', w }, ...wt.filter(x => x.w === w).map(x => ({ t: 'write', mode: 'trace', ...x }))]);
   // then the cards, character first, with one character from memory halfway through and one at the end
@@ -4825,16 +4904,17 @@ function startLesson(n) {
   LOG.add('lesson-start', { n, title: L.title });
 }
 function utSheet(un) {   // tap a unit test on the path
-  if (!unitDone(un)) { toast(`Finish the lessons in Unit ${un} first`); return; }
-  const r = db.utests[un], n = LESSONS.filter(L => L.u === un - 1).length * UT_PER, last = un === LES_UNITS.length;
-  openSheet(`<div class="les-sh-top"><small>Unit ${un} · ${esc(LES_UNITS[un - 1][0])}</small><h3>Hu Hu's challenge</h3></div>
+  if (!unitDone(un)) { toast(`Finish the lessons in Unit ${unK(un)} first`); return; }
+  const r = db.utests[un], n = unitLessons(un).length * UT_PER, last = unitLast(un);
+  openSheet(`<div class="les-sh-top"><small>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</small><h3>Hu Hu's challenge</h3></div>
     <p class="ut-sh-what">${n} words from this unit, and two characters to write from memory. Each question comes once.</p>
-    <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${last ? 'finishes HSK 1 and opens HSK 2' : `opens Unit ${un + 1} · ${esc(LES_UNITS[un][0])}`}</span></div>
+    <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${last ? lvDoneSay(unitLv(un)) : `opens Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])}`}</span></div>
     ${r?.pass ? `<p class="muted les-sh-note">Passed with ${r.best}%. Take it again any time.</p>` : r ? `<p class="muted les-sh-note">Your best so far: ${r.best}%.</p>` : ''}
     <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Challenge him again' : 'Take the challenge'}</button>`);
 }
-function utRoute(un) {   // opening #/course/1/test/un
-  if (!LES_UNITS[un - 1] || !unitDone(un)) { history.replaceState(history.state, '', '#/course/1'); S.view = 'course'; S.cPart = null; S.cBasics = false; return; }
+function utRoute(un) {   // opening #/course/<level>/test/un
+  if (!UNIT(un) || !unitDone(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
+  comicLoad(unitLv(un));   // the ending plays when he is beaten
   if (S.les && S.les.test === un && S.les.step !== 'done') return;
   S.les = null;
   if (S.H) startUnitTest(un);
@@ -4845,7 +4925,7 @@ function utRoute(un) {   // opening #/course/1/test/un
    two thirds of the way in. No second tries and no pairs at the end; 80% right passes */
 const UT_PER = 3;   // words the final boss asks from each lesson
 function startUnitTest(un) {
-  const ls = LESSONS.filter(L => L.u === un - 1), T = ['hz2en', 'en2hz', 'ear', 'py'];
+  const ls = unitLessons(un), T = ['hz2en', 'en2hz', 'ear', 'py'];
   const proven = h => !!bankHas(h)?.pf?.at;
   const words = ls.flatMap(L => shuffle(L.words).sort((a, b) => proven(a) - proven(b)).slice(0, UT_PER)).map(lesRow);
   const q = shuffle(shuffle(words).map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
@@ -4856,7 +4936,7 @@ function startUnitTest(un) {
   LOG.add('unit-test-start', { unit: un, questions: q.length });
 }
 function lesWriteTasks(n, words, max = 2) {   // characters to write, each from a different word, the ones this lesson brings in first
-  const before = new Set(LESSONS.slice(0, n - 1).flatMap(L => L.words.flatMap(hanChars)));
+  const before = new Set(LESSONS.slice(0, LES(n).i).flatMap(L => L.words.flatMap(hanChars)));
   const seen = new Set(), fresh = [], old = [];
   for (const w of shuffle(words)) {
     const cs = hanChars(w.h).filter(c => !seen.has(c)), ch = cs.find(c => !before.has(c)) || cs[0];
@@ -4996,7 +5076,7 @@ function lesDropEars() {   // "Can't listen now": the listening questions left a
 }
 function lesOpts(Q) {   // the answer and three others that can't be mistaken for it
   const a = Q.w, show = Q.t === 'hz2en' ? 'en' : Q.t === 'py' ? 'p' : 'h', sound = Q.t === 'ear' || Q.t === 'py';
-  const more = shuffle(LESSONS.slice(0, S.les.n + 3).flatMap(L => L.words)).map(lesRow);
+  const at = LES(S.les.n).i, more = shuffle(LESSONS.slice(Math.max(0, at - 60), at + 4).flatMap(L => L.words)).map(lesRow);   // wrong answers come from the lessons around this one
   const out = [a], seen = new Set([a[show]]);
   for (const w of [...shuffle(S.les.pool), ...more]) {
     if (out.length >= 4) break;
@@ -5054,11 +5134,11 @@ function lesInner() {
 /* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
   const E = S.les; if (E.test) return utEndHtml();
-  const L = LESSONS[E.n - 1], add = E.added || [], chars = [...new Set(E.wroteCh)];
+  const L = LES(E.n), add = E.added || [], chars = [...new Set(E.wroteCh)];
   const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
   const mood = E.pct === 100 ? 'star' : 'cheer';
   return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
-      <h1>Lesson done!</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${E.n} · ${esc(L.title)}</p>
+      <h1>Lesson done!</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
       <div class="les-seals">${seals.map(([zh, en, got], i) => `<span class="les-seal${got ? ' got' : ''}" style="--d:${(.45 + i * .3).toFixed(2)}s"><i>${zh}</i><small>${en}</small></span>`).join('')}</div>
       <div class="les-tally"><span><b>${E.pts}</b><small>${E.newBest ? 'points · new best' : 'points'}</small></span><span><b>${E.pct}%</b><small>cards known</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${chars.length ? `<div class="les-wrote"><small>You wrote</small>${chars.map(miniTZG).join('')}</div>` : ''}
@@ -5068,13 +5148,13 @@ function lesEndHtml() {
     <div class="les-dock"><button class="btn btn-seal wide" data-les="end">Continue</button></div>`;
 }
 function utEndHtml() {   // a unit test's result: passed (the next unit opens) or not yet (the words you missed, and Try again)
-  const E = S.les, un = E.test, last = un === LES_UNITS.length, missed = E.words.filter(w => E.missed.has(w.h));
+  const E = S.les, un = E.test, last = unitLast(un), lv = unitLv(un), missed = E.words.filter(w => E.missed.has(w.h));
   const right = E.total - E.dropW - E.wrong, of = E.total - E.dropW;
-  const sub = E.pass ? last ? 'All of HSK 1 done. HSK 2 is open.' : `Unit ${un + 1} · ${esc(LES_UNITS[un][0])} is open.`
-    : `You need ${UT_PASS}% to ${last ? 'finish HSK 1' : `open Unit ${un + 1}`}. Go over the words below and try again.`;
+  const sub = E.pass ? last ? `All of ${HSK_NAME(lv)} done.${lv < 7 ? ` ${HSK_NAME(lv + 1)} is open.` : ''}` : `Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])} is open.`
+    : `You need ${UT_PASS}% to ${last ? `finish ${HSK_NAME(lv)}` : `open Unit ${unK(un) + 1}`}. Go over the words below and try again.`;
   const mood = E.pass ? E.pct === 100 ? 'star' : 'cheer' : 'oops';
   return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
-      <h1>${E.pass ? `Unit ${un} passed!` : 'Not quite yet'}</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">${sub}</p>
+      <h1>${E.pass ? `Unit ${unK(un)} passed!` : 'Not quite yet'}</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">${sub}</p>
       <div class="les-tally"><span><b>${E.pct}%</b><small>${right} of ${of} right</small></span><span><b>${E.pts}</b><small>points</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${missed.length ? `<div class="les-end-box"><b class="no">Look at ${missed.length === 1 ? 'this one' : 'these'} again</b>
         <div class="les-words">${missed.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div></div>` : ''}</div>
@@ -5158,13 +5238,13 @@ function lesAuto() {   // say each new word, the word in "what does this mean" a
 }
 function lesAct(k, b) {
   const E = S.les; if (!E) return;
-  const leave = () => { clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; } S.les = null; goBack('#/course/1'); };
+  const leave = () => { clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; } S.les = null; goBack('#/course/' + (LES(E.n)?.lv || 1)); };
   if (k === 'quit') {
     if (!E.qi && E.ans == null) leave();
     else confirmSheet(E.test ? 'Quit the test?' : 'Quit this lesson?', E.test ? 'You can take it again any time.' : 'You will start it again from the beginning next time.', 'Quit', leave);
     return;
   }
-  if (k === 'end') { const un = E.test, back = () => goBack('#/course/1');   // a boss beaten, the first time or again: the comic's ending plays before you go back
+  if (k === 'end') { const un = E.test, back = () => goBack('#/course/' + (LES(E.n)?.lv || 1));   // a boss beaten, the first time or again: the comic's ending plays before you go back
     if (un && E.pass && COMIC[un] && comicSeen(un).p1) comicPlay(un, 1, back); else back(); return; }
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test); lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
@@ -5231,12 +5311,12 @@ function finishLesson() {
   E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
-function finishTest() {   // passing the last unit's test finishes HSK 1 and opens HSK 2
+function finishTest() {   // passing a level's last unit test finishes the level and opens the next one
   const E = S.les, now = Date.now(), un = E.test, of = Math.max(1, E.total - E.dropW), pct = Math.round((of - E.wrong) / of * 100), pass = pct >= UT_PASS;
   const rec = db.utests[un] ||= {};
   rec.last = now; rec.best = Math.max(rec.best || 0, pct); if (pass) rec.pass ||= now;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('u' + un);   // counts for the streak
-  if (pass && un === LES_UNITS.length) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, 2);
+  if (pass && unitLast(un)) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, unitLv(un) + 1));
   E.pct = pct; E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('unit-test-done', { unit: un, pct, pass, pts: E.pts, run: E.best, missed: [...E.missed].join(' ') });
 }
@@ -5425,6 +5505,7 @@ function mountCourse() {
   const P = S.cPart;
   if (P !== 'tones') S.ear = null;   // the ear test starts over when you come back to it
   if (S.cUnit) mountUnit(S.cUnit);
+  else if (!P && !S.cBasics && !comicLv[S.cLv]) { const lv = S.cLv; comicLoad(lv).then(got => { if (got && S.view === 'course' && S.cLv === lv && !S.cUnit && !S.cPart && !S.cBasics) { S.instant = true; render(); } }); }   // the level's comics just came: its units take their pictures
   if (!S.H) loadHsk().then(() => { if (S.view === 'course' && S.cPart === P && (!P || P === 'strokes')) { S.instant = true; render(); } }, () => {});
   if (P === 'tones') mountTones();
   else if (P === 'radicals') mountRadicals();
@@ -8225,8 +8306,8 @@ function TrailView() {
     </div>
   </div>`;
 }
-const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
-  return due ? `Unit ${due} test` : n ? `Lesson ${n}` : 'Learn'; };   // the HSK list: a plain command, not the list's name
+const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && LES(lesNext())?.k;   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
+  return due ? `Unit ${unK(due)} test` : n ? `Lesson ${n}` : 'Learn'; };   // the HSK list: a plain command, not the list's name
 const shopBtn = sts => {   // the Shop lantern; lit, with a count, once you can buy a monument
   const n = sts.filter(x => !x.done && x.n >= x.total).length, K = '#5A0F08', G = '#FFC21F';
   return `<button class="tm-shopb tm-ui${n ? ' can' : ''}" data-act="shop" aria-label="Open the shop${n ? `: you can buy ${n} monument${n > 1 ? 's' : ''}` : ''}"><svg viewBox="0 0 64 86" aria-hidden="true">
@@ -8361,7 +8442,7 @@ function brokeSheet(lv) {
     : st.n ? pick([`My bag's a bit light… ${L} more coins and ${the} is ours!`, `Only ${L} coins to go. A lesson or two and we're on our way!`])
     : pick([`Oops, my bag is empty! Let's fill it up together.`, `Not a coin in here yet… but one lesson starts filling it!`]);
   const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();
-  const go = due ? `Unit ${due} test` : n ? 'Next lesson' : 'Learn words', sub = due ? 'Pass it and 100 coins drop in' : n ? `Lesson ${n} · ${esc(LESSONS[n - 1].title)}` : `HSK ${openLevel()} words`;
+  const go = due ? `Unit ${unK(due)} test` : n ? 'Next lesson' : 'Learn words', sub = due ? 'Pass it and 100 coins drop in' : n ? `Lesson ${LES(n).k} · ${esc(LES(n).title)}` : `HSK ${openLevel()} words`;
   LOG.add('shop-broke', { lv, have: st.n, price: st.total });
   openSheet(`<div class="bk"><h3 class="bk-h">Not enough coins yet</h3>${brokeShi()}<p class="bk-say">${say}</p>
     <span class="tm-now-bar bk-bar"><i style="width:${gBar(k)}%"></i><b>${coinFmt(st.n)} / ${coinFmt(st.total)}</b></span>
@@ -8403,12 +8484,12 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
 const mapMon = then => { if (mapKind() !== 'mon') { mapUse('mon'); if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } } then(); };   // v3.30: something about a monument, asked for from the food map: back to the monument map first
 const mapRepin = () => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } };   // a new goal: the map is drawn again, and Shi Shi stands over it
 function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) s.innerHTML = ''; Trail.CAM.api?.mark(); }
-const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
+const trailLessons = () => !!playLv();   // you go on with your level's lessons; a level without lessons ticks words in its list
 function trailGo(lv) {
   LOG.add('map-build', { lv });
   if (trailLessons()) { const due = utDue(), n = lesNext();
     if (due) { A['ut-node']({ dataset: { u: due } }); return; }
-    if (n) { nav(`#/course/1/lesson/${n}`); return; } }
+    if (n) { nav(lesUrl(n)); return; } }
   nav('#/hsk/' + openLevel());
 }
 /* ---------- Prove words (once Fast unlock; the code still calls it Fast build: S.fb, #/build) ----------
@@ -10082,7 +10163,7 @@ function mountBank() {
 function wordSheet(id) {
   const w = db.bank.find(x => x.id === id); if (!w) return;
   const has = new Set(db.decks.filter(d => d.cards.some(c => c.hanzi === w.hanzi)).map(d => d.id)), sel = new Set();
-  openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div>${w.src === 'lesson' && LESSONS[w.les - 1] ? `<div class="muted w-src">From HSK 1 lesson ${w.les} · ${esc(LESSONS[w.les - 1].title)}</div>` : ''}</div></div>
+  openSheet(`<div class="compose" style="margin-bottom:16px"><div class="qa-word"><div class="compose-hz">${esc(w.hanzi)}</div><div class="compose-py">${esc(w.pinyin)}</div>${w.src === 'lesson' && LES(w.les) ? `<div class="muted w-src">From ${HSK_NAME(LES(w.les).lv)} lesson ${LES(w.les).k} · ${esc(LES(w.les).title)}</div>` : ''}</div></div>
     <label class="field"><span class="lbl">Meaning · English</span><input class="input" id="wEn" value="${esc(w.en || '')}" placeholder="What it means" autocomplete="off"></label>
     <div class="group qa-decks"><button class="row" id="wDecks"><span class="row-main"><span class="row-t">Add to deck</span></span><span class="row-val" id="wDeckVal"></span><span class="chev">${I.chev}</span></button></div>
     <div class="row-btns" style="margin-top:6px"><button class="btn btn-ghost" id="wDel" style="flex:0 0 56px;padding:0;color:var(--seal)" aria-label="Remove from word bank">${I.trash}</button>
@@ -10451,7 +10532,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.30';
+const APP_VERSION = '3.31';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -10504,7 +10585,7 @@ function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(
 function devLvMax() {
   devLvKeep(); const now = Date.now();
   LESSONS.forEach(L => { const r = db.lessons[L.n] ||= {}; r.done ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); });
-  LES_UNITS.forEach((_, i) => { const r = db.utests[i + 1] ||= {}; r.pass ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); const c = (db.comic ||= {})[i + 1] ||= {}; c.p1 ||= now; c.p2 ||= now; });
+  LES_UNITS.forEach(U => { const r = db.utests[U.un] ||= {}; r.pass ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); const c = (db.comic ||= {})[U.un] ||= {}; c.p1 ||= now; c.p2 ||= now; });
   db.unitAt = {}; db.prefs.unlocked = 7; db.mapMax = 1; delete db.mapFrom; db.monOpen = Object.fromEntries(TRAIL.map(c => [c.lv, 1]));
   db.monOwn = Object.fromEntries(TRAIL.map(c => [c.lv, db.monOwn?.[c.lv] || now])); delete db.monWish; db.coinShown = coinEarned();
 }
@@ -10546,8 +10627,8 @@ function devCoinSheet() {
   });
 }
 function devLvNow() {
-  const un = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1, mons = trailStates().filter(t => t.done).length;
-  return `Now: ${un ? `Unit ${un} of ${LES_UNITS.length}` : `every unit beaten`} · ${mons} of ${TRAIL.length} monuments${db.devLv ? ' · test levels (your real ones are kept)' : ''}`;
+  const lv = playLv() || 1, un = lvUnits(lv).find(U => !utPassed(U.un)), mons = trailStates().filter(t => t.done).length;
+  return `Now: ${un ? `${HSK_NAME(lv)}, Unit ${un.k} of ${lvUnits(lv).length}` : `every unit beaten`} · ${mons} of ${TRAIL.length} monuments${db.devLv ? ' · test levels (your real ones are kept)' : ''}`;
 }
 function devSheet() {
   const H = hotdPick();
@@ -10597,15 +10678,15 @@ function devSheet() {
     sh.querySelector('#devMile').onclick = play(function milestone() { const { n } = practiceStreak(); momentMile(MILES.includes(n) ? n : 7); });
     sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
-    const unitPick = (title, f) => () => { closeSheet(); setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">${title}</h3><div class="list-group">${LES_UNITS.map(([en], u) => COMIC[u + 1] ? `<button class="list-btn" data-cu="${u + 1}"><span>Unit ${u + 1}<br><small>${esc(COMIC[u + 1].title)}</small></span><span class="side">${I.chev}</span></button>` : '').join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = () => { LOG.add('dev', `${f.name} ${b.dataset.cu}`); closeSheet(); setTimeout(() => f(+b.dataset.cu), 320); }; })), 320); };
+    const unitPick = (title, f) => () => { closeSheet(); Promise.all((window.SHI_COMIC_LV || []).map(comicLoad)).then(() => setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">${title}</h3><div class="list-group">${LES_UNITS.map(U => COMIC[U.un] ? `<button class="list-btn" data-cu="${U.un}"><span>${HSK_NAME(U.lv)} · Unit ${U.k}<br><small>${esc(COMIC[U.un].title)}</small></span><span class="side">${I.chev}</span></button>` : '').join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = () => { LOG.add('dev', `${f.name} ${b.dataset.cu}`); closeSheet(); setTimeout(() => f(+b.dataset.cu), 320); }; })), 320)); };
     sh.querySelector('#devComic').onclick = unitPick('Which unit?', function comicPreview(un) { comicReplay(un, { demo: 1, all: 1 }); });
     sh.querySelector('#devEat').onclick = play(function eatBaozi() {
-      const un = (LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1) || 1, at = Math.min(unitState(un).at, unitState(un).ls.length);
+      const un = ucMe(S.view === 'course' && lvHas(S.cLv) ? S.cLv : playLv() || 1), at = Math.min(unitState(un).at, unitState(un).ls.length);
       if (!at) { toast('Finish a lesson in this unit first'); return; }
-      (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(`#/course/1/unit/${un}`); });
+      (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
     sh.querySelector('#devAuto').onclick = play(function autoplay() { ucAutoplay(); });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
-    const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
+    const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/' + (playLv() || 1)); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
     sh.querySelector('#devLvZero').onclick = lvGo('levels reset', devLvZero, 'Levels are back to the start');
     sh.querySelector('#devCoins').onclick = () => { closeSheet(); setTimeout(devCoinSheet, 320); };
@@ -11260,18 +11341,18 @@ const A = {
   'fb-quit': () => goBack('#/map'),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
-  'c1-open': () => nav('#/course/1'),
+  'c1-open': t => nav('#/course/' + (lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1)),
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
-  'ut-go': t => { closeSheet(true); nav(`#/course/1/test/${t.dataset.u}`); },
+  'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
   'les-node': t => loadHsk().then(() => lesSheet(+t.dataset.n), () => toast('Lessons need the internet the first time')),
-  'les-go': t => { closeSheet(true); nav(`#/course/1/lesson/${t.dataset.n}`); },
+  'les-go': t => { closeSheet(true); nav(lesUrl(+t.dataset.n)); },
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
   'basics-open': () => nav('#/basics'),
   'crs-low': () => { S.lowOpen = !S.lowOpen; S.instant = true; render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
-  'c1-back': () => goBack(S.cUnit ? '#/course/1' : S.cPart ? '#/basics' : '#/learn'),
+  'c1-back': () => goBack(S.cUnit ? '#/course/' + (S.cLv || 1) : S.cPart ? '#/basics' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
   'c1-rad': t => radSheet(t),
   'c1-char': t => strokeSheet(t),
