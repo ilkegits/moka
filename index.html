@@ -6651,8 +6651,9 @@ const Trail = (() => {
     const poly = (x, y, s, pts, col) => { c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(x + p[0] * s, y + p[1] * s) : c.moveTo(x + p[0] * s, y + p[1] * s)); c.closePath(); c.fillStyle = col; c.fill(); };
     const bell = (x, y, w, h, lean) => { c.beginPath(); c.moveTo(x - w, y); c.bezierCurveTo(x - w * .5, y - h * .08, x - w * .22 + lean, y - h, x + lean, y - h); c.bezierCurveTo(x + w * .22 + lean, y - h, x + w * .5, y - h * .08, x + w, y); c.closePath(); };
     const far = (x, y, w, h, lean) => { c.beginPath(); c.moveTo(x + lean, y - h - 1); c.quadraticCurveTo(x + lean + w * .22, y - h * .45, x + w * .1, y + 1); c.lineTo(x + w + 1, y + 1); c.lineTo(x + w + 1, y - h - 1); c.closePath(); };   // the half away from the sun
+    const solid = cl((zr - 1.6) / 3, 0, 1);   // v3.01: from far a hill melts into the ground over most of its height; zooming in, it turns solid, and only its very foot fades
     const hill = (x, y, w, h, lean, top, lit, dark, contour) => {   // a rounded hill that melts into the ground at its foot, lit from the north-west
-      let g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, top); g.addColorStop(.32, lit); g.addColorStop(1, lit + '00'); bell(x, y, w, h, lean); c.fillStyle = g; c.fill();
+      let g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, top); g.addColorStop(.32 + .58 * solid, lit); g.addColorStop(1, lit + '00'); bell(x, y, w, h, lean); c.fillStyle = g; c.fill();
       if (h * z < 9) return;   // too small on the screen for its shaded side to show
       c.save(); c.clip(); g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, dark + 'D0'); g.addColorStop(1, dark + '00'); far(x, y, w, h, lean); c.fillStyle = g; c.fill(); c.restore();
       if (contour) { g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, dark + 'B0'); g.addColorStop(.7, dark + '00'); bell(x, y, w, h, lean); c.strokeStyle = g; c.lineWidth = .32; c.stroke(); } };
@@ -9127,7 +9128,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.00';
+const APP_VERSION = '3.01';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
