@@ -1777,7 +1777,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un{position:relative}
 .un-bg{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:0;overflow:hidden;pointer-events:none;background:var(--paper)}
 .un-bg canvas{position:absolute;left:0;top:0;display:block}
-.un-bg canvas.uw{opacity:0;transition:opacity .5s}
+.un-bg canvas.uw{opacity:0}
 .un-bg canvas.uw.on{opacity:1}
 /* v3.14: no pale bar over the town. The unit's name hangs on a red lacquer shop plaque with a gold frame, on two cords
    from the top of the screen, and the back and comic buttons are small lacquer discs to match */
@@ -1794,7 +1794,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-sign-board small{font:800 10.5px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#F4C14E}
 .un-sign-board b{max-width:100%;font:900 19px/1.15 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1.5px 0 #6E120B}
 .un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
-.un-bg canvas.uw-tab{opacity:0;transition:opacity .5s}
+.un-bg canvas.uw-tab{opacity:0}
 .un-bg canvas.uw-tab.on{opacity:1}
 /* v3.18: the course as one strip of units you swipe to the right through (ucPane), the sign with a pill under it */
 .uc{position:relative;height:100dvh;min-height:0}
@@ -4124,7 +4124,7 @@ function ucFit() {
     const lk = p.querySelector('.uc-lock'); if (lk) lk.style.left = Math.min(pw, vw) / 2 + 'px';
   });
 }
-let ucU = 0, ucEat = null, ucQuiet;
+let ucU = 0, ucEat = null, ucPre = null, ucQuiet;   // ucPre: a baozi about to be eaten (its steamer still shown as it was); ucEat: the one being eaten (painted on the canvas above, not in the town)
 /* the unit in the middle of the screen becomes the one the sign, the pill, the comic button and the card are about */
 function ucWhich() { const sc = $('.uc-scroll'), x = sc.scrollLeft + sc.clientWidth / 2; let u = 1; sc.querySelectorAll('.uc-pane').forEach(p => { if (p.offsetLeft <= x) u = +p.dataset.u; }); return u; }
 let ucNew = 0;   // a unit you just moved on into: its comic plays once you stop there
@@ -4197,7 +4197,7 @@ function ucPaint() {
 function mountUnit(un) {
   const sc = $('.uc-scroll'); if (!sc) return;
   const k = ucPanes(), go = Math.min(un, k), me = ucMe(), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
-  ucFit(); ucU = 0; ucEat = eat != null ? { u: me, i: +eat } : null;
+  ucFit(); ucU = 0; ucEat = null; ucPre = eat != null ? { u: me, i: +eat } : null;
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
   if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
   else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else sc.scrollLeft = ucPane$(go).offsetLeft;
@@ -4221,7 +4221,7 @@ function mountUnit(un) {
     if (UNIT_LAY[me] === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
     if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
     if (db.unitAt?.[me] !== st.at) { (db.unitAt ||= {})[me] = st.at; save(); } };
-  if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => { ucEat = null; setTimeout(hop, 250); }); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
+  if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => setTimeout(hop, 250)); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
   document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if ($('.uc-scroll') === sc && !$('.uw-anim')) sc.querySelectorAll('.uc-pane[data-p]').forEach(p => unitWorld(+p.dataset.u, ucEat?.u === +p.dataset.u ? { skip: ucEat.i } : {})); });
   // Hu Hu was beaten somewhere else: the ending plays here
   if (COMIC[go] && utPassed(go) && comicSeen(go).p1 && !comicSeen(go).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === go && !$('#ob')) comicPlay(go, 1); }, 760);
@@ -4266,6 +4266,7 @@ function uwGeo(un) {
   const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / m.W; if (!B.width || !B.height) return null;
   const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
   const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
+  if (ucPre?.u === un) { const a = spots[ucPre.i], b = spots[ucPre.i + 1]; if (a) a.state = 'cur'; if (b?.state === 'cur') b.state = 'locked'; }   // until he eats it, the town looks as you left it
   const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k };
   if (m.lay === 'round') {   // on the table the path runs round the turntable, from the first lesson to the last
     for (let i = 0; i < n - 1; i++) { const a0 = unRndAng(i, n, rot), a1 = unRndAng(i + 1, n, rot);
@@ -4579,7 +4580,8 @@ function uwChomp() {
 /* the baozi of a lesson you just finished: the lid lifts, a little baozi pops up, Shi Shi eats it in three bites, the
    lid drops back and the steamer fades to done. then: what happens after (Shi Shi hops on) */
 function unitEat(un, i, then) {
-  const G = unitWorld(un, { skip: i }), s = G?.spots[i], shi = $('#unShi'); if (!s || !shi) { then(); return; }
+  ucPre = null; ucEat = { u: un, i };   // from here the steamer lives on the canvas above; both are drawn in the same frame, so it never blinks out
+  const G = unitWorld(un, { skip: i }), s = G?.spots[i], shi = $('#unShi'); if (!s || !shi) { ucEat = null; unitWorld(un); then(); return; }
   const cv = document.createElement('canvas'), D = Math.min(devicePixelRatio || 1, 2); cv.className = 'uw-anim'; G.box.append(cv);
   cv.width = Math.round(G.W * D); cv.height = Math.round(G.H * D); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px';
   const c = cv.getContext('2d'), side = shi.getBoundingClientRect().left + 36 < s.x + G.box.getBoundingClientRect().left ? -1 : 1;
@@ -4600,9 +4602,9 @@ function unitEat(un, i, then) {
     uwSteamer(c, null, s.x, s.y, s.ch, 'cur', { lid, steam: t < 300 ? .55 : Math.max(0, 1 - (t - 300) / 900), bun: t > 300 ? { rise, bites, side } : null, fade: t > 1800 ? Math.max(.001, fade) : 0 });
     c.setTransform(D, 0, 0, D, 0, 0); crumbs.forEach(p => { const a = (now - p.born) / 16; if (a > 40) return; c.fillStyle = '#F2E2C4'; c.beginPath(); c.arc(p.x + p.vx * a, p.y + p.vy * a + .09 * a * a, 1.8, 0, 7); c.fill(); });
     if (t < 2520) { requestAnimationFrame(frame); return; }
-    unitWorld(un); cv.remove(); then();
+    ucEat = null; unitWorld(un); cv.remove(); then();
   };
-  requestAnimationFrame(frame);
+  frame(performance.now());
 }
 let uwRz;
 addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { const sc = $('.uc-scroll'); if (!sc || $('.uw-anim')) return; const p = ucPane$(ucU), off = p ? sc.scrollLeft - p.offsetLeft : 0;
@@ -10287,7 +10289,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.21';
+const APP_VERSION = '3.22';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

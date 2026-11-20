@@ -1,1 +1,1 @@
-{"version": "3.21", "notes": "The unit strip never stops between two units: it settles on the one with more of the screen, also after a comic. New in Developer: Play the whole course by itself, Shi Shi eating every baozi, beating Hu Hu and moving on unit after unit, with your real levels put back at the end"}
+{"version": "3.22", "notes": "The bamboo steamers no longer blink out: the one Shi Shi is about to eat stays on screen until he eats it, and the towns no longer fade in again every time the screen is drawn"}
