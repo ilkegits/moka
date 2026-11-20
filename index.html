@@ -1736,19 +1736,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* ---------- HSK 1 lessons: the card deck, then the lesson screens ---------- */
 .les-count{font-size:13px;font-weight:700}
 .les-intro{margin:-4px 2px 4px;font-size:14px;line-height:1.4}
-/* a lesson's hanzi card, as it stands on its unit's path. A card you finished lies face up and fades half away into the
-   picture behind, the next one has a red edge, and the ones still to come lie face down with a lattice back */
-.ld-card{position:relative;display:block;width:100%;aspect-ratio:1;padding:7px;border-radius:13px;background:var(--card);
-  box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2);transition:transform .15s}
-.ld-face{position:relative;display:grid;place-items:center;width:100%;height:100%;color:var(--grid)}
-.ld-face .tzg-bg{opacity:.75}
-.ld-hz{position:relative;font-family:var(--hanzi);font-weight:600;line-height:1;color:var(--ink)}
-.ld-card.cur{box-shadow:0 0 0 2.5px var(--seal),0 3px 0 var(--seal)}
-.ld-card.down{background:var(--card-2);
-  background-image:repeating-linear-gradient(45deg,transparent 0 6px,var(--line) 6px 7.5px),repeating-linear-gradient(-45deg,transparent 0 6px,var(--line) 6px 7.5px);
-  box-shadow:inset 0 0 0 6px var(--card-2),inset 0 0 0 7.5px var(--line-2),0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
-.ld-card.down .ld-face{color:var(--muted)}
-.ld-card.down svg.i{width:22px;height:22px;padding:5px;box-sizing:content-box;border-radius:50%;background:var(--card-2)}
 /* ---------- units as levels: the list on the lessons page ---------- */
 .lv-list{display:flex;flex-direction:column;gap:12px;margin:6px 0 4px}
 .lv{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border-radius:20px;background:var(--card);text-align:left;box-shadow:0 0 0 1.5px var(--line-2),0 4px 0 var(--line-2);transition:transform .12s}
@@ -1776,27 +1763,18 @@ button.st-d:active{transform:scale(.9);transition:none}
 .lv-pips i.boss.on{background:var(--seal)}
 .lv > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
 .lv em{flex:none;padding:8px 14px 9px;border-radius:12px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font:600 14.5px/1 var(--display);font-style:normal;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28)}
-/* ---------- a unit's campaign: a glowing dotted path through its lessons to the final boss ----------
-   Behind it all, the place the unit's comic starts as a pale picture of big pixels with a 田字格 grid on top (.un-bg) */
+/* ---------- a unit's campaign: a little 3D town (unitWorld paints it into .un-bg) with a bamboo steamer for every lesson ---------- */
 .un{position:relative}
 .un-bg{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:0;overflow:hidden;pointer-events:none;background:var(--paper)}
-.un-bg canvas{display:block;image-rendering:pixelated;opacity:0;filter:saturate(.8);transition:opacity .5s}
-.un-bg canvas.on{opacity:.7}
-.un-bg::after{content:"";position:absolute;inset:0;background-image:var(--tzg)}
+.un-bg canvas{position:absolute;left:0;top:0;display:block}
+.un-bg canvas.uw{opacity:0;transition:opacity .5s}
+.un-bg canvas.uw.on{opacity:1}
 .un-bg::before{content:"";position:absolute;inset:0 0 auto;height:110px;z-index:1;background:linear-gradient(var(--paper),transparent)}
 .un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
-.un-map > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.un-path{fill:none;stroke:#FFF9EA;stroke-width:6.5;stroke-linecap:round;stroke-dasharray:.1 15;opacity:.9}
-.un-path.halo{stroke:#FFF1C8;stroke-width:15;opacity:.75}
-.un-path.rim{stroke:rgba(90,58,30,.3);stroke-width:9.5}
-.un-path.done{stroke:#FFC23A;stroke-width:8.5;opacity:1}
-.un-path.done.halo{stroke:#FFB01C;stroke-width:24;animation:unGlow 2.6s ease-in-out infinite}
-.un-path.done.core{stroke:#FFF8DA;stroke-width:3.4}
-@keyframes unGlow{50%{opacity:.5}}
 .un-node{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;width:76px;padding:0;transform:translate(-50%,-38px)}
-.un-node .ld-card{width:76px}
-.un-node.done .ld-card{opacity:.5;box-shadow:0 0 0 1.5px var(--line-2)}
-.un-node:active .ld-card,.un-boss:active .un-boss-fig{transform:translateY(2px)}
+.un-spot{display:block;width:76px;height:76px;border-radius:50%}
+.un-node:active .un-spot{background:radial-gradient(closest-side,rgba(255,240,200,.35),transparent)}
+.un-boss:active .un-boss-fig{transform:translateY(2px)}
 .un-node small{width:max-content;max-width:132px;padding:3px 9px 4px;border-radius:10px;font-size:12px;font-weight:700;line-height:1.2;text-align:center;color:var(--ink);
   background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:0 2px 6px -2px rgba(40,20,10,.35)}
 .un-node.locked small{color:var(--muted)}
@@ -1811,16 +1789,19 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes unAura{50%{transform:scale(1.12);opacity:.7}}
 @keyframes unBreath{50%{transform:scale(1.025,.985)}}
 .un-boss.locked .un-boss-aura{display:none}
-.un-boss.locked .un-boss-fig{filter:brightness(0) drop-shadow(0 0 1.5px rgba(255,244,226,.95));opacity:.62}
+.un-boss.locked .un-boss-fig{filter:saturate(.85) drop-shadow(0 4px 0 rgba(40,18,8,.25))}
 .un-boss .cm-flag{position:absolute;right:-12px;top:14px;width:30px;height:46px}
 .un-boss .cm-flag svg{display:block;width:100%;height:100%}
-.un-boss.locked .cm-flag{opacity:.45}
 .un-boss-tag{position:absolute;left:50%;top:134px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:13px;background:var(--card);color:var(--muted);font:700 13px/1 var(--ui);font-style:normal;box-shadow:0 0 0 2px var(--line-2);white-space:nowrap}
 .un-boss-tag svg.i{width:15px;height:15px}
 .un-boss.won .un-boss-tag{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
 .un-boss small{margin-top:14px;font:600 14px/1.1 var(--display)}
 .un-shi{position:absolute;z-index:3;width:72px;height:68px;margin-left:-36px;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(59,26,18,.3))}
-.un-shi.hop{transition:left .9s cubic-bezier(.45,0,.3,1),top .9s cubic-bezier(.45,0,.3,1)}
+.un-shi{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.un-shi.hop{transition:left .9s cubic-bezier(.45,0,.3,1),top .9s cubic-bezier(.45,0,.3,1),transform .2s}
+.un-shi.lunge{transform:translate(var(--lx,26px),-12px) rotate(var(--lr,10deg))}
+.un-shi.chomp .shi-body{animation:unChomp .25s 3 ease-in-out}
+@keyframes unChomp{50%{transform:scale(1.1,.86)}}
 .un-shi .shi-body{display:block;width:100%;height:100%;overflow:visible;animation:unBob 1.5s ease-in-out infinite}
 .un-shi.hop .shi-body{animation:cmHop .3s 3 ease-in-out,unBob 1.5s .9s ease-in-out infinite}
 @keyframes unBob{50%{transform:translateY(-5px)}}
@@ -1851,7 +1832,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes cmHint{50%{opacity:.35}}
 .cm-go{width:100%;height:54px;font-size:17px;animation:donePop .45s cubic-bezier(.2,.9,.3,1.3) both}
 .cm-hint[hidden],.cm-go[hidden]{display:none}
-@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.cm-go,.un-shi .shi-body,.un-shi.hop .shi-body,.un-path.done.halo,.un-boss-aura,.un-boss.cur .un-boss-fig{animation:none}.un-shi.hop{transition:none}}
+@media (prefers-reduced-motion:reduce){.cm-pan.on,.cm-hint,.cm-go,.un-shi .shi-body,.un-shi.hop .shi-body,.un-shi.chomp .shi-body,.un-boss-aura,.un-boss.cur .un-boss-fig{animation:none}.un-shi.hop{transition:none}}
   box-shadow:0 0 0 1.5px var(--line-2),0 3px 0 var(--line-2)}
 .les-sh-top{text-align:center}
 .les-sh-top small{font-size:13px;font-weight:700;color:var(--c1)}
@@ -3501,9 +3482,6 @@ function utDue() {
 const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3.2 4M16.5 6h3a3 3 0 0 1-3.2 4M12 14v3.5M8.5 20.5h7M9.5 17.5h5"/></svg>`;
 /* each lesson's card face: the first character it brings in that no lesson before it had */
 const LES_LEAD = (() => { const seen = new Set(); return LESSONS.map(L => { const cs = L.words.flatMap(hanChars), c = cs.find(x => !seen.has(x)) || cs[0]; cs.forEach(x => seen.add(x)); return c; }); })();
-const ldHzSize = (h, big) => { const n = [...h].length; return (big ? [0, 58, 33, 23, 18] : [0, 46, 28, 20, 15])[n] || (big ? 15 : 12); };
-/* one hanzi card: the character in a tianzige, a 完 seal once the lesson is done; face down (lattice back, lock) while locked */
-const ldCard = (h, cls = '', big, st = '') => `<span class="ld-card${cls}"${st ? ` style="${st}"` : ''}><span class="ld-face">${cls.includes('down') ? LOCK_I : `${TZG}<span class="ld-hz" style="font-size:${ldHzSize(h, big)}px">${esc(h)}</span>`}</span></span>`;
 const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the characters to trace, the ones to write from memory
   const nc = new Set(L.words.flatMap(hanChars)).size, tr = Math.min(4, nc, L.words.length), rc = Math.min(2, tr);
   return `${plural(L.words.length, 'card')} · trace ${tr} · write ${rc} from memory`;
@@ -3992,22 +3970,15 @@ function unitNodes(n) {
   pts.push([180, TOP + Math.ceil(n / 3) * ROW + 52]);
   return pts;
 }
-function unitPath(pts) {   // one smooth line through the nodes; where a row turns back at the edge it loops outward
-  let d = `M${pts[0]}`;
-  for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
-    if (Math.abs(x1 - x0) < 8) { const s = x0 > 180 ? 1 : -1; d += `C${x0 + s * 76} ${y0 + 10} ${x1 + s * 76} ${y1 - 10} ${x1} ${y1}`; }
-    else d += `C${(x0 + x1) / 2} ${y0} ${(x0 + x1) / 2} ${y1} ${x1} ${y1}`; }
-  return d;
-}
-const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return i === pts.length - 1 ? [x - 98, y - 44] : [x, y - 110]; };   // Shi Shi stands on the card he is at, or beside the boss
+const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return i === pts.length - 1 ? [x - 98, y - 44] : [x + (x < 120 ? 52 : -52), y - 50]; };   // Shi Shi waits beside the steamer he is at (on its open side), or beside the boss
 function UnitView(un) {
   const [en] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, pts = unitNodes(n), H = pts[n][1] + 96, C = COMIC[un];
   const next = lesNext(), due = utDue(), r = db.utests[un], bossOpen = st.nd === n;
   const pct = ([x, y]) => `left:${(x / 3.6).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
-  const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at), all = unitPath(pts), trod = st.at ? unitPath(pts.slice(0, Math.min(st.at, n) + 1)) : '';
+  const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at), eat = !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
-      ${ldCard(LES_LEAD[L.n - 1], done ? ' fin' : cur ? ' cur' : ' down')}<small>${esc(L.title)}</small></button>`; }).join('');
+      <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const boss = `<button class="un-node un-boss${st.won ? ' won' : bossOpen ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${un}" aria-label="Final boss, the unit test${st.won ? ', beaten' : bossOpen ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small>Final boss</small></button>`;
   const L = st.ls[st.nd], last = un === LES_UNITS.length;
@@ -4015,19 +3986,20 @@ function UnitView(un) {
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
     : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
-  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" style="--tzg:${unitGrid(un)}" aria-hidden="true"><canvas></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
+  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
     <div class="un-map" style="aspect-ratio:360/${H}">
-      <svg viewBox="0 0 360 ${H}" aria-hidden="true" focusable="false"><defs><filter id="unGlow" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="4"/></filter></defs>
-        <path class="un-path halo" d="${all}" filter="url(#unGlow)"/><path class="un-path rim" d="${all}"/><path class="un-path" d="${all}"/>${st.at ? `<path class="un-path done halo" d="${trod}" filter="url(#unGlow)"/><path class="un-path done" d="${trod}"/><path class="un-path done core" d="${trod}"/>` : ''}</svg>
-      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, seen))}" data-to="${pct(unitShiAt(pts, st.at))}">${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
+      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(pts, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
     <div class="un-hud">${hud}</div></div>`;
 }
 function mountUnit(un) {
-  const st = unitState(un), shi = $('#unShi');
-  unitBgDraw(un);
-  // Shi Shi hops on from where you last saw him; only then is the new place remembered
-  setTimeout(() => { if (!shi?.isConnected) return; if (shi.getAttribute('style') !== shi.dataset.to) { shi.classList.add('hop'); shi.style.cssText = shi.dataset.to; }
-    if (db.unitAt?.[un] !== st.at) { (db.unitAt ||= {})[un] = st.at; save(); } }, stillMotion() ? 0 : 520);
+  const st = unitState(un), shi = $('#unShi'), eat = shi?.dataset.eat;
+  // Shi Shi eats the baozi of the lesson you just finished, if there is one, then hops on; only then is the new place remembered
+  const hop = () => { if (!shi?.isConnected) return; const [, l, t] = shi.dataset.to.match(/left:([^;]+);top:([^;]+)/); if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; }
+    if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
+    if (db.unitAt?.[un] !== st.at) { (db.unitAt ||= {})[un] = st.at; save(); } };
+  if (eat != null) { unitWorld(un, { skip: +eat }); setTimeout(() => { if (shi?.isConnected) unitEat(un, +eat, () => setTimeout(hop, 250)); }, 450); }
+  else { unitWorld(un); setTimeout(hop, stillMotion() ? 0 : 520); }
+  document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if (S.view === 'course' && S.cUnit === un && !$('.uw-anim')) unitWorld(un); });
   // the boss was beaten somewhere else: the ending plays here
   if (COMIC[un] && st.won && comicSeen(un).p1 && !comicSeen(un).p2) setTimeout(() => { if (S.view === 'course' && S.cUnit === un && !$('#ob')) comicPlay(un, 1); }, 760);
 }
@@ -4035,143 +4007,316 @@ function comicReplay(un, demo = { demo: 1 }) {   // another look: part 1, and th
   const both = !!comicSeen(un).p2 || demo.all;
   comicPlay(un, 0, both ? () => comicPlay(un, 1, null, { demo: 1, label: 'Close' }) : null, { demo: 1, label: both ? 'Next' : 'Close' });
 }
-/* ---------- a unit's backdrop: the place its comic starts, as a soft pixel picture on a 田字格 grid ----------
-   Each unit's campaign stands on a quiet picture of where its comic begins (Unit 1: the town gate on lantern festival
-   night). unitScene(un, h) draws it flat, without outlines, 360 wide and h high; unitBgDraw paints it into a canvas
-   one block per 4 screen pixels, so it shows as big soft pixels, and the CSS lays a 田字格 grid over it whose lines
-   fall on the block edges (a cell is 6 by 6 blocks). It is kept pale (.un-bg) so the path stays the thing to look at. */
-const UNIT_BG_PX = 4;
-function unitScene(un, h) {
-  let seed = un * 977 + 13;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const sky = (stops, y1 = h) => `<defs><linearGradient id="ubs" x1="0" y1="0" x2="0" y2="${y1}" gradientUnits="userSpaceOnUse">${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect width="360" height="${h}" fill="url(#ubs)"/>`;
-  const band = (y, y2, a, b, id) => `<defs><linearGradient id="ubg${id}" x1="0" y1="${y}" x2="0" y2="${y2}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-10" y="${y}" width="380" height="${y2 - y}" fill="url(#ubg${id})"/>`;
-  const glow = (x, y, r, c, op = .5) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${op * .35}"/><circle cx="${x}" cy="${y}" r="${r * .6}" fill="${c}" opacity="${op * .5}"/>`;
-  const stars = (n, y0, y1, c = '#FFF6D8') => Array.from({ length: n }, () => `<circle cx="${(rnd() * 360).toFixed(0)}" cy="${(y0 + rnd() * (y1 - y0)).toFixed(0)}" r="${(1.6 + rnd() * 1.8).toFixed(1)}" fill="${c}"/>`).join('');
-  const cloud = (x, y, s, c = '#fff', op = .85) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}" opacity="${op}"><ellipse cx="0" cy="0" rx="34" ry="13"/><ellipse cx="-14" cy="-8" rx="16" ry="12"/><ellipse cx="10" cy="-12" rx="18" ry="15"/></g>`;
-  const roofP = (x, y, w, rh, c) => `<path d="M${x - w / 2 - 12} ${y}Q${x - w / 2 - 2} ${y - 3} ${x - w / 2 + 8} ${y - rh}H${x + w / 2 - 8}Q${x + w / 2 + 2} ${y - 3} ${x + w / 2 + 12} ${y}Z" fill="${c}"/>`;
-  const house = (x, base, w, ht, wall, roof, win) => `<rect x="${x - w / 2}" y="${base - ht}" width="${w}" height="${ht}" fill="${wall}"/>${roofP(x, base - ht + 2, w, 14, roof)}`
-    + (win ? `<rect x="${x - w * .3}" y="${base - ht * .62}" width="${w * .2}" height="${ht * .26}" fill="${win}"/><rect x="${x + w * .1}" y="${base - ht * .62}" width="${w * .2}" height="${ht * .26}" fill="${win}"/>` : '');
-  const lantern = (x, y, r = 9, c = '#E5483F', g = '#FFB347') => glow(x, y, r * 2.6, g, .55) + `<rect x="${x - r * .45}" y="${y - r * 1.05}" width="${r * .9}" height="${r * .4}" fill="#F4C14E"/><ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .82}" fill="${c}"/><rect x="${x - r * .45}" y="${y + r * .7}" width="${r * .9}" height="${r * .4}" fill="#F4C14E"/>`;
-  const sag = (x1, y1, x2, y2, d) => `M${x1} ${y1}Q${(x1 + x2) / 2} ${(y1 + y2) / 2 + d} ${x2} ${y2}`;
-  const onSag = (x1, y1, x2, y2, d, t) => [x1 + (x2 - x1) * t, (1 - t) ** 2 * y1 + 2 * (1 - t) * t * ((y1 + y2) / 2 + d) + t * t * y2];
-  const string = (x1, y1, x2, y2, d, n, item, col = 'rgba(40,20,30,.45)') => `<path d="${sag(x1, y1, x2, y2, d)}" fill="none" stroke="${col}" stroke-width="2"/>`
-    + Array.from({ length: n }, (_, i) => { const [x, y] = onSag(x1, y1, x2, y2, d, (i + .5) / n); return item(x, y, i); }).join('');
-  const flag = cs => (x, y, i) => `<path d="M${x - 8} ${y - 1}H${x + 8}L${x} ${y + 14}Z" fill="${cs[i % cs.length]}"/>`;
-  const pine = (x, base, s, c, snow) => `<g transform="translate(${x} ${base}) scale(${s})"><rect x="-4" y="-14" width="8" height="16" fill="#6B4A32"/>${[[0, 46], [-22, 38], [-40, 30]].map(([y, w]) => `<path d="M${-w / 2} ${y - 12}L0 ${y - 52}L${w / 2} ${y - 12}Z" fill="${c}"/>${snow ? `<path d="M${-w / 4} ${y - 32}L0 ${y - 52}L${w / 4} ${y - 32}Z" fill="#fff"/>` : ''}`).join('')}</g>`;
-  const tree = (x, base, s, c, c2) => `<g transform="translate(${x} ${base}) scale(${s})"><rect x="-4" y="-22" width="8" height="24" fill="#7A5236"/><circle cx="0" cy="-40" r="22" fill="${c}"/><circle cx="-14" cy="-30" r="14" fill="${c}"/><circle cx="14" cy="-30" r="14" fill="${c2}"/></g>`;
-  const crowd = (y, n, c, op = .5) => Array.from({ length: n }, (_, i) => { const x = 10 + i * (340 / (n - 1)) + (rnd() - .5) * 14, s = .8 + rnd() * .4;
-    return `<g opacity="${op}" fill="${c}"><circle cx="${x}" cy="${y - 34 * s}" r="${9 * s}"/><path d="M${x - 13 * s} ${y}Q${x - 13 * s} ${y - 24 * s} ${x} ${y - 24 * s}Q${x + 13 * s} ${y - 24 * s} ${x + 13 * s} ${y}Z"/></g>`; }).join('');
-  const hz = h * .54, g = h * .62;   // the horizon, and where the near ground starts
-  let s = '';
-  if (un === 1) {   // lantern festival night at the town gate
-    s = sky([[0, '#1E1A50'], [.42, '#3F2A80'], [.62, '#86407E'], [1, '#86407E']])
-      + glow(292, h * .1, 46, '#FFF1C4', .7) + `<circle cx="292" cy="${h * .1}" r="20" fill="#FFF3D0"/>` + stars(26, 4, h * .4)
-      + [[66, h * .16, '#FFD15C'], [214, h * .22, '#FF9AA6'], [120, h * .3, '#8FE0C4']].map(([x, y, c]) => Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<circle cx="${x + 22 * Math.cos(a)}" cy="${y + 22 * Math.sin(a)}" r="3" fill="${c}"/>`; }).join('') + glow(x, y, 30, c, .4)).join('')
-      + `<path d="M-10 ${hz}V${hz - 30}H40V${hz - 52}H96V${hz - 26}H130V${hz - 40}H230V${hz - 30}H262V${hz - 58}H322V${hz - 34}H370V${hz}Z" fill="#40307A"/>`
-      + roofP(68, hz - 52, 56, 12, '#352765') + roofP(292, hz - 58, 60, 12, '#352765')
-      + [[52, hz - 40], [80, hz - 40], [276, hz - 46], [306, hz - 46]].map(([x, y]) => `<rect x="${x}" y="${y}" width="9" height="9" fill="#FFD98A" opacity=".8"/>`).join('')
-      + glow(180, g - 40, 120, '#FFD98A', .5)
-      + `<rect x="128" y="${g - 104}" width="104" height="104" fill="#FFD98A"/>`
-      + [-1, 1].map(k => `<rect x="${180 + k * 60 - 8}" y="${g - 118}" width="16" height="118" fill="#C2453B"/>`).join('')
-      + `<rect x="98" y="${g - 118}" width="164" height="14" fill="#3E6FA0"/>` + roofP(180, g - 118, 170, 22, '#24504A') + `<rect x="160" y="${g - 104}" width="40" height="20" fill="#F4C14E"/>`
-      + string(-10, h * .34, 370, h * .3, 34, 6, (x, y) => lantern(x, y + 12, 9))
-      + band(g, h, '#3B2C70', '#251C4E', 'g') + `<path d="M128 ${g}L60 ${h}H300L232 ${g}Z" fill="#FFD98A" opacity=".22"/>`
-      + [40, 320].map(x => `<rect x="${x - 2}" y="${h * .74}" width="4" height="${h * .12}" fill="#1A1438"/>` + lantern(x, h * .74, 11)).join('')
-      + string(-10, h * .9, 370, h * .88, 24, 7, (x, y) => lantern(x, y + 10, 7));
-  } else if (un === 2) {   // the evening of the party: seven o'clock on the tower
-    s = sky([[0, '#3A3488'], [.3, '#8C4F9C'], [.5, '#E77F86'], [.6, '#FFC07A'], [1, '#FFC07A']])
-      + glow(96, hz - 6, 60, '#FFE3A3', .8) + `<circle cx="96" cy="${hz - 6}" r="24" fill="#FFE0A0"/>` + stars(10, 4, h * .2)
-      + string(-10, h * .1, 370, h * .14, 30, 11, flag(['#FFD15C', '#FF7A8A', '#5CC8A8', '#6FA8DC']))
-      + string(-10, h * .2, 370, h * .17, 26, 11, flag(['#5CC8A8', '#FFD15C', '#FF7A8A']))
-      + [[52, h * .28, '#FF7A8A'], [300, h * .26, '#FFD15C'], [322, h * .33, '#5CC8A8'], [30, h * .36, '#6FA8DC']].map(([x, y, c]) => `<path d="M${x} ${y + 18}Q${x + 6} ${y + 40} ${x - 2} ${y + 60}" stroke="rgba(60,30,40,.4)" stroke-width="1.6" fill="none"/><ellipse cx="${x}" cy="${y}" rx="14" ry="17" fill="${c}"/>`).join('')
-      + `<rect x="196" y="${hz - 150}" width="54" height="150" fill="#6A3E6E"/>` + roofP(223, hz - 150, 60, 20, '#3A2A5A')
-      + `<circle cx="223" cy="${hz - 108}" r="20" fill="#FFF3D6"/><path d="M223 ${hz - 108}V${hz - 124}M223 ${hz - 108}L${223 - 9} ${hz - 108 + 13}" stroke="#3A2A5A" stroke-width="3.5" stroke-linecap="round"/>`
-      + house(60, hz + 4, 96, 70, '#7A4A72', '#43305E', '#FFD98A') + house(306, hz + 4, 92, 62, '#82506E', '#43305E', '#FFD98A') + house(140, hz + 4, 56, 44, '#8E5A78', '#4A3464', '#FFD98A')
-      + band(hz, h, '#6E8A5A', '#4A6040', 'g') + `<path d="M150 ${hz}Q190 ${h * .75} 120 ${h}H250Q250 ${h * .75} 200 ${hz}Z" fill="#D9B98A" opacity=".55"/>`
-      + [[46, h * .74], [318, h * .8], [70, h * .92]].map(([x, y]) => tree(x, y, 1.1, '#5A7A4A', '#4E6C40')).join('');
-  } else if (un === 3) {   // the market, where the little panda got lost
-    s = sky([[0, '#9FD8F5'], [.45, '#FFE9BE'], [1, '#FFE9BE']])
-      + cloud(80, h * .1, 1.1) + cloud(270, h * .17, .9) + cloud(170, h * .05, .7)
-      + string(-10, h * .26, 370, h * .24, 30, 6, (x, y) => lantern(x, y + 12, 9))
-      + `<rect x="-10" y="${hz - 70}" width="380" height="70" fill="#E8C690"/>`
-      + [0, 1, 2, 3, 4].map(i => { const x = i * 80 - 4, c = ['#E5483F', '#3E7FB1', '#F4C14E', '#5CC8A8', '#E5483F'][i];
-        return `<rect x="${x}" y="${hz - 104}" width="70" height="18" fill="${c}"/>${[0, 1, 2, 3, 4].map(k => `<path d="M${x + k * 14} ${hz - 86}a7 7 0 0 0 14 0Z" fill="${k % 2 ? '#FFF6E8' : c}"/>`).join('')}<rect x="${x + 4}" y="${hz - 86}" width="4" height="70" fill="#8A5A2E"/><rect x="${x + 62}" y="${hz - 86}" width="4" height="70" fill="#8A5A2E"/>`
-          + [0, 1, 2].map(k => `<circle cx="${x + 18 + k * 17}" cy="${hz - 24}" r="7" fill="${['#E5483F', '#F4A23C', '#8FD36A'][(i + k) % 3]}"/>`).join(''); }).join('')
-      + band(hz, h, '#E9D2A2', '#D7B57E', 'g') + crowd(hz + 40, 9, '#8C7AB0', .45)
-      + [h * .72, h * .84, h * .96].map(y => `<path d="M-10 ${y}H370" stroke="#C9A46C" stroke-width="3"/>`).join('')
-      + [[56, h * .78], [300, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="26" ry="10" fill="#B07A44"/>${[-12, 0, 12].map(d => `<circle cx="${x + d}" cy="${y - 8}" r="7" fill="${d ? '#E5483F' : '#F4A23C'}"/>`).join('')}`).join('');
-  } else if (un === 4) {   // the street with the restaurant 饭店
-    s = sky([[0, '#8FD3F0'], [.5, '#FFE6B8'], [1, '#FFE6B8']])
-      + cloud(70, h * .08, 1) + cloud(290, h * .14, 1.2)
-      + house(46, hz, 100, 120, '#E8D2A8', '#5A6E8A', '#BDE9FF') + house(326, hz, 96, 110, '#D9C2A0', '#5A6E8A', '#BDE9FF')
-      + `<rect x="100" y="${hz - 168}" width="160" height="168" fill="#C6402F"/>` + roofP(180, hz - 168, 176, 26, '#2D3F5E')
-      + `<rect x="138" y="${hz - 150}" width="84" height="30" fill="#F4C14E"/><rect x="156" y="${hz - 62}" width="48" height="62" fill="#7A2418"/>`
-      + `<rect x="112" y="${hz - 104}" width="36" height="30" fill="#FFD98A"/><rect x="212" y="${hz - 104}" width="36" height="30" fill="#FFD98A"/>`
-      + [120, 240].map(x => lantern(x, hz - 128, 10)).join('')
-      + [[150, -1], [180, 1], [210, -1]].map(([x, k]) => `<path d="M${x} ${hz - 196}q${k * 12} -14 0 -28t0 -28" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".7"/>`).join('')
-      + band(hz, h, '#C8BCA8', '#A99C88', 'g')
-      + [[70, h * .72], [290, h * .78], [150, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="40" ry="11" fill="#8A5A2E"/><rect x="${x - 3}" y="${y}" width="6" height="30" fill="#6B4428"/><path d="M${x - 16} ${y - 4}a16 12 0 0 0 32 0Z" fill="#FFF6E8"/><path d="M${x - 12} ${y - 6}Q${x} ${y - 14} ${x + 12} ${y - 6}" fill="#F4C14E"/>`).join('');
-  } else if (un === 5) {   // the school gate on the first day
-    s = sky([[0, '#86CDEF'], [.5, '#DDF3FF'], [1, '#DDF3FF']])
-      + cloud(60, h * .07, 1.1) + cloud(250, h * .12, 1.3) + cloud(320, h * .3, .8) + cloud(110, h * .26, .9)
-      + `<rect x="40" y="${hz - 120}" width="280" height="120" fill="#F2E3C4"/>` + roofP(180, hz - 120, 290, 22, '#2C5A4F')
-      + [0, 1].flatMap(r => [0, 1, 2, 3, 4, 5].map(c => `<rect x="${60 + c * 42}" y="${hz - 100 + r * 46}" width="24" height="26" fill="#9FD0EE"/>`)).join('')
-      + `<rect x="326" y="${hz - 190}" width="4" height="190" fill="#8A8A8A"/><path d="M330 ${hz - 188}H366V${hz - 164}H330Z" fill="#E5483F"/>`
-      + [-1, 1].map(k => `<rect x="${180 + k * 56 - 7}" y="${g - 104}" width="14" height="104" fill="#D9443A"/>`).join('') + roofP(180, g - 104, 130, 16, '#2C5A4F') + `<rect x="150" y="${g - 98}" width="60" height="22" fill="#F4C14E"/>`
-      + tree(18, hz + 8, 1.3, '#6FB05A', '#5E9C4C') + tree(344, hz + 10, 1.2, '#6FB05A', '#5E9C4C')
-      + band(hz, h, '#BCDB8C', '#94C06A', 'g')
-      + `<ellipse cx="180" cy="${h * .84}" rx="170" ry="${h * .1}" fill="none" stroke="#E0896A" stroke-width="16" opacity=".75"/><ellipse cx="180" cy="${h * .84}" rx="140" ry="${h * .065}" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>`;
-  } else if (un === 6) {   // dusk at the station, the last train home
-    s = sky([[0, '#26204C'], [.32, '#5A3470'], [.5, '#C25E66'], [.6, '#F09A6A'], [1, '#F09A6A']])
-      + stars(16, 4, h * .26) + `<circle cx="70" cy="${h * .12}" r="13" fill="#FFF1C4"/>` + glow(70, h * .12, 30, '#FFF1C4', .5)
-      + `<path d="M-10 ${hz}V${hz - 80}H34V${hz - 120}H80V${hz - 70}H116V${hz - 150}H164V${hz - 96}H206V${hz - 128}H252V${hz - 84}H290V${hz - 160}H338V${hz - 90}H370V${hz}Z" fill="#3A2A6A"/>`
-      + Array.from({ length: 28 }, () => { const x = Math.round(rnd() * 33) * 10 + 8, y = hz - 20 - Math.round(rnd() * 10) * 12; return `<rect x="${x}" y="${y}" width="6" height="7" fill="#FFD98A" opacity="${rnd() > .4 ? .9 : .4}"/>`; }).join('')
-      + `<rect x="-10" y="${hz + 4}" width="380" height="14" fill="#2C2252"/>` + [0, 1, 2, 3, 4].map(i => `<path d="M${i * 84 - 10} ${hz + 70}V${hz + 18}Q${i * 84 + 32} ${hz + 30} ${i * 84 + 74} ${hz + 18}V${hz + 70}" fill="none" stroke="#2C2252" stroke-width="10"/>`).join('')
-      + `<rect x="196" y="${hz - 28}" width="190" height="34" rx="12" fill="#D9E2EE"/><rect x="196" y="${hz - 12}" width="190" height="6" fill="#E5483F"/>` + [0, 1, 2, 3, 4].map(i => `<rect x="${212 + i * 32}" y="${hz - 22}" width="20" height="9" fill="#FFD98A"/>`).join('')
-      + band(hz + 18, h, '#3A2A64', '#231A44', 'g')
-      + [[60, h * .72], [300, h * .76]].map(([x, y]) => `<rect x="${x - 3}" y="${y}" width="6" height="${h * .14}" fill="#171230"/>` + glow(x, y, 34, '#FFD98A', .6) + `<circle cx="${x}" cy="${y}" r="8" fill="#FFE9B0"/>`).join('')
-      + `<path d="M150 ${h}L172 ${hz + 70}M210 ${h}L188 ${hz + 70}" stroke="#5A4A80" stroke-width="5"/>` + [.78, .86, .95].map(t => `<path d="M${180 - 30 * t * 1.2} ${h * t}H${180 + 30 * t * 1.2}" stroke="#5A4A80" stroke-width="5"/>`).join('');
-  } else if (un === 7) {   // snow day: pines, a snowman and the doctor's house
-    s = sky([[0, '#A6C4E2'], [.5, '#E8F2FB'], [1, '#E8F2FB']])
-      + cloud(80, h * .06, 1.3, '#F4F8FC') + cloud(280, h * .1, 1.1, '#F4F8FC')
-      + `<path d="M-10 ${hz}Q60 ${hz - 70} 140 ${hz - 20}T300 ${hz - 50}T380 ${hz - 10}V${hz}Z" fill="#D6E4F2"/>`
-      + house(250, hz + 6, 96, 74, '#F2E6D8', '#8A5A4A', '#FFE9B0') + `<path d="M${250 - 60} ${hz - 82}H${250 + 60}" stroke="#fff" stroke-width="8" stroke-linecap="round"/><rect x="238" y="${hz - 60}" width="24" height="24" fill="#fff"/><path d="M250 ${hz - 56}V${hz - 40}M242 ${hz - 48}H258" stroke="#E5483F" stroke-width="5"/>`
-      + pine(40, hz + 8, 1.2, '#4E7A6A', 1) + pine(96, hz + 4, .9, '#5A8A78', 1) + pine(336, hz + 8, 1.1, '#4E7A6A', 1)
-      + band(hz, h, '#F6FAFE', '#DDE8F2', 'g')
-      + [[90, h * .82], [270, h * .9]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="60" ry="10" fill="#C8D8EA" opacity=".7"/>`).join('')
-      + `<circle cx="120" cy="${h * .76}" r="26" fill="#fff"/><circle cx="120" cy="${h * .76 - 36}" r="17" fill="#fff"/><path d="M120 ${h * .76 - 36}l14 4l-14 3Z" fill="#F4A23C"/><rect x="104" y="${h * .76 - 24}" width="32" height="6" fill="#E5483F"/>`
-      + Array.from({ length: 70 }, () => `<circle cx="${(rnd() * 360).toFixed(0)}" cy="${(rnd() * h).toFixed(0)}" r="${(2 + rnd() * 2.6).toFixed(1)}" fill="#fff" opacity=".9"/>`).join('');
-  } else {   // at home: the table the present is hidden under
-    s = sky([[0, '#F2C9A0'], [.6, '#E9B78A'], [1, '#E9B78A']])
-      + `<rect x="200" y="${h * .1}" width="120" height="${h * .22}" fill="#BDE3F5"/>` + cloud(240, h * .17, .6) + `<path d="M260 ${h * .1}V${h * .32}M200 ${h * .21}H320" stroke="#8A5A2E" stroke-width="7"/><rect x="194" y="${h * .1 - 6}" width="132" height="${h * .22 + 12}" fill="none" stroke="#8A5A2E" stroke-width="8"/>`
-      + `<rect x="40" y="${h * .12}" width="90" height="${h * .26}" fill="#5A3B1E"/><rect x="48" y="${h * .14}" width="74" height="${h * .22}" fill="#B8332C"/>`
-      + string(-10, h * .05, 370, h * .05, 30, 12, flag(['#E5483F', '#F4C14E', '#5CC8A8']))
-      + lantern(160, h * .22, 12) + lantern(340, h * .4, 10)
-      + band(hz, h, '#C98E55', '#A8703E', 'g') + [1, 2, 3, 4, 5].map(i => `<path d="M-10 ${hz + i * (h - hz) / 5}H370" stroke="#9A6436" stroke-width="3"/>`).join('')
-      + `<ellipse cx="180" cy="${h * .82}" rx="150" ry="${h * .07}" fill="#B8332C" opacity=".55"/>`
-      + `<rect x="54" y="${hz + 10}" width="252" height="20" rx="4" fill="#7A4A22"/>` + [70, 278].map(x => `<rect x="${x}" y="${hz + 28}" width="14" height="${h * .26}" fill="#6A3E1C"/>`).join('')
-      + `<rect x="150" y="${hz + 30 + h * .26 - 56}" width="62" height="56" fill="#E5483F"/><rect x="176" y="${hz + 30 + h * .26 - 56}" width="10" height="56" fill="#F4C14E"/><rect x="150" y="${hz + 30 + h * .26 - 34}" width="62" height="10" fill="#F4C14E"/>`;
-  }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="${Math.round(h)}" viewBox="0 0 360 ${Math.round(h)}">${s}</svg>`;
+/* ---------- a unit's world: a little 3D town seen from above at an angle, a bamboo steamer for every lesson ----------
+   The campaign stands in an isometric picture of the place its comic starts (Unit 1 the town gate on lantern night, 2
+   the clock tower on the evening of the party, 3 the market, 4 the restaurant, 5 the school, 6 the station at dusk,
+   7 the doctor's house in the snow, 8 the yard with the present under the table). The ground is diamond tiles, each a
+   田字格 (solid edge, dashed cross); houses are blocks with a lit top, a mid left wall and a dark right wall, shadows
+   fall to the right and every lamp and window glows on the ground around it. It is painted once into a canvas (unitWorld)
+   and again when the size changes.
+   Every lesson is a woven bamboo steamer (蒸笼) standing where the path passes: its character is branded on the lid.
+   The next one glows with a red rim and steam seeping out; the ones to come are grey with a lock; finished ones stay
+   shut and fade to half. Coming back from a lesson you just finished, its lid lifts, a plain little baozi with a face
+   pops up, Shi Shi lunges and eats it in three bites, the lid drops back and he hops on to the next one (unitEat).
+   The dotted path lies on the ground as glowing dots, gold where you have been. Hu Hu waits on a paved plaza. */
+const UW_PAL = {
+  1: { glow: 'night', grass: '#355A55', grass2: '#3C6259', plaza: '#857A94', wall: '#B5483E', wall2: '#C9A56A', roof: '#283350', win: '#FFC45E', tree: '#2F5E50', tree2: '#3E7462', trunk: '#4A3424', rock: '#6A6A7E', shadow: 'rgba(8,6,30,.34)', amb: 'rgba(20,16,60,.14)', grid: '255,240,220', vig: 'rgba(10,6,30,.5)' },
+  2: { glow: 'dusk', grass: '#93A863', grass2: '#9DB06A', plaza: '#ECCBA2', wall: '#E0A07A', wall2: '#D98A8A', roof: '#5A3E6E', win: '#FFD98A', tree: '#4E7A42', tree2: '#62904E', trunk: '#6A4A30', rock: '#9A8E86', shadow: 'rgba(90,30,60,.3)', tint: 'rgba(255,110,90,.32)', grid: '70,40,30', vig: 'rgba(80,40,60,.2)' },
+  3: { grass: '#9CBF6A', grass2: '#A8CA74', plaza: '#EFDDB4', wall: '#F2E3C4', wall2: '#E8C690', roof: '#3E6A5E', win: '#9FD0EE', tree: '#5E9C4C', tree2: '#74B05C', trunk: '#7A5236', rock: '#A9A49A', shadow: 'rgba(40,40,20,.24)', grid: '70,50,20', vig: 'rgba(80,50,30,.14)' },
+  4: { grass: '#A9B56A', grass2: '#B3BE72', plaza: '#EAD2A8', wall: '#E8CFA4', wall2: '#DDB48C', roof: '#2D3F5E', win: '#FFE3A0', tree: '#5E8C48', tree2: '#76A55A', trunk: '#7A5236', rock: '#A89E90', shadow: 'rgba(60,40,20,.26)', tint: 'rgba(255,170,90,.22)', grid: '70,50,20', vig: 'rgba(80,50,30,.16)' },
+  5: { grass: '#A4CC72', grass2: '#AED47C', plaza: '#E8DCBC', wall: '#F2E6C8', wall2: '#EAD9B8', roof: '#2C5A4F', win: '#9FD0EE', tree: '#5E9C4C', tree2: '#78B460', trunk: '#7A5236', rock: '#A9A49A', shadow: 'rgba(30,50,30,.24)', grid: '50,60,30', vig: 'rgba(60,60,30,.12)' },
+  6: { glow: 'night', grass: '#3E4868', grass2: '#444F70', plaza: '#7E7290', wall: '#8A5A6E', wall2: '#7A6A8A', roof: '#2A2448', win: '#FFD98A', tree: '#2E4A50', tree2: '#3C5C60', trunk: '#3A2A2A', rock: '#6A6A80', shadow: 'rgba(10,6,30,.34)', tint: 'rgba(255,120,90,.28)', grid: '255,235,220', vig: 'rgba(20,10,40,.45)' },
+  7: { snow: 1, grass: '#EEF3F8', grass2: '#E6EDF5', plaza: '#D6DFEA', wall: '#F2E6D8', wall2: '#E8D4C4', roof: '#8A5A4A', win: '#FFE9B0', tree: '#4E7A6A', tree2: '#5E8C7A', trunk: '#5A4030', rock: '#9AA4B4', shadow: 'rgba(60,80,130,.22)', grid: '60,80,120', vig: 'rgba(60,80,120,.14)' },
+  8: { glow: 'dusk', grass: '#9AA868', grass2: '#A4B070', plaza: '#E2C49A', wall: '#C9584A', wall2: '#E0B080', roof: '#3A2E4E', win: '#FFD98A', tree: '#557A44', tree2: '#6A9054', trunk: '#6A4A30', rock: '#9A8E86', shadow: 'rgba(70,30,40,.28)', tint: 'rgba(255,150,90,.26)', grid: '70,40,30', vig: 'rgba(70,40,40,.2)' },
+};
+const uwHex = c => c[0] === '#' ? [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)) : c.match(/\d+/g).slice(0, 3).map(Number);
+const uwSh = (c, k) => `rgb(${uwHex(c).map(v => Math.round(Math.max(0, Math.min(255, k >= 0 ? v + (255 - v) * k : v * (1 + k))))).join(',')})`;   // k > 0 lighter, k < 0 darker
+const UW_HZ = '"Noto Serif SC","Songti SC","STSong",serif';
+/* the path's curves, in the map's 360-wide units: one smooth line through the nodes, looping outward where a row turns back */
+const unitSegs = pts => pts.slice(1).map(([x1, y1], k) => { const [x0, y0] = pts[k];
+  if (Math.abs(x1 - x0) < 8) { const s = x0 > 180 ? 1 : -1; return [[x0, y0], [x0 + s * 76, y0 + 10], [x1 + s * 76, y1 - 10], [x1, y1]]; }
+  return [[x0, y0], [(x0 + x1) / 2, y0], [(x0 + x1) / 2, y1], [x1, y1]]; });
+/* where everything stands, in pixels of the backdrop: each steamer's foot, the boss's plaza and the dots of the path */
+function uwGeo(un) {
+  const box = $('#unBg'), map = $('.un-map'); if (!box || !map) return null;
+  const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / 360; if (!B.width || !B.height) return null;
+  const st = unitState(un), n = st.ls.length, pts = unitNodes(n), FOOT = 24;
+  const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
+  const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked' }; });
+  const [bx, by] = px(pts[n]), trail = [];
+  let run = 0;
+  unitSegs(pts).forEach((s, si) => { let prev = px(s[0]);
+    for (let t = .02; t <= 1.0001; t += .02) { const u = 1 - t, p = px([0, 1].map(d => u * u * u * s[0][d] + 3 * u * u * t * s[1][d] + 3 * u * t * t * s[2][d] + t * t * t * s[3][d]));
+      run += Math.hypot(p[0] - prev[0], p[1] - prev[1]); prev = p;
+      if (run < 14) continue; run = 0;
+      if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 46) || Math.hypot(bx - p[0], (by - p[1]) * 2) < 64) continue;
+      trail.push({ x: p[0], y: p[1], done: si < st.at }); } });
+  return { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail };
 }
-/* the grid line colour for a unit's 田字格: light on the night pictures, dark on the day ones */
-const UNIT_BG_LINE = { 1: '255,240,220', 2: '255,240,220', 6: '255,240,220' };
-function unitBgDraw(un) {
-  const box = $('#unBg'), cv = box?.querySelector('canvas'); if (!cv) return;
-  const P = UNIT_BG_PX, W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
-  const cw = Math.ceil(W / P), ch = Math.ceil(H / P), key = `${un}:${cw}x${ch}`;
-  if (cv.dataset.k === key) return; cv.dataset.k = key;
-  const img = new Image();
-  img.onload = () => { if (!cv.isConnected) return; cv.width = cw; cv.height = ch; const c = cv.getContext('2d'); c.imageSmoothingEnabled = true; c.drawImage(img, 0, 0, cw, ch);
-    cv.style.width = cw * P + 'px'; cv.style.height = ch * P + 'px'; cv.classList.add('on'); };
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(unitScene(un, 360 * ch / cw));
-}
-addEventListener('resize', () => { if (S.view === 'course' && S.cUnit) unitBgDraw(S.cUnit); });
-/* the 田字格 tile laid over the backdrop: a cell is 6 blocks wide, its dashed cross falls on the block edges */
-const unitGrid = un => { const c = UNIT_BG_LINE[un] || '90,60,30', s = 6 * UNIT_BG_PX, m = s / 2, k = UNIT_BG_LINE[un] ? [.28, .2] : [.2, .14];
-  return `url('data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><path d="M0 .5H${s}M.5 0V${s}" stroke="rgba(${c},${k[0]})" stroke-width="1"/><path d="M${m} 0V${s}M0 ${m}H${s}" stroke="rgba(${c},${k[1]})" stroke-width="1" stroke-dasharray="2 2"/></svg>`)}')`; };
 
+/* one woven bamboo steamer standing at x,y. a (for the eating): lid = how far the lid is lifted (0 to 1), bun = the
+   baozi {rise 0..1, bites 0..3, side -1|1}, fade = how far it has faded to done (0 to 1) */
+function uwSteamer(c, lights, x, y, ch, state, a = {}) {
+  const rx = 34, ry = 16, h = 20, cur = state === 'cur', lockd = state === 'locked';
+  const ell = (cx, cy, ex, ey, fill) => { c.beginPath(); c.ellipse(cx, cy, ex, ey, 0, 0, 7); c.fillStyle = fill; c.fill(); };
+  const side = (by, ex, ey, hh) => { c.beginPath(); c.ellipse(x, by, ex, ey, 0, 0, Math.PI); c.lineTo(x - ex, by - hh); c.ellipse(x, by - hh, ex, ey, 0, Math.PI, 0, true); c.closePath(); };
+  const hg = stops => { const g = c.createLinearGradient(x - rx, 0, x + rx, 0); stops.forEach(([o, col]) => g.addColorStop(o, col)); return g; };
+  if (cur && !a.fade) {   // the glow on the ground around the next one
+    lights?.push([x, y - 20, 110, 1.3]);
+    c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 26, x, y, 70); g.addColorStop(0, 'rgba(255,170,60,0)'); g.addColorStop(.45, 'rgba(255,170,60,.5)'); g.addColorStop(1, 'rgba(255,120,40,0)');
+    c.fillStyle = g; c.beginPath(); c.ellipse(x, y, 70, 35, 0, 0, 7); c.fill(); c.restore();
+  }
+  c.save(); c.fillStyle = 'rgba(8,6,30,.3)'; c.beginPath(); c.ellipse(x + 13, y + 3, 41, 20, 0, 0, 7); c.fill(); c.restore();
+  c.save(); c.globalAlpha = state === 'done' ? .5 : 1 - .5 * (a.fade || 0);
+  const wood = lockd ? '#9C9488' : '#D2A868', dark = uwSh(wood, -.42), lift = (a.lid || 0) * 56;
+  side(y, rx, ry, h); c.fillStyle = hg([[0, uwSh(wood, -.05)], [.35, uwSh(wood, .12)], [1, uwSh(wood, -.45)]]); c.fill();
+  c.save(); side(y, rx, ry, h); c.clip(); c.strokeStyle = 'rgba(80,50,20,.28)'; c.lineWidth = 1;
+  for (let t = .06; t < 1; t += .055) { const px = x - Math.cos(t * Math.PI) * rx; c.beginPath(); c.moveTo(px, y - h); c.lineTo(px, y + ry); c.stroke(); }
+  c.restore();
+  [[y - 2, 4], [y - h + 3, 3.4]].forEach(([yy, w]) => { c.strokeStyle = dark; c.lineWidth = w; c.beginPath(); c.ellipse(x, yy, rx, ry, 0, .05, Math.PI - .05); c.stroke(); });
+  if (lift > 1) {   // open: the dark inside, and the baozi coming up out of it
+    ell(x, y - h, rx, ry, uwSh(wood, -.2)); ell(x, y - h + 1.5, rx - 4, ry - 2.5, '#5A3A1E');
+    const b = a.bun;
+    if (b && b.rise > 0 && b.bites < 3) {
+      const r = 24, s = .4 + .6 * Math.min(1, b.rise), by = y - h + 8 - 20 * b.rise, sd = b.side || -1;
+      c.save();
+      c.beginPath(); c.rect(x - 60, by - 80, 120, 80 + (y - h) - by); c.ellipse(x, y - h + 1.5, rx - 4, ry - 2.5, 0, 0, 7); c.clip();   // only above the near rim
+      if (b.bites) { c.beginPath(); c.rect(x - 80, by - 90, 160, 120);   // bites: holes on Shi Shi's side
+        [[.95, -.5, .55], [.35, -.55, .62]].slice(0, b.bites).forEach(([dx, dy, rr]) => { c.moveTo(x + sd * dx * r + rr * r, by + dy * r); c.arc(x + sd * dx * r, by + dy * r, rr * r, 0, 7); }); c.clip('evenodd'); }
+      c.translate(x, by); c.scale(s, s * (b.rise < 1 ? 1.08 : 1));
+      c.beginPath(); c.ellipse(0, 0, r, r * .42, 0, 0, Math.PI); c.bezierCurveTo(-r * 1.02, -r * .7, -r * .35, -r * .98, 0, -r * .98); c.bezierCurveTo(r * .35, -r * .98, r * 1.02, -r * .7, r, 0); c.closePath();
+      const g = c.createRadialGradient(-r * .35, -r * .6, r * .1, 0, -r * .3, r * 1.2); g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, '#EEDFC6'); c.fillStyle = g; c.fill();
+      c.strokeStyle = '#C9A27A'; c.lineWidth = 1.6; c.stroke();
+      c.strokeStyle = 'rgba(170,130,90,.6)'; c.lineWidth = 1.1; c.lineCap = 'round';
+      [-.4, -.13, .14, .4].forEach(t => { c.beginPath(); c.moveTo(t * r * .4, -r * .95); c.quadraticCurveTo(t * r * 1.1, -r * .78, t * r * 1.5, -r * .58); c.stroke(); });
+      c.fillStyle = '#3B1A12'; [-1, 1].forEach(k => { c.beginPath(); c.ellipse(k * 7.5, -r * .3, 2, 2.5, 0, 0, 7); c.fill(); });
+      c.fillStyle = 'rgba(255,138,150,.8)'; [-1, 1].forEach(k => { c.beginPath(); c.ellipse(k * 13.5, -r * .2, 3.2, 2, 0, 0, 7); c.fill(); });
+      c.strokeStyle = '#3B1A12'; c.lineWidth = 1.4; c.beginPath(); c.arc(0, -r * .24, 2.2, .3, Math.PI - .3); c.stroke();
+      c.restore();
+    }
+  }
+  // the lid: a low woven dome with a rim, the character branded on it
+  const ly = y - h - lift;
+  side(ly, rx + 1.5, ry + .8, 6); c.fillStyle = hg([[0, uwSh(wood, .05)], [1, uwSh(wood, -.4)]]); c.fill();
+  c.beginPath(); c.ellipse(x, ly - 6, rx + 1.5, ry + .8, 0, 0, 7); const lg = c.createLinearGradient(0, ly - 6 - ry, 0, ly - 6 + ry); lg.addColorStop(0, uwSh(wood, .32)); lg.addColorStop(1, uwSh(wood, .02)); c.fillStyle = lg; c.fill();
+  c.save(); c.beginPath(); c.ellipse(x, ly - 6, rx - 2, ry - 1.5, 0, 0, 7); c.clip(); c.strokeStyle = 'rgba(120,80,30,.25)'; c.lineWidth = .9;
+  for (let k = -10; k <= 10; k++) { c.beginPath(); c.moveTo(x + k * 4, ly - 6 - ry); c.lineTo(x + k * 4 + 8, ly - 6 + ry); c.moveTo(x + k * 4, ly - 6 - ry); c.lineTo(x + k * 4 - 8, ly - 6 + ry); c.stroke(); }
+  c.restore();
+  c.strokeStyle = dark; c.lineWidth = 2; c.beginPath(); c.ellipse(x, ly - 6, rx + 1.5, ry + .8, 0, 0, 7); c.stroke();
+  if (lockd) { c.save(); c.translate(x, ly - 6); c.scale(.95, .86); c.strokeStyle = c.fillStyle = uwSh(wood, -.5); c.lineWidth = 2.4; c.lineCap = 'round'; c.beginPath(); c.arc(0, -5, 4.6, Math.PI, 0); c.stroke(); c.fillRect(-6.5, -5, 13, 10); c.restore(); }
+  else { c.save(); c.translate(x, ly - 6); c.scale(1, .56); c.font = `700 30px ${UW_HZ}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#4A2A10'; c.fillText(ch, 0, 0); c.restore(); }
+  if (cur && !a.fade) { c.strokeStyle = '#E5483F'; c.lineWidth = 2.2; c.beginPath(); c.ellipse(x, ly - 6, rx + 3, ry + 2, 0, 0, 7); c.stroke(); }
+  c.restore();
+  // steam: seeping from under the lid of the next one, a puff when it opens
+  const puff = a.steam ?? (cur && !a.lid ? .55 : 0);
+  if (puff > 0) { c.save(); c.globalAlpha = puff; c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineCap = 'round'; c.lineWidth = 3.2;
+    const sy = a.lid ? ly - 10 : y - h - 2, rise = a.lid ? 12 * (a.lid || 0) : 0;
+    [-14, 0, 14].forEach((dx, k) => { const x0 = x + dx + (a.lid ? 0 : (k - 1) * 14), y0 = sy - rise; c.beginPath(); c.moveTo(x0, y0);
+      c.bezierCurveTo(x0 - 6, y0 - 8, x0 + 6, y0 - 14, x0, y0 - 22); c.bezierCurveTo(x0 - 5, y0 - 28, x0 + 4, y0 - 33, x0 + 1, y0 - 38); c.stroke(); });
+    c.restore(); }
+}
+
+function unitWorld(un, o = {}) {
+  const G = uwGeo(un); if (!G) return null;
+  const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2.5);
+  cv.width = Math.round(W * D); cv.height = Math.round(H * D); cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
+  const pal = UW_PAL[un] || UW_PAL[1], night = pal.glow === 'night', warm = !!pal.glow;
+  let seed = un * 131 + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const TW = 44, TH = 22, ox = W / 2, oy = H * .5;
+  const P = (i, j, z = 0) => [ox + (i - j) * TW / 2, oy + (i + j) * TH / 2 - z];
+  const IJ = (x, y) => { const a = (x - ox) / (TW / 2), b = (y - oy) / (TH / 2); return [(a + b) / 2, (b - a) / 2]; };
+  const poly = (pts, fill) => { c.beginPath(); pts.forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = fill; c.fill(); };
+  const vg = (y0, y1, a, b) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, a); g.addColorStop(1, b); return g; };
+  const key = (i, j) => i + ',' + j;
+
+  /* the ground: grass, and paving round the boss */
+  const cs = [IJ(-60, -60), IJ(W + 60, -60), IJ(-60, H + 60), IJ(W + 60, H + 60)];
+  const i0 = Math.floor(Math.min(...cs.map(p => p[0]))), i1 = Math.ceil(Math.max(...cs.map(p => p[0]))), j0 = Math.floor(Math.min(...cs.map(p => p[1]))), j1 = Math.ceil(Math.max(...cs.map(p => p[1])));
+  const pc = IJ(G.boss.x, G.boss.y), plaza = (i, j) => Math.abs(i + .5 - pc[0]) + Math.abs(j + .5 - pc[1]) < 5.2;
+  for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+    const n = (rnd() - .5) * .07, pz = plaza(i, j);
+    poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], uwSh(pz ? pal.plaza : (i * 7 + j * 3) % 5 ? pal.grass : pal.grass2, n + (pz && (i + j) % 2 ? -.06 : 0)));
+  }
+  for (let k = 0; k < 26; k++) { const x = rnd() * W, y = rnd() * H, r = 40 + rnd() * 30;   // soft darker patches
+    c.save(); c.translate(x, y); c.scale(1, .5); const g = c.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, uwSh(pal.grass, -.2)); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.globalAlpha = .4; c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill(); c.restore(); }
+  // 田字格 on every tile
+  c.lineWidth = .8; c.strokeStyle = `rgba(${pal.grid},.13)`; c.beginPath();
+  for (let i = i0; i <= i1 + 1; i++) { c.moveTo(...P(i, j0)); c.lineTo(...P(i, j1 + 1)); }
+  for (let j = j0; j <= j1 + 1; j++) { c.moveTo(...P(i0, j)); c.lineTo(...P(i1 + 1, j)); }
+  c.stroke(); c.strokeStyle = `rgba(${pal.grid},.09)`; c.setLineDash([3, 3]); c.beginPath();
+  for (let i = i0; i <= i1; i++) { c.moveTo(...P(i + .5, j0)); c.lineTo(...P(i + .5, j1 + 1)); }
+  for (let j = j0; j <= j1; j++) { c.moveTo(...P(i0, j + .5)); c.lineTo(...P(i1 + 1, j + .5)); }
+  c.stroke(); c.setLineDash([]);
+
+  /* the path, lying on the ground */
+  const objs = [], lights = [], occ = new Set();
+  for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j)) occ.add(key(i, j));
+  G.trail.forEach(({ x, y, done }) => {
+    const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b));
+    c.save(); c.globalCompositeOperation = 'lighter'; const r = done ? 13 : 9, g = c.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, done ? 'rgba(255,180,40,.55)' : 'rgba(255,240,210,.28)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, r, r * .55, 0, 0, 7); c.fill(); c.restore();
+    c.fillStyle = 'rgba(20,10,10,.35)'; c.beginPath(); c.ellipse(x, y + 1, 4.4, 2.4, 0, 0, 7); c.fill();
+    c.fillStyle = done ? '#FFC23A' : '#FFF4DC'; c.beginPath(); c.ellipse(x, y, 3.6, 2, 0, 0, 7); c.fill();
+    if (done) { c.fillStyle = '#FFF8DA'; c.beginPath(); c.ellipse(x, y - .3, 1.6, .9, 0, 0, 7); c.fill(); }
+  });
+  G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
+    if (s.i !== o.skip) objs.push({ z: si + sj + 1.5, draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
+
+  /* what stands in the town */
+  const free = (i, j, w, d, pad = 0) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > 50 && y < H - 30 && x > -20 && x < W + 20; };
+  const take = (i, j, w, d) => { for (let a = i; a < i + w; a++) for (let b = j; b < j + d; b++) occ.add(key(a, b)); };
+  // a free place for a landmark w by d tiles and tall px high: its height covers the tiles behind it on screen too, so those must be free as well
+  const spot = (w, d, cands, tall = 40) => { const up = Math.ceil(tall / TH); for (const [fx, fy] of cands) { const [ci, cj] = IJ(fx * W, fy * H), i = Math.round(ci - w / 2), j = Math.round(cj - d / 2);
+    for (const [di, dj] of [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [2, 0], [0, 2]]) { const a = i + di, b = j + dj;
+      if (free(a, b, w, d, 1) && free(a - up, b - up, w + up, d + up)) { take(a, b, w, d); return [a, b]; } } } return null; };
+  const SL = .045, shade = (i, j, w, d, h) => { const s = h * SL; c.fillStyle = pal.shadow; c.beginPath(); [P(i, j), P(i + w, j), P(i + w + s, j), P(i + w + s, j + d), P(i + s, j + d), P(i, j + d)].forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.closePath(); c.fill(); };
+  const blob = (i, j, r, h) => { const [x, y] = P(i + h * SL * .45, j); c.save(); c.globalAlpha = .6; c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x, y, r * 1.2, r * .6, 0, 0, 7); c.fill(); c.restore(); };
+  const block = (i, j, w, d, h, col, z0 = 0, deco) => {
+    const L = [P(i, j + d, z0), P(i + w, j + d, z0), P(i + w, j + d, z0 + h), P(i, j + d, z0 + h)], R = [P(i + w, j + d, z0), P(i + w, j, z0), P(i + w, j, z0 + h), P(i + w, j + d, z0 + h)];
+    poly(L, vg(L[3][1], L[0][1], uwSh(col, .08), uwSh(col, -.22))); poly(R, vg(R[3][1], R[0][1], uwSh(col, -.3), uwSh(col, -.48)));
+    poly([P(i, j, z0 + h), P(i + w, j, z0 + h), P(i + w, j + d, z0 + h), P(i, j + d, z0 + h)], uwSh(col, .18));
+    if (deco) { deco('L', (u0, u1, v0, v1) => [P(i + w * u0, j + d, z0 + h * v0), P(i + w * u1, j + d, z0 + h * v0), P(i + w * u1, j + d, z0 + h * v1), P(i + w * u0, j + d, z0 + h * v1)]);
+      deco('R', (u0, u1, v0, v1) => [P(i + w, j + d - d * u0, z0 + h * v0), P(i + w, j + d - d * u1, z0 + h * v0), P(i + w, j + d - d * u1, z0 + h * v1), P(i + w, j + d - d * u0, z0 + h * v1)]); }
+  };
+  const roof = (i, j, w, d, z, rh, col, o2 = .35) => {
+    const a = i - o2, b = j - o2, A = i + w + o2, B = j + d + o2, alongI = w >= d, m = alongI ? (d + 2 * o2) / 2 : (w + 2 * o2) / 2;
+    const r0 = alongI ? [a + m * .7, b + m] : [a + m, b + m * .7], r1 = alongI ? [A - m * .7, b + m] : [a + m, B - m * .7], Rp = p => P(p[0], p[1], z + rh);
+    if (alongI) { poly([P(a, b, z), P(A, b, z), Rp(r1), Rp(r0)], uwSh(col, .25)); poly([P(a, b, z), P(a, B, z), Rp(r0)], uwSh(col, .05)); poly([P(a, B, z), P(A, B, z), Rp(r1), Rp(r0)], uwSh(col, .02)); poly([P(A, b, z), P(A, B, z), Rp(r1)], uwSh(col, -.32)); }
+    else { poly([P(a, b, z), P(a, B, z), Rp(r1), Rp(r0)], uwSh(col, .2)); poly([P(a, b, z), P(A, b, z), Rp(r0)], uwSh(col, .25)); poly([P(A, b, z), P(A, B, z), Rp(r1), Rp(r0)], uwSh(col, -.3)); poly([P(a, B, z), P(A, B, z), Rp(r1)], uwSh(col, .02)); }
+    c.strokeStyle = uwSh(col, .45); c.lineWidth = 2.2; c.lineCap = 'round'; c.beginPath(); c.moveTo(...Rp(r0)); c.lineTo(...Rp(r1)); c.stroke();
+    c.strokeStyle = uwSh(col, -.45); c.lineWidth = 1.6; c.beginPath(); c.moveTo(...P(a, B, z)); c.lineTo(...P(A, B, z)); c.lineTo(...P(A, b, z)); c.stroke();
+    [[a, B], [A, B], [A, b]].forEach(([x, y]) => { const [px, py] = P(x, y, z); c.fillStyle = uwSh(col, -.2); c.beginPath(); c.moveTo(px - 3, py); c.quadraticCurveTo(px, py - 1, px + (x === a ? -4 : 4), py - 6); c.lineTo(px + 3, py); c.fill(); });
+  };
+  const wins = (f, q) => { const n = f === 'L' ? 2 : 1; for (let k = 0; k < n; k++) { const u = (k + .5) / n, pts = q(u - .22 / n, u + .22 / n, .32, .62); poly(pts, pal.win); if (warm) lights.push([pts[0][0] + 3, pts[0][1] - 6, 26, .55]); } };
+  const lantern = (x, y, r = 5) => { lights.push([x, y, r * 7, .9]); c.fillStyle = '#F4C14E'; c.fillRect(x - r * .5, y - r * 1.15, r, r * .4); c.fillRect(x - r * .5, y + r * .75, r, r * .4);
+    const g = c.createRadialGradient(x - r * .3, y - r * .3, 0, x, y, r); g.addColorStop(0, '#FF8A6A'); g.addColorStop(1, '#C9302A'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, r, r * .85, 0, 0, 7); c.fill(); };
+  const house = (i, j, w, d, h, wall, rf = pal.roof) => objs.push({ z: i + j + w + d, sh: () => shade(i - .3, j - .3, w + .6, d + .6, h + 18), draw: () => { block(i, j, w, d, h, wall, 0, wins); roof(i, j, w, d, h, 18, rf);
+    if (pal.snow) { c.strokeStyle = '#fff'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i - .35, j + d + .35, h)); c.lineTo(...P(i + w + .35, j + d + .35, h)); c.stroke(); } } });
+  const tree = (i, j, s = 1) => objs.push({ z: i + j + .5, sh: () => blob(i + .5, j + .5, 14 * s, 50 * s), draw: () => { const [x, y] = P(i + .5, j + .5);
+    c.fillStyle = pal.trunk; c.fillRect(x - 2.5 * s, y - 16 * s, 5 * s, 16 * s);
+    if (pal.snow) { [[-34, 15], [-22, 12], [-12, 9]].forEach(([dy, w]) => { poly([[x - w * s, y + (dy + 14) * s], [x, y + (dy - 12) * s], [x + w * s, y + (dy + 14) * s]], pal.tree); poly([[x - w * .45 * s, y + (dy + 1) * s], [x, y + (dy - 12) * s], [x + w * .45 * s, y + (dy + 1) * s]], '#fff'); }); return; }
+    [[0, -30, 15], [-8, -22, 11], [8, -21, 11], [0, -40, 10]].forEach(([dx, dy, r]) => { const X = x + dx * s, Y = y + dy * s, R = r * s, g = c.createRadialGradient(X - R * .4, Y - R * .5, R * .1, X, Y, R);
+      g.addColorStop(0, pal.tree2); g.addColorStop(.6, pal.tree); g.addColorStop(1, uwSh(pal.tree, -.35)); c.fillStyle = g; c.beginPath(); c.arc(X, Y, R, 0, 7); c.fill(); }); } });
+  const rock = (i, j, s = 1) => objs.push({ z: i + j + .5, sh: () => blob(i + .5, j + .5, 8 * s, 10), draw: () => { const [x, y] = P(i + .5, j + .5), g = c.createLinearGradient(x - 8 * s, y - 10 * s, x + 8 * s, y);
+    g.addColorStop(0, uwSh(pal.rock, .25)); g.addColorStop(1, uwSh(pal.rock, -.35)); c.fillStyle = g; c.beginPath(); c.moveTo(x - 9 * s, y); c.quadraticCurveTo(x - 9 * s, y - 11 * s, x - s, y - 12 * s); c.quadraticCurveTo(x + 9 * s, y - 10 * s, x + 9 * s, y); c.closePath(); c.fill(); } });
+  const pole = (i, j, h = 46) => objs.push({ z: i + j + .5, sh: () => shade(i + .44, j + .44, .12, .12, h), draw: () => { const [x, y] = P(i + .5, j + .5);
+    c.fillStyle = '#2A1C1C'; c.fillRect(x - 1.6, y - h, 3.2, h); c.fillRect(x - 6, y - h, 12, 2.4); lantern(x - 5, y - h + 8, 4.2); lantern(x + 5, y - h + 8, 4.2); lights.push([x, y, 34, .5]); } });
+  const at = (p, w, d, f) => { if (p) objs.push({ z: p[0] + p[1] + w + d, ...f(p[0], p[1]) }); };
+  const R = [.56, .5, .64, .3, .72, .8, .12].flatMap(fy => [.84, .16, .74, .26].map(fx => [fx, fy]));   // where a landmark may go (parts of the width and height), best first: beside the boss
+
+  /* each unit's landmark, from its comic */
+  if (un === 1) at(spot(1, 5, R, 92), 1, 5, (gi, gj) => { const h = 70; gj += 2.5;
+    return { sh: () => { shade(gi + .3, gj - 2 + .3, .4, .4, h); shade(gi + .3, gj + 2 + .3, .4, .4, h); shade(gi, gj - 2.6, 1, 6.2, 22); }, draw: () => {
+      poly([P(gi + .5, gj - 1.7), P(gi + .5, gj + 2.3), P(gi + .5, gj + 2.3, h - 6), P(gi + .5, gj - 1.7, h - 6)], 'rgba(255,214,140,.35)');
+      block(gi + .3, gj - 1.7, .4, .4, h, '#C2453B'); block(gi + .3, gj + 2.3, .4, .4, h, '#C2453B');
+      block(gi + .2, gj - 2.4, .6, 5.8, 9, '#3E6FA0', h - 10); block(gi + .4, gj - .5, .2, 2, 12, '#F4C14E', h - 24);
+      roof(gi + .1, gj - 2.6, .8, 6.2, h - 1, 14, '#2A5A4E', .5); block(gi + .25, gj - 1.2, .5, 3.4, 10, '#C2453B', h + 12); roof(gi + .2, gj - 1.4, .6, 3.8, h + 22, 12, '#2A5A4E', .45);
+      lantern(...P(gi + .5, gj - 1, h - 18), 4.5); lantern(...P(gi + .5, gj + 2, h - 18), 4.5); lights.push([...P(gi + .5, gj + .3, 10), 110, .7]); } }; });
+  if (un === 2) at(spot(2, 2, R, 176), 2, 2, (ti, tj) => { const h = 150; return { sh: () => shade(ti, tj, 2, 2, h + 24), draw: () => {
+    block(ti, tj, 2, 2, h, '#8E5A78', 0, (f, q) => { if (f !== 'L') return; const p = q(.2, .8, .62, .86), cx = p.reduce((s, v) => s + v[0], 0) / 4, cy = p.reduce((s, v) => s + v[1], 0) / 4;
+      c.save(); c.translate(cx, cy); c.transform(1, .5, 0, 1, 0, 0); c.fillStyle = '#FFF3D6'; c.beginPath(); c.arc(0, 0, 13, 0, 7); c.fill(); c.strokeStyle = '#3A2A5A'; c.lineWidth = 2.4; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -10); c.moveTo(0, 0); c.lineTo(-5.5, 8); c.stroke(); c.restore(); lights.push([cx, cy, 40, .6]); });
+    roof(ti, tj, 2, 2, h, 26, '#3A2A5A', .3); } }; });
+  if (un === 3) [['#E5483F', R[0]], ['#3E7FB1', R[1]], ['#F4C14E', R[2]], ['#5CC8A8', R[3]]].forEach(([aw, cand]) => at(spot(2, 1, [cand, ...R]), 2, 1, (i, j) => ({ sh: () => shade(i, j, 2, 1, 40), draw: () => {
+    block(i, j, 2, 1, 16, '#B07A44');
+    [[0, '#E5483F'], [.33, '#F4A23C'], [.66, '#8FD36A']].forEach(([u, fc]) => { const [x2, y2] = P(i + .35 + u * 1.4, j + .5, 19); c.fillStyle = fc; c.beginPath(); c.arc(x2, y2, 4, 0, 7); c.fill(); });
+    [[i + .05, j + .05], [i + 1.9, j + .05], [i + .05, j + .9], [i + 1.9, j + .9]].forEach(([a, b]) => block(a, b, .08, .08, 38, '#7A5236'));
+    for (let k = 0; k < 6; k++) { const a = i - .15 + k * 2.3 / 6, b = j - .2; poly([P(a, b, 40), P(a + 2.3 / 6, b, 40), P(a + 2.3 / 6, b + 1.4, 30), P(a, b + 1.4, 30)], k % 2 ? '#FFF6E8' : aw); }
+    poly([P(i - .15, j + 1.2, 30), P(i + 2.15, j + 1.2, 30), P(i + 2.15, j + 1.2, 26), P(i - .15, j + 1.2, 26)], uwSh(aw, -.3)); } })));
+  if (un === 4) at(spot(3, 2, R, 100), 3, 2, (i, j) => { const h = 50; return { sh: () => shade(i - .3, j - .3, 3.6, 2.6, h + 22), draw: () => {
+    block(i, j, 3, 2, h, '#C6402F', 0, (f, q) => { if (f === 'L') { poly(q(.25, .75, .64, .9), '#F4C14E'); poly(q(.38, .62, 0, .45), '#7A2418'); poly(q(.06, .26, .3, .58), pal.win); poly(q(.74, .94, .3, .58), pal.win); } else poly(q(.25, .75, .3, .6), pal.win); });
+    roof(i, j, 3, 2, h, 24, '#2D3F5E', .4); lantern(...P(i + .1, j + 2.1, h - 12), 5); lantern(...P(i + 2.9, j + 2.1, h - 12), 5);
+    c.save(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 4; c.lineCap = 'round'; [[.8, -1], [1.5, 1], [2.2, -1]].forEach(([u, k]) => { const [x, y] = P(i + u, j + 1, h + 30); c.beginPath(); c.moveTo(x, y); c.bezierCurveTo(x + k * 8, y - 10, x - k * 8, y - 18, x, y - 28); c.stroke(); }); c.restore(); } }; });
+  if (un === 5) { at(spot(4, 2, R, 62), 4, 2, (i, j) => { const h = 42; return { sh: () => shade(i - .3, j - .3, 4.6, 2.6, h + 20), draw: () => {
+      block(i, j, 4, 2, h, '#F2E3C4', 0, (f, q) => { const n = f === 'L' ? 4 : 2; for (let k = 0; k < n; k++) { const u = (k + .5) / n; poly(q(u - .3 / n, u + .3 / n, .5, .82), pal.win); poly(q(u - .3 / n, u + .3 / n, .12, .4), pal.win); } });
+      roof(i, j, 4, 2, h, 20, '#2C5A4F', .4); } }; });
+    at(spot(1, 1, R), 1, 1, (i, j) => ({ sh: () => shade(i + .45, j + .45, .1, .1, 110), draw: () => { block(i + .45, j + .45, .1, .1, 110, '#9A9A9A'); const [x, y] = P(i + .5, j + .5, 106);
+      c.fillStyle = '#E5483F'; c.beginPath(); c.moveTo(x + 2, y); c.quadraticCurveTo(x + 18, y - 4, x + 34, y + 4); c.lineTo(x + 34, y + 24); c.quadraticCurveTo(x + 18, y + 16, x + 2, y + 20); c.fill(); } })); }
+  if (un === 6) at(spot(5, 2, R), 5, 2, (i, j) => ({ sh: () => shade(i, j, 5, 2, 30), draw: () => {
+    block(i, j + 1.2, 5, .8, 8, '#8A8494'); c.strokeStyle = '#B8B0C8'; c.lineWidth = 1.6; [.3, .8].forEach(v => { c.beginPath(); c.moveTo(...P(i - 1, j + v)); c.lineTo(...P(i + 6, j + v)); c.stroke(); });
+    for (let k = 0; k < 2; k++) block(i + .2 + k * 2.3, j + .1, 2.1, .9, 24, '#D9E2EE', 0, (f, q) => { poly(q(0, 1, .3, .42), '#E5483F'); if (f === 'L') for (let m = 0; m < 3; m++) { const u = (m + .5) / 3, p = q(u - .1, u + .1, .52, .8); poly(p, pal.win); lights.push([p[0][0] + 3, p[0][1] - 4, 24, .5]); } });
+    block(i + 2.6, j + 1.3, .12, .12, 60, '#2A2448'); const [x, y] = P(i + 2.66, j + 1.36, 62); c.fillStyle = '#FFF3D6'; c.beginPath(); c.arc(x, y, 8, 0, 7); c.fill(); lights.push([x, y, 30, .8]);
+    c.strokeStyle = '#2A2448'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 6); c.moveTo(x, y); c.lineTo(x + 4, y + 2); c.stroke(); } }));
+  if (un === 7) { at(spot(2, 2, R), 2, 2, (i, j) => { const h = 34; return { sh: () => shade(i - .3, j - .3, 2.6, 2.6, h + 18), draw: () => {
+      block(i, j, 2, 2, h, '#F6F0E8', 0, (f, q) => { if (f === 'L') { const p = q(.36, .64, .35, .75), cx = p.reduce((s, v) => s + v[0], 0) / 4, cy = p.reduce((s, v) => s + v[1], 0) / 4; poly(p, '#fff'); c.fillStyle = '#E5483F'; c.fillRect(cx - 2, cy - 7, 4, 14); c.fillRect(cx - 7, cy - 2, 14, 4); } else poly(q(.3, .7, .35, .65), pal.win); });
+      roof(i, j, 2, 2, h, 18, pal.roof, .35); c.strokeStyle = '#fff'; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i - .35, j + 2.35, h)); c.lineTo(...P(i + 2.35, j + 2.35, h)); c.stroke(); } }; });
+    at(spot(1, 1, R), 1, 1, (i, j) => ({ sh: () => blob(i + .5, j + .5, 14, 40), draw: () => { const [x, y] = P(i + .5, j + .5);
+      [[y - 12, 14], [y - 34, 10]].forEach(([cy, r]) => { const g = c.createRadialGradient(x - r * .4, cy - r * .4, 1, x, cy, r); g.addColorStop(0, '#fff'); g.addColorStop(1, '#C8D6E6'); c.fillStyle = g; c.beginPath(); c.arc(x, cy, r, 0, 7); c.fill(); });
+      c.fillStyle = '#E5483F'; c.fillRect(x - 9, y - 26, 18, 4); c.fillStyle = '#F4A23C'; c.beginPath(); c.moveTo(x, y - 35); c.lineTo(x + 9, y - 33); c.lineTo(x, y - 31); c.fill(); } })); }
+  if (un === 8) { const hp = spot(3, 2, R); at(hp, 3, 2, (i, j) => ({ sh: () => shade(i - .3, j - .3, 3.6, 2.6, 52), draw: () => { block(i, j, 3, 2, 34, pal.wall, 0, wins); roof(i, j, 3, 2, 34, 18, pal.roof); } }));
+    at(spot(2, 1, R), 2, 1, (i, j) => ({ sh: () => shade(i, j, 2, 1, 22), draw: () => {
+      [[0, 0], [1.85, 0], [0, .85], [1.85, .85]].forEach(([a, b]) => block(i + a, j + b, .15, .15, 18, '#6A3E1C'));
+      block(i + .55, j + .25, .7, .5, 11, '#E5483F', 0, (f, q) => poly(q(.42, .58, 0, 1), '#F4C14E')); poly([P(i + .87, j + .25, 11), P(i + 1.03, j + .25, 11), P(i + 1.03, j + .75, 11), P(i + .87, j + .75, 11)], '#FFD866');
+      block(i - .1, j - .1, 2.2, 1.2, 4, '#8A5A2E', 18); } })); }
+
+  // lantern poles beside the path, now and then
+  let lastY = -1e9; G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
+  // houses and trees on the open ground
+  for (let t = 0, made = 0; t < 500 && made < (un === 3 ? 4 : 7); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
+    if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
+  for (let t = 0, made = 0; t < 400 && made < 26; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
+    if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
+
+  /* paint: shadows, then everything back to front, then light */
+  objs.forEach(b => b.sh && b.sh());
+  objs.sort((a, b) => a.z - b.z).forEach(b => b.draw());
+  if (pal.amb) { c.fillStyle = pal.amb; c.fillRect(0, 0, W, H); }
+  if (pal.tint) { c.save(); c.globalCompositeOperation = 'soft-light'; const t = c.createLinearGradient(0, 0, W, H); t.addColorStop(0, pal.tint); t.addColorStop(1, 'rgba(120,60,160,.3)'); c.fillStyle = t; c.fillRect(0, 0, W, H); c.restore(); }
+  c.save(); c.globalCompositeOperation = 'lighter';
+  lights.forEach(([x, y, r, a]) => { const g = c.createRadialGradient(x, y, 0, x, y, r), k = (night ? .32 : warm ? .2 : .12) * a; g.addColorStop(0, `rgba(255,190,90,${k})`); g.addColorStop(1, 'rgba(255,190,90,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, 2 * r, 2 * r); });
+  c.restore();
+  if (un === 1) for (let k = 0; k < 7; k++) {   // sky lanterns drifting over the town
+    const x = 30 + rnd() * (W - 60), y = 60 + rnd() * (H * .6), s = 3 + rnd() * 2.4;
+    c.fillStyle = 'rgba(8,6,30,.25)'; c.beginPath(); c.ellipse(x + 26, y + 70, s * 1.6, s * .7, 0, 0, 7); c.fill();
+    c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, s * 6); g.addColorStop(0, 'rgba(255,200,110,.45)'); g.addColorStop(1, 'rgba(255,200,110,0)'); c.fillStyle = g; c.fillRect(x - s * 6, y - s * 6, s * 12, s * 12); c.restore();
+    c.fillStyle = '#FFD58A'; c.beginPath(); c.moveTo(x - s, y - s * 1.3); c.lineTo(x + s, y - s * 1.3); c.lineTo(x + s * .8, y + s); c.lineTo(x - s * .8, y + s); c.fill(); }
+  if (pal.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { c.beginPath(); c.arc(rnd() * W, rnd() * H, 1.2 + rnd() * 1.8, 0, 7); c.fill(); } }
+  const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H);
+  cv.classList.add('on');
+  return G;
+}
+
+/* one bite: a short soft crunch, a burst of noise through a low filter with a little drop in pitch under it */
+function uwChomp() {
+  try { const c = acx(), t = c.currentTime + .01, n = c.createBuffer(1, c.sampleRate * .09, c.sampleRate), d = n.getChannelData(0);
+    for (let k = 0; k < d.length; k++) d[k] = (Math.random() * 2 - 1) * (1 - k / d.length) ** 2;
+    const src = c.createBufferSource(), lp = c.createBiquadFilter(), g = c.createGain(); src.buffer = n; lp.type = 'lowpass'; lp.frequency.value = 1400; g.gain.value = .35;
+    src.connect(lp).connect(g).connect(c.destination); src.start(t);
+    const o = c.createOscillator(), v = c.createGain(); o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(110, t + .08);
+    v.gain.setValueAtTime(.16, t); v.gain.exponentialRampToValueAtTime(.0001, t + .1); o.connect(v).connect(c.destination); o.start(t); o.stop(t + .12);
+  } catch (_) {}
+}
+/* the baozi of a lesson you just finished: the lid lifts, a little baozi pops up, Shi Shi eats it in three bites, the
+   lid drops back and the steamer fades to done. then: what happens after (Shi Shi hops on) */
+function unitEat(un, i, then) {
+  const G = unitWorld(un, { skip: i }), s = G?.spots[i], shi = $('#unShi'); if (!s || !shi) { then(); return; }
+  const cv = document.createElement('canvas'), D = Math.min(devicePixelRatio || 1, 2.5); cv.className = 'uw-anim'; G.box.append(cv);
+  cv.width = Math.round(G.W * D); cv.height = Math.round(G.H * D); cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px';
+  const c = cv.getContext('2d'), side = shi.getBoundingClientRect().left + 36 < s.x + G.box.getBoundingClientRect().left ? -1 : 1;
+  const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 - (1 - t) ** 3, back = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 + 2.7 * (t - 1) ** 3 + 1.7 * (t - 1) ** 2;
+  const crumbs = [], t0 = performance.now(), mood = m => { shi.innerHTML = shiBody(m); };
+  let bites = 0;
+  const bite = () => { bites++; haptic(12); uwChomp(); for (let k = 0; k < 7; k++) crumbs.push({ x: s.x + side * 16, y: s.y - 50, vx: side * (.5 + Math.random() * 1.6), vy: -1.6 - Math.random() * 1.6, born: performance.now() }); };
+  shi.style.setProperty('--lx', `${-side * 26}px`); shi.style.setProperty('--lr', `${-side * 10}deg`);
+  setTimeout(() => { mood('wow'); shi.classList.add('lunge'); }, 820);
+  setTimeout(() => shi.classList.add('chomp'), 960);
+  [1000, 1250, 1500].forEach(ms => setTimeout(bite, ms));
+  setTimeout(() => { shi.classList.remove('lunge', 'chomp'); mood('love'); }, 1720);
+  const frame = now => {
+    if (!cv.isConnected) return;
+    const t = now - t0, lid = t < 1800 ? ease(t / 380) : 1 - ease((t - 1800) / 320), rise = back((t - 300) / 420), fade = ease((t - 2150) / 320);
+    c.setTransform(D, 0, 0, D, 0, 0); c.clearRect(0, 0, G.W, G.H);
+    uwSteamer(c, null, s.x, s.y, s.ch, 'cur', { lid, steam: t < 300 ? .55 : Math.max(0, 1 - (t - 300) / 900), bun: t > 300 ? { rise, bites, side } : null, fade: t > 1800 ? Math.max(.001, fade) : 0 });
+    crumbs.forEach(p => { const a = (now - p.born) / 16; if (a > 40) return; c.fillStyle = '#F2E2C4'; c.beginPath(); c.arc(p.x + p.vx * a, p.y + p.vy * a + .09 * a * a, 1.8, 0, 7); c.fill(); });
+    if (t < 2520) { requestAnimationFrame(frame); return; }
+    unitWorld(un); cv.remove(); then();
+  };
+  requestAnimationFrame(frame);
+}
+let uwRz;
+addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { if (S.view === 'course' && S.cUnit && !$('.uw-anim')) unitWorld(S.cUnit); }, 150); });
 /* the final boss of every unit: Hu Hu, full height on his stone, arms folded, one brow up, a fang out, the champion's
    belt on. Beaten, he is dizzy: spiral eyes, a plaster, the belt gone */
 function bossTiger(beaten) {
@@ -9862,6 +10007,7 @@ function devSheet() {
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
       ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
+      ${p('devEat', 'Play: Shi Shi eats a baozi', 'Opens the unit you are on as if you had just finished its last lesson: the lid lifts and he eats it')}
       ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after the boss')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
@@ -9887,6 +10033,10 @@ function devSheet() {
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
     const unitPick = (title, f) => () => { closeSheet(); setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">${title}</h3><div class="list-group">${LES_UNITS.map(([en], u) => COMIC[u + 1] ? `<button class="list-btn" data-cu="${u + 1}"><span>Unit ${u + 1}<br><small>${esc(COMIC[u + 1].title)}</small></span><span class="side">${I.chev}</span></button>` : '').join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = () => { LOG.add('dev', `${f.name} ${b.dataset.cu}`); closeSheet(); setTimeout(() => f(+b.dataset.cu), 320); }; })), 320); };
     sh.querySelector('#devComic').onclick = unitPick('Which unit?', function comicPreview(un) { comicReplay(un, { demo: 1, all: 1 }); });
+    sh.querySelector('#devEat').onclick = play(function eatBaozi() {
+      const un = (LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1) || 1, at = Math.min(unitState(un).at, unitState(un).ls.length);
+      if (!at) { toast('Finish a lesson in this unit first'); return; }
+      (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(`#/course/1/unit/${un}`); });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
