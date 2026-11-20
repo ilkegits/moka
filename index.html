@@ -656,6 +656,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .scrim{position:absolute;inset:0;background:rgba(20,14,8,.38);opacity:0;transition:opacity .3s}
 #sheet-root.open .scrim{opacity:1}
 .sheet{position:absolute;left:0;right:0;bottom:var(--kb);margin:0 auto;max-width:480px;background:var(--paper);border-radius:28px 28px 0 0;
+  background:color-mix(in srgb,var(--paper) 99.5%,transparent);   /* not quite solid: with sparkling coins inside, Chrome took a solid sheet as a square and skipped the dark veil under its rounded top corners */
   padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-height:calc(100% - var(--kb) - 30px);overflow-y:auto;
   transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.85,.25,1), bottom .15s;box-shadow:0 -10px 40px rgba(0,0,0,.18);scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}   /* a scrollbar down the side squares off the top corner on computers; phones never show one */
@@ -9451,7 +9452,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.03';
+const APP_VERSION = '3.04';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
