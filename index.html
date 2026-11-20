@@ -1002,6 +1002,13 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-shopb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:14px}
 @media (prefers-reduced-motion:reduce){.tm-shopb .tm-lan,.tm-shopb-n{animation:none}}
 .tm-showing .tm-shopb{opacity:0;pointer-events:none}
+/* across from it: a gold medallion with your newest monument, the number you own on its bottom edge; a tap flies to that monument */
+.tm-monb{position:absolute;z-index:2;left:18px;top:58px;width:64px;height:74px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tm-monb svg{display:block;width:64px;height:74px;overflow:visible;filter:drop-shadow(0 5px 4px rgba(60,20,0,.3))}
+.tm-monb.none .tm-monb-pic{filter:brightness(0);opacity:.28}
+.tm-monb:active{transform:scale(.94)}
+.tm-monb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
+.tm-showing .tm-monb{opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.cp-big,.cp-gain.done b{animation:none}.cp-gain small{transition:none}}
 
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
@@ -6832,7 +6839,7 @@ function TrailView() {
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
       <div class="section-head cal-head tm-head pg-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
-      ${shopBtn(sts)}
+      ${shopBtn(sts)}${monBtn(sts)}
       <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
       <div class="tm-gobar">${goBtn()}</div>
     </div>
@@ -6855,6 +6862,18 @@ const shopBtn = sts => {   // the Shop lantern; lit, with a count, once you can 
     <rect x="21" y="54" width="22" height="6" rx="2" fill="${G}" stroke="${K}" stroke-width="1.6"/><path d="M28 60V72M30.7 60V73M33.3 60V73M36 60V72" stroke="#E8A21A" stroke-width="1.5" stroke-linecap="round"/></g>
     <rect x="10" y="68" width="44" height="17" rx="5" fill="#FFF8F2" stroke="#E7D2AE" stroke-width="1"/><text x="32" y="77" text-anchor="middle" dominant-baseline="central" style="font:700 12.5px var(--display)" fill="#9E1A14">Shop</text>
   </svg>${n ? `<i class="tm-shopb-n">${n}</i>` : ''}</button>`;
+};
+const monBtn = sts => {   // across from the Shop: a gold medallion with your newest monument and how many you own on its bottom edge; none yet: the next one, grey
+  const own = sts.filter(x => x.done), n = own.length, K = '#5A0F08';
+  const lv = n ? own.reduce((a, b) => ((db.monOwn?.[b.lv] || b.lv) >= (db.monOwn?.[a.lv] || a.lv) ? b : a)).lv : sts.find(x => !x.done).lv, c = TRAIL[lv - 1];
+  return `<button class="tm-monb tm-ui${n ? '' : ' none'}" data-act="map-city" data-lv="${lv}" aria-label="${n} of ${TRAIL.length} monuments are yours. Show ${c.name}"><svg viewBox="0 0 64 74" aria-hidden="true">
+    <defs><radialGradient id="tmMonGold" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#FFE98F"/><stop offset=".55" stop-color="#FFC21F"/><stop offset="1" stop-color="#D98A0E"/></radialGradient><clipPath id="tmMonClip"><circle cx="32" cy="31" r="21"/></clipPath></defs>
+    <circle cx="32" cy="31" r="29" fill="url(#tmMonGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
+    <image class="tm-monb-pic" href="mon/${c.id}-i.webp" x="9" y="8" width="46" height="46" clip-path="url(#tmMonClip)"/>
+    <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+    <rect x="${32 - (n > 9 ? 15 : 12)}" y="51" width="${n > 9 ? 30 : 24}" height="20" rx="10" fill="#D9412F" stroke="${K}" stroke-width="1.8"/>
+    <text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:800 13px var(--display)" fill="#fff">${n}</text>
+  </svg></button>`;
 };
 function goBtn() {   // Play, as in a game, bottom right: always there and always in the same place, whatever card is up or the camera does
   const sts = trailStates();
@@ -9000,7 +9019,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.91';
+const APP_VERSION = '2.92';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
