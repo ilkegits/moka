@@ -7602,6 +7602,7 @@ const Trail = (() => {
       anim = requestAnimationFrame(step); };
     stage.addEventListener('pointerdown', e => {
       if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('.tm-ui')) return;
+      if (e.isPrimary) pts.clear();   // v3.15: a first finger means no other is down: forget any whose lift the map never heard
       stop(); const p = loc(e); pts.set(e.pointerId, p);
       if (pts.size === 1) g = { id: e.pointerId, s: p, c: [CAM.x, CAM.y], on: false, hist: [[p[0], p[1], e.timeStamp]], hit: !!e.target.closest('[data-act]') };
       else if (pts.size === 2) { const [a, b] = [...pts.values()], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];   // two fingers: pinch
@@ -7646,7 +7647,7 @@ const Trail = (() => {
       const img = new Image(); img.src = `mon/${c.id}-t.webp`;
       const finish = () => {
         if (done) return; done = true; cancelAnimationFrame(rf); stop(); CAM.show = 0; stage.removeEventListener('pointerdown', finish, true);
-        drop?.cancel(); mon.style.opacity = ''; if (strip) mon.innerHTML = cutout(c);
+        drop?.cancel(); mon.style.opacity = ''; if (strip) setTimeout(() => { mon.innerHTML = cutout(c); });   // v3.15: swapped back just after the touch that ended it, not during it: a finger on the turntable picture lost its link to the map, the page swipe took it, and the map kept a ghost finger that turned every later touch into a zoom
         CAM.tilt = null; stage.classList.remove('tm-over', 'tm-showing'); size(); Object.assign(CAM, clampV(at(CAM.z))); apply(); end();
       };
       const sm = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
@@ -9926,7 +9927,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.14';
+const APP_VERSION = '3.15';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
