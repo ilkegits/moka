@@ -10,7 +10,7 @@ const BASE = {
   steel: '#C8D0DA', steel2: '#9AA6B4', window: '#3A4A5A', windowLit: '#5A4232', windowDark: '#2A221C', lantern: '#D9321F',
   hill: '#8DBA5C', wallGrey: '#B2A690', brickRed: '#A4553C', copper: '#4F9A7C', earth: '#CB9A62', tea: '#5E9440', tea2: '#79AC52', hillBlue: '#7E9A8E', tileGrey: '#7E7C7A',
   sand: '#E2C595', sand2: '#C9A274', camel: '#B98A56', yellowWall: '#E8C37A', archBlue: '#3E7FA6', domeGreen: '#3F9A70', bronze: '#8A6A3E',
-  cloud: '#FFFFFF', glassTeal: '#5A9E9A', sea: '#2EB6C9', shallow: '#7FE0D6', gilt: '#F0BE4E', cliff: '#B8A58A', beachSand: '#F1DDB2', foam: '#FFFFFF', palm: '#3E8B3A', palmTrunk: '#8A6A48', thatch: '#C9A363',
+  cloud: '#FFFFFF', glassTeal: '#5A9E9A', sea: '#22DADA', shallow: '#8FF0E6', gilt: '#F0BE4E', cliff: '#B8A58A', beachSand: '#FFF9EE', foam: '#FFFFFF', palm: '#3E8B3A', palmTrunk: '#8A6A48', thatch: '#C9A363',
   umbRed: '#D8392E', umbYellow: '#F2C230', umbBlue: '#2F7FC1', sail: '#FBF7EE',
   grass: '#8DB26A', plinth: '#D8CDBB', water: '#6FA2B8', lake: '#7DB0B0', tree: '#4F7F45', trunk: '#6A4A34', person: '#ffffff', skin: '#E7C3A0', boat: '#F2EEE6', cabin: '#C9302A',
 };
@@ -50,7 +50,7 @@ export const STYLES = [
     bg: () => gradientTex([[0, '#5E7BB0'], [.45, '#E8A27A'], [.8, '#F6C892'], [1, '#F7D9B0']]),
     material: role => { const metal = ['gold', 'steel', 'steel2'].includes(role), gilt = role === 'gilt', glossy = ['pearl', 'glass', 'water', 'lake', 'roofGold', 'roofBlue'].includes(role);
       return new THREE.MeshStandardMaterial({ color: col(role === 'pearl' ? '#F07FBA' : BASE[role] || '#ccc'), roughness: metal ? .32 : gilt ? .34 : glossy ? .22 : .78, metalness: metal ? .85 : gilt ? .5 : glossy ? .15 : 0,
-        emissive: col(role === 'light' ? '#FF3B30' : role === 'gilt' ? '#5A3800' : role === 'cloud' ? '#806A60' : role === 'sea' ? '#06343A' : role === 'shallow' ? '#1A4A44' : '#000'), emissiveIntensity: role === 'light' ? 2 : 1 }); },
+        emissive: col(role === 'light' ? '#FF3B30' : role === 'gilt' ? '#5A3800' : role === 'cloud' ? '#806A60' : role === 'sea' ? '#0E6668' : role === 'shallow' ? '#2E7A70' : role === 'beachSand' ? '#6A5E50' : '#000'), emissiveIntensity: role === 'light' ? 2 : 1 }); },
     lights: () => [new THREE.HemisphereLight('#8AA6D6', '#B07A50', .7), sun('#FFB36B', 3.6, [-16, 7, 10], true, 2)],
     exposure: 1.05,
   },

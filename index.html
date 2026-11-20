@@ -6156,7 +6156,7 @@ const TRAIL = [
   { lv: 6, id: 'potala', en: 'Lhasa', zh: '拉萨', site: [91.1, 29.7], cost: 176, price: 2500, name: 'Potala Palace', nzh: '布达拉宫', h: 32, w: 28, ic: [0.4948, 0.6783, 0.1215], it: [0.4997, 0.6574, 0.1765] },
   { lv: 7, id: 'goose', en: "Xi'an", zh: '西安', site: [108.9, 34.4], cost: 224, price: 500, name: 'Big Wild Goose Pagoda', nzh: '大雁塔', h: 48, w: 18, ic: [0.5077, 0.8171, 0.0209], it: [0.5077, 0.8171, 0.0209] },
   { lv: 8, id: 'heaven', en: 'Beijing', zh: '北京', site: [116.4, 40], cost: 288, price: 2000, name: 'Temple of Heaven', nzh: '天坛', h: 36, w: 24, ic: [0.5, 0.7188, 0.0218], it: [0.5, 0.6992, 0.0221] },
-  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, price: 5000, name: 'Great Wall', nzh: '长城', h: 21, w: 26, ic: [0.5003, 0.5643, 0.2187], it: [0.4923, 0.5719, 0.233] },
+  { lv: 9, id: 'wall', en: 'Badaling', zh: '八达岭', site: [114.2, 41.4], cost: 352, price: 5000, name: 'Great Wall', nzh: '长城', h: 20, w: 14, ic: [0.4551, 0.6624, 0.1825], it: [0.4983, 0.6461, 0.2207] },
   { lv: 10, id: 'sophia', en: 'Harbin', zh: '哈尔滨', site: [126.6, 45.75], cost: 416, price: 900, name: 'St. Sophia Cathedral', nzh: '圣索菲亚教堂', h: 40, w: 20, ic: [0.5305, 0.7489, 0.0305], it: [0.5304, 0.7491, 0.0316] },
   { lv: 11, id: 'tulou', en: 'Yongding', zh: '永定', site: [117.2, 25.1], cost: 480, price: 800, name: 'Fujian Tulou', nzh: '福建土楼', the: '', h: 12, w: 26, ic: [0.4343, 0.544, 0.3608], it: [0.4522, 0.5439, 0.367] },
   { lv: 12, id: 'dali', en: 'Dali', zh: '大理', site: [100.15, 25.7], cost: 544, price: 600, name: 'Three Pagodas', nzh: '崇圣寺三塔', h: 46, w: 20, ic: [0.3999, 0.8974, 0.0201], it: [0.4642, 0.8974, 0.0204] },
@@ -6164,7 +6164,7 @@ const TRAIL = [
   { lv: 14, id: 'idkah', en: 'Kashgar', zh: '喀什', site: [76.0, 39.5], cost: 672, price: 1000, name: 'Id Kah Mosque', nzh: '艾提尕尔清真寺', h: 36, w: 24, ic: [0.5005, 0.6847, 0.0897], it: [0.5052, 0.6831, 0.0944] },
   { lv: 15, id: 'emei', en: 'Emei Shan', zh: '峨眉山', site: [103.35, 29.5], cost: 736, price: 1400, name: 'Golden Summit', nzh: '金顶', h: 32, w: 23, ic: [0.4994, 0.6791, 0.0574], it: [0.4942, 0.6785, 0.0646] },
   { lv: 16, id: 'taipei', en: 'Taipei', zh: '台北', site: [121.15, 24.25], cost: 800, price: 3000, name: 'Taipei 101', nzh: '台北101', the: '', h: 46, w: 18, ic: [0.4999, 0.7655, 0.0212], it: [0.5, 0.7655, 0.0212] },
-  { lv: 17, id: 'beach', en: 'Sanya', zh: '三亚', site: [109.55, 18.45], cost: 864, price: 700, name: 'Yalong Bay', nzh: '亚龙湾', the: '', h: 11, w: 21, ic: [0.4997, 0.5241, 0.314], it: [0.4997, 0.5241, 0.314] },
+  { lv: 17, id: 'beach', en: 'Sanya', zh: '三亚', site: [109.55, 18.45], cost: 864, price: 700, name: 'Yalong Bay', nzh: '亚龙湾', the: '', h: 20, w: 14, ic: [0.5006, 0.4754, 0.1147], it: [0.5014, 0.4603, 0.0997] },
 ];
 const TRAIL_AT = TRAIL.map((c, i) => TRAIL.slice(0, i).reduce((a, x) => a + x.cost, 0));   // proven words before each monument starts
 const trailLv = w => w.hsk ?? S.H?.byHz.get(w.hanzi)?.lv;
@@ -6319,8 +6319,8 @@ const Trail = (() => {
     [112.8, 30], [114.3, 30.6], [116, 29.7], [117.6, 31], [118.8, 32], [120.3, 31.9], [121.8, 31.5]];
   const YELLOW = [[96.5, 35], [100, 36], [103.8, 36.1], [105.7, 37.5], [106.7, 39.5], [108.5, 40.8], [111, 40.7], [111.3, 39.4], [110.6, 37.5], [110.3, 35.5], [110.4, 34.6],
     [112.5, 34.7], [113.7, 34.9], [116, 36], [117, 36.7], [118.9, 37.6]];
-  const WALL = [[98.2, 39.8], [100.5, 38.9], [102.6, 37.9], [104.2, 37.6], [106.2, 38.5], [107.6, 37.9], [109.5, 38.7], [111.3, 39.7], [113, 40.3], [114.9, 40.6], [116.3, 40.45],
-    [117.8, 40.3], [119.8, 40]];
+  const WALL = [[98.2, 39.8], [100.5, 38.9], [102.6, 37.9], [104.2, 37.6], [106.2, 38.5], [107.6, 37.9], [109.5, 38.7], [111.3, 39.7], [113, 40.4], [114.2, 41.25], [115.6, 40.9], [116.3, 40.45],
+    [117.8, 40.3], [119.8, 40], [121.2, 41], [122.6, 42], [123.9, 41.8], [124.4, 40.2]];   // the Ming wall, Jiayuguan to the Yalu: through the Great Wall's spot (Badaling), past Shanhaiguan and round Liaodong
   /* ---- the terrain map ----
      The Map tab's picture: a flat map of China, quiet and uncluttered. The ground is one soft picture, painted once per
      visit onto a canvas from a hand-made model of the country's heights: wide fields of colour for each kind of country
@@ -6481,7 +6481,7 @@ const Trail = (() => {
       Object.assign(ctx, { shadowColor: 'rgba(18,72,92,.42)', shadowBlur: 11 * P, shadowOffsetX: 1.5 * P, shadowOffsetY: 5 * P, fillStyle: '#F8EFC8' }); ctx.fill(outline); ctx.stroke(outline);
       Object.assign(ctx, { shadowColor: 'transparent', shadowBlur: 0, shadowOffsetX: 0, shadowOffsetY: 0 }); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
       // what stands on the ground
-      const clear = (lon, lat, room) => { for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
+      const clear = (lon, lat, room) => { if (nearest(lon, lat, WALL, true)[0] < .5) return false; for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
       const T = TEX.things, ok = (lon, lat) => { const c = cell(lon, lat); return c >= 0 && M[c] && pip(lon, lat, CHINA) ? c : -1; }, put = (t, lon, lat, o) => { const [x, y] = wp(lon, lat); T.push({ t, x, y, ...o }); };
       for (const [hm, wd, pts] of RIDGE) { let n = 0;   // mountains: one peak every couple of degrees along each real range; the low ranges are green mounds instead
         for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (hm > 2400 ? (wd < .65 ? 2.5 : 1.8) : 1.6)));
@@ -6514,13 +6514,40 @@ const Trail = (() => {
      north to south. Boulders appear as you come closer, then ferns, flowers and sheep. */
   const PROPS = { cv: null, c: null, dpr: 1, lines: null };
   const TONE = { stone: ['#F2F5EE', '#B9C8B6', '#8FA69F'], sand: ['#FBEFC6', '#EBCF8E', '#CDAA6C'], dry: ['#EEF0C0', '#CFDD98', '#A9C17E'], green: ['#C6EE98', '#8FD06E', '#62AF58'], pine: ['#B4E29A', '#7CC47A', '#519E66'] };   // top, side in the light, side in shade
+  /* v2.88: once you own the Great Wall it is not only the picture at Badaling: the wall itself runs right across the north
+     of the map, from Jiayuguan in the desert to the Yalu, with a watchtower every few miles. It grows with zoom like the
+     monuments do (slower than the land), so it reads as a wall from far out and keeps its towers apart close up. */
+  const WALL_LV = TRAIL.find(t => t.id === 'wall').lv;
+  const wallPts = () => PROPS.wallPts ||= (() => { const P = WALL.map(q => wp(q[0], q[1])), out = [];   // the route, smoothed (Catmull-Rom) into points about a unit apart
+    for (let i = 0; i < P.length - 1; i++) { const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)], n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1])));
+      for (let k = 0; k < n; k++) { const t = k / n, t2 = t * t, t3 = t2 * t; out.push([0, 1].map(j => .5 * (2 * p1[j] + (p2[j] - p0[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (3 * p1[j] - p0[j] - 3 * p2[j] + p3[j]) * t3))); } }
+    out.push(P.at(-1)); return out; })();
+  function drawWall(c, z) {
+    const P = wallPts(), u = 1.4 * mScale() / z, H = 2.4 * u, D = 1.5 * u;   // u: 1.4 monument pixels in world units; the wall's height and the depth of its walkway
+    const trace = (dx, dy) => { c.beginPath(); P.forEach(([x, y], i) => c[i ? 'lineTo' : 'moveTo'](x + dx, y + dy)); };
+    trace(H * .45, D * .3); c.strokeStyle = 'rgba(30,75,55,.2)'; c.lineWidth = D * 1.6; c.stroke();   // its shadow on the ground
+    c.beginPath(); P.forEach(([x, y], i) => c[i ? 'lineTo' : 'moveTo'](x, y)); for (let i = P.length - 1; i >= 0; i--) c.lineTo(P[i][0], P[i][1] - H); c.closePath(); c.fillStyle = '#C3935F'; c.fill();   // the face that looks south
+    trace(0, 0); c.strokeStyle = '#A97C4E'; c.lineWidth = D; c.stroke();
+    trace(0, -H); c.strokeStyle = '#F4DDAA'; c.lineWidth = D; c.stroke();   // the walkway on top
+    c.setLineDash([u * .9, u * .9]); trace(0, -H - D * .55); c.strokeStyle = '#DDB57E'; c.lineWidth = u * 1.1; c.stroke(); c.setLineDash([]);   // battlements along its edge
+    let len = 0; const at = [0]; for (let i = 1; i < P.length; i++) { len += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); at.push(len); }
+    const gap = 7 * Math.pow(2, Math.max(0, Math.ceil(Math.log2(26 / (7 * z))))), towers = [];   // a tower every 7 units, every other one (or fewer) when they would come closer than 26 pixels
+    for (let d = 0, i = 0; d <= len; d += gap) { while (i < P.length - 2 && at[i + 1] < d) i++; const t = (d - at[i]) / ((at[i + 1] - at[i]) || 1); towers.push([P[i][0] + (P[i + 1][0] - P[i][0]) * t, P[i][1] + (P[i + 1][1] - P[i][1]) * t]); }
+    towers.push(P.at(-1));
+    for (const [x, y] of towers.sort((a, b) => a[1] - b[1])) { const w = 3 * u, h = H + 2.2 * u;   // a square watchtower: lit face, shaded side, a pale top with battlements and a dark door
+      c.fillStyle = 'rgba(30,75,55,.2)'; c.beginPath(); c.ellipse(x + w * .5, y + u * .3, w * .9, u * .8, 0, 0, 6.3); c.fill();
+      c.fillStyle = '#C99A66'; c.fillRect(x - w / 2, y - h, w, h); c.fillStyle = '#A27448'; c.fillRect(x + w * .18, y - h, w * .32, h);
+      c.fillStyle = '#F4DDAA'; c.fillRect(x - w / 2 - u * .2, y - h - u * .9, w + u * .4, u * .9);
+      c.fillStyle = '#DDB57E'; for (let k = 0; k < 3; k++) c.fillRect(x - w / 2 - u * .2 + k * (w + u * .4 - u * .7) / 2, y - h - u * 1.6, u * .7, u * .7);
+      c.fillStyle = '#6E4E33'; c.beginPath(); c.moveTo(x - u * .5, y); c.lineTo(x - u * .5, y - u * 1.1); c.arc(x, y - u * 1.1, u * .5, Math.PI, 0); c.lineTo(x + u * .5, y); c.fill(); }
+  }
   function drawProps() {
     const cv = PROPS.cv; if (!cv) return; const c = PROPS.c, q = PROPS.dpr, z = CAM.z;
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); if (!TEX.ready) return;
     c.setTransform(q * z, 0, 0, q * z, q * (CAM.w / 2 - CAM.x * z), q * (CAM.h / 2 - CAM.y * z)); c.lineCap = c.lineJoin = 'round';
     const L = PROPS.lines ||= { rivers: [new Path2D(line(YANGTZE)), new Path2D(line(YELLOW))], wall: new Path2D(line(WALL)) };
     for (const p of L.rivers) { c.strokeStyle = 'rgba(62,143,184,.25)'; c.lineWidth = 2.8; c.stroke(p); } for (const p of L.rivers) { c.strokeStyle = '#8FD6EF'; c.lineWidth = 1.7; c.stroke(p); }
-    c.setLineDash([.1, 3.2]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7; c.stroke(L.wall); c.setLineDash([]);
+    if (monOwns(WALL_LV)) drawWall(c, z); else { c.setLineDash([.1, 3.2]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7; c.stroke(L.wall); c.setLineDash([]); }
     /* the small things arrive once you are close enough, and then fade in over a moment and stay solid: how see-through they
        are depends on time, not on how far in you are, so they never sit half-visible. A little slack between the zoom that
        brings them and the zoom that sends them away keeps them from flickering at the edge. */
@@ -8962,7 +8989,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.86';
+const APP_VERSION = '2.88';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
