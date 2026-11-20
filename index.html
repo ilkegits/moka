@@ -4024,7 +4024,7 @@ function lesAct(k, b) {
       }
       if (E.ok || Q.again || E.test) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 350);
-      if (!Q.again) proveWord(Q.w.h, E.ok);   // a word already in your word bank, right again on another day
+      if (!Q.again) proveWord(Q.w.h, E.ok, !!E.test);   // a word already in your word bank, right again on another day; in a unit's final boss one right answer proves it
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
       lesPaint(); if (E.ok) lesAutoNext(); return;
     }
@@ -7245,8 +7245,8 @@ function srsGrade(c, g) {
 /* ---------- proven words: what builds the monuments on the Map ----------
    A word in the word bank is known (you ticked it, onboarding placed it, or you added it), proven (you got it right in
    practice on two different days) or mastered (still right three weeks or more after it was proven). Only proven words
-   build the temples, so ticking a list builds nothing by itself. In a Fast build a known word is proven with one right
-   answer. w.pf = { d: the day of the first right answer, at: when it was proven, m: when it was mastered } */
+   build the temples, so ticking a list builds nothing by itself. In a Fast build, and (v2.97) in a unit's final boss, a
+   word is proven with one right answer. w.pf = { d: the day of the first right answer, at: when it was proven, m: when it was mastered } */
 const MASTER_GAP = 21 * DAY;
 const wStage = w => w.pf?.m ? 'mastered' : w.pf?.at ? 'proven' : 'known';
 function proveWord(hz, ok, fast) {   // a right answer in practice; returns 'proven' or 'mastered' when the word moves up
@@ -9062,7 +9062,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.96';
+const APP_VERSION = '2.97';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
