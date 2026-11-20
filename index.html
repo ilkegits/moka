@@ -1529,23 +1529,60 @@ svg.sil{filter:brightness(0);opacity:.28}
 .st-fz p{margin:0;font-size:16px;line-height:1.3;color:var(--ink)}
 .st-fz span{display:block;margin-top:4px;font-size:13px;line-height:1.35;color:#3C78AE}
 .st-h{margin:26px 4px 12px;font-size:24px;font-weight:700;letter-spacing:-.02em}
-.st-cal{border:1.5px solid var(--line);border-radius:20px;padding:10px 10px 14px;margin-bottom:28px}
-.st-mon{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;margin-bottom:8px}
-.st-mon b{display:block;font-size:17px;font-weight:700}
-.st-mon small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+/* v3.06 the Streak calendar as a page of a Chinese tear-off almanac (ilkem): year, MONTH and 月 on top, today's page
+   (big date, 星期, the lunar date and a 宜 / 忌 pair of words to learn), a tear line, then the month. Every date has
+   its lunar day under it, as on a wall calendar, and Saturday and Sunday are printed in red. Streak days stay orange,
+   freeze days blue, and days in a row still join up into one band. */
+.st-cal{background:var(--card);border:3px double var(--line-2);border-radius:20px;padding:10px 10px 14px;margin-bottom:28px}
+.st-mon{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;padding-bottom:10px;border-bottom:3px double var(--line)}
+.st-mon b{display:flex;align-items:baseline;justify-content:center;gap:7px;white-space:nowrap}
+.st-mon b span{font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:.06em}
+.st-mon b span+span{font-size:14px;letter-spacing:.14em}
+.st-mon b em{font-family:var(--hanzi);font-style:normal;font-size:18px;font-weight:600;color:var(--seal)}
+.st-mon small{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
 .st-mon .icon-btn{color:var(--ink-2)}
 .st-mon .icon-btn:disabled{opacity:.25}
+/* today's page */
+.st-page-t{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;padding:14px 6px 16px;border-bottom:1.5px dashed var(--line-2);margin-bottom:8px}
+.st-date{width:72px;height:76px;border-radius:14px;border:2px solid var(--seal);color:var(--seal);display:grid;place-items:center;align-content:center;transition:transform .2s}
+.st-date:active{transform:scale(.94);transition:none}
+.st-date b{font-family:var(--display);font-size:44px;font-weight:600;line-height:.9;font-variant-numeric:lining-nums tabular-nums}
+.st-date small{margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.14em}
+.st-wkday{min-width:0}
+.st-wkday b{display:block;font-family:var(--hanzi);font-size:26px;font-weight:600;letter-spacing:.08em;color:var(--ink);line-height:1.15}
+.st-wkday span{display:block;margin-top:2px;font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--ink-2)}
+.st-wkday small{display:block;margin-top:4px;font-family:var(--hanzi);font-size:13px;color:var(--muted)}
+.st-yj{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st-yj button{display:flex;align-items:center;gap:9px;padding:8px 10px 8px 8px;border-radius:12px;background:var(--card-2);box-shadow:inset 0 0 0 1px var(--line);text-align:left;min-width:0;transition:transform .2s}
+.st-yj button:active{transform:scale(.96);transition:none}
+.st-yj i{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--hanzi);font-style:normal;font-size:19px;font-weight:600;background:var(--seal);color:var(--seal-ink)}
+.st-yj .ji i{background:none;color:var(--ink-2);box-shadow:inset 0 0 0 1.5px var(--ink-2)}
+.st-yj span{min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.st-yj b{font-family:var(--hanzi);font-size:16px;font-weight:600;color:var(--ink)}
+.st-yj em{font-style:normal;font-size:11.5px;color:var(--seal)}
+.st-yj .ji em{color:var(--ink-2)}
+.st-yj small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the month */
 .st-wk,.st-grid{display:grid;grid-template-columns:repeat(7,1fr)}
 .st-grid{row-gap:6px}
-.st-wk span{text-align:center;font-size:13px;font-weight:700;color:var(--muted);padding:4px 0 8px}
-.st-d{position:relative;height:42px;display:grid;place-items:center;font-size:15px;font-weight:600;color:var(--ink-2)}
-.st-d i{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-variant-numeric:tabular-nums}
-.st-d.later{color:var(--line-2)}
-.st-d.today i{box-shadow:inset 0 0 0 2px var(--ink-2);color:var(--ink)}
-.st-d.fire i{background:#E8742C;color:#fff}
-.st-d.frz i{background:#8EC7EF;color:#173E61}
-.st-d.today.fire i,.st-d.today.frz i{box-shadow:0 0 0 2px var(--paper),0 0 0 4px #E8742C}
-.st-d.jl::before,.st-d.jr::before{content:"";position:absolute;top:2px;bottom:2px;left:50%;right:50%;background:rgba(232,116,44,.28)}
+.st-wk span{text-align:center;font-family:var(--hanzi);font-size:14px;font-weight:600;color:var(--muted);padding:6px 0 8px}
+.st-wk span:nth-child(n+6){color:var(--seal)}
+.st-d{position:relative;height:48px;display:grid;place-items:center;color:var(--ink-2)}
+.st-d i{position:relative;z-index:1;width:40px;height:46px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-style:normal}
+.st-d i b{font-size:15px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.st-d i small{font-family:var(--hanzi);font-size:9px;line-height:1.2;color:var(--muted);white-space:nowrap}
+.st-d.we i b{color:var(--seal)}
+.st-d.l1 i small{color:var(--seal);font-weight:600}
+.st-d.later i b,.st-d.later i small{color:var(--line-2)}
+.st-d.today i{box-shadow:inset 0 0 0 2px var(--ink-2)}
+.st-d.today i b{color:var(--ink)}
+.st-d.fire i{background:#E8742C}
+.st-d.frz i{background:#8EC7EF}
+.st-d.fire i b,.st-d.fire i small{color:#fff}
+.st-d.frz i b,.st-d.frz i small{color:#173E61}
+.st-d.fire i small,.st-d.frz i small{opacity:.85}
+.st-d.today.fire i,.st-d.today.frz i{box-shadow:0 0 0 2px var(--card),0 0 0 4px #E8742C}
+.st-d.jl::before,.st-d.jr::before{content:"";position:absolute;top:4px;bottom:4px;left:50%;right:50%;background:rgba(232,116,44,.28)}
 .st-d.jl::before{left:0}
 .st-d.jr::before{right:0}
 button.st-d{transition:transform .2s}
@@ -4970,9 +5007,41 @@ function StreakView() {
     ${GoalRow()}
     ${db.earn ? `<div class="mo-card"><div style="flex:1"><b>Win back your ${db.earn.n}-day streak</b><small>Practise 3 days in a row by ${new Date(db.earn.until - DAY).toLocaleDateString('en-GB', { weekday: 'long' })}. It’s free.</small>
       <div class="mo-pips">${[0, 1, 2].map(i => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div></div></div>` : ''}
-    <h2 class="st-h">Streak calendar</h2>
+    <h2 class="st-h">Streak calendar <span class="cal-zh">日历</span></h2>
     ${StreakCal()}
   </div>`;
+}
+/* the lunar date of a day, as Chinese wall calendars print it under every date (初一 … 三十); on the first of a
+   lunar month the month itself (十月, 腊月). Empty where the browser has no Chinese calendar. */
+const LUNAR = (() => { try { return new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { month: 'long', day: 'numeric' }); } catch (_) { return null; } })();
+function lunar(date) {
+  try {
+    const parts = LUNAR.formatToParts(date), m = parts.find(x => x.type === 'month').value, n = +parts.find(x => x.type === 'day').value;
+    const t = '一二三四五六七八九十', day = n <= 10 ? '初' + t[n - 1] : n < 20 ? '十' + t[n - 11] : n === 20 ? '二十' : n < 30 ? '廿' + t[n - 21] : '三十';
+    return n ? { m, d: day, first: n === 1 } : null;
+  } catch (_) { return null; }
+}
+/* 宜 (good to do today) and 忌 (best avoided today), as on an almanac page: a new pair of easy words every day */
+const ST_YI = [['喝茶', 'hē chá', 'drink tea'], ['读书', 'dú shū', 'read'], ['写字', 'xiě zì', 'write characters'], ['散步', 'sàn bù', 'take a walk'],
+  ['做饭', 'zuò fàn', 'cook'], ['唱歌', 'chàng gē', 'sing'], ['早睡', 'zǎo shuì', 'sleep early'], ['见朋友', 'jiàn péng you', 'see friends'],
+  ['听音乐', 'tīng yīn yuè', 'listen to music'], ['吃水果', 'chī shuǐ guǒ', 'eat fruit'], ['运动', 'yùn dòng', 'exercise'], ['休息', 'xiū xi', 'rest'],
+  ['微笑', 'wēi xiào', 'smile'], ['复习', 'fù xí', 'review'], ['打扫', 'dǎ sǎo', 'tidy up'], ['写信', 'xiě xìn', 'write a letter'],
+  ['看电影', 'kàn diàn yǐng', 'watch a film'], ['爬山', 'pá shān', 'climb a hill'], ['喝水', 'hē shuǐ', 'drink water'], ['帮忙', 'bāng máng', 'help out'],
+  ['打电话', 'dǎ diàn huà', 'call someone'], ['学习', 'xué xí', 'study'], ['画画', 'huà huà', 'draw'], ['晒太阳', 'shài tài yáng', 'sit in the sun']];
+const ST_JI = [['熬夜', 'áo yè', 'staying up late'], ['生气', 'shēng qì', 'getting angry'], ['迟到', 'chí dào', 'being late'], ['偷懒', 'tōu lǎn', 'slacking off'],
+  ['着急', 'zháo jí', 'rushing'], ['放弃', 'fàng qì', 'giving up'], ['抱怨', 'bào yuàn', 'complaining'], ['说谎', 'shuō huǎng', 'telling lies'],
+  ['浪费', 'làng fèi', 'wasting things'], ['吃太多', 'chī tài duō', 'eating too much'], ['玩手机', 'wán shǒu jī', 'endless scrolling'], ['忘记', 'wàng jì', 'forgetting'],
+  ['吵架', 'chǎo jià', 'quarrelling'], ['担心', 'dān xīn', 'worrying']];
+function StreakToday(now) {
+  const y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), day = Math.floor(Date.UTC(y, m, d) / DAY), L = lunar(now);
+  const yi = ST_YI[day % ST_YI.length], ji = ST_JI[(day * 5 + 3) % ST_JI.length];
+  const w = (k, [hz, py, en]) => `<button class="${k}" data-act="st-say" data-zh="${hz}" aria-label="${k === 'yi' ? 'Good to do today' : 'Best avoided today'}: ${hz}, ${py}, ${en}. Tap to hear it">
+    <i>${k === 'yi' ? '宜' : '忌'}</i><span><b>${hz}</b><em>${py}</em><small>${en}</small></span></button>`;
+  return `<div class="st-page-t">
+      <button class="st-date" data-act="cal-day" data-d="${d}" data-y="${y}" data-m="${m}" aria-label="Today, ${now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}"><b>${d}</b><small>TODAY</small></button>
+      <div class="st-wkday"><b>星期${'日一二三四五六'[now.getDay()]}</b><span>${now.toLocaleDateString('en-GB', { weekday: 'long' }).toUpperCase()}</span>${L ? `<small>农历${L.m}${L.d}</small>` : ''}</div>
+      <div class="st-yj">${w('yi', yi)}${w('ji', ji)}</div>
+    </div>`;
 }
 function StreakCal() {
   const now = new Date(), base = new Date(now.getFullYear(), now.getMonth() + (S.smo || 0), 1), y = base.getFullYear(), m = base.getMonth();
@@ -4983,18 +5052,20 @@ function StreakCal() {
   const monthEn = base.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   const cells = Array.from({ length: lead }, () => '<span class="st-d"></span>');
   for (let d = 1; d <= len; d++) {
-    const col = (lead + d - 1) % 7, k = `${y}-${m}-${d}`, on = act.has(k), fr = !on && ice.has(k);
+    const col = (lead + d - 1) % 7, k = `${y}-${m}-${d}`, on = act.has(k), fr = !on && ice.has(k), L = lunar(new Date(y, m, d));
     const jl = (on || fr) && col > 0 && lit(d - 1), jr = (on || fr) && col < 6 && lit(d + 1);
-    const cls = `st-d${on ? ' fire' : fr ? ' frz' : ''}${jl ? ' jl' : ''}${jr ? ' jr' : ''}${d === td ? ' today' : ''}${future || d > td && isNow ? ' later' : ''}`;
+    const cls = `st-d${on ? ' fire' : fr ? ' frz' : ''}${jl ? ' jl' : ''}${jr ? ' jr' : ''}${d === td ? ' today' : ''}${future || d > td && isNow ? ' later' : ''}${col > 4 ? ' we' : ''}${L?.first ? ' l1' : ''}`;
     const lbl = `${d} ${monthEn}${on ? ': practised' : fr ? ': saved by a streak freeze' : ''}`;
-    cells.push(on || fr || d === td ? `<button class="${cls}" data-act="cal-day" data-d="${d}" data-y="${y}" data-m="${m}" aria-label="${lbl}"><i>${d}</i></button>` : `<span class="${cls}" aria-label="${lbl}"><i>${d}</i></span>`);
+    const inner = `<i><b>${d}</b>${L ? `<small>${L.first ? L.m : L.d}</small>` : ''}</i>`;
+    cells.push(on || fr || d === td ? `<button class="${cls}" data-act="cal-day" data-d="${d}" data-y="${y}" data-m="${m}" aria-label="${lbl}">${inner}</button>` : `<span class="${cls}" aria-label="${lbl}">${inner}</span>`);
   }
   const days = [...act].filter(k => k.startsWith(`${y}-${m}-`)).length;
   return `<div class="st-cal" id="stCal">
       <div class="st-mon"><button class="icon-btn" data-act="st-month" data-step="-1" aria-label="Previous month"${y * 12 + m <= first ? ' disabled' : ''}>${I.back}</button>
-        <div><b>${monthEn}</b><small>${y}年${ZH_MONTH[m]}${days ? ` · ${plural(days, 'day')} practised` : ''}</small></div>
+        <div><b aria-label="${monthEn}"><span>${y}</span><span>${base.toLocaleDateString('en-GB', { month: 'long' }).toUpperCase()}</span><em>${ZH_MONTH[m]}</em></b><small>${days ? `${plural(days, 'day')} practised` : 'No practice yet'}</small></div>
         <button class="icon-btn" data-act="st-month" data-step="1" aria-label="Next month"${isNow ? ' disabled' : ''}>${I.chev}</button></div>
-      <div class="st-wk">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(c => `<span>${c}</span>`).join('')}</div>
+      ${isNow ? StreakToday(now) : ''}
+      <div class="st-wk">${[...'一二三四五六日'].map((c, i) => `<span title="${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}">${c}</span>`).join('')}</div>
       <div class="st-grid">${cells.join('')}</div>
     </div>`;
 }
@@ -10461,6 +10532,7 @@ const A = {
   'st-close': () => goBack('#/'),
   'st-month': t => { S.smo += +t.dataset.step; const c = $('#stCal'); if (c) c.outerHTML = StreakCal(); },
   'st-share': () => shareStreak(),
+  'st-say': t => sayZh(t.dataset.zh),
   'rw': t => readPop(t),
   'remind': () => remindSheet(),
   'pf-go': () => { LOG.add('profile-go', { to: playSub() }); trailGo(0); },
