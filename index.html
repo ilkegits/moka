@@ -8844,6 +8844,7 @@ const JUDGE = {
   looseTotal: .6,  // (a stroke drawn a bit off still counts; a stroke left out still fails)
   looseInk: .85,   // and you must have drawn at least this much ink compared with the real character
   twin: { shape: .12, off: .34, len: 2, most: 3, ink: .55 },  // a stroke written in the wrong spot still counts when one of your strokes is plainly it (see strokeCheck)
+  part: { tol: .11, ink: .6, joined: .3 },  // each part lined up on its own (see strokeCheck)
 }
 function polyNorm(lines) {
   const all = lines.flat(); if (!all.length) return [];
@@ -9012,9 +9013,28 @@ function strokeCheck(userStrokes, ref, s) {
   const twinOk = twinOf.size > 0 && twinOf.size === offRef.length && onL.every((c, i) => twinUsed.has(i) || c >= JUDGE.inkOn)
     && parts.every(pt => pt.ix.reduce((a, i) => a + refT[i] * R[i].length, 0) / (pt.ix.reduce((a, i) => a + R[i].length, 0) || 1) >= JUDGE.partCov)
     && Ua.length >= T.ink * Ra.length;
+  // Written fast, the parts of a character come out at their own sizes (a small 讠 beside a big 人, 只 squashed under its
+  // 口, 子 tucked under 宀), and lining up the whole drawing at once leaves one part looking empty. So each part is also
+  // lined up on its own and checked again, stroke by stroke. A stroke left out still fails. Only used when the reader is sure.
+  let partOk = false;
+  if (!looseOk && !twinOk && !extra && parts.length > 1 && U.length >= R.length - 1 && U.length <= R.length + 1) {
+    const P = JUDGE.part, mid = A => ({ x: A.reduce((t, q) => t + q.x, 0) / A.length, y: A.reduce((t, q) => t + q.y, 0) / A.length });
+    const mineOf = U.map(l => { const m = mid(l); let bk = 0, bd = Infinity; parts.forEach((pt, k) => { const d = Math.hypot(m.x - pt.cx, m.y - pt.cy); if (d < bd) { bd = d; bk = k; } }); return bk; });
+    partOk = Ua.length >= P.ink * Ra.length && parts.every((pt, k) => {
+      const Rp = pt.ix.map(j => R[j]).filter(l => l.length), Up = U.filter((_, i) => mineOf[i] === k);
+      if (!Rp.length || !Up.length || Up.length < Rp.length - 1 || Up.length > Rp.length + 1) return false;
+      const V = alignTo(Up, Rp), Rpa = Rp.flat(), mine = Rp.map(() => []);
+      // each bit of your ink counts only for the stroke it is closest to, so a neighbour can't stand in for a stroke left out
+      const own = V.map(l => l.map(q => { let bj = 0, bd = Infinity; Rp.forEach((r, j) => { const d = nearest(q, r); if (d < bd) { bd = d; bj = j; } }); mine[bj].push(q); return bj; }));
+      // one stroke fewer than the part has is fine only in a part of 3+ strokes, and only when one of yours plainly runs through
+      // two of them (joined, not left out); a 2-stroke part like 亻 or 冫 with one stroke is half missing
+      if (Up.length < Rp.length && (Rp.length < 3 || !own.some(o => Rp.filter((r, j) => o.filter(x => x === j).length >= P.joined * r.length).length >= 2))) return false;
+      return Rp.every((l, j) => frac(l, mine[j], P.tol) >= JUDGE.strokeCov) && V.every(l => frac(l, Rpa, P.tol) >= JUDGE.inkOn);
+    });
+  }
   const strong = ok && Math.min(...refCov) >= JUDGE.strong.stroke && Math.min(...parts.map(pt => pt.cov)) >= JUDGE.strong.part && total >= JUDGE.strong.total;
   const avg = (A, B) => A.reduce((a, p) => a + nearest(p, B), 0) / A.length;
-  return { ok, strong, looseOk, twinOk, extra, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
+  return { ok, strong, looseOk, twinOk, partOk, extra, missing, stray, total, badPart: badPart && { pos: badPart.pos, radical: !!badPart.radical }, fit: (avg(Ua, Ra) + avg(Ra, Ua)) / 2 };
 }
 async function recognize(strokes, s, lang = 'zh_CN') {
   const t0 = strokes[0]?.[0]?.t || 0;
@@ -9073,6 +9093,7 @@ function verdict(shape, rank) {
   if (rank === null) return shape.ok;                          // offline: stroke placement only
   if (rank === 0 && shape.looseOk) return true;               // the reader is sure and every stroke is roughly in place
   if (rank === 0 && shape.twinOk) return true;                // ...or the strokes off their spot are plainly yours, only shifted
+  if (rank === 0 && shape.partOk) return true;                // ...or each part, drawn at its own size, has all its strokes
   return shape.ok && ((rank >= 0 && rank <= JUDGE.maxRank) || shape.strong);   // a clean stroke match is enough on its own
 }
 
@@ -10213,7 +10234,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.18';
+const APP_VERSION = '3.19';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
