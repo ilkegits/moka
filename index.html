@@ -1827,6 +1827,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-lock b{font:600 16px/1.2 var(--display)}
 .uc-lock small{font-size:13px;color:var(--muted);line-height:1.3}
 .uc .un-hud{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;margin:0}
+.uc .un-hud:has(.un-hud-solo){justify-content:center;padding:0;background:none;box-shadow:none}
+.uc .un-hud .un-hud-solo{min-width:220px;height:60px;padding:0 36px;font-size:20px;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28),0 10px 22px -8px rgba(60,10,5,.7)}
 .un-grip{position:absolute;z-index:0;touch-action:pan-y}
 .uc-round .un-node{touch-action:pan-y}
 .uc-round .un-node:not(.front):not(.un-boss) small{display:none}
@@ -4097,7 +4099,7 @@ function ucHud(u) {
   const st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(), due = utDue(), L = st.ls[st.nd], last = u === LES_UNITS.length;
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${u - 1}</b><i>His challenge opens Unit ${u}</i></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${u + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[u][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
-    : st.nd === n ? `<span class="un-hud-t"><small>Hu Hu's challenge</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${u}">Challenge</button>`
+    : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
 }
 function UnitView(un) {
@@ -10320,7 +10322,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.23';
+const APP_VERSION = '3.24';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
