@@ -800,8 +800,6 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-q rect{fill:var(--seal);stroke:#3B2A20;stroke-width:.5}
 .tm-q text{font:700 12px var(--display);fill:var(--seal-ink)}
 /* the bar along the bottom: progress on the monument you are on, and the button that goes on building it */
-.tm-hud{display:flex;align-items:stretch;gap:10px}
-.tm-hud.in{animation:tmCard .36s cubic-bezier(.2,1.3,.4,1)}
 .tm-now{position:relative;flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:18px;background:var(--card);box-shadow:var(--ring),0 14px 26px -14px rgba(50,25,8,.6);text-align:left}
 .tm-now:active{transform:scale(.98)}
 .tm-now-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
@@ -1028,6 +1026,13 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-monb:active{transform:scale(.94)}
 .tm-monb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
 .tm-showing .tm-monb{opacity:0;pointer-events:none}
+/* v3.11: under it, the Maps button (mapsSheet: new maps will be added) */
+.tm-mapsb{position:absolute;z-index:2;left:18px;top:142px;width:64px;height:74px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tm-mapsb svg{display:block;width:64px;height:74px;overflow:visible;filter:drop-shadow(0 5px 4px rgba(60,20,0,.3))}
+.tm-mapsb:active{transform:scale(.94)}
+.tm-mapsb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
+.tm-showing .tm-mapsb{opacity:0;pointer-events:none}
+.maps-say{margin:22px 0 24px;text-align:center;font:600 19px var(--display);color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.cp-big,.cp-gain.done b{animation:none}.cp-gain small{transition:none}}
 
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
@@ -1119,7 +1124,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-bob,.tm-hud.in,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -7696,8 +7701,8 @@ function TrailView() {
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage" id="mpMap">${Trail.map(sts)}
       <div class="section-head cal-head tm-head pg-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
-      ${shopBtn(sts)}${monBtn(sts)}
-      <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : mapHud()}</div>
+      ${shopBtn(sts)}${monBtn(sts)}${mapsBtn()}
+      <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : ''}</div>
       <div class="tm-gobar">${goBtn()}</div>
     </div>
   </div>`;
@@ -7732,14 +7737,25 @@ const monBtn = sts => {   // across from the Shop: a gold medallion with your ne
     <text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:800 13px var(--display)" fill="#fff">${n}</text>
   </svg></button>`;
 };
+const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments medallion: the maps you can travel to (only China so far; more to come)
+  return `<button class="tm-mapsb tm-ui" data-act="maps" aria-label="Maps. New maps will be added"><svg viewBox="0 0 64 74" aria-hidden="true">
+    <circle cx="32" cy="31" r="29" fill="url(#tmMonGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
+    <path d="M17 21L26 18L38 22L47 19V40L38 43L26 39L17 42Z" fill="#BFE79A" stroke="${K}" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M26 18V39M38 22V43" stroke="${K}" stroke-width="1.4"/><path d="M26 18L38 22V43L26 39Z" fill="#9FD67A"/>
+    <path d="M20 33Q24 28 29 31T36 30" stroke="#3E9BD6" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M40 26a4 4 0 1 1 8 0c0 3-4 7-4 7s-4-4-4-7Z" fill="#FF3040" stroke="${K}" stroke-width="1.5"/><circle cx="44" cy="26" r="1.4" fill="#fff"/>
+    <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+    <rect x="12" y="52" width="40" height="18" rx="5" fill="#FFF8F2" stroke="#E7D2AE" stroke-width="1"/><text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:700 12.5px var(--display)" fill="#9E1A14">Maps</text>
+  </svg></button>`; };
+function mapsSheet() {   // the Maps button: only the map of China for now
+  LOG.add('maps', {});
+  openSheet(`<div class="shop maps"><div class="shop-top"><h3>Maps <span class="cal-zh">地图</span></h3></div>
+    <p class="maps-say">New maps will be added.</p>
+    <button class="btn btn-seal wide" data-act="close-sheet">OK</button></div>`);
+}
 function goBtn() {   // Play, as in a game, bottom right: always there and always in the same place, whatever card is up or the camera does
   const sts = trailStates();
   return `<button class="tm-play tm-go tm-ui" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}" aria-label="Play: ${playSub()}">${playSub()}</button>`;
-}
-function mapHud() {   // over Play when no card is up: once every monument is yours, that news (the shop is the round button up top)
-  const sts = trailStates();
-  if (sts.every(x => x.done)) { const last = sts.at(-1); return `<div class="tm-hud tm-ui"><span class="tm-now"><span class="tm-now-t"><small>All ${TRAIL.length} are yours</small><span class="tm-now-s">Every monument stands on your map</span></span><span class="tm-med s">${Trail.mini(last.lv, last)}</span></span></div>`; }
-  return '';
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
@@ -7858,7 +7874,7 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
   C.sel = lv; LOG.add('map-city', { lv }); const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); C.api?.mark(); Trail.focus(lv);
 }
 const mapRepin = () => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } };   // a new goal: the map is drawn again, and Shi Shi stands over it
-function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) { s.innerHTML = mapHud(); s.firstElementChild?.classList.add('in'); } Trail.CAM.api?.mark(); }
+function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) s.innerHTML = ''; Trail.CAM.api?.mark(); }
 const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
 function trailGo(lv) {
   LOG.add('map-build', { lv });
@@ -9886,7 +9902,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.10';
+const APP_VERSION = '3.11';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -10676,6 +10692,7 @@ const A = {
   'coin-intro-shop': () => closeLayer(() => shopSheet()),
   'shop-item': t => shopSheet(+t.dataset.lv),
   'mon-lib': () => libSheet(),
+  'maps': () => mapsSheet(),
   'mon-go': t => { closeSheet(); const lv = +t.dataset.lv; setTimeout(() => mapPick(lv), 300); },
   'shop-back': () => shopSheet(),
   'shop-buy': t => shopBuy(+t.dataset.lv),
