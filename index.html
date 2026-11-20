@@ -1801,9 +1801,14 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc>.bar{position:relative;z-index:3;height:112px;flex:none;pointer-events:none}
 .uc>.bar button{pointer-events:auto}
 .uc .un-sign{flex-direction:column;align-items:center}
-.uc-pill{position:relative;z-index:2;display:flex;align-items:center;gap:2px;max-width:100%;margin-top:9px;padding:3px;border-radius:999px;background:var(--card);box-shadow:var(--ring),0 5px 12px -6px rgba(40,20,10,.5)}
-.uc-pill b{min-width:0;padding:0 6px;font:700 12.5px/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--seal);font:700 22px/1 var(--ui);background:var(--fill)}
+.uc-pill{position:relative;z-index:2;display:flex;align-items:center;gap:0;max-width:100%;margin-top:11px;padding:2px;border-radius:999px;
+  background:linear-gradient(#A8231A,#7E140D);box-shadow:inset 0 0 0 1.5px #E9B949,inset 0 0 0 2.5px #5E0E09,0 3px 0 #4A0B07,0 8px 14px -6px rgba(0,0,0,.55)}
+.uc-pill::before,.uc-pill::after{content:"";position:absolute;bottom:100%;width:2px;height:13px;background:#2A140D}
+.uc-pill::before{left:24px}
+.uc-pill::after{right:24px}
+.uc-pill b{min-width:0;padding:0 4px;font:700 12.5px/1.2 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;color:#FFE7A6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 #5E0E09}
+.uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#F4C14E;font:700 21px/1 var(--ui);background:none}
+.uc-pill button:active{background:rgba(0,0,0,.18)}
 .uc-pill button:disabled{opacity:.3}
 .uc-scroll{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:1;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
 .uc-scroll::-webkit-scrollbar,.uc-in::-webkit-scrollbar{display:none}
@@ -10322,7 +10327,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.24';
+const APP_VERSION = '3.25';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
