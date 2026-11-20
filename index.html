@@ -1805,10 +1805,13 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-pill b{min-width:0;padding:0 6px;font:700 12.5px/1.2 var(--ui);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--seal);font:700 22px/1 var(--ui);background:var(--fill)}
 .uc-pill button:disabled{opacity:.3}
-.uc-scroll{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:1;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain}
+.uc-scroll{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:1;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
 .uc-scroll::-webkit-scrollbar,.uc-in::-webkit-scrollbar{display:none}
 .uc-strip{position:relative;display:flex;height:100%;width:max-content}
-.uc-pane{position:relative;flex:none;height:100%;scroll-snap-align:start}
+.uc-pane{position:relative;flex:none;height:100%}
+.uc-keep .un-bg canvas{transition:none}
+.uc-auto{position:fixed;left:50%;top:calc(122px + env(safe-area-inset-top));z-index:50;transform:translateX(-50%);display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:17px;background:#2A140D;color:#FFE7A6;font:700 13px/1 var(--ui);box-shadow:0 6px 16px -6px rgba(0,0,0,.6)}
+.uc-auto i{width:8px;height:8px;border-radius:50%;background:#E5483F;animation:unAura 1.2s ease-in-out infinite}
 .uc-in{height:100%;overflow:hidden}
 .uc-snake .uc-in{overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:contain}
 .uc-stage{position:relative}
@@ -4133,6 +4136,47 @@ function ucSet(u) {
   const hud = $('.uc .un-hud'); if (hud) hud.innerHTML = ucHud(u);
   if (S.cUnit !== u) { S.cUnit = u; history.replaceState(history.state, '', `#/course/1/unit/${u}`); }
 }
+/* the strip at rest across the line between two units: slide to whichever has more of the screen. true if it moves */
+function ucSnap() {
+  const sc = $('.uc-scroll'); if (!sc) return false; const a = sc.scrollLeft, w = sc.clientWidth;
+  for (const p of sc.querySelectorAll('.uc-pane')) { const b = p.offsetLeft;
+    if (b > a + 2 && b < a + w - 2) { sc.scrollTo({ left: b - a > w / 2 ? b - w : b, behavior: stillMotion() ? 'auto' : 'smooth' }); return true; } }
+  return false;
+}
+let ucKeep = null;   // where the strip (and each snake page) was, to draw it again in the same place
+const ucHold = () => { const sc = $('.uc-scroll'); ucKeep = sc ? { x: sc.scrollLeft, y: Object.fromEntries([...sc.querySelectorAll('.uc-snake')].map(p => [p.dataset.u, p.querySelector('.uc-in').scrollTop])) } : null; };
+/* the course playing itself (Developer): Shi Shi eats his way along every unit, beats Hu Hu at the shrine and moves on
+   to the next, with no lessons in between. Your real levels are kept first (devLvKeep) and put back when it ends, when
+   you tap Stop or when you leave the course */
+let ucAuto = null;
+function ucAutoplay() {
+  devLvKeep(); const now = Date.now(), id = now;
+  db.lessons = {}; db.utests = {}; db.unitAt = {}; db.comic = Object.fromEntries(LES_UNITS.map((_, i) => [i + 1, { p1: now, p2: now }])); save();
+  ucAuto = { id }; S.cUnit = 1; nav('#/course/1/unit/1');
+  const bar = document.createElement('button'); bar.className = 'uc-auto'; bar.innerHTML = '<i></i>Autoplay · Stop'; document.body.append(bar); bar.onclick = () => ucAutoEnd('Stopped. Your real levels are back');
+  const live = () => ucAuto?.id === id && S.view === 'course' && $('.uc');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const draw = u => { ucHold(); S.cUnit = u; history.replaceState(history.state, '', `#/course/1/unit/${u}`); S.instant = true; render(); };
+  (async () => {
+    await wait(1200);
+    for (let u = 1; u <= LES_UNITS.length; u++) {
+      for (const L of unitLessons(u)) {   // a lesson done: back on the strip he eats its baozi and hops on
+        if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
+        db.unitAt[u] = unitState(u).at; db.lessons[L.n] = { done: Date.now() }; save(); draw(u);
+        await wait(stillMotion() ? 900 : 4200);
+      }
+      await wait(900); if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
+      db.utests[u] = { pass: Date.now(), last: Date.now(), best: 100 }; db.unitAt[u] = unitState(u).at; save(); draw(u);   // Hu Hu beaten
+      await wait(1800); if (!live()) return ucAutoEnd('Autoplay stopped. Your real levels are back');
+      if (u < LES_UNITS.length) { ucGo(u + 1); await wait(1900); }
+    }
+    ucAutoEnd('Autoplay done. Your real levels are back');
+  })();
+}
+function ucAutoEnd(msg) {
+  if (!ucAuto) return; ucAuto = null; $('.uc-auto')?.remove();
+  devLvRestore(); save(); toast(msg); if (S.view === 'course') { S.instant = true; render(); }
+}
 /* go to a unit: its start (a street from where you came in) */
 function ucGo(u, smooth = !stillMotion()) { const sc = $('.uc-scroll'), p = ucPane$(u); if (sc && p) sc.scrollTo({ left: p.offsetLeft, behavior: smooth ? 'smooth' : 'auto' }); }
 /* bring a point of a unit's map into view: along the street, or down the snake page */
@@ -4155,13 +4199,19 @@ function mountUnit(un) {
   const k = ucPanes(), go = Math.min(un, k), me = ucMe(), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
   ucFit(); ucU = 0; ucEat = eat != null ? { u: me, i: +eat } : null;
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
-  if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else sc.scrollLeft = ucPane$(go).offsetLeft;
+  if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
+  else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else sc.scrollLeft = ucPane$(go).offsetLeft;
   ucSet(go); ucPaint();
-  let raf = 0;
-  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); });
-    clearTimeout(ucQuiet); ucQuiet = setTimeout(() => {   // every unit starts with its comic: moving on into one plays it (a new one counts as watched)
-      const u = ucWhich(); if (u !== ucNew) return; ucNew = 0;
-      if (S.view === 'course' && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, null, comicSeen(u).p1 ? { demo: 1 } : {}); }, 450); }, { passive: true });
+  let raf = 0, touch = false;
+  // once the strip comes to rest it never stays across two units: it settles on the one that has more of the screen.
+  // Then, if you just moved on into a unit, its comic plays (every unit starts with its comic; a new one counts as watched)
+  const rest = ms => { clearTimeout(ucQuiet); ucQuiet = setTimeout(() => {
+    if (touch || !sc.isConnected || ucSnap()) return;
+    const u = ucWhich(); if (u !== ucNew) return; ucNew = 0;
+    if (S.view === 'course' && !ucAuto && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, () => setTimeout(ucSnap, 60), comicSeen(u).p1 ? { demo: 1 } : {}); }, ms); };
+  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); }); rest(170); }, { passive: true });
+  sc.addEventListener('touchstart', () => { touch = true; clearTimeout(ucQuiet); }, { passive: true });
+  const up = () => { touch = false; rest(220); }; sc.addEventListener('touchend', up, { passive: true }); sc.addEventListener('touchcancel', up, { passive: true });
   document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
   $('.uc .un-hud').onclick = e => { const b = e.target.closest('[data-ucgo]'); if (b) ucGo(+b.dataset.ucgo); };
   for (let u = 1; u <= k; u++) if (UNIT_LAY[u] === 'round' && unitOpen(u)) unitTableGrip(u);
@@ -10237,7 +10287,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.20';
+const APP_VERSION = '3.21';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -10359,6 +10409,7 @@ function devSheet() {
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
       ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
       ${p('devEat', 'Play: Shi Shi eats a baozi', 'Opens the unit you are on as if you had just finished its last lesson: the lid lifts and he eats it')}
+      ${p('devAuto', 'Play: the whole course by itself', 'Shi Shi eats every baozi, beats Hu Hu and moves on, unit after unit, with no lessons. Your real levels come back at the end or when you tap Stop')}
       ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after Hu Hu\'s challenge')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
@@ -10388,6 +10439,7 @@ function devSheet() {
       const un = (LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1) || 1, at = Math.min(unitState(un).at, unitState(un).ls.length);
       if (!at) { toast('Finish a lesson in this unit first'); return; }
       (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(`#/course/1/unit/${un}`); });
+    sh.querySelector('#devAuto').onclick = play(function autoplay() { ucAutoplay(); });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
