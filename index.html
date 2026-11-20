@@ -2596,7 +2596,7 @@ function tapLabel(el) {
 }
 // capture phase: the tap is written down before whatever it causes (a new page, a toast)
 addEventListener('click', e => {
-  if (!LOG.on || !(e.target instanceof Element)) return;
+  if (!LOG.on || !(e.target instanceof Element) || e.target.closest('[data-hap]')) return;
   const el = e.target.closest('button,a,label,input,select,textarea,[data-act]');
   if (el) { if (!(el.matches('input[type=file]') && e.target.closest('label'))) LOG.add('tap', tapLabel(el)); return; }
   if (e.target.closest('canvas,.tzg,.stage')) return;   // drawing and the flip card log themselves
@@ -3280,6 +3280,23 @@ function chime() {
     }
   } catch (_) {}
 }
+/* a light haptic tick for a tap. Android has navigator.vibrate; iPhone Safari has not, but flipping a hidden
+   <input switch> from inside a tap gives the same small system tick there (iOS 18 and later) */
+const haptic = (() => {
+  let lab;
+  return (ms = 10) => {
+    try {
+      if (navigator.vibrate) { navigator.vibrate(ms); return; }
+      if (!lab) {
+        lab = document.createElement('label'); lab.dataset.hap = ''; lab.setAttribute('aria-hidden', 'true'); lab.style.display = 'none';
+        lab.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+        lab.addEventListener('click', e => e.stopPropagation());   // the app never sees these clicks
+        document.head.appendChild(lab);
+      }
+      lab.click();
+    } catch (_) {}
+  };
+})();
 /* the end of a lesson: a quick rising arpeggio (C5 E5 G5) into a bright held chord (C6 E6 G6), with a sparkle of high notes on top */
 function fanfare() {
   try { const c = acx(), t = c.currentTime + .02;
@@ -3888,7 +3905,7 @@ function comicPlay(un, part, then, o = {}) {
     hint.hidden = true; if (ending && !o.demo) try { fanfare(); } catch (_) {}
     setTimeout(() => { go.hidden = false; }, stillMotion() ? 0 : 550);
   };
-  el.onclick = e => { if (e.target.closest('[data-cm]')) closeLayer(then); else if (Date.now() > wait) show(); };
+  el.onclick = e => { if (e.target.closest('[data-cm]')) closeLayer(then); else if (Date.now() > wait && i < n) { haptic(12); show(); } };
   setTimeout(show, 280);
 }
 
@@ -9452,7 +9469,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.05';
+const APP_VERSION = '3.06';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -10276,7 +10293,7 @@ const A = {
   'read-done-ok': () => closeLayer(() => { riffleBook(S.readFrom); S.readFrom = null; moments(); }),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
-  'tab': t => { if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
+  'tab': t => { haptic(8); if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
   'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
   'learn-write': t => { S.write = null; nav(`#/deck/${t.dataset.id}/write`); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
