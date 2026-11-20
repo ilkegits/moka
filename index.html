@@ -6562,6 +6562,13 @@ const Trail = (() => {
         else if (green && e < 2200 && h3 < .3) put('fern', lon, lat, { s: 1.5 + h2 * .8, k: h1 });
         else if (green && e < 1200 && h3 < .52) put('flowers', lon, lat, { k: h1, c: Math.floor(h2 * 3) });
         else if (kind === 'grass' && h3 > .93) put('sheep', lon, lat, { k: h1 }); }
+      /* v3.00: for the close-up ground (detail below): is this spot open land, what kind and how high, and how far (in
+         degrees) it is from the nearest coast, river, wall, monument or lake, so a whole patch of ground can be passed at once */
+      TEX.spot = (lon, lat) => { const c = ok(lon, lat); if (c < 0) return null;
+        let room = Math.min(nearest(lon, lat, CHINA)[0], nearest(lon, lat, YANGTZE, true)[0] - .22, nearest(lon, lat, YELLOW, true)[0] - .22, nearest(lon, lat, WALL, true)[0] - .5);
+        for (const lv in SITE) room = Math.min(room, Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) - .9);
+        for (const [a, b, rx, ry] of LAKES) room = Math.min(room, (Math.hypot((lon - a) / rx, (lat - b) / ry) - 1.27) * Math.min(rx, ry));
+        return room > 0 ? { e: E[c], kind: kindAt(lon, lat), room } : null; };
       T.sort((p, q) => p.y - q.y);
       TEX.ready = true; TEX.wait.splice(0).forEach(fn => fn());
     };
@@ -6599,20 +6606,45 @@ const Trail = (() => {
       c.fillStyle = '#DDB57E'; for (let k = 0; k < 3; k++) c.fillRect(x - w / 2 - u * .2 + k * (w + u * .4 - u * .7) / 2, y - h - u * 1.6, u * .7, u * .7);
       c.fillStyle = '#6E4E33'; c.beginPath(); c.moveTo(x - u * .5, y); c.lineTo(x - u * .5, y - u * 1.1); c.arc(x, y - u * 1.1, u * .5, Math.PI, 0); c.lineTo(x + u * .5, y); c.fill(); }
   }
+  /* v3.00: closer still, the land fills in. Every 4 by 4 units of ground gets its own handful of things, worked out the
+     first time it comes into view and then kept: a soft patch of darker grass or bare earth, bushes, small trees (thick in
+     the woods), a stone, and from closest of all tufts of grass and pebbles. d is the step of zoom that brings each one. */
+  const DC = 4, DETAIL = new Map(), BLOB = {};
+  const blob = dry => BLOB[dry] ||= (() => { const b = document.createElement('canvas'), x = b.getContext('2d'); b.width = b.height = 64;   // a soft round stain that fades to nothing at its edge
+    const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32), col = dry ? '150,115,60' : '50,115,55'; gr.addColorStop(0, `rgba(${col},.16)`); gr.addColorStop(.6, `rgba(${col},.1)`); gr.addColorStop(1, `rgba(${col},0)`); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return b; })();
+  function detail(i, j) {
+    const key = j * 8192 + i; let D = DETAIL.get(key); if (D) return D; D = { flat: [], up: [] }; DETAIL.set(key, D);
+    const h = m => hash(i * 7 + m * 1009 + 3, j * 13 + m * 2003 + 11), lonOf = x => x / UX + LON_A, latOf = y => LAT_A - y / UY;
+    const c0 = TEX.spot(lonOf((i + .5) * DC), latOf((j + .5) * DC)); if (!c0) return D;
+    const safe = c0.room > .3, { e, kind } = c0, high = e > 2600, dry = high || kind === 'sand' || kind === 'plat' || kind === 'loess' || kind === 'land';
+    let n = 0; const put = (list, t, o) => { const x = (i + .08 + h(++n) * .84) * DC, y = (j + .08 + h(++n) * .84) * DC;   // somewhere in this patch, if that spot is clear too
+      if (safe || TEX.spot(lonOf(x), latOf(y))) list.push({ t, x, y, k: h(++n), ...o }); };
+    if (h(100) < .75) put(D.flat, 'patch', { r: 1.6 + h(101) * 1.8, dry, d: 1 });
+    if (!dry) { const wood = (WOODS[kind] || 0) * Math.max(0, 1 - e / 2800), pine = latOf(j * DC) > 41 || e > 1700, nt = h(102) < wood * .9 + .04 ? 1 + Math.floor(h(103) * (1 + wood * 2.5)) : 0;
+      for (let m = 0; m < nt; m++) put(D.up, pine ? 'pine' : 'tree', { r: 2.2 + h(110 + m) * 1.1, d: 1 });
+      for (let m = 0, nb = Math.floor(h(104) * 2.4); m < nb; m++) put(D.up, 'bush', { r: .8 + h(120 + m) * .5, d: 1 }); }
+    else if (!high && h(105) < .45) put(D.up, 'bush', { r: .7 + h(106) * .3, dry, d: 1 });
+    if (h(107) < (dry ? .35 : .12)) put(D.up, 'stone', { s: .7 + h(108) * .5, d: 1 });
+    for (let m = 0, nf = high ? 1 : dry ? 3 : 6; m < nf; m++) put(D.flat, 'tuft', { s: .5 + h(130 + m) * .35, dry, d: 2 });
+    if (h(109) < .5) put(D.flat, 'pebble', { s: .2 + h(140) * .14, d: 2 });
+    return D;
+  }
   function drawProps() {
     const cv = PROPS.cv; if (!cv) return; const c = PROPS.c, q = PROPS.dpr, z = CAM.z;
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); if (!TEX.ready) return;
     c.setTransform(q * z, 0, 0, q * z, q * (CAM.w / 2 - CAM.x * z), q * (CAM.h / 2 - CAM.y * z)); c.lineCap = c.lineJoin = 'round';
     const L = PROPS.lines ||= { rivers: [new Path2D(line(YANGTZE)), new Path2D(line(YELLOW))], wall: new Path2D(line(WALL)) };
     for (const p of L.rivers) { c.strokeStyle = 'rgba(62,143,184,.25)'; c.lineWidth = 2.8; c.stroke(p); } for (const p of L.rivers) { c.strokeStyle = '#8FD6EF'; c.lineWidth = 1.7; c.stroke(p); }
-    if (monOwns(WALL_LV)) drawWall(c, z); else { c.setLineDash([.1, 3.2]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7; c.stroke(L.wall); c.setLineDash([]); }
+    const zr0 = z / zHome(), g = zr0 > 400 / 76 ? Math.pow(400 / 76 / zr0, .45) : 1;   // v3.00: past the old closest view, trees, stones, the small things and the dots of the Wall grow more slowly than the land, as the monuments do
+    if (zr0 > 3) for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); c.beginPath(); c.ellipse(x, y, rx * UX * .85, ry * UY * .85, -.2, 0, 6.3); c.fillStyle = '#86CFEA'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = .75; c.stroke(); }   // v3.00: up close the lakes again, sharp, over the soft painted ones
+    if (monOwns(WALL_LV)) drawWall(c, z); else { c.setLineDash([.1, 3.2 * g]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7 * g; c.stroke(L.wall); c.setLineDash([]); }
     /* the small things arrive once you are close enough, and then fade in over a moment and stay solid: how see-through they
        are depends on time, not on how far in you are, so they never sit half-visible. A little slack between the zoom that
        brings them and the zoom that sends them away keeps them from flickering at the edge. */
     const now = performance.now(), dt = Math.min(64, now - (PROPS.t || now)), zr = z / zHome(); PROPS.t = now; let moving = false;
     const shown = (key, on, off) => { const s = PROPS[key] ||= { on: false, a: 0 }; if (zr >= on) s.on = true; else if (zr < off) s.on = false;
       const to = s.on ? 1 : 0; if (s.a !== to) { s.a = stillMotion() ? to : cl(s.a + (to ? 1 : -1) * dt / 450, 0, 1); if (s.a !== to) moving = true; } return s.a * s.a * (3 - 2 * s.a); };
-    const aRock = shown('rock', 1.45, 1.32), aSmall = shown('small', 1.9, 1.75);
+    const aRock = shown('rock', 1.45, 1.32), aSmall = shown('small', 1.9, 1.75), aDet = shown('det', 6.5, 6), aFine = shown('fine', 10, 9.3);
     const x0 = CAM.x - CAM.w / 2 / z - 45, x1 = CAM.x + CAM.w / 2 / z + 45, y0 = CAM.y - CAM.h / 2 / z - 8, y1 = CAM.y + CAM.h / 2 / z + 50;
     const disc = (x, y, r, col) => { c.beginPath(); c.arc(x, y, r, 0, 6.2832); c.fillStyle = col; c.fill(); };
     const ell = (x, y, rx, ry, col) => { c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, 6.2832); c.fillStyle = col; c.fill(); };
@@ -6624,7 +6656,21 @@ const Trail = (() => {
       if (h * z < 9) return;   // too small on the screen for its shaded side to show
       c.save(); c.clip(); g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, dark + 'D0'); g.addColorStop(1, dark + '00'); far(x, y, w, h, lean); c.fillStyle = g; c.fill(); c.restore();
       if (contour) { g = c.createLinearGradient(0, y - h, 0, y); g.addColorStop(0, dark + 'B0'); g.addColorStop(.7, dark + '00'); bell(x, y, w, h, lean); c.strokeStyle = g; c.lineWidth = .32; c.stroke(); } };
-    for (const o of TEX.things) { const { x, y, k } = o; if (x < x0 || x > x1 || y < y0 || y > y1) continue;
+    const vis = TEX.things.filter(o => o.x >= x0 && o.x <= x1 && o.y >= y0 && o.y <= y1), grow = (x, y) => { if (g < 1) { c.save(); c.translate(x, y); c.scale(g, g); c.translate(-x, -y); } };
+    if (aDet) { let more = false; const tufts = [new Path2D(), new Path2D()];   // the close-up ground: what lies flat is drawn now (the tufts all in one go at the end), what stands up joins the rest in order from north to south
+      for (let j = Math.floor((CAM.y - CAM.h / 2 / z - 3) / DC), j1 = Math.floor((CAM.y + CAM.h / 2 / z + 8) / DC); j <= j1; j++)
+        for (let i = Math.floor((CAM.x - CAM.w / 2 / z - 3) / DC), i1 = Math.floor((CAM.x + CAM.w / 2 / z + 3) / DC); i <= i1; i++) { const D = detail(i, j);
+          for (const o of D.flat) { const a = o.d === 1 ? aDet : aFine, { x, y, k } = o; if (!a) continue; c.globalAlpha = a;
+            if (o.t === 'patch') { const r = o.r; c.drawImage(blob(o.dry), x - r, y - r * .5, r * 2, r); continue; }
+            const s = o.s * g;
+            if (o.t === 'tuft') { const P = tufts[o.dry ? 1 : 0]; for (let b = -2; b <= 2; b++) { const bx = x + b * s * .14, a2 = b * .32 + (k - .5) * .4, L = s * (1 - Math.abs(b) * .16); P.moveTo(bx, y); P.quadraticCurveTo(bx + Math.sin(a2) * L * .2, y - L * .6, bx + Math.sin(a2) * L * .8, y - L); } }
+            else { ell(x + s * .3, y + s * .15, s * 1.1, s * .45, 'rgba(40,70,70,.18)'); ell(x, y, s, s * .62, '#A3ADA9'); ell(x - s * .25, y - s * .2, s * .5, s * .3, '#DCE1DC'); } }   // a pebble
+          if (D.up.length) { vis.push(...D.up); more = true; } }
+      if (aFine) { c.globalAlpha = aFine; c.lineWidth = .11 * g; c.strokeStyle = '#4F9D4C'; c.stroke(tufts[0]); c.strokeStyle = '#B3A05C'; c.stroke(tufts[1]); }
+      c.globalAlpha = 1; if (more) vis.sort((p, q) => p.y - q.y); }
+    for (const o of vis) { const { x, y, k } = o, da = o.d ? (o.d === 1 ? aDet : aFine) : 1, small = o.t !== 'peak' && o.t !== 'mound';
+      if (!da || (o.t === 'rock' && !aRock) || ((o.t === 'fern' || o.t === 'flowers' || o.t === 'sheep') && !aSmall)) continue;
+      if (small) grow(x, y); c.globalAlpha = da; const zg = small ? z * g : z;
       if (o.t === 'peak') { const h = o.h, w = h * .78, lean = (k - .5) * w * .2, [top, lit, dark] = TONE[o.tone], near = h * z > 30;
         ell(x + w * .3, y + h * .03, w * 1.15, w * .3, 'rgba(40,85,80,.13)');
         if (near) { hill(x - w * .72, y, w * .56, h * .4, 0, lit, lit, dark); hill(x + w * .74, y, w * .5, h * .33, 0, lit, lit, dark); }   // its foothills
@@ -6635,13 +6681,13 @@ const Trail = (() => {
       else if (o.t === 'mound') { const h = o.h, w = h * 1.5, [top, lit, dark] = TONE[o.tone], near = h * z > 20;   // two or three rounded hills, one behind another
         ell(x + w * .25, y + h * .05, w * 1.2, w * .22, 'rgba(40,85,80,.1)');
         hill(x - w * .42, y - h * .12, w * .7, h * .8, 0, top, lit, dark, near); hill(x + w * .1, y, w, h, (k - .5) * w * .2, top, lit, dark, near); if (near) hill(x + w * .62, y + h * .06, w * .55, h * .5, 0, top, lit, dark, true); }
-      else if (o.t === 'tree') { const r = o.r, near = r * z > 6.5, G = k > .5 ? ['#3B8A49', '#55A856', '#76C365'] : ['#40904C', '#5CAE58', '#80C96A'];   // a clumpy round crown on a short trunk
+      else if (o.t === 'tree') { const r = o.r, near = r * zg > 6.5, G = k > .5 ? ['#3B8A49', '#55A856', '#76C365'] : ['#40904C', '#5CAE58', '#80C96A'];   // a clumpy round crown on a short trunk
         ell(x + r * .45, y + r * .1, r * 1.05, r * .38, 'rgba(30,75,55,.2)');
         poly(x, y, r, [[-.15, 0], [-.09, -.95], [.09, -.95], [.15, 0]], '#8A6844'); if (near) poly(x, y, r, [[.02, 0], [.02, -.95], [.09, -.95], [.15, 0]], '#6B4F33');
         disc(x + r * .16, y - r * 1.28, r * .98, G[0]);
         if (near) { disc(x - r * .44, y - r * 1.22, r * .7, G[1]); disc(x + r * .34, y - r * 1.52, r * .68, G[1]); disc(x - r * .06, y - r * 1.66, r * .78, G[2]); disc(x - r * .34, y - r * 1.86, r * .34, 'rgba(200,240,150,.75)'); disc(x + r * .5, y - r * .98, r * .3, 'rgba(25,70,50,.18)'); }
         else { disc(x - r * .08, y - r * 1.44, r * .88, G[1]); disc(x - r * .3, y - r * 1.7, r * .42, G[2]); } }
-      else if (o.t === 'pine') { const r = o.r, near = r * z > 6.5;   // three tiers, the left of each in the light
+      else if (o.t === 'pine') { const r = o.r, near = r * zg > 6.5;   // three tiers, the left of each in the light
         ell(x + r * .4, y + r * .1, r * .95, r * .34, 'rgba(30,75,55,.2)'); poly(x, y, r, [[-.12, 0], [-.1, -.5], [.1, -.5], [.12, 0]], '#7A5A3C');
         const tier = (yy, ww, hh, c1, c2) => { c.beginPath(); c.moveTo(x, yy - hh); c.quadraticCurveTo(x + ww * .45, yy - hh * .35, x + ww, yy); c.quadraticCurveTo(x, yy + ww * .26, x - ww, yy); c.quadraticCurveTo(x - ww * .45, yy - hh * .35, x, yy - hh); c.fillStyle = c2; c.fill();
           c.beginPath(); c.moveTo(x, yy - hh); c.quadraticCurveTo(x - ww * .45, yy - hh * .35, x - ww, yy); c.quadraticCurveTo(x - ww * .45, yy + ww * .18, x - ww * .05, yy + ww * .12); c.closePath(); c.fillStyle = c1; c.fill(); };
@@ -6664,6 +6710,13 @@ const Trail = (() => {
           ell(X + .3, Y + .05, 1.25, .32, 'rgba(30,75,55,.2)'); c.fillStyle = '#5A4A3C'; c.fillRect(X - .6, Y - .55, .22, .6); c.fillRect(X + .4, Y - .55, .22, .6);
           ell(X, Y - .95, 1.15, .78, '#FBFAF3'); disc(X - .5, Y - 1.35, .45, '#FFFFFF'); disc(X + .35, Y - 1.4, .5, '#FFFFFF'); ell(X + dir * 1.15, Y - 1.05, .42, .36, '#E9DCC8'); }
         c.globalAlpha = 1; }
+      else if (o.t === 'bush') { const r = o.r, G = o.dry ? ['#8FA35A', '#A7BB6A', '#C6D58A'] : ['#3F8E4B', '#58AB57', '#7CC567'];   // a low round bush, no trunk
+        ell(x + r * .4, y + r * .05, r * 1.25, r * .4, 'rgba(30,75,55,.2)');
+        disc(x + r * .3, y - r * .55, r * .75, G[0]); disc(x - r * .38, y - r * .5, r * .66, G[1]); disc(x + r * .02, y - r * .92, r * .62, G[1]); disc(x - r * .22, y - r * 1.08, r * .28, G[2]); }
+      else if (o.t === 'stone') { const s = o.s;   // a single boulder, like the ones above
+        ell(x + s * .5, y + s * .08, s * 1.3, s * .3, 'rgba(40,70,70,.2)');
+        poly(x, y, s, [[-1, 0], [-.92, -.6], [-.36, -1.06], [.36, -.96], [.96, -.46], [1, 0]], '#A7B1AE'); poly(x, y, s, [[-.92, -.6], [-.36, -1.06], [.36, -.96], [.08, -.5], [-.5, -.44]], '#D6DCD7'); poly(x, y, s, [[.36, -.96], [.96, -.46], [1, 0], [.3, 0], [.08, -.5]], '#7F8C8D'); }
+      if (small && g < 1) c.restore(); c.globalAlpha = 1;
     }
     if (!moving) PROPS.t = 0; else if (!PROPS.raf) PROPS.raf = requestAnimationFrame(() => { PROPS.raf = 0; if (cv.isConnected) drawProps(); });   // keep drawing until the fade is done
   }
@@ -6690,7 +6743,7 @@ const Trail = (() => {
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
   const cl = (x, a, b) => Math.max(a, Math.min(b, x));
-  const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 76;   // the view the map opens on is as far back as it goes; in, down to one city
+  const zHome = () => (CAM.vw || CAM.w) / 400, zMin = zHome, zMax = () => (CAM.vw || CAM.w) / 24;   // the view the map opens on is as far back as it goes; in, since v3.00 down to a few fields and woods (it was / 76, one city)
   const CORE = [[82, 33], [77, 39.4], [84, 41], [92, 42], [103, 40], [112, 41.5], [119, 44], [124, 47], [126.4, 45.6], [125, 43], [119, 38], [119.5, 31], [116, 25.5], [117.5, 25.0], [111, 24], [104, 25], [100.3, 25.8], [99, 29], [90, 31]];   // China's heartland, reaching out to the far monuments
   const HOME = [109, 33], EDGE = { w: 70, n: 60 };   // where the map opens; the furthest west and north the screen's edge may show (Kashgar and Harbin still fit, close up)
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
@@ -6702,7 +6755,7 @@ const Trail = (() => {
   }
   const view = (lon, lat, z, fy = .5) => { const [x, y] = wp(lon, lat); return { x, y: y - (fy - .5) * CAM.h / z, z }; };   // this place, fy of the way down the screen
   const home = () => view(...HOME, zHome());   // the eastern two thirds of the country
-  const mScale = () => 1.5 * Math.pow(CAM.z / 1.5, .6);   // monuments grow more slowly than the land
+  const mScale = () => { const zo = (CAM.vw || CAM.w) / 76; return 1.5 * Math.pow(Math.min(CAM.z, zo) / 1.5, .6) * Math.pow(Math.max(1, CAM.z / zo), .2); };   // monuments grow more slowly than the land; v3.00: past the old closest view, slower still, so a price tag never fills the screen
   const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
   const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
@@ -6727,7 +6780,12 @@ const Trail = (() => {
     if (!PROPS.cv) { PROPS.cv = document.createElement('canvas'); PROPS.cv.id = 'tmProps'; PROPS.c = PROPS.cv.getContext('2d'); }
     const cams = [...stage.querySelectorAll('.tm-cam')], pins = [...svg.querySelectorAll('.tm-pin')], pts = new Map(), chest = svg.querySelector('#tmChest');
     let raf = 0, anim = 0, g = null, tap = null;
-    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps(); for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); chest?.setAttribute('transform', chestT()); svg.classList.toggle('near', nearby()); upright(); };
+    const dir = svg.querySelector('.tm-dir'), sky = [...svg.querySelectorAll('.tm-drift')], dash = stage.querySelector('.tm-tzg path');   // v3.00: 北 东 南 西 belong to the whole country; they fade out as you zoom in, and are gone by 1.7 times the opening view. The clouds go too once you are deep below them
+    const apply = () => { const t = camT(); for (const c of cams) c.setAttribute('transform', t); if (TEX.cv) TEX.cv.style.transform = texT(); drawProps();
+      const zr = CAM.z / zHome(), fade = (e, k) => { e.style.opacity = k < 1 ? k.toFixed(3) : ''; e.style.display = k ? '' : 'none'; };
+      if (dir) fade(dir, .4 * cl((1.7 - zr) / .5, 0, 1)); const ks = cl((7 - zr) / 1.5, 0, 1); for (const e of sky) fade(e, ks);
+      if (dash) dash.style.display = zr > 400 / 76 ? 'none' : '';   // the paper's dashed lines: past the old closest view there are too many dashes to draw smoothly, and only a corner of sea shows anyway
+      for (const p of pins) p.setAttribute('transform', pinT(p.dataset.lv)); chest?.setAttribute('transform', chestT()); svg.classList.toggle('near', nearby()); upright(); };
     const ups = [...svg.querySelectorAll('.tm-up,.tm-buy')], world = stage.querySelector('.tm-world');
     function upright() {   // while the ground is tilted and turned (CAM.tilt), each monument and price tag turns back and stands up straight on it
       const T = CAM.tilt, u = T ? `rotate(${T.r.toFixed(2)}) scale(1 ${(1 / Math.cos(T.a * Math.PI / 180)).toFixed(4)})` : null;
@@ -9069,7 +9127,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.99';
+const APP_VERSION = '3.00';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
