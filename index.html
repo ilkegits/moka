@@ -767,6 +767,11 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-skysh{fill:#1F4B5A;opacity:.1;pointer-events:none}
 .tm-curl{fill:none;stroke:#1F4B5A;stroke-opacity:.24;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tm-tip{fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round}
+.tm-rose{pointer-events:none}
+.tm-rose path{stroke:#D2B36E;stroke-width:.6;stroke-linejoin:round}
+.tm-rose g[opacity] path{stroke:none}
+.tm-rose-ring{fill:none;stroke:#D2B36E;stroke-width:1}
+.tm-rose-ch text{font:900 14px "Noto Serif SC",serif;fill:#C0392B;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#FFF8E6;stroke-width:3;stroke-linejoin:round}
 .tm-drift{animation:tmDrift 11s ease-in-out infinite alternate}
 .tm-drift-l{animation-direction:alternate-reverse}
 @keyframes tmDrift{from{transform:translateX(-28px)}to{transform:translateX(28px)}}
@@ -6467,6 +6472,14 @@ const Trail = (() => {
     const ribbon = R => { const body = R.heads.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('') + `<path d="${R.tail}"/>`;
       const curls = R.heads.slice(0, 3).map(([x, y, r]) => spiral(x, y, r * .72, Math.PI * .55, 1.1, .22)).join('') + R.line;
       return [body, body + `<path class="tm-curl" d="${curls}"/><path class="tm-tip" d="${spiral(...R.end, Math.PI * .5, 1.05, .3)}"/>`]; };
+    /* v2.95: a compass star in the empty north, above Mongolia: eight light points, each half cream and half pale gold (the
+       long four point north, east, south and west), and 北 东 南 西 in solid red at their tips. */
+    const rose = (() => { const pt = (a, R, w, c1, c2) => { const r = a * Math.PI / 180, tx = f(R * Math.sin(r)), ty = f(-R * Math.cos(r)), lx = f(-w * Math.cos(r)), ly = f(-w * Math.sin(r));
+        return `<path fill="${c1}" d="M0 0L${tx} ${ty}L${lx} ${ly}Z"/><path fill="${c2}" d="M0 0L${tx} ${ty}L${-lx} ${-ly}Z"/>`; };
+      const star = (shade) => [45, 135, 225, 315].map(a => pt(a, 15, 4.5, shade || '#FFFFFF', shade || '#D6E4DE')).join('') + [0, 90, 180, 270].map(a => pt(a, 25, 6, shade || '#FFF8E6', shade || '#EED9A0')).join('');
+      const [x, y] = wp(104, 56), ch = [['北', 0, -35], ['东', 35, 0], ['南', 0, 35], ['西', -35, 0]].map(([c, dx, dy]) => `<text x="${dx}" y="${dy}">${c}</text>`).join('');
+      return `<g class="tm-rose" transform="translate(${f(x)} ${f(y)})"><g transform="translate(5 9)" opacity=".1">${star('#1F4B5A')}</g><circle class="tm-rose-ring" r="17"/>${star()}<circle r="2.2" fill="#C0392B"/><g class="tm-rose-ch">${ch}</g></g>`; })();
+    b += rose;
     [[98.5, 42.5, .85, 'long', 1, 1, 10], [120, 17, 1, 'long', -1, -1, 12], [121, 44.5, .7, 'chunky', -1, 1, 11], [95, 30, .7, 'chunky', 1, -1, 13]]
       .forEach(([lon, lat, k, kind, face, go, sec]) => { const [x, y] = wp(lon, lat), [sh, sky] = ribbon(RIBBON[kind]), at = (dx, dy) => `translate(${f(x + dx)} ${f(y + dy)}) scale(${f(face * k * 100) / 100} ${k})`;   // face -1 turns it round so the tail trails the other way
         b += `<g class="tm-drift${go < 0 ? ' tm-drift-l' : ''}" style="animation-duration:${sec}s"><g class="tm-skysh" transform="${at(8, 15)}">${sh}</g><g class="tm-sky" transform="${at(0, 0)}">${sky}</g></g>`; });   // the clouds, and their shadows on the ground
@@ -9049,7 +9062,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.94';
+const APP_VERSION = '2.95';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
