@@ -1794,6 +1794,25 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-sign-board small{font:800 10.5px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#F4C14E}
 .un-sign-board b{max-width:100%;font:900 19px/1.15 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1.5px 0 #6E120B}
 .un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
+.un-side-w{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;margin:0 -20px 14px}
+.un-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.un-scroll::-webkit-scrollbar{display:none}
+.un-track{position:relative}
+.un-track .un-bg{left:0;right:0}
+.un-track .un-bg::before{height:44px}
+.un-track .un-bg::after{content:"";position:absolute;inset:auto 0 0;height:44px;z-index:1;background:linear-gradient(transparent,var(--paper))}
+.un-side .un-map{margin:0}
+.un-peek{position:absolute;right:12px;top:14px;z-index:4;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 14px;border-radius:18px;background:var(--card);color:var(--ink);font:700 13px/1 var(--ui);box-shadow:var(--ring),0 6px 14px -6px rgba(40,20,10,.5);transition:opacity .3s}
+.un-peek b{font-size:20px;line-height:.6;color:var(--seal)}
+.un-peek.gone{opacity:0;pointer-events:none}
+.un-bg canvas.uw-tab{opacity:0;transition:opacity .5s}
+.un-bg canvas.uw-tab.on{opacity:1}
+.un-round .un-node:not(.front):not(.un-boss) small{display:none}
+.un-round .un-boss{transform:translate(-50%,-112px) scale(.78);transform-origin:50% 112px}
+.un-round .un-boss small{display:none}
+.un-spin{position:absolute;z-index:2;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.un-spin button{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--card);color:var(--seal);font:700 26px/1 var(--ui);box-shadow:var(--ring),0 4px 10px -4px rgba(40,20,10,.5)}
+.un-spin em{padding:5px 10px;border-radius:10px;background:color-mix(in srgb,var(--card) 85%,transparent);font:600 12.5px/1 var(--ui);font-style:normal;color:var(--muted)}
 .un-node{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;width:76px;padding:0;transform:translate(-50%,-38px)}
 .un-spot{display:block;width:76px;height:76px;border-radius:50%}
 .un-node:active .un-spot{background:radial-gradient(closest-side,rgba(255,240,200,.35),transparent)}
@@ -3998,14 +4017,37 @@ function unitNodes(n) {
   pts.push([180, TOP + Math.ceil(n / 3) * ROW + 52]);
   return pts;
 }
-const unitShiAt = (pts, at) => { const i = Math.min(at, pts.length - 1), [x, y] = pts[i]; return i === pts.length - 1 ? [x - 98, y - 44] : [x + (x < 120 ? 52 : -52), y - 50]; };   // Shi Shi waits beside the steamer he is at (on its open side), or beside the boss
+/* each unit lays its campaign out its own way, after the place its comic starts:
+   snake  the lessons snake down the page three to a row (the town gate, the school, the snow)
+   side   one long street you swipe along, Hu Hu waiting at the far end (the walk to the party, the market, the train)
+   round  a round restaurant table with a lazy Susan: the steamers ride on the turntable round Hu Hu, who stands in the
+          middle, and you spin it to bring a lesson to the front, where Shi Shi sits (the restaurant, the present's table) */
+const UNIT_LAY = { 2: 'side', 3: 'side', 6: 'side', 4: 'round', 8: 'round' };
+const UN_RND = { cx: 180, cy: 300, rx: 114, ry: 66 };
+const unRnd = { rot: 0 };   // how far the table on screen is turned, in lessons: lesson rot is at the front
+const unRndAng = (i, n, rot = unRnd.rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
+/* a unit's map in units of 1/360 of its width: lay, pts (each lesson's foot, then the boss's), W by H, and on the
+   table each steamer's size (the back ones are further away) */
+function unitMap(un, n) {
+  const lay = UNIT_LAY[un] || 'snake';
+  if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [120 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 270, 330]); return { lay, pts, W: pts[n][0] + 150, H: 580 }; }
+  if (lay === 'round') { const a = Array.from({ length: n }, (_, i) => unRndAng(i, n)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
+    pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
+  const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
+}
+/* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the boss; at the table he keeps his seat by the front */
+const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
+  if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
+  return i === pts.length - 1 ? [x - 98, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
 function UnitView(un) {
-  const [en] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, pts = unitNodes(n), H = pts[n][1] + 96, C = COMIC[un];
+  const [en] = LES_UNITS[un - 1], st = unitState(un), n = st.ls.length, C = COMIC[un];
   const next = lesNext(), due = utDue(), r = db.utests[un], bossOpen = st.nd === n;
-  const pct = ([x, y]) => `left:${(x / 3.6).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const seen = Math.min(db.unitAt?.[un] ?? st.at, st.at), eat = !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
+  unRnd.rot = eat >= 0 ? eat : Math.min(st.at, n - 1);   // the table comes turned to the lesson you are on (or the one he is about to eat)
+  const m = unitMap(un, n), { pts, W, H, lay } = m;
+  const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd.rot ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const boss = `<button class="un-node un-boss${st.won ? ' won' : bossOpen ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${un}" aria-label="Final boss, the unit test${st.won ? ', beaten' : bossOpen ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small><i lang="zh" aria-hidden="true">王</i>Final boss</small></button>`;
@@ -4014,17 +4056,27 @@ function UnitView(un) {
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
     : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
-  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${un}</small><b>${esc(en)}</b></span></div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
-    <div class="un-map" style="aspect-ratio:360/${H}">
-      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(pts, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
+  const bg = '<div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div>', side = lay === 'side';
+  return `<div class="screen fade-in c1 un un-${lay}">${side ? '' : bg}<header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${un}</small><b>${esc(en)}</b></span></div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
+    ${side ? `<div class="un-side-w"><div class="un-scroll"><div class="un-track" style="width:${(W / 3.6).toFixed(2)}%">${bg}` : ''}<div class="un-map" style="aspect-ratio:${W}/${H}">
+      ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}${lay === 'round' ? `<span class="un-spin" style="${pct([UN_RND.cx, UN_RND.cy + UN_RND.ry + 118])}"><button data-spin="-1" aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1" aria-label="Turn the table on">›</button></span>` : ''}</div>${side ? `</div></div><button class="un-peek" aria-label="Go to the final boss">Final boss<b>›</b></button></div>` : ''}
     <div class="un-hud">${hud}</div></div>`;
 }
 function mountUnit(un) {
   const st = unitState(un), shi = $('#unShi'), eat = shi?.dataset.eat;
   // Shi Shi eats the baozi of the lesson you just finished, if there is one, then hops on; only then is the new place remembered
+  const lay = UNIT_LAY[un] || 'snake', sc = $('.un-scroll');
   const hop = () => { if (!shi?.isConnected) return; const [, l, t] = shi.dataset.to.match(/left:([^;]+);top:([^;]+)/); if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; }
+    if (sc) sc.scrollTo({ left: parseFloat(l) / 100 * sc.firstElementChild.offsetWidth - sc.clientWidth * .3, behavior: stillMotion() ? 'auto' : 'smooth' });   // the street follows him
+    if (lay === 'round') unitSpin(un, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
     if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
     if (db.unitAt?.[un] !== st.at) { (db.unitAt ||= {})[un] = st.at; save(); } };
+  if (sc) {   // the street opens where Shi Shi is; the tab on the right takes you to the boss, and goes once you are there
+    sc.scrollLeft = shi ? shi.offsetLeft - sc.clientWidth * .3 : 0;
+    const pk = $('.un-peek'), at = () => pk.classList.toggle('gone', sc.scrollLeft + sc.clientWidth > sc.scrollWidth - 80);
+    sc.addEventListener('scroll', at, { passive: true }); at(); pk.onclick = () => sc.scrollTo({ left: sc.scrollWidth, behavior: stillMotion() ? 'auto' : 'smooth' });
+  }
+  if (lay === 'round') unitTableGrip(un);
   if (eat != null) { unitWorld(un, { skip: +eat }); setTimeout(() => { if (shi?.isConnected) unitEat(un, +eat, () => setTimeout(hop, 250)); }, 450); }
   else { unitWorld(un); setTimeout(hop, stillMotion() ? 0 : 520); }
   document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if (S.view === 'course' && S.cUnit === un && !$('.uw-anim')) unitWorld(un); });
@@ -4067,11 +4119,18 @@ const unitSegs = pts => pts.slice(1).map(([x1, y1], k) => { const [x0, y0] = pts
 /* where everything stands, in pixels of the backdrop: each steamer's foot, the boss's plaza and the dots of the path */
 function uwGeo(un) {
   const box = $('#unBg'), map = $('.un-map'); if (!box || !map) return null;
-  const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / 360; if (!B.width || !B.height) return null;
-  const st = unitState(un), n = st.ls.length, pts = unitNodes(n), FOOT = 24;
+  const st = unitState(un), n = st.ls.length, m = unitMap(un, n), pts = m.pts, FOOT = 24;
+  const B = box.getBoundingClientRect(), M = map.getBoundingClientRect(), k = M.width / m.W; if (!B.width || !B.height) return null;
   const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
-  const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked' }; });
-  const [bx, by] = px(pts[n]), trail = [];
+  const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.n - 1], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
+  const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k };
+  if (m.lay === 'round') {   // on the table the path runs round the turntable, from the first lesson to the last
+    for (let i = 0; i < n - 1; i++) { const a0 = unRndAng(i, n), a1 = unRndAng(i + 1, n);
+      for (let t = 0; t <= 1; t += .02) { const a = a0 + (a1 - a0) * t, p = px([UN_RND.cx + UN_RND.rx * Math.cos(a), UN_RND.cy + UN_RND.ry * Math.sin(a)]), q = trail[trail.length - 1];
+        if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 40 * o.sc) || (q && Math.hypot(q.x - p[0], q.y - p[1]) < 12)) continue;
+        trail.push({ x: p[0], y: p[1], done: i < st.at }); } }
+    return out;
+  }
   let run = 0;
   unitSegs(pts).forEach((s, si) => { let prev = px(s[0]);
     for (let t = .02; t <= 1.0001; t += .02) { const u = 1 - t, p = px([0, 1].map(d => u * u * u * s[0][d] + 3 * u * u * t * s[1][d] + 3 * u * t * t * s[2][d] + t * t * t * s[3][d]));
@@ -4079,7 +4138,7 @@ function uwGeo(un) {
       if (run < 14) continue; run = 0;
       if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 46) || Math.hypot(bx - p[0], (by - p[1]) * 2) < 64) continue;
       trail.push({ x: p[0], y: p[1], done: si < st.at }); } });
-  return { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail };
+  return out;
 }
 
 /* one woven bamboo steamer standing at x,y. a (for the eating): lid = how far the lid is lifted (0 to 1), bun = the
@@ -4161,7 +4220,7 @@ function unitWorld(un, o = {}) {
   /* the ground: grass, and paving round the boss */
   const cs = [IJ(-60, -60), IJ(W + 60, -60), IJ(-60, H + 60), IJ(W + 60, H + 60)];
   const i0 = Math.floor(Math.min(...cs.map(p => p[0]))), i1 = Math.ceil(Math.max(...cs.map(p => p[0]))), j0 = Math.floor(Math.min(...cs.map(p => p[1]))), j1 = Math.ceil(Math.max(...cs.map(p => p[1])));
-  const pc = IJ(G.boss.x, G.boss.y), plaza = (i, j) => Math.abs(i + .5 - pc[0]) + Math.abs(j + .5 - pc[1]) < 5.2;
+  const round = G.lay === 'round', pc = IJ(G.boss.x, G.boss.y), plaza = (i, j) => Math.abs(i + .5 - pc[0]) + Math.abs(j + .5 - pc[1]) < (round ? 9.5 : 5.2);
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
     const n = (rnd() - .5) * .07, pz = plaza(i, j);
     poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], uwSh(pz ? pal.plaza : (i * 7 + j * 3) % 5 ? pal.grass : pal.grass2, n + (pz && (i + j) % 2 ? -.06 : 0)));
@@ -4178,19 +4237,22 @@ function unitWorld(un, o = {}) {
   for (let j = j0; j <= j1; j++) { c.moveTo(...P(i0, j + .5)); c.lineTo(...P(i1 + 1, j + .5)); }
   c.stroke(); c.setLineDash([]);
 
-  /* the path, lying on the ground */
+  /* the path, lying on the ground (or, at the round table, the table: its turntable, path and steamers turn on a canvas of their own, unitTable) */
   const objs = [], lights = [], occ = new Set();
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j)) occ.add(key(i, j));
-  G.trail.forEach(({ x, y, done }) => {
-    const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b));
-    c.save(); c.globalCompositeOperation = 'lighter'; const r = done ? 13 : 9, g = c.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, done ? 'rgba(255,180,40,.55)' : 'rgba(255,240,210,.28)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, r, r * .55, 0, 0, 7); c.fill(); c.restore();
-    c.fillStyle = 'rgba(20,10,10,.35)'; c.beginPath(); c.ellipse(x, y + 1, 4.4, 2.4, 0, 0, 7); c.fill();
-    c.fillStyle = done ? '#FFC23A' : '#FFF4DC'; c.beginPath(); c.ellipse(x, y, 3.6, 2, 0, 0, 7); c.fill();
-    if (done) { c.fillStyle = '#FFF8DA'; c.beginPath(); c.ellipse(x, y - .3, 1.6, .9, 0, 0, 7); c.fill(); }
-  });
-  G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
-    if (s.i !== o.skip) objs.push({ z: si + sj + 1.5, draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
+  if (round) { const k = G.k, x = G.boss.x, y = G.boss.y - 4 * k, TX = (UN_RND.rx + 56) * k, TY = (UN_RND.ry + 39) * k;
+    c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 14, y + 26, TX + 6, TY + 6, 0, 0, 7); c.fill();
+    c.fillStyle = '#5E1814'; c.beginPath(); c.ellipse(x, y + 14, TX, TY, 0, 0, 7); c.fill(); c.fillRect(x - TX, y, TX * 2, 14);
+    c.fillStyle = vg(y - TY, y + TY, '#B8352B', '#8E2219'); c.beginPath(); c.ellipse(x, y, TX, TY, 0, 0, 7); c.fill();
+    c.strokeStyle = '#E9B44C'; c.lineWidth = 2; c.beginPath(); c.ellipse(x, y, TX - 5, TY - 3, 0, 0, 7); c.stroke();
+    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const [px, py] = P(i + .5, j + .5), dx = (px - x) / (TX + 50 * k), dy = (py - y) / (TY + 70 * k);   // nothing stands on or just in front of the table
+      if (dx * dx + dy * dy < 1 || (Math.abs(px - x) < TX + 20 * k && py > y && py < y + 260 * k)) occ.add(key(i, j)); }
+    lights.push([x, y, TX * 1.1, .6]); }
+  else {
+    G.trail.forEach(({ x, y, done }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b)); uwDot(c, x, y, done); });
+    G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
+      if (s.i !== o.skip) objs.push({ z: si + sj + 1.5, draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
+  }
 
   /* what stands in the town */
   const free = (i, j, w, d, pad = 0) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > 50 && y < H - 30 && x > -20 && x < W + 20; };
@@ -4281,10 +4343,11 @@ function unitWorld(un, o = {}) {
 
   // lantern poles beside the path, now and then
   let lastY = -1e9; G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
-  // houses and trees on the open ground
-  for (let t = 0, made = 0; t < 500 && made < (un === 3 ? 4 : 7); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
+  // houses and trees on the open ground (a long street gets more of them)
+  const spread = G.lay === 'side' ? W / G.k / 360 : 1;
+  for (let t = 0, made = 0; t < 500 && made < Math.round((un === 3 ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
     if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
-  for (let t = 0, made = 0; t < 400 && made < 26; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
+  for (let t = 0, made = 0, most = Math.round(26 * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
     if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
 
   /* paint: shadows, then everything back to front, then light */
@@ -4303,7 +4366,61 @@ function unitWorld(un, o = {}) {
   if (pal.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { c.beginPath(); c.arc(rnd() * W, rnd() * H, 1.2 + rnd() * 1.8, 0, 7); c.fill(); } }
   const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H);
   cv.classList.add('on');
+  if (round) unitTable(un, o.skip);
   return G;
+}
+/* one dot of the path on the ground, gold where you have been */
+function uwDot(c, x, y, done) {
+  c.save(); c.globalCompositeOperation = 'lighter'; const r = done ? 13 : 9, g = c.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, done ? 'rgba(255,180,40,.55)' : 'rgba(255,240,210,.28)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, r, r * .55, 0, 0, 7); c.fill(); c.restore();
+  c.fillStyle = 'rgba(20,10,10,.35)'; c.beginPath(); c.ellipse(x, y + 1, 4.4, 2.4, 0, 0, 7); c.fill();
+  c.fillStyle = done ? '#FFC23A' : '#FFF4DC'; c.beginPath(); c.ellipse(x, y, 3.6, 2, 0, 0, 7); c.fill();
+  if (done) { c.fillStyle = '#FFF8DA'; c.beginPath(); c.ellipse(x, y - .3, 1.6, .9, 0, 0, 7); c.fill(); }
+}
+/* the round table's turntable as it stands now (unRnd.rot): the disc, the path round it and the steamers, the far ones
+   smaller, painted back to front on their own canvas over the town so turning it repaints only this. The steamer
+   skip is left out (it is being eaten on the canvas above). Its lessons' buttons move with it, and the one at the
+   front shows its name */
+function unitTable(un, skip) {
+  const G = uwGeo(un); if (!G || G.lay !== 'round') return;
+  let cv = G.box.querySelector('canvas.uw-tab'); if (!cv) { cv = document.createElement('canvas'); cv.className = 'uw-tab'; G.box.querySelector('canvas.uw').after(cv); }
+  const D = Math.min(devicePixelRatio || 1, 2.5), w = Math.round(G.W * D), h = Math.round(G.H * D);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; cv.style.width = G.W + 'px'; cv.style.height = G.H + 'px'; }
+  const c = cv.getContext('2d'), k = G.k, x = G.boss.x, y = G.boss.y - 6 * k, RX = (UN_RND.rx + 44) * k, RY = (UN_RND.ry + 30) * k, n = G.spots.length, turn = -unRnd.rot * 2 * Math.PI / n;
+  c.setTransform(D, 0, 0, D, 0, 0); c.clearRect(0, 0, G.W, G.H);
+  c.fillStyle = 'rgba(40,10,8,.35)'; c.beginPath(); c.ellipse(x + 4, y + 6, RX, RY, 0, 0, 7); c.fill();
+  let g = c.createLinearGradient(x - RX, y - RY, x + RX, y + RY); g.addColorStop(0, '#E7D9C4'); g.addColorStop(1, '#BFA98C'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y, RX, RY, 0, 0, 7); c.fill();
+  c.strokeStyle = 'rgba(90,50,30,.25)'; c.lineWidth = 1;   // the turntable's spokes and ring turn with it
+  for (let a = 0; a < 12; a++) { const t = turn + a * Math.PI / 6; c.beginPath(); c.moveTo(x + Math.cos(t) * RX * .3, y + Math.sin(t) * RY * .3); c.lineTo(x + Math.cos(t) * RX * .96, y + Math.sin(t) * RY * .96); c.stroke(); }
+  c.strokeStyle = 'rgba(90,50,30,.3)'; c.setLineDash([3, 4]); c.beginPath(); c.ellipse(x, y, RX * .62, RY * .62, 0, 0, 7); c.stroke(); c.setLineDash([]);
+  c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.beginPath(); c.ellipse(x, y, RX - 2, RY - 2, 0, Math.PI * 1.05, Math.PI * 1.45); c.stroke();
+  G.trail.forEach(d => uwDot(c, d.x, d.y, d.done));
+  G.spots.filter(s => s.i !== skip).sort((a, b) => a.y - b.y).forEach(s => { c.save(); c.translate(s.x, s.y); c.scale(s.sc, s.sc); c.translate(-s.x, -s.y); uwSteamer(c, null, s.x, s.y, s.ch, s.state); c.restore(); });
+  cv.classList.add('on');
+  const m = unitMap(un, n), f = ((Math.round(unRnd.rot) % n) + n) % n;
+  document.querySelectorAll('.un-map .un-node[data-i]').forEach(b => { const i = +b.dataset.i; b.style.left = (m.pts[i][0] / m.W * 100).toFixed(2) + '%'; b.style.top = (m.pts[i][1] / m.H * 100).toFixed(2) + '%'; b.classList.toggle('front', i === f); });
+}
+/* turn the table so lesson to comes to the front, the short way round */
+let unSpinT = 0;
+function unitSpin(un, to, ms = 560) {
+  const n = unitLessons(un).length, from = unRnd.rot, id = ++unSpinT; to = from + ((((to - from) % n) + n * 1.5) % n - n / 2);
+  if (stillMotion() || Math.abs(to - from) < .001) { unRnd.rot = to; unitTable(un); return; }
+  const t0 = performance.now(), step = now => { if (id !== unSpinT || !$('.un-round')) return; const t = Math.min(1, (now - t0) / ms), e = 1 - (1 - t) ** 3;
+    unRnd.rot = from + (to - from) * e; unitTable(un); if (t < 1) requestAnimationFrame(step); else unRnd.rot = ((Math.round(to) % n) + n) % n; };
+  requestAnimationFrame(step);
+}
+/* swipe the table, or tap its arrows, to turn it; it settles with a lesson at the front. A swipe is not a tap */
+function unitTableGrip(un) {
+  const map = $('.un-round .un-map'); if (!map) return;
+  let g = null, quiet = 0;
+  map.addEventListener('pointerdown', e => { if (!e.isPrimary || $('.uw-anim') || e.target.closest('.un-spin')) return; g = { id: e.pointerId, x: e.clientX, y: e.clientY, r: unRnd.rot, on: false }; });
+  map.addEventListener('pointermove', e => { if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } if (Math.abs(dx) < 10) return; g.on = true; ++unSpinT; try { map.setPointerCapture(g.id); } catch (_) {} }
+    const was = Math.round(unRnd.rot); unRnd.rot = g.r - dx / 90; unitTable(un); if (Math.round(unRnd.rot) !== was) haptic(6); });
+  const end = e => { if (!g || e.pointerId !== g.id) return; const G = g; g = null; if (!G.on) return; quiet = performance.now() + 350; unitSpin(un, Math.round(unRnd.rot), 280); };
+  map.addEventListener('pointerup', end); map.addEventListener('pointercancel', end);
+  map.addEventListener('click', e => { if (performance.now() < quiet) { e.stopPropagation(); e.preventDefault(); } }, true);
+  map.querySelectorAll('[data-spin]').forEach(b => b.onclick = () => { if (!$('.uw-anim')) { haptic(8); unitSpin(un, Math.round(unRnd.rot) + +b.dataset.spin); } });
 }
 
 /* one bite: a short soft crunch, a burst of noise through a low filter with a little drop in pitch under it */
@@ -4336,8 +4453,9 @@ function unitEat(un, i, then) {
     if (!cv.isConnected) return;
     const t = now - t0, lid = t < 1800 ? ease(t / 380) : 1 - ease((t - 1800) / 320), rise = back((t - 300) / 420), fade = ease((t - 2150) / 320);
     c.setTransform(D, 0, 0, D, 0, 0); c.clearRect(0, 0, G.W, G.H);
+    c.translate(s.x, s.y); c.scale(s.sc, s.sc); c.translate(-s.x, -s.y);
     uwSteamer(c, null, s.x, s.y, s.ch, 'cur', { lid, steam: t < 300 ? .55 : Math.max(0, 1 - (t - 300) / 900), bun: t > 300 ? { rise, bites, side } : null, fade: t > 1800 ? Math.max(.001, fade) : 0 });
-    crumbs.forEach(p => { const a = (now - p.born) / 16; if (a > 40) return; c.fillStyle = '#F2E2C4'; c.beginPath(); c.arc(p.x + p.vx * a, p.y + p.vy * a + .09 * a * a, 1.8, 0, 7); c.fill(); });
+    c.setTransform(D, 0, 0, D, 0, 0); crumbs.forEach(p => { const a = (now - p.born) / 16; if (a > 40) return; c.fillStyle = '#F2E2C4'; c.beginPath(); c.arc(p.x + p.vx * a, p.y + p.vy * a + .09 * a * a, 1.8, 0, 7); c.fill(); });
     if (t < 2520) { requestAnimationFrame(frame); return; }
     unitWorld(un); cv.remove(); then();
   };
@@ -9954,7 +10072,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.16';
+const APP_VERSION = '3.17';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
