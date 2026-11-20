@@ -743,6 +743,16 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-stage{position:relative;flex:1;min-height:440px;margin:0 -20px;overflow:hidden;isolation:isolate;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
   background:radial-gradient(130% 80% at 62% 44%,#ACE1F2,#86D0EA 60%,#6DC1E4)}
 .tm-stage.tm-grab{cursor:grabbing}
+/* v3.30: the food map: a golden sea, its shallows and the lands around in warm haze; the clouds throw warm shadows */
+.tm-stage.food{background:radial-gradient(130% 80% at 62% 44%,#FFEDB0,#FBDB7C 60%,#F4C95A)}
+.food .tm-shelf2{stroke:#FFF6CF;opacity:.4}
+.food .tm-shelf{stroke:#FFFBE6;opacity:.7}
+.food .tm-far{fill:#F3E6BE}
+.food .tm-lift{fill:#9A6A1C;stroke:#9A6A1C}
+.food .tm-land{fill:#E6E0A2;stroke:#FFF7DC}
+.food .tm-tzg path{stroke:#B0541A}
+.food .tm-skysh{fill:#7A4A10}
+.food .tm-curl{stroke:#8A5A1C}
 .tm-world{position:absolute;inset:0}
 .tm-stage.tm-over .tm-world{inset:-70%;transform-origin:50% 55%}
 .tm-world>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -1045,7 +1055,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-mapsb:active{transform:scale(.94)}
 .tm-mapsb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
 .tm-showing .tm-mapsb{opacity:0;pointer-events:none}
-.maps-say{margin:22px 0 24px;text-align:center;font:600 19px var(--display);color:var(--ink)}
+.maps-it .shop-pic svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.maps-it b .cal-zh{font-size:15px;margin-left:3px}
+.maps-it.on{box-shadow:0 0 0 2.5px #FFC21F,var(--shadow-sm)}
 @media (prefers-reduced-motion:reduce){.cp-big,.cp-gain.done b{animation:none}.cp-gain small{transition:none}}
 
 .mp-city .bar-title .mp-zh{font-family:var(--hanzi);color:var(--seal);margin-left:4px}
@@ -7634,6 +7646,23 @@ const Trail = (() => {
   }
   const TINT = { land: '#DDE6A6', plat: '#D3DFC0', sand: '#F1DFA6', loess: '#E4DC9C', plain: '#CCE38C', grass: '#B4DD82', wood: '#93D078', south: '#9FD974', basin: '#AEDF7C' };   // the colour of each kind of country
   const WOODS = { wood: .7, south: .4, basin: .18, plain: .08, grass: .08, loess: .04 };   // how often a little wood stands in each
+  /* v3.30: a second map of the same country, the food map (no foods on it yet, only its ground). Each map is a skin: its
+     own painted ground, its own things standing on it and its own colours of water. The monument map is green country and
+     a blue sea. The food map is farmland on a golden sea: warmer ground, a patchwork of fields (wheat on the northern
+     plain, rice and rapeseed in the south, chillies in Sichuan, maize and soya in the north-east, millet on the loess,
+     melons and grapes in the oases), fruit trees and tea-striped hills where the other has woods, and no Great Wall.
+     The clouds, the compass, 北 东 南 西 and the writing paper over the sea are the same on both. */
+  const SKINS = {
+    mon: { tint: TINT, woods: WOODS, water: '#86CFEA', rim: '#F8EFC8', lift: 'rgba(18,72,92,.42)', shade: [70, 110, 120], river: ['rgba(62,143,184,.25)', '#8FD6EF'], pins: true },
+    food: { tint: { land: '#E6E0A2', plat: '#DCDDB8', sand: '#F3D9A0', loess: '#E8D48C', plain: '#CFE082', grass: '#BFE08A', wood: '#A6D67E', south: '#A9DC7A', basin: '#C2DC70' },
+      woods: { wood: .3, south: .14, basin: .06, plain: .05, grass: .04, loess: .02 }, water: '#F7D56E', rim: '#FFF7DC', lift: 'rgba(150,95,20,.4)', shade: [105, 105, 60], river: ['rgba(190,130,30,.3)', '#FFE596'], pins: false,
+      /* the fields: how often a patch of them lies in each kind of country, and the crops that grow there */
+      farm: { plain: .95, basin: .95, south: .62, wood: .8, loess: .5, grass: .25, land: .12, sand: .06 },
+      crops: { plain: ['#F2D568', '#F7E18C', '#B9D96C', '#EBC95A'], south: ['#7FCB6B', '#A5DC84', '#F6DC4E', '#63B866'], basin: ['#E8694A', '#7FCB6B', '#F6DC4E', '#EE8A52'], wood: ['#E9C95A', '#9CCB5E', '#B58E62', '#C9DB72'],
+        loess: ['#E3C16F', '#D2A862', '#EAD48A', '#C7B46A'], grass: ['#E6D680', '#A9D56E', '#D8CF7A'], land: ['#A6D36A', '#B79AC8', '#E6D680', '#F1E3A0'], sand: ['#A6D36A', '#B79AC8', '#CFE082'] },
+      fruit: { plain: '#E8503A', south: '#FF9A2E', basin: '#FF9A2E', wood: '#E8503A', land: '#FFC93A' } } };
+  let SKIN = SKINS.mon;
+  const HGT = { E: null, M: null, done: false };   // the heights of the land, worked out once and shared by both maps
   let DRAWN = null, CHINA_D = '';
   const tzgGrid = () => {   // writing-practice paper (田字格) printed faintly over the sea and the lands around: solid squares with a dashed cross in each; China's painted land covers it
     const C = 64, X0 = -1300, X1 = 2300, Y0 = -1300, Y1 = 2500; let box = '', mid = '';
@@ -7677,12 +7706,16 @@ const Trail = (() => {
      or darker with its slope, and that picture stretched smooth over the whole canvas, with the lakes on it.
      The same pass decides what stands on the ground (TEX.things, in world units, north to south): mountains along the real
      ranges, mounds, little woods, and the small things you only see from close: boulders, ferns, flowers, sheep. */
-  const TEX = { cv: null, ready: false, lon: 72.5, lat: 54.6, dlon: 63.5, dlat: 37.2, pxu: 4, wait: [], things: [] };
-  function bake(done) {
+  const newTex = () => ({ cv: null, ready: false, lon: 72.5, lat: 54.6, dlon: 63.5, dlat: 37.2, pxu: 4, wait: [], things: [], fields: [], det: new Map() });
+  const TEXS = { mon: newTex(), food: newTex() }; let TEX = TEXS.mon;   // v3.30: one painted ground for each map; TEX is the one on screen
+  const use = kind => { const k = SKINS[kind] ? kind : 'mon'; SKIN = SKINS[k]; TEX = TEXS[k]; return k; };
+  const bake = done => bakeOn(TEX, SKIN, done);
+  function bakeOn(TEX, K, done) {   // TEX and K: the map being painted, which stays the same one even if you switch maps before it is done
+    const TINT = K.tint, WOODS = K.woods, SITES = K.pins ? Object.values(SITE) : [];
     if (TEX.ready) { done(); return; } TEX.wait.push(done); if (TEX.cv) return;
     drawn(); const cv = TEX.cv = document.createElement('canvas'), ctx = cv.getContext('2d'); cv.id = 'tmTex';
     const P = TEX.pxu, W = cv.width = Math.round(TEX.dlon * UX * P), H = cv.height = Math.round(TEX.dlat * UY * P), GS = .25, nx = Math.ceil(TEX.dlon / GS), ny = Math.ceil(TEX.dlat / GS);
-    const E = new Float32Array(nx * ny), M = new Uint8Array(nx * ny), [X0, Y0] = wp(TEX.lon, TEX.lat);
+    const E = HGT.E ||= new Float32Array(nx * ny), M = HGT.M ||= new Uint8Array(nx * ny), [X0, Y0] = wp(TEX.lon, TEX.lat);
     const outline = new Path2D(CHINA_D), mk = document.createElement('canvas'), kc = mk.getContext('2d'); mk.width = nx; mk.height = ny;   // where China is, and a little way past its edge so the shading has neighbours
     kc.setTransform(nx / (TEX.dlon * UX), 0, 0, ny / (TEX.dlat * UY), -X0 * nx / (TEX.dlon * UX), -Y0 * ny / (TEX.dlat * UY)); kc.lineWidth = 12; kc.lineJoin = 'round'; kc.fill(outline); kc.stroke(outline);
     const A = kc.getImageData(0, 0, nx, ny).data; for (let k = 0; k < nx * ny; k++) M[k] = A[k * 4 + 3] > 20 ? 1 : 0;
@@ -7690,7 +7723,7 @@ const Trail = (() => {
     let j = 0;
     const rows = () => {   // the height of every dot of land
       for (const t0 = performance.now(); j < ny && performance.now() - t0 < 12; j++) for (let i = 0; i < nx; i++) if (M[j * nx + i]) E[j * nx + i] = metres(TEX.lon + (i + .5) * GS, TEX.lat - (j + .5) * GS);
-      if (j < ny) setTimeout(rows, 0); else paint();
+      if (j < ny) setTimeout(rows, 0); else { HGT.done = true; paint(); }
     };
     const kindAt = (lon, lat) => { let k = pip(lon, lat, CHINA) ? 'land' : 'south'; for (const [name, pts] of BIOME) if (pip(lon, lat, pts)) k = name; return k; };
     const paint = () => {
@@ -7709,34 +7742,47 @@ const Trail = (() => {
         let r = d[o], g = d[o + 1], b = d[o + 2], t = Math.min(.8, Math.max(0, (e - 2600) / 1700));
         r += (stone[0] - r) * t; g += (stone[1] - g) * t; b += (stone[2] - b) * t;   // high ground pales towards stone
         if (sun > 1) { t = Math.min(.3, (sun - 1) * .9); r += (255 - r) * t; g += (253 - g) * t; b += (235 - b) * t; }
-        else { t = Math.min(.26, (1 - sun) * .7); r += (70 - r) * t; g += (110 - g) * t; b += (120 - b) * t; }   // shadows lean to blue-green, gently
+        else { t = Math.min(.26, (1 - sun) * .7); r += (K.shade[0] - r) * t; g += (K.shade[1] - g) * t; b += (K.shade[2] - b) * t; }   // shadows lean to blue-green, gently (on the food map, to olive)
         d[o] = r; d[o + 1] = g; d[o + 2] = b; }
       mc.putImageData(img, 0, 0); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(m, 0, 0, W, H);
-      for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); ctx.beginPath(); ctx.ellipse((x - X0) * P, (y - Y0) * P, rx * UX * P * .85, ry * UY * P * .85, -.2, 0, 6.3); ctx.fillStyle = '#86CFEA'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3; ctx.stroke(); }
+      for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); ctx.beginPath(); ctx.ellipse((x - X0) * P, (y - Y0) * P, rx * UX * P * .85, ry * UY * P * .85, -.2, 0, 6.3); ctx.fillStyle = K.water; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3; ctx.stroke(); }
       ctx.globalCompositeOperation = 'destination-in'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); ctx.fillStyle = '#000'; ctx.fill(outline); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
       // behind the land, painted once: its pale rim (as .tm-land draws it), then a soft shadow under the whole country, so China seems to lift off the sea
-      ctx.globalCompositeOperation = 'destination-over'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); Object.assign(ctx, { lineWidth: 5, lineJoin: 'round', strokeStyle: '#F8EFC8' }); ctx.stroke(outline);
-      Object.assign(ctx, { shadowColor: 'rgba(18,72,92,.42)', shadowBlur: 11 * P, shadowOffsetX: 1.5 * P, shadowOffsetY: 5 * P, fillStyle: '#F8EFC8' }); ctx.fill(outline); ctx.stroke(outline);
+      ctx.globalCompositeOperation = 'destination-over'; ctx.setTransform(P, 0, 0, P, -X0 * P, -Y0 * P); Object.assign(ctx, { lineWidth: 5, lineJoin: 'round', strokeStyle: K.rim }); ctx.stroke(outline);
+      Object.assign(ctx, { shadowColor: K.lift, shadowBlur: 11 * P, shadowOffsetX: 1.5 * P, shadowOffsetY: 5 * P, fillStyle: K.rim }); ctx.fill(outline); ctx.stroke(outline);
       Object.assign(ctx, { shadowColor: 'transparent', shadowBlur: 0, shadowOffsetX: 0, shadowOffsetY: 0 }); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
       // what stands on the ground
-      const clear = (lon, lat, room) => { if (nearest(lon, lat, WALL, true)[0] < .5) return false; for (const lv in SITE) if (Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
+      const clear = (lon, lat, room) => { if (K.pins && nearest(lon, lat, WALL, true)[0] < .5) return false; for (const s of SITES) if (Math.hypot((lon - s[0]) * CS, lat - s[1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
       const T = TEX.things, ok = (lon, lat) => { const c = cell(lon, lat); return c >= 0 && M[c] && pip(lon, lat, CHINA) ? c : -1; }, put = (t, lon, lat, o) => { const [x, y] = wp(lon, lat); T.push({ t, x, y, ...o }); };
       for (const [hm, wd, pts] of RIDGE) { let n = 0;   // mountains: one peak every couple of degrees along each real range; the low ranges are green mounds instead
         for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (hm > 2400 ? (wd < .65 ? 2.5 : 1.8) : 1.6)));
           for (let k = i ? 1 : 0; k <= steps; k++, n++) { const t = k / steps, h1 = hash(n * 7 + 3, Math.round(hm)), lon = a[0] + (b[0] - a[0]) * t + (h1 - .5) * wd * .5, lat = a[1] + (b[1] - a[1]) * t + (hash(n, Math.round(hm) + 9) - .5) * wd * .5;
             if (ok(lon, lat) < 0 || !clear(lon, lat, 1.5)) continue; const kind = kindAt(lon, lat), size = .8 + h1 * .35;
             if (hm > 2400) put('peak', lon, lat, { h: (11 + hm / 520) * size, tone: kind === 'sand' && hm < 4400 ? 'sand' : 'stone', snow: hm > (lat > 39 ? 3600 : 4700) ? .42 : hm > 3200 ? .2 : 0, k: h1 });
-            else put('mound', lon, lat, { h: (5.5 + hm / 420) * size, tone: kind === 'sand' || kind === 'loess' || kind === 'land' ? 'dry' : lat > 41 ? 'pine' : 'green', k: h1 }); } } }
+            else put('mound', lon, lat, { h: (5.5 + hm / 420) * size, tone: kind === 'sand' || kind === 'loess' || kind === 'land' ? 'dry' : lat > 41 ? 'pine' : K.farm && lat < 32 && lon > 108 ? 'tea' : 'green', k: h1 }); } } }   // the food map: the low hills of the south-east are tea gardens
       for (let b = 0; b < 16; b++) for (let a = 0; a < 27; a++) { const h1 = hash(a + 900, b), h2 = hash(b, a + 900), lon = TEX.lon + (a + .2 + h1 * .6) * 2.4, lat = TEX.lat - (b + .2 + h2 * .6) * 2.4, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.6)) continue;   // a few more on the high ground between the ranges and in the deserts
         const e = E[c], kind = kindAt(lon, lat);
         if (e > 3600 && h1 < .22) put('peak', lon, lat, { h: 13 + h2 * 5, tone: 'stone', snow: .26, k: h2 });
         else if (kind === 'sand' && e < 1900 && h2 < .45) put('mound', lon, lat, { h: 4.5 + h1 * 2.5, tone: 'sand', k: h1 });
         else if (e > 900 && e < 3200 && kind !== 'sand' && h2 < .3) put('mound', lon, lat, { h: 6 + h1 * 3, tone: kind === 'loess' || kind === 'land' || kind === 'plat' ? 'dry' : 'green', k: h1 }); }
+      /* v3.30, the food map: patches of fields. Each is two to four fields side by side, all turned the same way, each field
+         one crop of its region; none on high ground, on a river, a lake or the coast. TEX.fields, in world units; farms are
+         the same patches as [lon, lat, how far they reach in degrees], so that nothing else is planted on a field */
+      const farms = [];
+      if (K.farm) for (let b = 0; b < 23; b++) for (let a = 0; a < 32; a++) { const h1 = hash(a + 300, b + 40), h2 = hash(b + 77, a + 500), lon = TEX.lon + (a + .2 + h1 * .6) * 2, lat = TEX.lat - (b + .2 + h2 * .6) * 1.65, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.4)) continue;
+        const e = E[c], kind = kindAt(lon, lat), crops = K.crops[kind]; if (!crops || hash(a * 5 + 2, b * 3 + 9) > (K.farm[kind] || 0) * Math.max(0, 1 - e / (kind === 'loess' || kind === 'land' ? 2600 : 1700))) continue;
+        if (nearest(lon, lat, CHINA)[0] < .9 || Math.min(nearest(lon, lat, YANGTZE, true)[0], nearest(lon, lat, YELLOW, true)[0]) < .6) continue;
+        const [x, y] = wp(lon, lat); if (T.some(o => Math.abs(o.x - x) < o.h * (o.t === 'peak' ? .8 : 1.2) + 5 && y > o.y - o.h * .8 - 4 && y < o.y + 4)) continue;   // not under a hill or a mountain
+        const ang = (h1 - .5) * .7, n = 2 + Math.floor(h2 * 2.99), fw = 5.4 + h1 * 2, fh = 3.6 + h2 * 1.4, gap = .5, ca = Math.cos(ang), sa = Math.sin(ang);
+        for (let k = 0; k < n; k++) { const u = (k % 2 - .5) * (fw + gap) + (k > 1 ? (h2 - .5) * 2 : 0), v = (k > 1 ? .5 : -.5) * (fh + gap) * (n > 2 ? 1 : 0), w = fw * (k === 3 ? .7 : 1);   // side by side, then a second row under them
+          TEX.fields.push({ x: x + u * ca - v * sa, y: y + u * sa + v * ca, a: ang, w, h: fh, c: crops[Math.floor(hash(a * 11 + k, b * 17 + 5) * crops.length)], up: hash(a + k * 3, b + 60) < .3 }); }
+        farms.push([lon, lat, (fw + gap) / UX * 1.25]); }
+      const farmed = (lon, lat, pad) => { for (const [a, b, r] of farms) if (Math.hypot((lon - a) * CS, lat - b) < r + pad) return true; return false; };
       for (let b = 0; b < 30; b++) for (let a = 0; a < 44; a++) { const h1 = hash(a, b), h2 = hash(b + 400, a), lon = TEX.lon + (a + .15 + h1 * .7) * 1.45, lat = TEX.lat - (b + .15 + h2 * .7) * 1.25, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.5)) continue;   // little woods: two to four trees together, with open meadow between one wood and the next
-        const e = E[c], kind = kindAt(lon, lat); if (hash(a * 3 + 1, b * 7 + 2) > (WOODS[kind] || 0) * Math.max(0, 1 - e / 2800)) continue;
-        const [x, y] = wp(lon, lat), pine = lat > 41 || e > 1700, n = 2 + Math.floor(h1 * 2.6);
-        for (let k = 0; k < n; k++) { const ang = h2 * 6.3 + k * 2.2, off = k ? 5 + hash(a + k, b) * 3.5 : 0; T.push({ t: pine ? 'pine' : 'tree', x: x + Math.cos(ang) * off, y: y + Math.sin(ang) * off * .6, r: 3.3 + hash(a, b + k * 5) * 1.5, k: hash(a * 5 + k, b) }); } }
-      for (let b = 0; b < 42; b++) for (let a = 0; a < 64; a++) { const h1 = hash(a + 50, b + 70), h2 = hash(b + 31, a + 13), lon = TEX.lon + (a + h1) * 1, lat = TEX.lat - (b + h2) * .9, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.1)) continue;   // the small things, seen only from close
+        const e = E[c], kind = kindAt(lon, lat); if (hash(a * 3 + 1, b * 7 + 2) > (WOODS[kind] || 0) * Math.max(0, 1 - e / 2800) || farmed(lon, lat, .4)) continue;
+        const [x, y] = wp(lon, lat), pine = lat > 41 || e > 1700, n = 2 + Math.floor(h1 * 2.6), fr = !pine && K.fruit && hash(a + 9, b + 2) < .7 ? K.fruit[kind] : null;   // the food map: an orchard, its fruit the colour of its region
+        for (let k = 0; k < n; k++) { const ang = h2 * 6.3 + k * 2.2, off = k ? 5 + hash(a + k, b) * 3.5 : 0; T.push({ t: pine ? 'pine' : 'tree', x: x + Math.cos(ang) * off, y: y + Math.sin(ang) * off * .6, r: 3.3 + hash(a, b + k * 5) * 1.5, k: hash(a * 5 + k, b), fr }); } }
+      for (let b = 0; b < 42; b++) for (let a = 0; a < 64; a++) { const h1 = hash(a + 50, b + 70), h2 = hash(b + 31, a + 13), lon = TEX.lon + (a + h1) * 1, lat = TEX.lat - (b + h2) * .9, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.1) || farmed(lon, lat, -.1)) continue;   // the small things, seen only from close
         const e = E[c], kind = kindAt(lon, lat), h3 = hash(a * 9 + 4, b * 5 + 1), green = kind !== 'sand' && kind !== 'plat' && kind !== 'loess' && kind !== 'land';
         if (h3 < (e > 1500 || !green ? .1 : .04)) put('rock', lon, lat, { s: 1.5 + h1 * 1.2, k: h2 });
         else if (green && e < 2200 && h3 < .3) put('fern', lon, lat, { s: 1.5 + h2 * .8, k: h1 });
@@ -7745,20 +7791,21 @@ const Trail = (() => {
       /* v3.00: for the close-up ground (detail below): is this spot open land, what kind and how high, and how far (in
          degrees) it is from the nearest coast, river, wall, monument or lake, so a whole patch of ground can be passed at once */
       TEX.spot = (lon, lat) => { const c = ok(lon, lat); if (c < 0) return null;
-        let room = Math.min(nearest(lon, lat, CHINA)[0], nearest(lon, lat, YANGTZE, true)[0] - .22, nearest(lon, lat, YELLOW, true)[0] - .22, nearest(lon, lat, WALL, true)[0] - .5);
-        for (const lv in SITE) room = Math.min(room, Math.hypot((lon - SITE[lv][0]) * CS, lat - SITE[lv][1]) - .9);
+        let room = Math.min(nearest(lon, lat, CHINA)[0], nearest(lon, lat, YANGTZE, true)[0] - .22, nearest(lon, lat, YELLOW, true)[0] - .22, K.pins ? nearest(lon, lat, WALL, true)[0] - .5 : 9);
+        for (const s of SITES) room = Math.min(room, Math.hypot((lon - s[0]) * CS, lat - s[1]) - .9);
+        for (const [a, b, r] of farms) room = Math.min(room, Math.hypot((lon - a) * CS, lat - b) - r);
         for (const [a, b, rx, ry] of LAKES) room = Math.min(room, (Math.hypot((lon - a) / rx, (lat - b) / ry) - 1.27) * Math.min(rx, ry));
         return room > 0 ? { e: E[c], kind: kindAt(lon, lat), room } : null; };
       T.sort((p, q) => p.y - q.y);
       TEX.ready = true; TEX.wait.splice(0).forEach(fn => fn());
     };
-    setTimeout(rows, 0);
+    if (HGT.done) setTimeout(paint, 0); else setTimeout(rows, 0);
   }
   /* Everything that stands on the ground is drawn fresh on its own canvas each time the camera moves, at the size it is
      seen, so it stays sharp however far you zoom in: the rivers and the Wall first, then mountains, mounds and trees from
      north to south. Boulders appear as you come closer, then ferns, flowers and sheep. */
   const PROPS = { cv: null, c: null, dpr: 1, lines: null };
-  const TONE = { stone: ['#F2F5EE', '#B9C8B6', '#8FA69F'], sand: ['#FBEFC6', '#EBCF8E', '#CDAA6C'], dry: ['#EEF0C0', '#CFDD98', '#A9C17E'], green: ['#C6EE98', '#8FD06E', '#62AF58'], pine: ['#B4E29A', '#7CC47A', '#519E66'] };   // top, side in the light, side in shade
+  const TONE = { tea: ['#C9EC9C', '#8ECF6C', '#5FA857'], stone: ['#F2F5EE', '#B9C8B6', '#8FA69F'], sand: ['#FBEFC6', '#EBCF8E', '#CDAA6C'], dry: ['#EEF0C0', '#CFDD98', '#A9C17E'], green: ['#C6EE98', '#8FD06E', '#62AF58'], pine: ['#B4E29A', '#7CC47A', '#519E66'] };   // top, side in the light, side in shade
   /* v2.88: once you own the Great Wall it is not only the picture at Badaling: the wall itself runs right across the north
      of the map, from Jiayuguan in the desert to the Yalu, with a watchtower every few miles. It grows with zoom like the
      monuments do (slower than the land), so it reads as a wall from far out and keeps its towers apart close up. */
@@ -7789,11 +7836,11 @@ const Trail = (() => {
   /* v3.00: closer still, the land fills in. Every 4 by 4 units of ground gets its own handful of things, worked out the
      first time it comes into view and then kept: a soft patch of darker grass or bare earth, bushes, small trees (thick in
      the woods), a stone, and from closest of all tufts of grass and pebbles. d is the step of zoom that brings each one. */
-  const DC = 4, DETAIL = new Map(), BLOB = {};
+  const DC = 4, BLOB = {};
   const blob = dry => BLOB[dry] ||= (() => { const b = document.createElement('canvas'), x = b.getContext('2d'); b.width = b.height = 64;   // a soft round stain that fades to nothing at its edge
     const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32), col = dry ? '150,115,60' : '50,115,55'; gr.addColorStop(0, `rgba(${col},.16)`); gr.addColorStop(.6, `rgba(${col},.1)`); gr.addColorStop(1, `rgba(${col},0)`); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return b; })();
   function detail(i, j) {
-    const key = j * 8192 + i; let D = DETAIL.get(key); if (D) return D; D = { flat: [], up: [] }; DETAIL.set(key, D);
+    const key = j * 8192 + i, DETAIL = TEX.det, WOODS = SKIN.woods; let D = DETAIL.get(key); if (D) return D; D = { flat: [], up: [] }; DETAIL.set(key, D);
     const h = m => hash(i * 7 + m * 1009 + 3, j * 13 + m * 2003 + 11), lonOf = x => x / UX + LON_A, latOf = y => LAT_A - y / UY;
     const c0 = TEX.spot(lonOf((i + .5) * DC), latOf((j + .5) * DC)); if (!c0) return D;
     const safe = c0.room > .3, { e, kind } = c0, high = e > 2600, dry = high || kind === 'sand' || kind === 'plat' || kind === 'loess' || kind === 'land';
@@ -7809,15 +7856,29 @@ const Trail = (() => {
     if (h(109) < .5) put(D.flat, 'pebble', { s: .2 + h(140) * .14, d: 2 });
     return D;
   }
+  /* v3.30, the food map: its fields lie flat on the ground, each a rounded patch of one crop with a pale path round it;
+     from closer its rows show, and closer still a pale line of light beside each row */
+  function drawFields(c, z) {
+    const x0 = CAM.x - CAM.w / 2 / z - 9, x1 = CAM.x + CAM.w / 2 / z + 9, y0 = CAM.y - CAM.h / 2 / z - 9, y1 = CAM.y + CAM.h / 2 / z + 9;
+    for (const o of TEX.fields) { if (o.x < x0 || o.x > x1 || o.y < y0 || o.y > y1) continue;
+      const { w, h } = o, r = Math.min(w, h) * .16; c.save(); c.translate(o.x, o.y); c.rotate(o.a);
+      c.beginPath(); c.roundRect ? c.roundRect(-w / 2, -h / 2, w, h, r) : c.rect(-w / 2, -h / 2, w, h); c.fillStyle = o.c;   // square corners on a browser too old to round them
+      c.fill(); c.strokeStyle = 'rgba(255,250,224,.75)'; c.lineWidth = .34; c.stroke();
+      if (h * z > 14) { c.clip(); const n = o.up ? Math.round(w / 1.1) : Math.round(h / .9), step = (o.up ? w : h) / n; c.beginPath();   // its rows, along it or across it
+        for (let i = 1; i < n; i++) { const q = -(o.up ? w : h) / 2 + i * step; if (o.up) { c.moveTo(q, -h / 2); c.lineTo(q, h / 2); } else { c.moveTo(-w / 2, q); c.lineTo(w / 2, q); } }
+        c.strokeStyle = 'rgba(70,60,10,.16)'; c.lineWidth = step * .34; c.stroke();
+        if (h * z > 34) { c.translate(o.up ? step * .2 : 0, o.up ? 0 : step * .2); c.strokeStyle = 'rgba(255,255,230,.22)'; c.lineWidth = step * .16; c.stroke(); } }
+      c.restore(); }
+  }
   function drawProps() {
     const cv = PROPS.cv; if (!cv) return; const c = PROPS.c, q = PROPS.dpr, z = CAM.z;
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); if (!TEX.ready) return;
     c.setTransform(q * z, 0, 0, q * z, q * (CAM.w / 2 - CAM.x * z), q * (CAM.h / 2 - CAM.y * z)); c.lineCap = c.lineJoin = 'round';
     const L = PROPS.lines ||= { rivers: [new Path2D(line(YANGTZE)), new Path2D(line(YELLOW))], wall: new Path2D(line(WALL)) };
-    for (const p of L.rivers) { c.strokeStyle = 'rgba(62,143,184,.25)'; c.lineWidth = 2.8; c.stroke(p); } for (const p of L.rivers) { c.strokeStyle = '#8FD6EF'; c.lineWidth = 1.7; c.stroke(p); }
+    const K = SKIN; for (const p of L.rivers) { c.strokeStyle = K.river[0]; c.lineWidth = 2.8; c.stroke(p); } for (const p of L.rivers) { c.strokeStyle = K.river[1]; c.lineWidth = 1.7; c.stroke(p); }
     const zr0 = z / zHome(), g = zr0 > 400 / 76 ? Math.pow(400 / 76 / zr0, .45) : 1;   // v3.00: past the old closest view, trees, stones, the small things and the dots of the Wall grow more slowly than the land, as the monuments do
-    if (zr0 > 3) for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); c.beginPath(); c.ellipse(x, y, rx * UX * .85, ry * UY * .85, -.2, 0, 6.3); c.fillStyle = '#86CFEA'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = .75; c.stroke(); }   // v3.00: up close the lakes again, sharp, over the soft painted ones
-    if (monOwns(WALL_LV)) drawWall(c, z); else { c.setLineDash([.1, 3.2 * g]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7 * g; c.stroke(L.wall); c.setLineDash([]); }
+    if (zr0 > 3) for (const [lon, lat, rx, ry] of LAKES) { const [x, y] = wp(lon, lat); c.beginPath(); c.ellipse(x, y, rx * UX * .85, ry * UY * .85, -.2, 0, 6.3); c.fillStyle = K.water; c.fill(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = .75; c.stroke(); }   // v3.00: up close the lakes again, sharp, over the soft painted ones
+    if (!K.pins) drawFields(c, z); else if (monOwns(WALL_LV)) drawWall(c, z); else { c.setLineDash([.1, 3.2 * g]); c.strokeStyle = 'rgba(255,248,220,.95)'; c.lineWidth = 1.7 * g; c.stroke(L.wall); c.setLineDash([]); }   // the food map has fields and no Wall
     /* the small things arrive once you are close enough, and then fade in over a moment and stay solid: how see-through they
        are depends on time, not on how far in you are, so they never sit half-visible. A little slack between the zoom that
        brings them and the zoom that sends them away keeps them from flickering at the edge. */
@@ -7861,13 +7922,18 @@ const Trail = (() => {
           c.clip(); far(x, y, w, h, lean); c.fillStyle = 'rgba(135,165,215,.4)'; c.fill(); c.restore(); } }
       else if (o.t === 'mound') { const h = o.h, w = h * 1.5, [top, lit, dark] = TONE[o.tone], near = h * z > 20;   // two or three rounded hills, one behind another
         ell(x + w * .25, y + h * .05, w * 1.2, w * .22, 'rgba(40,85,80,.1)');
-        hill(x - w * .42, y - h * .12, w * .7, h * .8, 0, top, lit, dark, near); hill(x + w * .1, y, w, h, (k - .5) * w * .2, top, lit, dark, near); if (near) hill(x + w * .62, y + h * .06, w * .55, h * .5, 0, top, lit, dark, true); }
+        hill(x - w * .42, y - h * .12, w * .7, h * .8, 0, top, lit, dark, near); hill(x + w * .1, y, w, h, (k - .5) * w * .2, top, lit, dark, near);
+        if (o.tone === 'tea' && h * z > 11) { const lean = (k - .5) * w * .2; c.save(); bell(x + w * .1, y, w, h, lean); c.clip(); c.beginPath();   // a tea garden: rows of bushes curving round the hill
+          for (let i = 1; i < 6; i++) { const yy = y - h * (.1 + i * .15), ww = w * (1.05 - i * .15); c.moveTo(x + w * .1 - ww, yy + h * .05); c.quadraticCurveTo(x + w * .1 + lean * .5, yy - h * .09, x + w * .1 + ww, yy + h * .05); }
+          c.strokeStyle = 'rgba(40,120,60,.5)'; c.lineWidth = h * .055; c.stroke(); c.restore(); }
+        if (near) hill(x + w * .62, y + h * .06, w * .55, h * .5, 0, top, lit, dark, true); }
       else if (o.t === 'tree') { const r = o.r, near = r * zg > 6.5, G = k > .5 ? ['#3B8A49', '#55A856', '#76C365'] : ['#40904C', '#5CAE58', '#80C96A'];   // a clumpy round crown on a short trunk
         ell(x + r * .45, y + r * .1, r * 1.05, r * .38, 'rgba(30,75,55,.2)');
         poly(x, y, r, [[-.15, 0], [-.09, -.95], [.09, -.95], [.15, 0]], '#8A6844'); if (near) poly(x, y, r, [[.02, 0], [.02, -.95], [.09, -.95], [.15, 0]], '#6B4F33');
         disc(x + r * .16, y - r * 1.28, r * .98, G[0]);
         if (near) { disc(x - r * .44, y - r * 1.22, r * .7, G[1]); disc(x + r * .34, y - r * 1.52, r * .68, G[1]); disc(x - r * .06, y - r * 1.66, r * .78, G[2]); disc(x - r * .34, y - r * 1.86, r * .34, 'rgba(200,240,150,.75)'); disc(x + r * .5, y - r * .98, r * .3, 'rgba(25,70,50,.18)'); }
-        else { disc(x - r * .08, y - r * 1.44, r * .88, G[1]); disc(x - r * .3, y - r * 1.7, r * .42, G[2]); } }
+        else { disc(x - r * .08, y - r * 1.44, r * .88, G[1]); disc(x - r * .3, y - r * 1.7, r * .42, G[2]); }
+        if (o.fr && r * zg > 3.2) for (const [dx, dy] of [[-.5, -1.1], [.42, -1.42], [-.1, -1.72], [.12, -.92], [.62, -.98], [-.62, -1.56]]) { disc(x + r * dx, y + r * dy, r * .19, 'rgba(120,40,10,.35)'); disc(x + r * (dx - .03), y + r * (dy - .04), r * .16, o.fr); } }   // the food map: fruit in the crown
       else if (o.t === 'pine') { const r = o.r, near = r * zg > 6.5;   // three tiers, the left of each in the light
         ell(x + r * .4, y + r * .1, r * .95, r * .34, 'rgba(30,75,55,.2)'); poly(x, y, r, [[-.12, 0], [-.1, -.5], [.1, -.5], [.12, 0]], '#7A5A3C');
         const tier = (yy, ww, hh, c1, c2) => { c.beginPath(); c.moveTo(x, yy - hh); c.quadraticCurveTo(x + ww * .45, yy - hh * .35, x + ww, yy); c.quadraticCurveTo(x, yy + ww * .26, x - ww, yy); c.quadraticCurveTo(x - ww * .45, yy - hh * .35, x, yy - hh); c.fillStyle = c2; c.fill();
@@ -7952,12 +8018,13 @@ const Trail = (() => {
   const landing = states => {   // where the camera comes down when the map opens: a monument you just bought
     const fresh = states.find(x => x.done && !x.seen);
     return fresh ? view(...SITE[fresh.lv], CAM.w / 185, .47) : null; };
-  function map(states) {
+  function map(states, kind) {   // kind: 'mon' the monument map, 'food' the food map
+    const food = use(kind) === 'food'; if (food) CAM.sel = 0;
     if (CAM.x == null) Object.assign(CAM, home());
     const [under, over] = drawn(), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<div class="tm-world"><svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
-      <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is"><g class="tm-cam" transform="${camT()}">${over}</g>`;
-    TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st }) => {   // northern ones first, so nearer ones overlap them
+      <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="${food ? 'The food map of China: fields, orchards and tea hills on a golden sea. The foods are still to come. Drag to move it, pinch to zoom' : 'A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is'}"><g class="tm-cam" transform="${camT()}">${over}</g>`;
+    if (!food) TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st }) => {   // northern ones first, so nearer ones overlap them
       const say = st.done ? `${c.name}, ${c.en}, yours` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
       s += `<g class="tm-pin${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st)}</g>`; });
     return s + '</svg></div>';   // v2.82: the daily chest and its island are off the map for now (chestPin)
@@ -8095,12 +8162,12 @@ const Trail = (() => {
     CAM.api = { fly, show, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
     const goal = CAM.goal, first = !CAM.seen, states = trailStates(), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
     if (first && !from) Object.assign(CAM, home());
-    if (from) CAM.land = false; else if (fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to a monument you just bought
+    if (from || !SKIN.pins) CAM.land = false; else if (fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to a monument you just bought
     CAM.news = fresh;
     size();
     bake(() => { if (!svg.isConnected) return; svg.before(TEX.cv, PROPS.cv); apply(); requestAnimationFrame(() => { TEX.cv.classList.add('on'); PROPS.cv.classList.add('on'); });   // the painted land arrives and fades in
       if (CAM.land) setTimeout(() => { if (!svg.isConnected) return; CAM.land = false; const to = landing(states); if (to && !g && !CAM.sel && !CAM.show) fly(to, first ? 1100 : 700); }, first ? 420 : 60); });   // then, from far away, down to it
-    if (from) { Object.assign(CAM, clampV(view(...SITE[from], zMax(), .56))); apply(); fly(near(from), 700); }
+    if (from && SKIN.pins) { Object.assign(CAM, clampV(view(...SITE[from], zMax(), .56))); apply(); fly(near(from), 700); }
     else if (!first && goal && !CAM.land) fly(goal, 500);   // redrawn mid-flight (the HSK lists arrived): carry on to where it was going
   }
   const near = lv => view(...SITE[lv], cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
@@ -8131,22 +8198,29 @@ const Trail = (() => {
     if (reveal) s += `<rect class="mp-flash" width="360" height="252" fill="#FFF6DA"/>`;
     return s + '</svg>';
   }
-  return { map, mount, mini, scene, CAM, focus, dive };
+  const SEA = { mon: ['#ACE1F2', '#6DC1E4'], food: ['#FFEDB0', '#F4C95A'] };
+  const thumb = kind => { drawn(); const K = SKINS[kind], [x, y] = wp(73, 54.5), [x2, y2] = wp(136, 17), w = x2 - x, h = y2 - y;   // the whole country on its sea, as on the map itself
+    return `<svg viewBox="${f(x)} ${f(y)} ${f(w)} ${f(h)}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="mpsSea-${kind}" cx="62%" cy="44%" r="80%"><stop offset="0" stop-color="${SEA[kind][0]}"/><stop offset="1" stop-color="${SEA[kind][1]}"/></radialGradient></defs>
+      <rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#mpsSea-${kind})"/><path d="${CHINA_D}" fill="${K.lift}" transform="translate(3 9)"/><path d="${CHINA_D}" fill="${K.tint.south}" stroke="${K.rim}" stroke-width="7" stroke-linejoin="round"/></svg>`; };
+  return { map, mount, mini, scene, CAM, focus, dive, thumb };
 })();
 
 function MapView() {
   if (!S.H) loadHsk().then(() => { if (S.view === 'map') { S.instant = true; render(); } }, () => {});
+  if (S.mapLv) mapUse('mon');   // a monument's own page belongs to the monument map
   return S.mapLv ? CityView(S.mapLv) : TrailView();
 }
 const trailBar = st => `<div class="mp-seg one" aria-hidden="true"><i class="${st.done ? 'full' : 'part'}"><b style="width:${Math.max(st.n ? 3 : 0, st.n / st.total * 100).toFixed(1)}%"></b></i></div>`;
 function TrailView() {
   const sts = trailStates(), C = Trail.CAM, bal = coinBal();
+  if (S.mapFrom || S.mapShow) mapUse('mon');   // a monument is waiting to be shown: that is on the monument map
+  const food = mapKind() === 'food';   // v3.30: the food map has only its ground so far: no monuments, no shop lantern, no medallion
   if (S.mapFrom && !S.mapShow) C.sel = S.mapFrom;   // back from a monument's page: its card is open again (not when you come back to watch one you just bought land)
   return `<div class="screen fade-in mp-page">
-    <div class="tm-stage" id="mpMap">${Trail.map(sts)}
-      <div class="section-head cal-head tm-head pg-head"><h2>Monument map <span class="cal-zh">地图</span></h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
-      ${shopBtn(sts)}${monBtn(sts)}${mapsBtn()}
-      <div class="tm-slot" id="tmSlot">${C.sel ? mapCard(C.sel) : ''}</div>
+    <div class="tm-stage${food ? ' food' : ''}" id="mpMap">${Trail.map(sts, food ? 'food' : 'mon')}
+      <div class="section-head cal-head tm-head pg-head"><h2>${food ? 'Food map <span class="cal-zh">美食</span>' : 'Monument map <span class="cal-zh">地图</span>'}</h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
+      ${food ? '' : shopBtn(sts) + monBtn(sts)}${mapsBtn()}
+      <div class="tm-slot" id="tmSlot">${C.sel && !food ? mapCard(C.sel) : ''}</div>
       <div class="tm-gobar">${goBtn()}</div>
     </div>
   </div>`;
@@ -8181,9 +8255,12 @@ const monBtn = sts => {   // across from the Shop: a gold medallion with your ne
     <text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:800 13px var(--display)" fill="#fff">${n}</text>
   </svg></button>`;
 };
-const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments medallion: the maps you can travel to (only China so far; more to come)
-  return `<button class="tm-mapsb tm-ui" data-act="maps" aria-label="Maps. New maps will be added"><svg viewBox="0 0 64 74" aria-hidden="true">
-    <circle cx="32" cy="31" r="29" fill="url(#tmMonGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
+const mapKind = () => db.prefs.map === 'food' ? 'food' : 'mon';   // v3.30: the map you chose in Maps; it stays chosen
+const mapUse = k => { if (mapKind() !== k) { db.prefs.map = k; save(); } };
+const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments medallion: the maps you can travel to. v3.30: two of them, the monument map and the food map
+  return `<button class="tm-mapsb tm-ui" data-act="maps" aria-label="Maps. Choose a map"><svg viewBox="0 0 64 74" aria-hidden="true">
+    <defs><radialGradient id="tmMapsGold" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#FFE98F"/><stop offset=".55" stop-color="#FFC21F"/><stop offset="1" stop-color="#D98A0E"/></radialGradient></defs>
+    <circle cx="32" cy="31" r="29" fill="url(#tmMapsGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
     <path d="M17 21L26 18L38 22L47 19V40L38 43L26 39L17 42Z" fill="#BFE79A" stroke="${K}" stroke-width="1.8" stroke-linejoin="round"/>
     <path d="M26 18V39M38 22V43" stroke="${K}" stroke-width="1.4"/><path d="M26 18L38 22V43L26 39Z" fill="#9FD67A"/>
     <path d="M20 33Q24 28 29 31T36 30" stroke="#3E9BD6" stroke-width="2" fill="none" stroke-linecap="round"/>
@@ -8191,11 +8268,17 @@ const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments med
     <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
     <rect x="12" y="52" width="40" height="18" rx="5" fill="#FFF8F2" stroke="#E7D2AE" stroke-width="1"/><text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:700 12.5px var(--display)" fill="#9E1A14">Maps</text>
   </svg></button>`; };
-function mapsSheet() {   // the Maps button: only the map of China for now
-  LOG.add('maps', {});
+const MAPS = [['mon', 'Monuments', '名胜', 'Buy the great sights of China'], ['food', 'Food', '美食', 'The foods are coming soon']];
+function mapsSheet() {   // the Maps button: the two maps, each as a small picture of itself; a tap goes there
+  const now = mapKind(); LOG.add('maps', { now });
+  const card = ([k, name, zh, say]) => `<button class="shop-it maps-it${k === now ? ' on' : ''}" data-act="map-pick" data-k="${k}" aria-label="${name} map. ${k === now ? 'You are here' : say}">
+    <span class="shop-pic">${Trail.thumb(k)}${k === now ? '<i class="shop-own">You are here</i>' : ''}</span><b>${name} <span class="cal-zh">${zh}</span></b><small>${say}</small></button>`;
   openSheet(`<div class="shop maps"><div class="shop-top"><h3>Maps <span class="cal-zh">地图</span></h3></div>
-    <p class="maps-say">New maps will be added.</p>
-    <button class="btn btn-seal wide" data-act="close-sheet">OK</button></div>`);
+    <p class="muted shop-sub">Tap a map to go there.</p><div class="shop-grid">${MAPS.map(card).join('')}</div></div>`);
+}
+function mapPickKind(k) {   // a map chosen in Maps: the sheet goes, and the map is drawn again as that one, the camera where it was
+  const was = mapKind(); closeSheet(); if (k === was || !MAPS.some(m => m[0] === k)) return;
+  mapUse(k); LOG.add('map-kind', { k }); if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); }
 }
 function goBtn() {   // Play, as in a game, bottom right: always there and always in the same place, whatever card is up or the camera does
   const sts = trailStates();
@@ -8305,7 +8388,7 @@ function shopBuy(lv) {
   const c = TRAIL[lv - 1]; if (!c || monOwns(lv) || coinBal() < c.price) return;
   (db.monOwn ||= {})[lv] = Date.now(); save();
   LOG.add('shop-buy', { lv, id: c.id, price: c.price, left: coinBal() });
-  closeSheet(); Trail.CAM.sel = 0; S.mapShow = lv;   // no page after it: on the map it lands on its spot, and the camera tilts and swings round it (Trail's show)
+  closeSheet(); Trail.CAM.sel = 0; S.mapShow = lv; mapUse('mon');   // no page after it: on the map it lands on its spot, and the camera tilts and swings round it (Trail's show)
   setTimeout(() => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } else nav('#/map'); }, 340);
 }
 function mapShowEnd(lv) {   // after the buy moment: its card is up, and it no longer counts as new
@@ -8317,6 +8400,7 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
   const C = Trail.CAM; if (performance.now() < C.noClick) return;   // the end of a drag, not a tap
   C.sel = lv; LOG.add('map-city', { lv }); const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); C.api?.mark(); Trail.focus(lv);
 }
+const mapMon = then => { if (mapKind() !== 'mon') { mapUse('mon'); if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } } then(); };   // v3.30: something about a monument, asked for from the food map: back to the monument map first
 const mapRepin = () => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } };   // a new goal: the map is drawn again, and Shi Shi stands over it
 function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) s.innerHTML = ''; Trail.CAM.api?.mark(); }
 const trailLessons = () => openLevel() === 1;   // an HSK 1 learner goes on with the lessons; the others tick words in their level's list
@@ -10367,7 +10451,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.29';
+const APP_VERSION = '3.30';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -11160,11 +11244,12 @@ const A = {
   'shop-item': t => shopSheet(+t.dataset.lv),
   'mon-lib': () => libSheet(),
   'maps': () => mapsSheet(),
-  'mon-go': t => { closeSheet(); const lv = +t.dataset.lv; setTimeout(() => mapPick(lv), 300); },
+  'map-pick': t => mapPickKind(t.dataset.k),
+  'mon-go': t => { closeSheet(); const lv = +t.dataset.lv; setTimeout(() => mapMon(() => mapPick(lv)), 300); },
   'shop-back': () => shopSheet(),
   'shop-buy': t => shopBuy(+t.dataset.lv),
   'map-buy': t => mapBuy(+t.dataset.lv),
-  'shop-see': t => { closeSheet(); const lv = +t.dataset.lv; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapPick(lv), 300); else nav('#/map/' + lv); },
+  'shop-see': t => { closeSheet(); const lv = +t.dataset.lv; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapMon(() => mapPick(lv)), 300); else nav('#/map/' + lv); },
   'coin': t => coinSheet(t.dataset.id),
   'mo-coll': () => closeLayer(() => nav('#/bank')),
   'fast-build': t => { closeSheet(true); LOG.add('fast-build-open', { lv: +t.dataset.lv }); nav('#/build/' + t.dataset.lv); },
