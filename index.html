@@ -1774,7 +1774,20 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-bg canvas{position:absolute;left:0;top:0;display:block}
 .un-bg canvas.uw{opacity:0;transition:opacity .5s}
 .un-bg canvas.uw.on{opacity:1}
-.un-bg::before{content:"";position:absolute;inset:0 0 auto;height:110px;z-index:1;background:linear-gradient(var(--paper),transparent)}
+/* v3.14: no pale bar over the town. The unit's name hangs on a red lacquer shop plaque with a gold frame, on two cords
+   from the top of the screen, and the back and comic buttons are small lacquer discs to match */
+.un>.bar{height:78px;align-items:flex-start;padding-top:12px;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.un>.bar .icon-btn{margin-top:6px;color:#FFE7A6;background:linear-gradient(#C42E1E,#981A11);box-shadow:inset 0 0 0 2px #E9B949,inset 0 0 0 3px #7A130C,0 3px 0 #5E0E09,0 7px 12px -5px rgba(0,0,0,.5)}
+.un>.bar .icon-btn svg{width:21px;height:21px}
+.un-sign{display:flex;justify-content:center;min-width:0;overflow:visible}
+.un-sign-board{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;max-width:100%;margin-top:2px;padding:8px 22px 9px;border-radius:5px;
+  background:linear-gradient(#C8301F,#9C1C12);color:#FFF0C6;
+  box-shadow:inset 0 0 0 2px #7A130C,inset 0 0 0 4px #E9B949,inset 0 0 0 5.5px #7A130C,0 5px 0 #5E0E09,0 12px 18px -6px rgba(0,0,0,.55)}
+.un-sign-board::before,.un-sign-board::after{content:"";position:absolute;bottom:100%;width:2px;height:80px;background:#2A140D}
+.un-sign-board::before{left:18px;transform:rotate(-7deg);transform-origin:bottom}
+.un-sign-board::after{right:18px;transform:rotate(7deg);transform-origin:bottom}
+.un-sign-board small{font:800 10.5px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:#F4C14E}
+.un-sign-board b{max-width:100%;font:900 19px/1.15 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1.5px 0 #6E120B}
 .un-map{position:relative;z-index:1;width:100%;margin:2px auto 14px}
 .un-node{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;width:76px;padding:0;transform:translate(-50%,-38px)}
 .un-spot{display:block;width:76px;height:76px;border-radius:50%}
@@ -1800,7 +1813,12 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-boss-tag{position:absolute;left:50%;top:134px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:13px;background:var(--card);color:var(--muted);font:700 13px/1 var(--ui);font-style:normal;box-shadow:0 0 0 2px var(--line-2);white-space:nowrap}
 .un-boss-tag svg.i{width:15px;height:15px}
 .un-boss.won .un-boss-tag{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
-.un-boss small{margin-top:14px;font:600 14px/1.1 var(--display)}
+.un-boss small{display:flex;align-items:center;gap:8px;max-width:none;margin-top:12px;padding:0;background:none;box-shadow:none;border-radius:0;
+  font:900 25px/1 "Noto Serif SC",var(--hanzi);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:#E3231A;
+  -webkit-text-stroke:6px #FFF1D2;paint-order:stroke fill;filter:drop-shadow(0 3px 0 rgba(40,18,8,.55))}
+.un-boss small i{display:grid;place-items:center;width:30px;height:30px;border-radius:4px;background:#D2271B;color:#FFF1D2;-webkit-text-stroke:0;
+  font:900 20px/1 var(--hanzi);font-style:normal;letter-spacing:0;box-shadow:inset 0 0 0 2px #FFF1D2,0 0 0 2px #FFF1D2;transform:rotate(-6deg)}
+.un-node.un-boss.locked small{color:#E3231A}
 .un-shi{position:absolute;z-index:3;width:72px;height:68px;margin-left:-36px;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(59,26,18,.3))}
 .un-shi{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
 .un-shi.hop{transition:left .9s cubic-bezier(.45,0,.3,1),top .9s cubic-bezier(.45,0,.3,1),transform .2s}
@@ -3985,13 +4003,13 @@ function UnitView(un) {
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}" aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const boss = `<button class="un-node un-boss${st.won ? ' won' : bossOpen ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${un}" aria-label="Final boss, the unit test${st.won ? ', beaten' : bossOpen ? '' : ', locked'}">
-      <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small>Final boss</small></button>`;
+      <span class="un-boss-aura"></span><span class="un-boss-fig">${bossTiger(st.won)}</span><i class="cm-flag">${CM_FLAG}</i>${st.won ? `<i class="un-boss-tag">${TROPHY_I}${r.best}%</i>` : bossOpen ? '' : `<i class="un-boss-tag">${LOCK_I}</i>`}<small><i lang="zh" aria-hidden="true">王</i>Final boss</small></button>`;
   const L = st.ls[st.nd], last = un === LES_UNITS.length;
   const hud = !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat the Unit ${un - 1} boss first</b></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${un + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[un][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-act="unit-open" data-u="${un + 1}">Next unit</button>`}`
     : bossOpen ? `<span class="un-hud-t"><small>Final boss</small><b>${n * UT_PER} words</b><i>${UT_PASS}% right to win</i></span><button class="btn btn-seal" data-act="ut-go" data-u="${un}">Fight</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
-  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title">Unit ${un} · ${esc(en)}</div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
+  return `<div class="screen fade-in c1 un"><div class="un-bg" id="unBg" aria-hidden="true"><canvas class="uw"></canvas></div><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button><div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${un}</small><b>${esc(en)}</b></span></div>${C ? `<button class="icon-btn" data-act="comic-replay" data-u="${un}" aria-label="Watch the comic again">${COMIC_I}</button>` : '<div style="width:42px"></div>'}</header>
     <div class="un-map" style="aspect-ratio:360/${H}">
       ${nodes}${boss}${st.open ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(pts, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(pts, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : bossOpen ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : ''}</div>
     <div class="un-hud">${hud}</div></div>`;
@@ -9908,7 +9926,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.12';
+const APP_VERSION = '3.14';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
