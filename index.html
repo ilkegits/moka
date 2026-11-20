@@ -7512,7 +7512,13 @@ const Trail = (() => {
   const HOME = [109, 33], EDGE = { w: 70, n: 60 };   // where the map opens; the furthest west and north the screen's edge may show (Kashgar and Harbin still fit, close up)
   function clampV(o) {   // the middle of the screen stays well inside China: you cannot drag the country away
     let lon = o.x / UX + LON_A, lat = LAT_A - o.y / UY;
-    if (!pip(lon, lat, CORE)) { const n = nearest(lon, lat, CORE); lon = n[1]; lat = n[2]; }
+    if (!pip(lon, lat, CORE)) {   // v3.12: or near a monument, so the camera can always come right down to one on the coast, an island or the far edge (Sanya, Taipei, Shanghai, Kashgar)
+      const r = Math.min(6, .13 * (CAM.vh || CAM.h) / cl(o.z, zMin(), zMax()) / UY + .3);   // in degrees; wider than any view of a monument sets the middle away from it
+      let n = nearest(lon, lat, CORE);
+      for (const s of Object.values(SITE)) { const dx = (lon - s[0]) * CS, dy = lat - s[1], d = Math.hypot(dx, dy);
+        if (d <= r) { n = null; break; }
+        if (d - r < n[0]) n = [d - r, s[0] + dx / d * r / CS, s[1] + dy / d * r]; }
+      if (n) { lon = n[1]; lat = n[2]; } }
     const z = cl(o.z, zMin(), zMax()), hw = (CAM.vw || CAM.w) / z / 2 / UX, hh = (CAM.vh || CAM.h) / z / 2 / UY;   // half the screen, in degrees
     lon = Math.max(lon, Math.min(EDGE.w + hw, HOME[0])); lat = Math.min(lat, Math.max(EDGE.n - hh, HOME[1]));   // no empty steppe or Siberia past those edges; zoomed right out, no further west or north than the opening view
     const [x, y] = wp(lon, lat); return { x, y, z };
@@ -9902,7 +9908,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.11';
+const APP_VERSION = '3.12';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
