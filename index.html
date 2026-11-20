@@ -6365,7 +6365,7 @@ const Trail = (() => {
      of the country down to one city. No buttons.
      CAM is the camera: the spot it looks at (x, y in world units) and z = pixels per unit.
      The monuments are the app's own drawings, standing on top in screen space where their cities are. */
-  const UX = 9, UY = 10, CS = UX / UY, LON_A = 62, LAT_A = 64;   // world units per degree; a little flatter north to south, as if the map leans away from you
+  const UX = 9, UY = 10.6, CS = .9, LON_A = 62, LAT_A = 64;   // world units per degree. v2.96: UY 10 to 10.6 makes China 6% taller so it fills more of the screen; CS stays .9 (the old 9 / 10) so hills, woods and boulders sit where they did, just stretched
   const wp = (lon, lat) => [(lon - LON_A) * UX, (LAT_A - lat) * UY];
   const CAM = { x: null, y: 0, z: 1.5, w: 375, h: 700, sel: 0, seen: false, noClick: 0, goal: null, api: null };
   const loop = pts => { const p = pts.map(q => wp(q[0], q[1])), n = p.length, m = (a, b) => `${f((a[0] + b[0]) / 2)} ${f((a[1] + b[1]) / 2)}`;
@@ -9062,7 +9062,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.95';
+const APP_VERSION = '2.96';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
