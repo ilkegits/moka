@@ -136,6 +136,7 @@ html{overscroll-behavior-y:none}   /* Chrome's own pull-to-refresh is off; this 
 .btn:disabled{box-shadow:var(--halo,0 0 #0000);transform:none}
 .btn-primary{background:var(--ink);color:var(--paper);--edge:rgba(0,0,0,.4);--drop:rgba(30,20,10,.6)}
 .btn-seal{background:var(--seal-btn);color:var(--seal-ink)}   /* the red buttons: a touch redder than the seal red of stamps and badges */
+.btn-seal,.tm-play{text-shadow:0 1.5px 0 rgba(90,10,5,.45)}   /* their white words sit on a small dark shadow of their own, like the map's Play */
 .btn-jade{background:var(--jade);color:#fff;--edge:rgba(0,40,30,.3);--drop:rgba(20,90,70,.6)}
 .btn-ghost{background:color-mix(in srgb,var(--paper) 88%,#785F3C);color:var(--ink);--edge:rgba(90,60,25,.2);--drop:rgba(60,35,10,.35)}   /* solid, so nothing shows through in the bottom bar */
 .btn-quiet{color:var(--ink-2)}
@@ -8894,7 +8895,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.84';
+const APP_VERSION = '2.85';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
