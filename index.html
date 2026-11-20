@@ -1632,7 +1632,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pf-nx-bar i{display:block;height:100%;background:#E8A33C}
 .pf-nx-n{flex:none;text-align:right;font-size:12px;color:var(--muted);max-width:76px;line-height:1.2}
 .pf-nx-n b{display:block;font-family:var(--display);font-size:24px;font-weight:600;color:var(--ink)}
-.pf .goal-row{margin-bottom:10px}
 /* v2.86 the streak share card in its sheet */
 .sc-img{display:block;width:100%;max-width:330px;margin:0 auto 16px;aspect-ratio:4 / 5;border-radius:18px;box-shadow:0 10px 26px -12px rgba(120,20,10,.55)}
 .sc-go{height:52px;font-size:16.5px;gap:8px}
@@ -4604,12 +4603,12 @@ function remindSheet() {
       if (want && !SYNC.on) { toast('Switch on “Send to Claude automatically” first'); busy = false; return; }
       await remindSet(want, sel);
       sw.classList.toggle('on', !!db.prefs.remind?.on); sub.textContent = remindLine(); busy = false;
-      const row = $('#remRow small'); if (row) row.textContent = remindLine();
+      const row = $('#remSub'); if (row) row.textContent = remindLine();
     };
     hrs.onclick = async e => {
       const b = e.target.closest('[data-h]'); if (!b) return;
       hrs.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
-      if (db.prefs.remind?.on) { await remindSet(true, +b.dataset.h); sub.textContent = remindLine(); const row = $('#remRow small'); if (row) row.textContent = remindLine(); }
+      if (db.prefs.remind?.on) { await remindSet(true, +b.dataset.h); sub.textContent = remindLine(); const row = $('#remSub'); if (row) row.textContent = remindLine(); }
       else if (db.prefs.remind) { db.prefs.remind.hour = +b.dataset.h; save(); }
     };
   });
@@ -4618,8 +4617,9 @@ function remindSheet() {
    Built on ilkem's design rules: one obvious action (the red button in the top card, the same thing Play gives on the Map),
    and progress bars that never start empty, always show their end and count down what is left.
    Top to bottom: who you are and your level bar (identity first: "an HSK 2 learner since March"), four numbers that each
-   open their own page, this week's minutes against your goal and last week, badges with the nearest one first, and your
-   plan (daily goal, reminder) last, since you set it once. The month calendar lives on the Streak page. */
+   open their own page, this week's proven words against last week's, and badges with the nearest one first.
+   v2.91: the daily goal and reminder left Profile (ilkem); the goal is on the Streak page, the reminder in the menu. The
+   month calendar lives on the Streak page. */
 function pfSince() {   // the first day ShiCards saw you practise or add a word
   let t = db.prefs.ob?.done || Infinity;
   for (const w of db.bank) if (w.added < t) t = w.added;
@@ -4666,9 +4666,6 @@ function ProfileView() {
     <div class="section-head"><h2>This week <span class="cal-zh">本周</span></h2></div>
     ${pfWeek()}
     ${Badges()}
-    <div class="section-head"><h2>Your plan</h2></div>
-    ${GoalRow()}
-    <div class="group remind-row"><button class="list-btn" id="remRow" data-act="remind"><span class="rem-ic">${I.bell}</span><span class="rem-t">Daily reminder<br><small>${remindLine()}</small></span><span class="side">${I.chev}</span></button></div>
   </div>`;
 }
 
@@ -9003,7 +9000,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.90';
+const APP_VERSION = '2.91';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9148,6 +9145,7 @@ function settingsRows(dr) {
     `<${tag} class="${dr ? 'dr-item' : 'list-btn'}"${id ? ` id="${id}"` : ''}${tag === 'label' ? ' style="cursor:pointer"' : ''}>${dr ? icon : ''}<span${dr ? ' class="dr-t"' : ''}>${t}${dr ? '' : '<br>'}${small}</span>${side}${extra}</${tag}>`;
   return [
     row('sName', I.pen, 'Your name', db.prefs.name ? `<small>${esc(db.prefs.name)}</small>` : '<small class="opt">Shown in the menu and on your profile</small>'),
+    row('sRem', I.bell, 'Daily reminder', `<small id="remSub">${remindLine()}</small>`),   // v2.91: moved here from Profile
     isInstalled() ? '' : row('sInst', I.install, 'Install app', '<small class="opt">Put ShiCards on your home screen</small>'),
     row('sUpd', I.refresh, 'Check for updates', `<small id="sUpdSub">You have version ${APP_VERSION}</small>`, `<span class="side" id="sUpdR">${chev}</span>`),
     row('sEn', I.swap, 'Flip cards start on English', '<small class="opt">On by default. Off: the Chinese side shows first</small>', `<span class="switch ${db.prefs.englishFirst ? 'on' : ''}"></span>`),
@@ -9183,6 +9181,7 @@ function bindSettings(sh, dr) {
   sh.querySelector('#sLog').onclick = leave(logSheet);
   sh.querySelector('#sDev').onclick = leave(devSheet);
   sh.querySelector('#sName').onclick = leave(nameSheet);
+  sh.querySelector('#sRem').onclick = leave(remindSheet);
   sh.querySelector('#sEn').onclick =e => { db.prefs.englishFirst = !db.prefs.englishFirst; save(); e.currentTarget.querySelector('.switch').classList.toggle('on', db.prefs.englishFirst); };
   sh.querySelector('#sExp').onclick = () => {
     const a = document.createElement('a');
