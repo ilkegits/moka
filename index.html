@@ -986,14 +986,14 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
   box-shadow:inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
 .tm-play.tm-go:active{transform:translateY(3px);box-shadow:inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
-/* v3.28: the big pinkish red buttons (Learn on the map, Play on the current unit in Lessons) shine every 6 s: a slanted
+/* v3.28: the big pinkish red buttons (Learn on the map, Play on the current unit in Lessons; v3.29 Start in a unit) shine every 6 s: a slanted
    band of light sweeps across them in 0.8 s, then they rest */
-.tm-play.tm-go,.lv em{position:relative;overflow:hidden;isolation:isolate}
-.tm-play.tm-go::after,.lv em::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:45%;pointer-events:none;
+.tm-play.tm-go,.lv em,.un-start{position:relative;overflow:hidden;isolation:isolate}
+.tm-play.tm-go::after,.lv em::after,.un-start::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:45%;pointer-events:none;
   background:linear-gradient(100deg,rgba(255,255,255,0) 15%,rgba(255,255,255,.5) 50%,rgba(255,255,255,0) 85%);
   transform:translateX(-120%) skewX(-18deg);animation:btnShine 6s ease-in-out 1.2s infinite}
 @keyframes btnShine{0%{transform:translateX(-120%) skewX(-18deg)}13%,100%{transform:translateX(330%) skewX(-18deg)}}
-@media (prefers-reduced-motion:reduce){.tm-play.tm-go::after,.lv em::after{animation:none;display:none}}
+@media (prefers-reduced-motion:reduce){.tm-play.tm-go::after,.lv em::after,.un-start::after{animation:none;display:none}}
 /* Shi Shi beside Play when the Map opens: he pops up on its left, a speech bubble says what Play gives you, and every few
    seconds he leans toward the button. A tap on him plays too; any other touch on the map sends him off (mapShi) */
 .tm-shi{position:absolute;z-index:3;right:209px;bottom:calc(var(--tabh) + 40px + env(safe-area-inset-bottom));width:84px;height:84px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -4116,7 +4116,7 @@ function ucHud(u) {
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${u - 1}</b><i>His challenge opens Unit ${u}</i></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? 'All of HSK 1 done' : `Unit ${u + 1} is open`}</b>${last ? '' : `<i>${esc(LES_UNITS[u][0])}</i>`}</span>${last ? '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
     : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
-    : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
+    : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
 }
 function UnitView(un) {
   const k = ucPanes(), u = Math.min(un, k);
@@ -10367,7 +10367,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.28';
+const APP_VERSION = '3.29';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
