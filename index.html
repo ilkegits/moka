@@ -764,6 +764,12 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-tzg path:first-child{stroke-width:.8}
 .tm-sky{fill:#fff;opacity:.9;pointer-events:none}
 .tm-skysh{fill:#1F4B5A;opacity:.1;pointer-events:none}
+.tm-curl{fill:none;stroke:#1F4B5A;stroke-opacity:.24;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tm-tip{fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round}
+.tm-drift{animation:tmDrift 11s ease-in-out infinite alternate}
+.tm-drift-l{animation-direction:alternate-reverse}
+@keyframes tmDrift{from{transform:translateX(-28px)}to{transform:translateX(28px)}}
+@media (prefers-reduced-motion:reduce){.tm-drift{animation:none}}
 /* the monuments, and the marker hovering over the one you are building */
 .tm-pin{cursor:pointer;outline:none}
 .tm-shade{fill:#3B2A20;opacity:.22}
@@ -6448,8 +6454,18 @@ const Trail = (() => {
     const a = `<path class="tm-shelf2" d="${far}${china}"/><path class="tm-shelf" d="${far}${china}"/><path class="tm-far" d="${far}"/>
       <path class="tm-lift" d="${china}" transform="translate(0 2.6)"/><path class="tm-land" d="${china}"/>${tzgGrid()}`;   // shallow water round every coast, the countries around in haze, China's pale rim and the shadow that lifts it, and a faint 田字格 print over the sea
     let b = '';
-    [[87, 47.5, 1.1], [129, 18, 1.3], [124, 45, .8]].forEach(([lon, lat, k], i) => { const [x, y] = wp(lon, lat), c = (dx, dy) => `<ellipse cx="${f(x + dx)}" cy="${f(y + dy)}" rx="${f(24 * k)}" ry="${f(6.5 * k)}"/><ellipse cx="${f(x - 9 * k + dx)}" cy="${f(y - 4.5 * k + dy)}" rx="${f(12 * k)}" ry="${f(7 * k)}"/><ellipse cx="${f(x + 7 * k + dx)}" cy="${f(y - 7 * k + dy)}" rx="${f(14 * k)}" ry="${f(9 * k)}"/>`;
-      b += `<g class="wt-drift" style="animation-delay:-${i * 11}s"><g class="tm-skysh">${c(8, 15)}</g><g class="tm-sky">${c(0, 0)}</g></g>`; });   // a few clouds, and their shadows
+    /* v2.93: Chinese ribbon clouds (祥云): round heads, each with a faint ink spiral, and a tail that ends in a curl. Long ones
+       and chunkier ones (bigger heads, shorter tail). They drift side to side, some setting off left and some right. */
+    const spiral = (cx, cy, r, a0, turns, inner) => { let d = ''; for (let i = 0; i <= 32; i++) { const t = i / 32, a = a0 - t * turns * 2 * Math.PI, rr = r * (1 - (1 - inner) * t); d += (i ? 'L' : 'M') + f(cx + rr * Math.cos(a)) + ' ' + f(cy + rr * Math.sin(a)); } return d; };
+    const RIBBON = {
+      long: { heads: [[-62, 0, 9], [-44, -6, 13], [-22, -3, 11], [-6, 2, 7]], tail: 'M-10 9L-60 9L-60 0L-6 -4C20 -5 46 -3 70 -1C76 0 76 3 70 4C40 8 10 9 -10 9Z', line: 'M0 4C24 3 48 3 66 1', end: [71, -6, 7] },
+      chunky: { heads: [[-46, 2, 12], [-24, -8, 17], [0, -4, 14], [18, 3, 10]], tail: 'M10 13L-46 13L-46 2L18 -2C34 -3 46 -1 54 1C60 3 59 7 53 8C36 12 22 13 10 13Z', line: 'M16 8C28 7 40 6 50 5', end: [55, -4, 6] } };
+    const ribbon = R => { const body = R.heads.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('') + `<path d="${R.tail}"/>`;
+      const curls = R.heads.slice(0, 3).map(([x, y, r]) => spiral(x, y, r * .72, Math.PI * .55, 1.1, .22)).join('') + R.line;
+      return [body, body + `<path class="tm-curl" d="${curls}"/><path class="tm-tip" d="${spiral(...R.end, Math.PI * .5, 1.05, .3)}"/>`]; };
+    [[98.5, 42.5, .85, 'long', 1, 1, 10], [120, 17, 1, 'long', -1, -1, 12], [121, 44.5, .7, 'chunky', -1, 1, 11], [95, 30, .7, 'chunky', 1, -1, 13]]
+      .forEach(([lon, lat, k, kind, face, go, sec]) => { const [x, y] = wp(lon, lat), [sh, sky] = ribbon(RIBBON[kind]), at = (dx, dy) => `translate(${f(x + dx)} ${f(y + dy)}) scale(${f(face * k * 100) / 100} ${k})`;   // face -1 turns it round so the tail trails the other way
+        b += `<g class="tm-drift${go < 0 ? ' tm-drift-l' : ''}" style="animation-duration:${sec}s"><g class="tm-skysh" transform="${at(8, 15)}">${sh}</g><g class="tm-sky" transform="${at(0, 0)}">${sky}</g></g>`; });   // the clouds, and their shadows on the ground
     return DRAWN = [a, b];
   }
   /* The painted ground: one canvas for the life of the page, filled a few rows at a time so nothing freezes. Only soft colour:
@@ -9019,7 +9035,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.92';
+const APP_VERSION = '2.93';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
