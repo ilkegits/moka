@@ -793,6 +793,11 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-pin.sel .tm-ring{opacity:1;animation:tmRing 1.1s linear infinite}
 @keyframes tmRing{to{stroke-dashoffset:-14}}
 .tm-mon{transform-box:fill-box;transform-origin:50% 100%}
+/* v3.16: the monument in the buy moment, drawn over the tilted map (not in it) so it stays sharp; Trail's show keeps it on its spot */
+.tm-hero{position:absolute;left:0;top:0;pointer-events:none}
+.tm-hero>div{position:absolute;inset:0;transform-origin:50% 100%}
+.tm-hero img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tm-hero img[hidden]{display:none}
 .tm-pin.sel .tm-mon{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1)}
 @keyframes tmPop{0%{transform:scale(1)}35%{transform:scale(1.14,1.2)}100%{transform:scale(1)}}
 .tm-pin:focus-visible .tm-shade{fill:var(--seal);opacity:.55}
@@ -6959,8 +6964,9 @@ function coinRain(root, P, wait = 0) {
    people had unlocked over into coins (db.monOwn), so add new ones at the end of the list. The pictures are
    3D models in golden-hour light, baked by portfolio3d/bake.html: mon/<id>.webp for its page and mon/<id>-i.webp, a
    cut-out, for the map (ic: where its base and its top fall in the cut-out; h, w: its size on the map), and
-   mon/<id>-t.webp, 13 cut-outs side by side as the camera swings 0 to 30 degrees round it, played when you buy it
-   (it: base and top in those, baked with bake.html?turn=13&deg=30&ic=400). Tap a
+   mon/<id>-t00.webp to -t12.webp, 13 cut-outs as the camera swings 0 to 30 degrees round it, played when you buy it
+   (it: base and top in those, baked with bake.html?turn=13&deg=30&ic=720; v3.16: 720 px frames, one file each, as one
+   sheet that big is drawn as a dark box by phones; the map cut-outs since v3.16 at ic=640). Tap a
    monument and the map flies to it and a card names it; Visit opens its page. Along the bottom, as in a game, sits
    Play. (v2.67: no monument is singled out as the one you are saving for: no pin, ghost or saving bar.)
    db.monOpen = { monument: 1 } once you have seen it: a new one is revealed the first time you open its page. */
@@ -6996,6 +7002,7 @@ function trailAll() {   // your proven words in the order you proved them; open 
   const pv = db.bank.filter(w => w.pf?.at > (db.mapFrom || 0)).sort((a, b) => a.pf.at - b.pf.at);
   return { pv, n: db.mapMax ? TRAIL_AT[TRAIL.length - 1] + TRAIL[TRAIL.length - 1].cost : Math.max(pv.length, trailFloor()), open: db.bank.filter(w => !w.pf?.at && w.en).length, bal: coinBal() };
 }
+const monTurn = (id, i) => `mon/${id}-t${String(i).padStart(2, '0')}.webp`;   // frame i (0-12) of a monument's buy turntable
 const monOwns = lv => !!(db.mapMax || db.monOwn?.[lv]);
 function trailState(lv, A = trailAll()) {   // done = yours; n of total = the coins you have toward its price; words = its share of your proven words; mast = of those mastered, due = due for review
   const c = TRAIL[lv - 1], total = c.price, words = total / PAY.word, done = monOwns(lv), now = Date.now();
@@ -7582,12 +7589,16 @@ const Trail = (() => {
     }
     const draw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (svg.isConnected) apply(); }); };   // at most one redraw a frame
     const stop = () => { cancelAnimationFrame(anim); anim = 0; CAM.goal = null; };
-    const fly = (to, ms = 620, done) => {
+    const fly = (to, ms = 620, done, ease) => {
       stop(); to = clampV(to);
       if (stillMotion() || !ms) { Object.assign(CAM, to); apply(); done?.(); return; }
-      const a = { x: CAM.x, y: CAM.y, z: CAM.z }, t0 = performance.now(); CAM.goal = to;
-      const step = now => { if (!svg.isConnected) return; const t = Math.min(1, (now - t0) / ms), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        CAM.z = a.z * Math.pow(to.z / a.z, e); CAM.x = a.x + (to.x - a.x) * e; CAM.y = a.y + (to.y - a.y) * e; apply();
+      const a = { x: CAM.x, y: CAM.y, z: CAM.z }, gz = to.z / a.z, sx = (to.x - a.x) * a.z, sy = (to.y - a.y) * a.z; let t0 = 0; CAM.goal = to;   // sx sy: how far the goal is from the middle of the screen now
+      const step = now => { if (!svg.isConnected) return; t0 ||= now;   // the clock starts on the first frame drawn, so a slow first frame (a map just built) does not skip the start
+        const t = Math.min(1, (now - t0) / ms), e = ease ? ease(t) : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        CAM.z = a.z * Math.pow(gz, e);
+        if (gz > 1.5) { const k = (1 - e) / CAM.z; CAM.x = to.x - sx * k; CAM.y = to.y - sy * k; }   // v3.16: diving in, the goal glides steadily to its place on the screen; moving the middle in a straight line instead swung it out and back fast at the end
+        else { CAM.x = a.x + (to.x - a.x) * e; CAM.y = a.y + (to.y - a.y) * e; }
+        apply();
         if (t < 1) anim = requestAnimationFrame(step); else { CAM.goal = null; done?.(); } };
       anim = requestAnimationFrame(step);
     };
@@ -7643,35 +7654,51 @@ const Trail = (() => {
       const at = z => { const [x, y] = wp(...SITE[lv]); return { x, y: y - .12 * (CAM.vh || CAM.h) / z, z }; };   // its base a little below the middle of the screen
       if (!pin || !mon || !world || stillMotion()) { fly(at(zMax() * .8), stillMotion() ? 0 : 900, end); fanfare(); return; }
       const N = 13, TURN = 30, A = 36, k = c.h / (c.it[1] - c.it[2]);
-      let t0 = 0, rf = 0, drop = null, done = false, strip = null, fi = -1;
-      const img = new Image(); img.src = `mon/${c.id}-t.webp`;
+      /* v3.16, timing (ms from the first frame): the camera comes down over 1.7 s with a soft start and a soft landing,
+         the ground tilts from 0.2 s to 1.8 s, the monument drops at 1.1 s and lands at 1.5 s, the camera swings round
+         from 1.9 s to 3.6 s, back flat from 3.9 s to 5.2 s */
+      const DIVE = 1700, TILT = [200, 1600], DROP = 1100, SWING = [1900, 1700], BACK = [3900, 1300];
+      let t0 = 0, rf = 0, drop = null, done = false, strip = null, fi = -1, hero = null;
+      /* v3.16: the turntable is not drawn inside the tilted map: there the browser resamples it (soft) and draws a big
+         picture as a flat dark box. Two invisible marks ride on the map instead, one at the monument's base and one at
+         the top of its picture, and the picture is laid over the map between them every frame (place) */
+      const mk = (g, y) => { const e = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); e.setAttribute('r', '.01'); e.setAttribute('cy', f(y)); e.setAttribute('fill', 'none'); g.append(e); return e; };
+      const up = pin.querySelector('.tm-up'), mkB = mk(pin, 0), mkT = mk(up, -c.it[1] * k);
+      const mid = e => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+      const place = () => { if (!hero) return; const sr = stage.getBoundingClientRect(), [bx, by] = mid(mkB), ty = mid(mkT)[1], H = Math.max(1, (by - ty) / c.it[1]);
+        Object.assign(hero.style, { left: `${(bx - sr.left - c.it[0] * H).toFixed(1)}px`, top: `${(by - sr.top - c.it[1] * H).toFixed(1)}px`, width: `${H.toFixed(1)}px`, height: `${H.toFixed(1)}px` }); };
+      const KEYS = ty => [{ opacity: 0, transform: `translateY(${ty}) scale(.7)` }, { opacity: 1, transform: 'translateY(0) scale(1.1,.88)', offset: .62 }, { opacity: 1, transform: 'scale(.97,1.04)', offset: .82 }, { opacity: 1, transform: 'none' }],
+        DROPT = { duration: 620, delay: DROP, easing: 'cubic-bezier(.4,0,.7,1)', fill: 'both' };   // it drops onto its spot
+      const imgs = Array.from({ length: N }, (_, i) => { const im = new Image(); im.src = monTurn(c.id, i); return im; });   // v3.16: 13 sharp 720 px frames, one file each
       const finish = () => {
         if (done) return; done = true; cancelAnimationFrame(rf); stop(); CAM.show = 0; stage.removeEventListener('pointerdown', finish, true);
-        drop?.cancel(); mon.style.opacity = ''; if (strip) setTimeout(() => { mon.innerHTML = cutout(c); });   // v3.15: swapped back just after the touch that ended it, not during it: a finger on the turntable picture lost its link to the map, the page swipe took it, and the map kept a ghost finger that turned every later touch into a zoom
+        drop?.cancel(); mon.style.opacity = ''; mon.style.visibility = ''; hero?.remove(); mkB.remove(); mkT.remove();   // the picture over the map never takes a touch (pointer-events: none), so it can go at once   // v3.15: swapped back just after the touch that ended it, not during it: a finger on the turntable picture lost its link to the map, the page swipe took it, and the map kept a ghost finger that turned every later touch into a zoom
         CAM.tilt = null; stage.classList.remove('tm-over', 'tm-showing'); size(); Object.assign(CAM, clampV(at(CAM.z))); apply(); end();
       };
       const sm = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
       CAM.show = lv; stage.classList.add('tm-showing'); mon.style.opacity = '0';
       stage.addEventListener('pointerdown', finish, true);
       const frame = now => {
-        if (done || !svg.isConnected) return; const t = now - t0;
-        const a = A * (t < 3700 ? sm(t / 1100) : 1 - sm((t - 3700) / 1300)), r = TURN * (t < 3700 ? sm((t - 1300) / 1800) : 1 - sm((t - 3700) / 1300));
+        if (done || !svg.isConnected) return; t0 ||= now; const t = now - t0, back = t >= BACK[0] ? 1 - sm((t - BACK[0]) / BACK[1]) : 0;
+        const a = A * (t < BACK[0] ? sm((t - TILT[0]) / TILT[1]) : back), r = TURN * (t < BACK[0] ? sm((t - SWING[0]) / SWING[1]) : back);
         CAM.tilt = { a, r, p: 900 }; upright();
-        if (strip) { const i = Math.round(r / TURN * (N - 1)); if (i !== fi) { fi = i; strip.setAttribute('viewBox', `${i} 0 1 1`); } }
-        if (t > 5000) { finish(); return; }
+        if (strip) { const i = Math.round(r / TURN * (N - 1)); if (i !== fi) { strip[Math.max(fi, 0)].hidden = true; strip[i].hidden = false; fi = i; } }   // only the frame for this angle is shown
+        place();
+        if (t > BACK[0] + BACK[1] + 100) { finish(); return; }
         rf = requestAnimationFrame(frame);
       };
-      img.decode().then(() => {   // the turntable swaps in for the still cut-out once it is loaded, if the camera has not started round yet (the shop fetched it ahead: shopPeek); else the monument just stays still
-        if (done || !svg.isConnected || fi > 0 || performance.now() - t0 > 1250) return;
-        mon.innerHTML = `<svg x="${f(-c.it[0] * k)}" y="${f(-c.it[1] * k)}" width="${f(k)}" height="${f(k)}" viewBox="0 0 1 1" preserveAspectRatio="none"><image href="${img.src}" width="${N}" height="1" preserveAspectRatio="none"/></svg>`; strip = mon.firstElementChild;
+      Promise.all(imgs.map(im => im.decode())).then(() => {   // the turntable swaps in for the still cut-out once all its frames are loaded, if the camera has not started round yet (the shop fetched them ahead: shopPeek); else the monument just stays still
+        if (done || !svg.isConnected || fi > 0 || (t0 && performance.now() - t0 > SWING[0] - 100)) return;
+        hero = document.createElement('div'); hero.className = 'tm-hero'; hero.setAttribute('aria-hidden', 'true');
+        hero.innerHTML = `<div>${imgs.map((im, i) => `<img src="${im.src}" alt=""${i ? ' hidden' : ''}>`).join('')}</div>`; world.after(hero); strip = [...hero.querySelectorAll('img')]; fi = 0; place();
+        const d = hero.firstChild.animate(KEYS(`${(-46 / k * 100).toFixed(2)}%`), DROPT); if (drop) { d.currentTime = drop.currentTime; drop.cancel(); } drop = d; mon.style.visibility = 'hidden';   // carries on the drop where the one on the map had got to
       }, () => {});
       stage.classList.add('tm-over'); size();   // the world drawn wide enough to tilt and turn without an edge showing
-      fly(at(zMax()), 1100);
-      drop = mon.animate([{ opacity: 0, transform: 'translateY(-46px) scale(.7)' }, { opacity: 1, transform: 'translateY(0) scale(1.1,.88)', offset: .62 }, { opacity: 1, transform: 'scale(.97,1.04)', offset: .82 }, { opacity: 1, transform: 'none' }],
-        { duration: 620, delay: 650, easing: 'cubic-bezier(.4,0,.7,1)', fill: 'both' });
+      fly(at(zMax()), DIVE, null, t => (1 - Math.cos(Math.PI * t)) / 2);   // a sine ease: the zoom never jumps ahead at the start or brakes hard at the end
+      if (!hero) drop = mon.animate(KEYS('-46px'), DROPT);   // the still cut-out on the map drops, until the turntable has loaded
       mon.style.opacity = '';
-      setTimeout(() => { if (!done) { fanfare(); try { navigator.vibrate?.(20); } catch (_) {} } }, 1050);   // it lands
-      t0 = performance.now(); rf = requestAnimationFrame(frame);
+      setTimeout(() => { if (!done) { fanfare(); try { navigator.vibrate?.(20); } catch (_) {} } }, DROP + 385);   // it lands
+      rf = requestAnimationFrame(frame);
     };
     CAM.api = { fly, show, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
     const goal = CAM.goal, first = !CAM.seen, states = trailStates(), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
@@ -7868,7 +7895,7 @@ function brokeSheet(lv) {
 }
 function shopSheet(lv) {   // the shop in a pop-up; an open one just turns to the page asked for
   const body = $('#shopBody'); LOG.add('shop', { lv: lv || 0, coins: coinBal() });
-  if (lv && !monOwns(lv) && coinBal() >= TRAIL[lv - 1].price) new Image().src = `mon/${TRAIL[lv - 1].id}-t.webp`;   // shopPeek: one you can buy, its turntable fetched ahead for the moment you buy it
+  if (lv && !monOwns(lv) && coinBal() >= TRAIL[lv - 1].price) for (let i = 0; i < 13; i++) new Image().src = monTurn(TRAIL[lv - 1].id, i);   // shopPeek: one you can buy, its turntable fetched ahead for the moment you buy it
   if (body) { body.innerHTML = shopHtml(lv); body.closest('.sheet').scrollTop = 0; return; }
   openSheet(`<div class="shop" id="shopBody">${shopHtml(lv)}</div>`);
 }
@@ -9927,7 +9954,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.15';
+const APP_VERSION = '3.16';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

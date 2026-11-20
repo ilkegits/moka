@@ -1,1 +1,1 @@
-{"version": "3.15", "notes": "The map no longer zooms in and out on its own after you touch it during the buy moment; drag and pinch work normally again"}
+{"version": "3.16", "notes": "Buying a monument: the camera glides smoothly down onto it, and the monument is much sharper (new 720 px turntable and 640 px map pictures)"}
