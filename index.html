@@ -9741,7 +9741,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.08';
+const APP_VERSION = '3.09';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9787,7 +9787,8 @@ function nameSheet() {
    real levels are kept in db.devLv (lessons, unit bosses, comics, the open HSK levels and the Map), and Restore puts them
    back. Words, streak and decks are never touched: the Map is maxed with db.mapMax and reset with db.mapFrom (only words
    proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
-   bag at nothing; neither pours a payoff for what it changed (db.coinShown). */
+   bag at nothing; neither pours a payoff for what it changed (db.coinShown). Set my coins (devCoinSet) puts any number in the
+   bag by moving db.coinAdj, also kept first so Restore gives your own coins back. */
 const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
@@ -9809,6 +9810,30 @@ function devLvRestore() {
   monMigrate();
   if (K.unlocked == null) delete db.prefs.unlocked; else db.prefs.unlocked = K.unlocked;
   delete db.devLv;
+}
+function devCoinSet(n) {   // the bag holds exactly n coins: db.coinAdj makes up the difference, so later earnings and spending still count from there
+  devLvKeep(); const e = coinEarned();
+  db.coinAdj = n - e + coinSpent(); db.coinShown = e;
+}
+function devCoinSheet() {
+  const PRE = [0, 100, 500, 1000, 5000, 10000, 100000];
+  openSheet(`<h3>Set my coins</h3>
+    <p class="muted" style="margin:-6px 0 14px">You have ${coinFmt(coinBal())} now. Earning and spending go on from the number you set. Restore my real levels puts your own back.</p>
+    <label class="field"><span class="lbl">Coins</span><input class="input" id="dcN" type="number" inputmode="numeric" min="0" max="9999999" step="1" value="${coinBal()}" autocomplete="off"></label>
+    <div class="chips" style="margin:-4px 0 16px">${PRE.map(n => `<button class="chip" data-n="${n}">${coinFmt(n)}</button>`).join('')}</div>
+    <button class="btn btn-primary wide" id="dcGo">Set coins</button>`, sh => {
+    const inp = sh.querySelector('#dcN');
+    sh.querySelectorAll('[data-n]').forEach(b => { b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }; });
+    const go = () => {
+      const n = Math.round(+inp.value);
+      if (inp.value === '' || !Number.isFinite(n) || n < 0) { inp.focus(); return; }
+      const v = Math.min(n, 9999999);
+      LOG.add('dev', `coins ${v}`); devCoinSet(v); save(); closeSheet();
+      setTimeout(() => { S.instant = true; render(); toast(`You have ${coinFmt(coinBal())} ${coinBal() === 1 ? 'coin' : 'coins'}`); }, 300);
+    };
+    sh.querySelector('#dcGo').onclick = go;
+    inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+  });
 }
 function devLvNow() {
   const un = LES_UNITS.findIndex((_, u) => !utPassed(u + 1)) + 1, mons = trailStates().filter(t => t.done).length;
@@ -9843,7 +9868,8 @@ function devSheet() {
     <div class="list-group">
       ${p('devLvMax', 'Max out all levels', 'Every lesson done, every boss beaten, every HSK level open, all ' + TRAIL.length + ' monuments bought')}
       ${p('devLvZero', 'Reset levels', 'Back to Unit 1 and no monuments. Your word bank, streak and decks stay')}
-      ${db.devLv ? p('devLvBack', 'Restore my real levels', 'Undo the test: your own lessons, bosses and monuments come back') : ''}
+      ${p('devCoins', 'Set my coins', `Any number you like. You have ${coinFmt(coinBal())} now`)}
+      ${db.devLv ? p('devLvBack', 'Restore my real levels', 'Undo the test: your own lessons, bosses, monuments and coins come back') : ''}
     </div>
     <p class="muted dev-now">${esc(devLvNow())}</p>
     <div class="day-h" style="margin-top:20px">Start over</div>
@@ -9865,6 +9891,7 @@ function devSheet() {
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
     sh.querySelector('#devLvZero').onclick = lvGo('levels reset', devLvZero, 'Levels are back to the start');
+    sh.querySelector('#devCoins').onclick = () => { closeSheet(); setTimeout(devCoinSheet, 320); };
     const lb = sh.querySelector('#devLvBack'); if (lb) lb.onclick = lvGo('levels restore', devLvRestore, 'Your real levels are back');
     const back = () => { const X = db.hotd; delete X.off; delete X.storyOff; delete X.done; delete X.top; };
     const go = (what, prep, then) => () => {
