@@ -1806,8 +1806,10 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-pill::before,.uc-pill::after{content:"";position:absolute;bottom:100%;width:2px;height:13px;background:#2A140D}
 .uc-pill::before{left:24px}
 .uc-pill::after{right:24px}
-.uc-pill b{min-width:0;padding:0 4px;font:700 12.5px/1.2 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;color:#FFE7A6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 #5E0E09}
-.uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#F4C14E;font:700 21px/1 var(--ui);background:none}
+.uc-pill b{min-width:0;padding:0 4px 1px;font:700 12.5px/1.6 "Noto Serif SC",var(--hanzi);letter-spacing:.02em;color:#FFE7A6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 #5E0E09}
+.uc-pill button{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#F4C14E;background:none}
+.uc-pill button svg{width:17px;height:17px;stroke-width:2.8}
+.uc-pill button[data-uc="-1"] svg{transform:scaleX(-1)}
 .uc-pill button:active{background:rgba(0,0,0,.18)}
 .uc-pill button:disabled{opacity:.3}
 .uc-scroll{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:1;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
@@ -4111,7 +4113,7 @@ function UnitView(un) {
   const k = ucPanes(), u = Math.min(un, k);
   return `<div class="screen fade-in c1 un uc"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
     <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${u}</small><b>${esc(LES_UNITS[u - 1][0])}</b></span>
-      <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > 1 ? '' : ' disabled'}>‹</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < k ? '' : ' disabled'}>›</button></span></div>
+      <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > 1 ? '' : ' disabled'}>${I.chev}</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < k ? '' : ' disabled'}>${I.chev}</button></span></div>
     <button class="icon-btn" data-act="comic-replay" data-u="${u}" aria-label="Watch the comic again">${COMIC_I}</button></header>
     <div class="uc-scroll"><div class="uc-strip">${Array.from({ length: k }, (_, i) => ucPane(i + 1)).join('')}</div></div>
     <div class="un-hud">${ucHud(u)}</div></div>`;
@@ -10327,7 +10329,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.25';
+const APP_VERSION = '3.26';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -11380,7 +11382,7 @@ document.addEventListener('click', e => {
   const ARM = 100, HOLD = 104;   // how far the page has to come down (px) before letting go reloads; where it rests while reloading
   let t = null, busy = false, inset = 0, kh = 90;   // kh: the knot's height, measured once per pull
   const atTop = () => (document.scrollingElement?.scrollTop || 0) <= 0 && app.scrollTop <= 0;
-  const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tm-stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root');   // the map: dragging it down looks north, never reloads
+  const blocked = el => $('#sheet-root').classList.contains('open') || el.closest?.('input,textarea,select,.stage,.tm-stage,.tzg,canvas,.shelf,#tabbar,#rec,#drawer-root,.uc');   // the map: dragging it down looks north, never reloads
   const topInset = () => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden'; document.body.append(d); const h = d.offsetHeight; d.remove(); return h; };
   const pull = d => 200 * (1 - Math.exp(-Math.max(0, d) / 240));   // follows the finger at first, then gets heavier
   const place = (p, dur, curve = EASE) => {
