@@ -769,7 +769,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-curl{fill:none;stroke:#1F4B5A;stroke-opacity:.24;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tm-tip{fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round}
 .tm-rose{pointer-events:none}
-.tm-dir{pointer-events:none}
+.tm-dir{pointer-events:none;opacity:.4;mix-blend-mode:multiply}   /* v2.99: see-through ink, the map shows through */
 .tm-dir text{font:56px "Liu Jian Mao Cao","Noto Serif SC",serif;fill:#1E1A17;stroke:#1E1A17;stroke-width:.8;stroke-linejoin:round;text-anchor:middle;dominant-baseline:central;filter:url(#tmInk)}
 .tm-rose path{stroke:#D2B36E;stroke-width:.6;stroke-linejoin:round}
 .tm-rose g[opacity] path{stroke:none}
@@ -9069,7 +9069,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '2.98';
+const APP_VERSION = '2.99';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
