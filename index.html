@@ -3447,7 +3447,7 @@ const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the cha
    button starts the unit. Part 2, the happy ending, plays when the boss is beaten. Redoing a unit you have won plays
    both again: part 1 on the tap, the ending after the boss.
    db.comic = { unit: { p1, p2 } } is when you watched each part; db.unitAt = { unit: n } is where on the path you
-   last saw Shi Shi. Only Unit 1 has a comic for now. */
+   last saw Shi Shi. Every HSK 1 unit has a comic: Unit 1 here, units 2 to 8 just below. */
 const { COMIC, bossFace } = (() => {
   const { red, gold, gold2, ln, fl, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, roof, lantern, burst, bubble } = CRS.kit;
   const sky = (id, y, h, a, b) => `<defs><linearGradient id="cmg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-10" y="${y}" width="380" height="${h}" fill="url(#cmg${id})"/>`;
@@ -3534,16 +3534,335 @@ const { COMIC, bossFace } = (() => {
       + arm(150, 446, 124, 408, 11) + arm(210, 446, 236, 408, 11) + lion(180, 453, .62, 'star') + paw(122, 404, -22, .8) + paw(238, 404, 22, .8)
       + confetti([[100, 344, 20, red], [262, 348, -30, gold], [150, 352, 40, '#8FD3C0'], [222, 346, -15, '#FF9AA6'], [70, 430, 60, gold], [296, 436, 10, '#8FD3C0'], [130, 384, -40, '#FF9AA6'], [236, 380, 30, red], [60, 350, 12, '#8FD3C0'], [306, 352, -20, '#FF9AA6']])
       + `<path d="M84 300H276L288 317L276 334H84L72 317Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M90 306H270" stroke="#fff" stroke-width="2" opacity=".6"/>${hz(180, 318, '你好,狮狮!', 20, 0, fl)}`
-      + shout(296, 448, 46, 22, '谢谢!', 18)
-      + note(176, 568, 154, ['The lion dances after all.']) + `<rect x="14" y="560" width="30" height="30" rx="6" fill="#B23A2C" stroke="${ln}" stroke-width="2.5" transform="rotate(-6 29 575)"/>${hz(29, 575.5, '完', 19, -6, '#fff')}` },
+      + shout(296, 462, 46, 22, '谢谢!', 18)
+      + note(176, 568, 154, ['The lion dances after all.']) },
+    /* 7. A small panel on top of the last one: Hu Hu says sorry, Shi Shi says it's OK */
+    { clip: '224,338 352,330 356,432 228,438', box: [224, 330, 132, 108], say: [['对不起！', 'duìbuqǐ', 'sorry!'], ['没关系！', 'méi guānxi', 'it’s OK!']], art: () => `<polygon points="224,338 352,330 356,432 228,438" fill="#241210"/>`
+      + `<clipPath id="cmcIn"><polygon points="229.5,342.6 347.2,335.3 350.8,427.1 233,432.8"/></clipPath><g clip-path="url(#cmcIn)"><rect x="220" y="326" width="140" height="116" fill="#FFC44D"/>${rays(290, 404, 170, 14, '#FFE08A', .95)}`
+      + friend('tiger', 266, 398, .34, -6) + sweat(242, 372, .8) + lion(322, 396, .3, 'wink', 6, false)
+      + `<path d="M294 366C288 360 282 366 294 376C306 366 300 360 294 366Z" fill="#FF8A96" stroke="${ln}" stroke-width="2"/>`
+      + `<rect x="234" y="344" width="22" height="22" rx="4" fill="#B23A2C" stroke="${ln}" stroke-width="2" transform="rotate(-6 245 355)"/>${hz(245, 355.5, '完', 14, -6, '#fff')}</g>` },
   ] };
+  /* part 1's last panel is two: the doors slam on the left, 不! on the right */
+  part1.panels.push({ ...part1.panels[2], clip: '206,370.4 360,379 360,600 214,600', box: [206, 370, 154, 230], say: [['不！', 'bù', 'no!']] });
+  Object.assign(part1.panels[2], { clip: '0,359 198,370 206,600 0,600', box: [0, 359, 206, 241], say: [['一、二、三', 'yī, èr, sān', 'one, two, three']] });
+  part1.thumb = 3;
   /* the final boss of every unit: Hu Hu's head, frowning until he is beaten */
   const bossFace = angry => `<svg viewBox="30 24 140 126" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${friend('tiger', 100, 100, 1)}${angry ? frown : ''}</svg>`;
   return { COMIC: { 1: { title: 'The lion at the gate', pages: [part1, part2] } }, bossFace };
 })();
+/* ---------- the comics of HSK 1 units 2 to 8 ----------
+   Same rules as Unit 1: part 1 ends at the worst moment and says nothing of a part 2, part 2 is the happy ending,
+   bubbles use words of that unit (or of units before it). Each page has four panels in one of four layouts (LAY).
+   Here a panel's art is drawn in its own box, from 0,0 to its width and height, and moved into place on the page. */
+Object.assign(COMIC, (() => {
+  const { red, gold, gold2, ln, fl, wood, woodD, hz, hzO, star, paw, arm, lion, sweat, friend, roof, lantern, burst, bubble, xcloud } = CRS.kit;
+  let gN = 0;   // gradients and clips need ids that are unique on the page (the levels list shows several thumbnails)
+  const uid = () => 'cmq' + ++gN;
+  const W = (w, h, c) => `<rect x="-20" y="-20" width="${w + 40}" height="${h + 40}" fill="${c}"/>`;
+  const grad = (w, h, a, b) => { const id = uid(); return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect x="-20" y="-20" width="${w + 40}" height="${h + 40}" fill="url(#${id})"/>`; };
+  const rays = (cx, cy, r, n, f, op = 1) => `<path d="${Array.from({ length: n }, (_, i) => { const a = i * 2 * Math.PI / n, b = a + Math.PI / n * .9; return `M${cx} ${cy}L${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}L${(cx + r * Math.cos(b)).toFixed(1)} ${(cy + r * Math.sin(b)).toFixed(1)}Z`; }).join('')}" fill="${f}" opacity="${op}"/>`;
+  /* the comic burst background: one colour with lighter rays fanning out from cx,cy */
+  const pop = (w, h, a, b, cx = w / 2, cy = h / 2) => W(w, h, a) + rays(cx, cy, Math.hypot(w, h) + 40, 16, b, .9);
+  const clipR = (x, y, w, h, inner) => { const id = uid(); return `<clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath><g clip-path="url(#${id})">${inner}</g>`; };
+  const shout = (x, y, rx, ry, txt, size, col = red, rot = 0) => `<g transform="rotate(${rot} ${x} ${y})"><path d="M${Array.from({ length: 24 }, (_, i) => { const a = i * Math.PI / 12, k = i % 2 ? .76 : 1; return `${(x + rx * k * Math.cos(a)).toFixed(1)} ${(y + ry * k * Math.sin(a)).toFixed(1)}`; }).join('L')}Z" fill="#fff" stroke="${ln}" stroke-width="3.5" stroke-linejoin="round"/>${hz(x, y + 1, txt, size, 0, col)}</g>`;
+  const note = (x, y, w, lines, size = 11.5) => (w = Math.max(w, Math.max(...lines.map(t => t.length)) * size * .53 + 16), '') + `<rect x="${x}" y="${y}" width="${w}" height="${lines.length * size * 1.32 + 10}" rx="2" fill="#FFF1B8" stroke="${ln}" stroke-width="2.5"/>`
+    + lines.map((t, i) => `<text x="${x + 8}" y="${y + 6 + size * .86 + i * size * 1.32}" fill="${ln}" style="font:600 ${size}px var(--display)">${t}</text>`).join('');
+  const seal = (x, y, s = 30) => `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${s / 5}" fill="#B23A2C" stroke="${ln}" stroke-width="2.5" transform="rotate(-6 ${x + s / 2} ${y + s / 2})"/>${hz(x + s / 2, y + s / 2 + .5, '完', s * .63, -6, '#fff')}`;
+  const onFriend = (x, y, s, inner, r = 0, flip = false) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${flip ? -s : s} ${s}) translate(-100 -100)">${inner}</g>`;
+  const confetti = pts => pts.map(([x, y, r, c]) => `<rect x="${x}" y="${y}" width="8" height="4.5" rx="1" fill="${c}" transform="rotate(${r} ${x} ${y})"/>`).join('');
+  const rnd = s => () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const snow = (w, h, n, seed = 7, r = 3) => { const R = rnd(seed); return Array.from({ length: n }, () => `<circle cx="${(R() * w).toFixed(1)}" cy="${(R() * h).toFixed(1)}" r="${(r * (.6 + R() * .8)).toFixed(1)}" fill="#fff"/>`).join(''); };
+  const stars = (w, h, n, seed = 3) => { const R = rnd(seed); return Array.from({ length: n }, () => star(+(R() * w).toFixed(1), +(R() * h).toFixed(1), +(2 + R() * 3).toFixed(1), '#FFF3C4')).join(''); };
+  const ground = (w, h, y, c, top = ln) => `<rect x="-20" y="${y}" width="${w + 40}" height="${h - y + 40}" fill="${c}"/><path d="M-20 ${y}H${w + 20}" stroke="${top}" stroke-width="3"/>`;
+  const speed = (pts, col = '#fff') => `<path d="${pts.map(([x, y, l]) => `M${x} ${y}h${l}`).join('')}" stroke="${col}" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>`;
+  const shiver = (x, y, k = 1) => `<path d="M${x} ${y}l${6 * k} 5l${-6 * k} 5l${6 * k} 5" fill="none" stroke="${ln}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const q = (x, y, s, r = 0, c = '#fff') => hzO(x, y, '?', s, r, c);
+  const zz = (x, y, s) => hzO(x, y, 'Z', s, -12, '#fff') + hzO(x + s * .8, y - s * .9, 'z', s * .75, -12, '#fff');
+
+  /* props */
+  const card = (x, y, w, h, lines, size, rot = 0, col = red) => `<g transform="rotate(${rot} ${x + w / 2} ${y + h / 2})"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#FFF8EE" stroke="${ln}" stroke-width="3"/>${lines.map((t, i) => hz(x + w / 2, y + h / 2 + (i - (lines.length - 1) / 2) * size * 1.25, t, size, 0, col)).join('')}</g>`;
+  const sign = (x, y, w, h, txt, size, bgc = gold2, col = fl) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${bgc}" stroke="${ln}" stroke-width="3"/>${hz(x + w / 2, y + h / 2 + 1, txt, size, 0, col)}`;
+  const clock = (x, y, r, hh, mm) => { const pt = (deg, l) => [x + l * Math.cos(deg * Math.PI / 180), y + l * Math.sin(deg * Math.PI / 180)].map(v => v.toFixed(1)).join(' ');
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="#FFF8EE" stroke="${ln}" stroke-width="${Math.max(3, r / 9)}"/>` + Array.from({ length: 12 }, (_, i) => { const [cx, cy] = pt(i * 30, r * .78).split(' '); return `<circle cx="${cx}" cy="${cy}" r="${(i % 3 ? r * .04 : r * .075).toFixed(1)}" fill="${ln}"/>`; }).join('')
+      + `<path d="M${x} ${y}L${pt(((hh % 12) + mm / 60) * 30 - 90, r * .5)}" stroke="${ln}" stroke-width="${(r * .11).toFixed(1)}" stroke-linecap="round"/><path d="M${x} ${y}L${pt(mm * 6 - 90, r * .74)}" stroke="${red}" stroke-width="${(r * .07).toFixed(1)}" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="${(r * .09).toFixed(1)}" fill="${ln}"/>`; };
+  const table = (x, y, w, leg = 46) => `<rect x="${x - w / 2 + 8}" y="${y}" width="9" height="${leg}" fill="${woodD}" stroke="${ln}" stroke-width="2.5"/><rect x="${x + w / 2 - 17}" y="${y}" width="9" height="${leg}" fill="${woodD}" stroke="${ln}" stroke-width="2.5"/><rect x="${x - w / 2}" y="${y - 10}" width="${w}" height="12" rx="3" fill="${wood}" stroke="${ln}" stroke-width="3"/>`;
+  const steam = (x, y, s = 1) => `<path transform="translate(${x} ${y}) scale(${s})" d="M-8 0q-6 -8 0 -16t0 -16M0 -4q-6 -8 0 -16t0 -16M8 0q-6 -8 0 -16t0 -16" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>`;
+  const bowl = (x, y, s = 1, dumplings) => `<g transform="translate(${x} ${y}) scale(${s})">${dumplings ? [[-14, 0], [14, 0], [0, -7]].map(([d, k]) => `<path d="M${d - 12} ${k - 3}Q${d} ${k - 24} ${d + 12} ${k - 3}Z" fill="#FFF6E6" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><path d="M${d - 5} ${k - 12}l3 5M${d} ${k - 14}v5M${d + 5} ${k - 12}l-3 5" stroke="#D8BB92" stroke-width="1.6" stroke-linecap="round"/>`).join('') : `<ellipse cx="0" cy="-4" rx="24" ry="9" fill="#FFF8EE" stroke="${ln}" stroke-width="2.5"/>`}<path d="M-28 -4H28Q26 22 0 24Q-26 22 -28 -4Z" fill="#3E7FB1" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M-20 6H20" stroke="#fff" stroke-width="2.5" opacity=".7"/></g>`;
+  const cup = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M14 -10Q24 -10 22 -2Q20 4 12 2" fill="none" stroke="${ln}" stroke-width="3"/><path d="M-14 -16H14L11 4Q0 9 -11 4Z" fill="#FFF8EE" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><ellipse cx="0" cy="-16" rx="14" ry="4" fill="#9BBF5A" stroke="${ln}" stroke-width="2.5"/><path d="M-7 -4H7" stroke="#3E7FB1" stroke-width="2.5"/></g>`;
+  const coin = (x, y, r = 8) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${gold}" stroke="#A86A0C" stroke-width="2.5"/><rect x="${x - r * .28}" y="${y - r * .28}" width="${r * .56}" height="${r * .56}" fill="#A86A0C"/>`;
+  const apple = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 -6C-10 -14 -20 -6 -18 6C-16 16 -6 18 0 14C6 18 16 16 18 6C20 -6 10 -14 0 -6Z" fill="${red}" stroke="${ln}" stroke-width="2.5"/><path d="M0 -6Q1 -12 4 -15" stroke="${ln}" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M3 -12Q10 -18 14 -12Q8 -8 3 -12Z" fill="#5CC898" stroke="${ln}" stroke-width="2"/><ellipse cx="-8" cy="0" rx="3" ry="4.5" fill="#fff" opacity=".6"/></g>`;
+  const board = (x, y, w, h, txt, size) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#2F5D4A" stroke="${woodD}" stroke-width="7"/><rect x="${x - 3.5}" y="${y - 3.5}" width="${w + 7}" height="${h + 7}" rx="4" fill="none" stroke="${ln}" stroke-width="2.5"/>${hz(x + w / 2, y + h / 2, txt, size, 0, '#F4F1E6')}`;
+  const door = (x, y, w, h, c = '#B8332C') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}" stroke="${ln}" stroke-width="3"/><rect x="${x + 8}" y="${y + 10}" width="${w - 16}" height="${h * .36}" fill="none" stroke="${ln}" stroke-width="2"/><circle cx="${x + w - 10}" cy="${y + h * .58}" r="3.5" fill="${gold}" stroke="${ln}" stroke-width="1.5"/>`;
+  const win = (x, y, w, h, lit = '#FFD98A') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${lit}" stroke="${ln}" stroke-width="3"/><path d="M${x + w / 2} ${y}V${y + h}M${x} ${y + h / 2}H${x + w}" stroke="${ln}" stroke-width="2.5"/>`;
+  const moon = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r * 1.7}" fill="#FFF3C4" opacity=".16"/><circle cx="${x}" cy="${y}" r="${r}" fill="#FFF3C4"/><circle cx="${x - r * .3}" cy="${y - r * .25}" r="${r * .2}" fill="#EBDDA6"/><circle cx="${x + r * .35}" cy="${y + r * .3}" r="${r * .14}" fill="#EBDDA6"/>`;
+  const sun = (x, y, r) => `<g stroke="${gold}" stroke-width="4" stroke-linecap="round">${Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<path d="M${(x + r * 1.35 * Math.cos(a)).toFixed(1)} ${(y + r * 1.35 * Math.sin(a)).toFixed(1)}L${(x + r * 1.75 * Math.cos(a)).toFixed(1)} ${(y + r * 1.75 * Math.sin(a)).toFixed(1)}"/>`; }).join('')}</g><circle cx="${x}" cy="${y}" r="${r}" fill="${gold}" stroke="#E8A33C" stroke-width="3"/>`;
+  const gift = (x, y, s = 1, c = red, open = false) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-22" y="-30" width="44" height="30" fill="${c}" stroke="${ln}" stroke-width="3"/>${open ? `<path d="M-19 -27H19" stroke="#000" stroke-width="5" opacity=".25"/><rect x="25" y="-50" width="11" height="52" fill="${c}" stroke="${ln}" stroke-width="3" transform="rotate(14 30 2)"/>` : `<rect x="-4" y="-30" width="8" height="30" fill="${gold}" stroke="${ln}" stroke-width="2"/><rect x="-26" y="-40" width="52" height="11" fill="${c}" stroke="${ln}" stroke-width="3"/><rect x="-4" y="-40" width="8" height="11" fill="${gold}" stroke="${ln}" stroke-width="2"/><path d="M0 -40C-14 -56 -24 -44 0 -40C24 -44 14 -56 0 -40Z" fill="${gold}" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/>`}</g>`;
+  const medal = (x, y, s = 1, txt = '一级') => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-20 -66L-7 -24H7L20 -66" fill="none" stroke="${ln}" stroke-width="15" stroke-linejoin="round"/><path d="M-20 -66L-7 -24H7L20 -66" fill="none" stroke="${red}" stroke-width="9" stroke-linejoin="round"/><circle r="27" fill="${gold}" stroke="#A86A0C" stroke-width="4"/><circle r="20" fill="none" stroke="#E8A33C" stroke-width="2.5"/>${hz(0, 1, txt, txt.length > 1 ? 15 : 24, 0, fl)}<path d="M-16 -14A21 21 0 0 1 -4 -21" fill="none" stroke="#FFF3C4" stroke-width="3.5" stroke-linecap="round"/></g>`;
+  const cake = (x, y, s = 1, n = 5) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="0" rx="50" ry="7" fill="#fff" stroke="${ln}" stroke-width="2.5"/><rect x="-40" y="-36" width="80" height="36" rx="6" fill="#FFB4C2" stroke="${ln}" stroke-width="3"/><path d="M-38 -26Q-29 -16 -19 -26T0 -26T19 -26T38 -26" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>${Array.from({ length: n }, (_, i) => { const cx = -28 + i * 56 / Math.max(1, n - 1); return `<rect x="${cx - 3}" y="-54" width="6" height="18" fill="#8FD3F0" stroke="${ln}" stroke-width="2"/><path d="M${cx} -68Q${cx + 6} -59 ${cx} -56Q${cx - 6} -59 ${cx} -68Z" fill="${gold}" stroke="#E5483F" stroke-width="1.5"/>`; }).join('')}</g>`;
+  const phone = (x, y, s = 1, r = 0) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><rect x="-13" y="-24" width="26" height="48" rx="5" fill="#2B2B33" stroke="${ln}" stroke-width="2.5"/><rect x="-10" y="-19" width="20" height="36" rx="2" fill="#8FD3F0"/></g>`;
+  const train = (x, y, s = 1, n = 3) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-4 -50H98V0H-4Q-30 0 -30 -22Q-30 -50 -4 -50Z" fill="${red}" stroke="${ln}" stroke-width="3"/><path d="M-22 -32Q-18 -42 -4 -42H6V-26H-22Z" fill="#BDE9FF" stroke="${ln}" stroke-width="2"/>`
+    + Array.from({ length: n }, (_, i) => { const cx = i * 104; return `${i ? `<rect x="${cx}" y="-50" width="98" height="50" rx="5" fill="#3E7FB1" stroke="${ln}" stroke-width="3"/>` : ''}${[16, 44, 72].map(d => `<rect x="${cx + d}" y="-41" width="17" height="15" rx="3" fill="#FFD98A" stroke="${ln}" stroke-width="2"/>`).join('')}<path d="M${cx + 2} -14H${cx + 96}" stroke="#fff" stroke-width="3" opacity=".7"/>${[18, 80].map(d => `<circle cx="${cx + d}" cy="2" r="8" fill="#2B2B33" stroke="${ln}" stroke-width="2.5"/>`).join('')}`; }).join('') + '</g>';
+  const plane = (x, y, s = 1, r = 0) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M-4 -6L-22 -34H-12L14 -6Z" fill="#3E7FB1" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><path d="M-46 0Q-46 -9 -36 -9H36Q50 -9 56 0Q50 9 36 9H-36Q-46 9 -46 0Z" fill="#fff" stroke="${ln}" stroke-width="3"/><path d="M-4 6L-18 30H-8L14 6Z" fill="#3E7FB1" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><path d="M-40 -6L-50 -26H-41L-30 -8Z" fill="${red}" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/>${[16, 26, 36].map(d => `<circle cx="${d}" cy="-2" r="2.6" fill="#3E7FB1"/>`).join('')}</g>`;
+  const taxi = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-56 -14Q-56 -26 -44 -26H-30L-16 -46H22L38 -26H48Q58 -26 58 -14V0H-56Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M-12 -40H2V-27H-23ZM8 -40H19L30 -27H8Z" fill="#BDE9FF" stroke="${ln}" stroke-width="2" stroke-linejoin="round"/><rect x="-11" y="-58" width="26" height="12" rx="2" fill="#fff" stroke="${ln}" stroke-width="2"/>${hz(2, -51.5, '出租', 8, 0, ln)}<path d="M-54 -12H56" stroke="${ln}" stroke-width="2" stroke-dasharray="6 5"/><circle cx="54" cy="-18" r="3.5" fill="#FFF3C4" stroke="${ln}" stroke-width="1.5"/>${[-32, 34].map(d => `<circle cx="${d}" cy="0" r="10" fill="#2B2B33" stroke="${ln}" stroke-width="2.5"/><circle cx="${d}" cy="0" r="4" fill="#bbb"/>`).join('')}</g>`;
+  const needle = (x, y, s = 1, r = 0) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M-40 0H-58M-60 -14V14" stroke="${ln}" stroke-width="5" stroke-linecap="round"/><rect x="-40" y="-11" width="64" height="22" rx="4" fill="#E8F6FF" stroke="${ln}" stroke-width="3"/><rect x="-34" y="-7" width="40" height="14" fill="#8FD3F0"/><path d="M-26 -11V-4M-16 -11V-4M-6 -11V-4M4 -11V-4" stroke="${ln}" stroke-width="2"/><rect x="24" y="-5" width="10" height="10" fill="#ccc" stroke="${ln}" stroke-width="2.5"/><path d="M34 0H74" stroke="${ln}" stroke-width="3" stroke-linecap="round"/></g>`;
+  const dog = (x, y, s = 1, flip = false) => `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})"><path d="M22 -10Q36 -24 32 -34" fill="none" stroke="${ln}" stroke-width="8" stroke-linecap="round"/><path d="M22 -10Q36 -24 32 -34" fill="none" stroke="#E8B26A" stroke-width="4" stroke-linecap="round"/><ellipse cx="0" cy="-8" rx="26" ry="15" fill="#E8B26A" stroke="${ln}" stroke-width="3"/>${[-16, -6, 8, 18].map(d => `<rect x="${d - 3.5}" y="0" width="7" height="12" rx="3" fill="#E8B26A" stroke="${ln}" stroke-width="2.5"/>`).join('')}<circle cx="-24" cy="-26" r="15" fill="#E8B26A" stroke="${ln}" stroke-width="3"/><path d="M-34 -36Q-44 -30 -38 -16Q-32 -24 -30 -34Z" fill="#9A6A3A" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><path d="M-16 -38Q-6 -36 -10 -22Q-16 -28 -20 -36Z" fill="#9A6A3A" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-29" cy="-27" r="2.4" fill="${ln}"/><circle cx="-19" cy="-27" r="2.4" fill="${ln}"/><ellipse cx="-24" cy="-20" rx="4" ry="3" fill="${ln}"/><path d="M-24 -17V-14M-28 -13Q-24 -9 -20 -13" fill="none" stroke="${ln}" stroke-width="1.8" stroke-linecap="round"/><path d="M-24 -13Q-23 -6 -20 -8" fill="#FF8A96" stroke="${ln}" stroke-width="1.5"/></g>`;
+  const snowman = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-22" r="24" fill="#fff" stroke="${ln}" stroke-width="3"/><circle cx="0" cy="-60" r="17" fill="#fff" stroke="${ln}" stroke-width="3"/><circle cx="-6" cy="-64" r="2.4" fill="${ln}"/><circle cx="6" cy="-64" r="2.4" fill="${ln}"/><path d="M0 -59L16 -55L0 -54Z" fill="#F7A03C" stroke="${ln}" stroke-width="1.5" stroke-linejoin="round"/><path d="M-12 -44Q0 -38 12 -44" stroke="${red}" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="0" cy="-26" r="2.4" fill="${ln}"/><circle cx="0" cy="-16" r="2.4" fill="${ln}"/><path d="M-22 -34L-40 -46M22 -34L40 -48" stroke="${woodD}" stroke-width="3" stroke-linecap="round"/><rect x="-12" y="-90" width="24" height="14" fill="#2B2B33"/><rect x="-17" y="-78" width="34" height="5" fill="#2B2B33"/></g>`;
+  const scarf = (x, y, s) => `<path d="M${x - 44 * s} ${y + 50 * s}Q${x} ${y + 72 * s} ${x + 44 * s} ${y + 50 * s}" fill="none" stroke="${ln}" stroke-width="${19 * s}" stroke-linecap="round"/><path d="M${x - 44 * s} ${y + 50 * s}Q${x} ${y + 72 * s} ${x + 44 * s} ${y + 50 * s}" fill="none" stroke="#3E7FB1" stroke-width="${13 * s}" stroke-linecap="round"/><path d="M${x + 20 * s} ${y + 60 * s}l${8 * s} ${30 * s}" stroke="${ln}" stroke-width="${17 * s}" stroke-linecap="round"/><path d="M${x + 20 * s} ${y + 60 * s}l${8 * s} ${30 * s}" stroke="#3E7FB1" stroke-width="${11 * s}" stroke-linecap="round"/>`;
+  const bedBack = (x, y, w) => `<rect x="${x - w / 2 - 10}" y="${y - 54}" width="16" height="96" rx="5" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="${x - w / 2 + 4}" y="${y + 24}" width="10" height="18" fill="${woodD}" stroke="${ln}" stroke-width="2.5"/><rect x="${x + w / 2 - 14}" y="${y + 24}" width="10" height="18" fill="${woodD}" stroke="${ln}" stroke-width="2.5"/><rect x="${x - w / 2}" y="${y}" width="${w}" height="26" rx="6" fill="#FFF8EE" stroke="${ln}" stroke-width="3"/><ellipse cx="${x - w / 2 + 36}" cy="${y - 4}" rx="30" ry="13" fill="#fff" stroke="${ln}" stroke-width="3"/>`;
+  const blanket = (x, y, w, c = '#3E7FB1') => `<path d="M${x - w / 2 + 52} ${y - 20}Q${x + w / 2 - 30} ${y - 34} ${x + w / 2 + 4} ${y - 8}V${y + 30}H${x - w / 2 + 44}Z" fill="${c}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M${x - w / 2 + 62} ${y - 4}Q${x} ${y - 14} ${x + w / 2 - 10} ${y + 4}" fill="none" stroke="#fff" stroke-width="2.5" opacity=".5"/>`;
+  const crowd = (w, y, c, seed = 3) => { const R = rnd(seed); let o = ''; for (let x = -10; x < w + 20; x += 24 + R() * 12) { const t = 30 + R() * 18; o += `<circle cx="${x.toFixed(1)}" cy="${(y - t).toFixed(1)}" r="11" fill="${c}"/><path d="M${(x - 15).toFixed(1)} ${y + 20}V${(y - t + 22).toFixed(1)}Q${x.toFixed(1)} ${(y - t + 8).toFixed(1)} ${(x + 15).toFixed(1)} ${(y - t + 22).toFixed(1)}V${y + 20}Z" fill="${c}"/>`; } return o; };
+  const awning = (x, y, w, c = red) => `<path d="M${x} ${y}H${x + w}L${x + w + 8} ${y + 22}H${x - 8}Z" fill="#fff" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>${Array.from({ length: Math.round(w / 20) }, (_, i) => { const a = x + i * w / Math.round(w / 20); return i % 2 ? '' : `<path d="M${a.toFixed(1)} ${y}H${(a + w / Math.round(w / 20)).toFixed(1)}L${(a + w / Math.round(w / 20) + 2).toFixed(1)} ${y + 22}H${(a - 2).toFixed(1)}Z" fill="${c}"/>`; }).join('')}<path d="M${x - 8} ${y + 22}H${x + w + 8}" stroke="${ln}" stroke-width="3"/>`;
+  const tears = (x, y, s = 1) => sweat(x, y, s) + sweat(x + 3 * s, y + 11 * s, s * .8);
+  /* on a friend's own 200 by 200 body */
+  const glasses = `<circle cx="75" cy="78" r="14" fill="#fff" fill-opacity=".25" stroke="#2A1A0E" stroke-width="4"/><circle cx="125" cy="78" r="14" fill="#fff" fill-opacity=".25" stroke="#2A1A0E" stroke-width="4"/><path d="M89 76Q100 70 111 76" fill="none" stroke="#2A1A0E" stroke-width="4"/>`;
+  const docCap = `<path d="M62 50Q100 14 138 50L132 60Q100 40 68 60Z" fill="#fff" stroke="#3B1A12" stroke-width="4" stroke-linejoin="round"/><path d="M95 26h10v7h7v10h-7v7H95v-7h-7V33h7Z" fill="${red}"/>`;
+  const flower = `<g transform="translate(150 40)">${[0, 72, 144, 216, 288].map(a => `<circle cx="${(10 * Math.cos(a * Math.PI / 180)).toFixed(1)}" cy="${(10 * Math.sin(a * Math.PI / 180)).toFixed(1)}" r="8" fill="#FF8AB0" stroke="#7E1D19" stroke-width="2.5"/>`).join('')}<circle r="6" fill="${gold}" stroke="#7E1D19" stroke-width="2"/></g>`;
+  const pandaTears = (x, y, s) => tears(x - 23 * s, y + 6 * s, s * 2) + tears(x + 23 * s, y + 6 * s, s * 2);
+
+  /* four panels on a 360 by 600 page, as [clip polygon, box x, y, w, h]; the gaps between them slant */
+  const LAY = {
+    A: [['0,0 360,0 360,168 0,186', [0, 0, 360, 186]], ['0,194 186,184.7 172,380.6 0,372', [0, 184, 186, 197]], ['194,184.3 360,176 360,390 180,381', [180, 176, 180, 214]], ['0,380 360,398 360,600 0,600', [0, 380, 360, 220]]],
+    B: [['0,0 190,0 176,288.2 0,296', [0, 0, 190, 296]], ['198,0 360,0 360,280 184,287.8', [184, 0, 176, 288]], ['0,304 170,296.4 184,600 0,600', [0, 296, 184, 304]], ['178,296.1 360,288 360,600 192,600', [178, 288, 182, 312]]],
+    C: [['0,0 360,0 360,178 0,192', [0, 0, 360, 192]], ['0,200 360,186 360,352 0,368', [0, 186, 360, 182]], ['0,376 184,367.8 168,600 0,600', [0, 367, 184, 233]], ['192,367.5 360,360 360,600 176,600', [176, 360, 184, 240]]],
+    D: [['0,0 184,0 172,226.3 0,232', [0, 0, 184, 232]], ['192,0 360,0 360,220 180,226', [180, 0, 180, 226]], ['0,240 360,228 360,398 0,384', [0, 228, 360, 170]], ['0,392 360,406 360,600 0,600', [0, 392, 360, 208]]],
+  };
+  const page = (id, lay, panels, thumb = 3) => ({ id, thumb, panels: panels.map(([say, fn], i) => { const [clip, box] = LAY[lay][i], [x, y, w, h] = box;
+    return { clip, box, say, art: () => `<g transform="translate(${x} ${y})">${fn(w, h)}</g>` }; }) });
+
+  /* ---- Unit 2, numbers and time: Yu Tu's party is at seven, and Shi Shi can't read the time ---- */
+  const u2 = [page('u2a', 'C', [
+    [[['明天，晚上七点！', 'míngtiān, wǎnshang qī diǎn', 'tomorrow, seven in the evening!']], (w, h) => grad(w, h, '#8FD3F0', '#D6F1FF') + sun(38, 36, 14)
+      + `<rect x="204" y="44" width="180" height="124" fill="#F2C9A0" stroke="${ln}" stroke-width="3"/>` + roof(292, 46, 200, 16, '#2C5A4F') + win(316, 70, 34, 32)
+      + `<rect x="232" y="70" width="62" height="92" fill="#5A3B1E" stroke="${ln}" stroke-width="3"/><path d="M294 70L312 78V158L294 162Z" fill="#B8332C" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + ground(w, h, 162, '#B9D98A') + lion(263, 116, .4, 'happy')
+      + friend('rabbit', 124, 112, .5, 6, false, true) + card(166, 84, 50, 46, ['晚上', '七点'], 13, -10)
+      + bubble(102, 34, 70, 28, 112, 62, '明天!', 16) + note(8, 166, 0, ['Yu Tu has a party!'])],
+    [[['几点？', 'jǐ diǎn', 'what time?']], (w, h) => pop(w, h, '#7458C9', '#8B6FDA', 104, 96)
+      + lion(104, 92, .6, 'lost', -6, false) + card(146, 70, 96, 72, ['晚上', '七点'], 24, 5) + paw(152, 140, -20) + paw(236, 146, 20)
+      + q(300, 62, 40, 14) + q(270, 34, 24, -10) + q(40, 40, 26, -14) + note(250, 128, 0, ['He can’t read', 'the time!'])],
+    [[['早上', 'zǎoshang', 'early in the morning']], (w, h) => grad(w, h, '#FFB36B', '#FFE6AE') + sun(40, 118, 22) + clock(128, 56, 30, 7, 0)
+      + ground(w, h, 180, '#9CCB6E') + speed([[0, 132, 22], [6, 150, 18], [2, 168, 20]]) + lion(78, 138, .4, 'cheer', 8) + gift(120, 170, .7) + paw(112, 150, 10)
+      + note(10, 196, 0, ['Early next morning…'])],
+    [null, (w, h) => grad(w, h, '#2C2350', '#7A4F9E') + stars(w, 80, 6) + `<rect x="-20" y="60" width="${w + 40}" height="160" fill="#6A2A5E" stroke="${ln}" stroke-width="3"/>`
+      + door(30, 104, 64, 110, '#7A2418') + clock(142, 96, 22, 6, 40) + ground(w, h, 212, '#3A2A6E')
+      + lion(104, 178, .4, 'sleep', -14) + gift(150, 212, .6) + zz(70, 128, 18) + note(22, 14, 0, ['He waits all day…', 'and falls asleep.'])],
+  ]), page('u2b', 'A', [
+    [[['六、七、八、九、十', 'liù, qī, bā, jiǔ, shí', 'six, seven, eight, nine, ten']], (w, h) => pop(w, h, '#FFC44D', '#FFE08A', 86, 104)
+      + [['六', 300, 36, 24, -12, '#fff'], ['七', 336, 92, 36, 10, red], ['八', 296, 146, 22, 8, '#fff'], ['九', 196, 28, 20, -8, '#fff'], ['十', 22, 34, 22, 12, '#fff']].map(([c, x, y, s, r, f]) => hzO(x, y, c, s, r, f)).join('')
+      + lion(86, 104, .6, 'wow', -4, false) + card(150, 52, 100, 80, ['晚上', '七点'], 27, 4) + paw(156, 128, -20) + paw(244, 134, 20)],
+    [[['六点五十分！', 'liù diǎn wǔshí fēn', 'ten to seven!']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 93, 100) + clock(93, 102, 60, 6, 50)
+      + hzO(164, 40, '!', 34, 12, gold) + `<path d="M22 54l-10 -8M16 80H2M26 154l-12 8M166 150l10 8M170 120h14" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`],
+    [[['你好！七点！', 'nǐ hǎo! qī diǎn!', 'hello! it’s seven!']], (w, h) => W(w, h, '#6A2A5E') + clipR(30, 50, 124, 170, W(w, h, '#FFD98A') + rays(92, 150, 200, 14, '#FFF3C4', .6))
+      + `<rect x="30" y="50" width="124" height="170" fill="none" stroke="${ln}" stroke-width="4"/>` + lantern(58, 76, .5, gold) + lantern(126, 76, .5, gold)
+      + friend('rabbit', 92, 150, .56, 0, false, true) + bubble(96, 30, 92, 28, 100, 60, '七点!', 17)],
+    [[['你几岁？', 'nǐ jǐ suì', 'how old are you?'], ['五岁！', 'wǔ suì', 'five!']], (w, h) => grad(w, h, '#3B2A78', '#B0478C')
+      + `<path d="M-4 30Q90 62 180 44T364 26" fill="none" stroke="#1B1340" stroke-width="2"/>` + [[40, 56], [160, 74], [240, 66], [326, 46]].map(([x, y]) => lantern(x, y, .45, gold)).join('')
+      + ground(w, h, 196, '#4A3589') + friend('panda', 232, 160, .32, 0, false, true) + friend('tiger', 336, 166, .3, 4)
+      + table(180, 176, 150) + cake(180, 164, .9, 5)
+      + friend('rabbit', 290, 150, .46, 4, false, true) + lion(74, 150, .44, 'cheer') + gift(128, 132, .7) + paw(118, 128, 10)
+      + bubble(78, 52, 100, 28, 78, 80, '你几岁?', 16) + bubble(298, 96, 70, 26, 292, 116, '五岁!', 15)
+      + confetti([[150, 90, 20, red], [214, 96, -30, gold], [170, 120, 40, '#8FD3C0'], [30, 120, -20, '#FF9AA6'], [340, 120, 30, gold]]) + seal(14, 186)],
+  ])];
+
+  /* ---- Unit 3, family: a little panda is lost at the market and only knows family words ---- */
+  const u3 = [page('u3a', 'B', [
+    [[['妈妈！妈妈！', 'māma! māma!', 'mum! mum!']], (w, h) => grad(w, h, '#9FD8F5', '#FFE3B0') + `<path d="M-4 44Q60 70 120 52T200 40" fill="none" stroke="${ln}" stroke-width="2"/>` + lantern(40, 64, .45, gold) + lantern(118, 66, .45, gold)
+      + `<rect x="-20" y="118" width="230" height="100" fill="#E6C690" stroke="${ln}" stroke-width="3"/>` + awning(-10, 96, 90, red) + awning(110, 96, 90, '#3E7FB1')
+      + [[20, 150], [46, 150], [140, 150]].map(([x, y]) => apple(x, y, .7)).join('') + crowd(w, 240, '#8C7AB0', 5) + ground(w, h, 250, '#C9B48A')
+      + friend('panda', 96, 222, .42) + pandaTears(96, 222, .42) + shout(96, 150, 62, 24, '妈妈!', 22) + note(8, 8, 0, ['A little panda,', 'all alone.'])],
+    [[['你好！你是谁？', 'nǐ hǎo! nǐ shì shéi?', 'hello! who are you?']], (w, h) => pop(w, h, '#F0703C', '#FFA05C', 88, 160) + ground(w, h, 236, '#B9876A')
+      + lion(70, 170, .5, 'happy', 8) + friend('panda', 136, 210, .3) + pandaTears(136, 210, .3) + bubble(92, 54, 96, 30, 76, 100, '你是谁?', 18)],
+    [[['爸爸…哥哥…家…', 'bàba… gēge… jiā…', 'dad… big brother… home…']], (w, h) => W(w, h, '#FFD15C') + rays(60, 214, 360, 16, '#FFE58A', .9) + ground(w, h, 256, '#C98E55')
+      + bubble(78, 48, 120, 28, 112, 82, '爸爸…哥哥…', 15) + bubble(126, 110, 56, 26, 128, 170, '家…', 15)
+      + lion(56, 214, .44, 'lost', -6) + friend('panda', 136, 228, .32) + pandaTears(136, 228, .32) + q(18, 150, 26, -12) + q(98, 158, 20, 10)
+      + note(8, 262, 0, ['He doesn’t know', 'these words!'])],
+    [null, (w, h) => grad(w, h, '#1B1750', '#3A2A6E') + stars(w, 120, 7, 9) + moon(140, 92, 14) + `<rect x="-20" y="150" width="${w + 40}" height="80" fill="#2C2350"/>` + awning(-6, 132, 80, '#4A3E70') + awning(100, 132, 80, '#4A3E70')
+      + ground(w, h, 270, '#2C2350') + lion(96, 222, .48, 'miss') + arm(70, 244, 88, 262) + arm(122, 244, 108, 262) + friend('panda', 98, 262, .26) + pandaTears(98, 262, .26)
+      + note(20, 16, 0, ['Night falls.', 'Where is her family?'])],
+  ]), page('u3b', 'D', [
+    [[['我爸爸，我妈妈，我哥哥', 'wǒ bàba, wǒ māma, wǒ gēge', 'my dad, my mum, my big brother']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 92, 160)
+      + `<path d="M74 196Q50 160 44 124M110 196Q134 160 140 124" stroke="#2B2B33" stroke-width="13" stroke-linecap="round" fill="none"/>`
+      + `<rect x="22" y="18" width="140" height="106" rx="4" fill="${wood}" stroke="${ln}" stroke-width="3"/><rect x="30" y="26" width="124" height="90" fill="#FFF8EE" stroke="${ln}" stroke-width="2"/>`
+      + friend('panda', 54, 62, .25) + friend('panda', 92, 58, .27) + onFriend(92, 58, .27, flower) + friend('panda', 130, 62, .25)
+      + hz(54, 100, '爸爸', 11) + hz(92, 100, '妈妈', 11) + hz(130, 100, '哥哥', 11) + friend('panda', 92, 190, .38)],
+    [[['谁是她妈妈？', 'shéi shì tā māma?', 'who is her mum?']], (w, h) => pop(w, h, '#F0703C', '#FFA05C', 90, 130)
+      + `<rect x="46" y="168" width="88" height="44" fill="${wood}" stroke="${ln}" stroke-width="3"/><path d="M46 190H134M90 168V212" stroke="${woodD}" stroke-width="2.5"/>`
+      + lion(90, 124, .46, 'fire') + arm(114, 132, 136, 100) + paw(138, 94, 30) + shout(92, 42, 76, 28, '谁是她妈妈?', 15)],
+    [[['妹妹！', 'mèimei', 'little sister!']], (w, h) => grad(w, h, '#FFD98A', '#FFB36B') + crowd(w, 120, '#E89B5C', 11) + ground(w, h, 138, '#C9A468')
+      + speed([[322, 60, 30], [330, 90, 26], [318, 120, 30]], ln) + friend('panda', 130, 94, .44, -10) + friend('panda', 214, 92, .5, -6, false, true) + onFriend(214, 92, .5, flower, -6) + friend('panda', 290, 94, .48, 4)
+      + shout(56, 56, 48, 26, '妹妹!', 20)],
+    [[['谢谢你！', 'xièxie nǐ', 'thank you!'], ['我们是朋友！', 'wǒmen shì péngyou', 'we are friends!']], (w, h) => grad(w, h, '#261B5C', '#B0478C') + burst(40, 40, 24, gold) + burst(330, 44, 24, '#FFB4A6')
+      + ground(w, h, 168, '#4A3589') + friend('panda', 82, 118, .5) + onFriend(82, 118, .5, flower) + friend('panda', 112, 150, .24, 0, false, true)
+      + friend('panda', 286, 120, .48, 4, false, true) + friend('panda', 236, 140, .34, -6) + lion(176, 120, .48, 'love')
+      + shout(86, 40, 60, 22, '谢谢你!', 16) + bubble(270, 40, 122, 28, 274, 68, '我们是朋友!', 15)
+      + confetti([[150, 60, 20, red], [204, 70, -30, gold], [130, 90, 40, '#8FD3C0'], [230, 50, -10, '#FF9AA6']]) + seal(316, 172)],
+  ])];
+
+  /* ---- Unit 4, food: a hungry lion who can't order ---- */
+  const u4 = [page('u4a', 'A', [
+    [[['饭店', 'fàndiàn', 'restaurant']], (w, h) => grad(w, h, '#8FD3F0', '#FFE3B0') + `<rect x="190" y="54" width="190" height="110" fill="#C6402F" stroke="${ln}" stroke-width="3"/>` + roof(286, 56, 210, 18, '#2D3F5E')
+      + sign(232, 66, 92, 30, '饭店', 20) + door(298, 104, 44, 60, '#7A2418') + win(206, 106, 70, 40) + bowl(226, 140, .5, true) + bowl(258, 140, .5)
+      + ground(w, h, 160, '#B9AE9C') + `<path d="M210 104Q190 90 170 98T130 90M214 120Q194 110 174 116T134 112" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>`
+      + lion(86, 116, .46, 'love', -6) + sweat(104, 144, .7) + note(8, 8, 0, ['Shi Shi is SO hungry!'])],
+    [[['你吃什么？', 'nǐ chī shénme?', 'what will you eat?']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 93, 120) + friend('dragon', 96, 128, .56)
+      + `<rect x="140" y="128" width="30" height="38" rx="2" fill="#fff" stroke="${ln}" stroke-width="2.5" transform="rotate(10 155 147)"/>` + bubble(92, 40, 112, 30, 96, 72, '你吃什么?', 17)],
+    [[['茶？', 'chá?', 'tea?']], (w, h) => W(w, h, '#E8D5B0') + win(28, 26, 56, 46) + lion(82, 118, .46, 'oops', 0, false) + table(96, 170, 150) + cup(98, 152, 1.3) + steam(98, 128)
+      + bubble(140, 42, 58, 30, 120, 76, '茶?', 20) + note(20, 176, 0, ['He points… tea?!'])],
+    [[['一百块！', 'yìbǎi kuài', '100 yuan!']], (w, h) => pop(w, h, '#B23A2C', '#D9443A', 120, 120) + friend('dragon', 274, 120, .56, 6)
+      + card(170, 42, 78, 94, ['一百', '块'], 25, -6) + lion(84, 116, .52, 'broke', -4) + `<rect x="114" y="150" width="46" height="30" rx="5" fill="${woodD}" stroke="${ln}" stroke-width="3"/><path d="M114 160H160" stroke="${ln}" stroke-width="2"/>`
+      + coin(176, 196, 7) + paw(118, 164, 10) + hzO(330, 40, '!', 36, 12, gold) + sweat(40, 90) + note(150, 186, 0, ['…and he is still hungry!'])],
+  ]), page('u4b', 'B', [
+    [[['饺子多少钱？', 'jiǎozi duōshao qián?', 'how much are the dumplings?']], (w, h) => pop(w, h, '#FFC44D', '#FFE08A', 90, 180)
+      + `<rect x="24" y="28" width="140" height="112" rx="4" fill="#FFF8EE" stroke="${ln}" stroke-width="3"/>` + bowl(94, 86, 1.1, true) + hz(94, 122, '饺子', 18, 0, fl)
+      + lion(78, 214, .48, 'focus', -4) + arm(100, 204, 122, 150) + paw(124, 144, 20) + bubble(52, 158, 82, 26, 70, 186, '多少钱?', 15)],
+    [[['十块。', 'shí kuài', '10 yuan.'], ['便宜！', 'piányi', 'cheap!']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 90, 180) + card(44, 30, 92, 64, ['十块'], 28, 6)
+      + shout(96, 122, 56, 21, '便宜!', 18, '#2E9E6B') + friend('dragon', 96, 204, .6)],
+    [[['好吃！', 'hǎochī', 'yummy!']], (w, h) => pop(w, h, '#FF9AA6', '#FFC2CB', 92, 140) + lion(90, 126, .56, 'cheer', -4, false)
+      + table(92, 244, 170) + bowl(92, 228, 1.6, true) + `<path d="M150 166L104 206M158 172L110 210" stroke="${woodD}" stroke-width="4" stroke-linecap="round"/>` + paw(152, 170, 30)
+      + shout(96, 44, 56, 22, '好吃!', 20) + star(30, 90, 9, '#fff') + star(160, 104, 7, '#fff')],
+    [[['谢谢！再见！', 'xièxie! zàijiàn!', 'thank you! bye!']], (w, h) => grad(w, h, '#261B5C', '#B0478C') + `<rect x="-20" y="60" width="${w + 40}" height="200" fill="#7A2E2E" stroke="${ln}" stroke-width="3"/>`
+      + sign(42, 22, 100, 30, '饭店', 20) + win(110, 120, 56, 44) + lantern(26, 76, .45, gold) + lantern(160, 76, .45, gold) + ground(w, h, 244, '#4A3589')
+      + friend('dragon', 140, 210, .3, 0, true) + lion(84, 196, .5, 'proud') + arm(108, 200, 132, 168) + paw(134, 162, 20) + bubble(88, 92, 104, 30, 88, 136, '谢谢!再见!', 14) + seal(24, 270)],
+  ])];
+
+  /* ---- Unit 5, school: called to read on the first day ---- */
+  const u5 = [page('u5a', 'D', [
+    [[['上学！', 'shàngxué', 'off to school!']], (w, h) => grad(w, h, '#8FD3F0', '#D6F1FF') + xcloud(140, 26, .5)
+      + `<rect x="22" y="44" width="12" height="160" fill="#D9443A" stroke="${ln}" stroke-width="3"/><rect x="150" y="44" width="12" height="160" fill="#D9443A" stroke="${ln}" stroke-width="3"/>`
+      + roof(92, 44, 170, 14, '#2C5A4F') + sign(52, 50, 80, 30, '学校', 18) + ground(w, h, 202, '#B9D98A')
+      + `<rect x="98" y="140" width="34" height="38" rx="6" fill="#3E7FB1" stroke="${ln}" stroke-width="3"/>` + speed([[2, 150, 20], [6, 172, 16]]) + lion(84, 162, .42, 'cheer', 6)],
+    [[['上课！', 'shàngkè', 'class begins!']], (w, h) => W(w, h, '#F2E2C4') + board(24, 26, 136, 74, '中国', 36) + friend('dragon', 110, 170, .46) + onFriend(110, 170, .46, glasses)
+      + `<path d="M84 180L50 106" stroke="${woodD}" stroke-width="4" stroke-linecap="round"/>` + shout(46, 144, 34, 18, '上课!', 13)],
+    [[['狮狮，你读！', 'Shīshi, nǐ dú!', 'Shi Shi, you read!']], (w, h) => W(w, h, '#F2E2C4') + win(14, 40, 40, 40) + ground(w, h, 140, '#C98E55')
+      + friend('rabbit', 78, 100, .32, 8) + friend('tiger', 158, 104, .3, 8) + friend('panda', 236, 104, .3, 8) + lion(312, 92, .38, 'oops', 0, false) + sweat(278, 70) + sweat(346, 80, .8)
+      + [44, 124, 204, 282].map(x => `<rect x="${x}" y="116" width="66" height="40" fill="${wood}" stroke="${ln}" stroke-width="3"/>`).join('')
+      + shout(124, 38, 92, 24, '狮狮,你读!', 18)],
+    [null, (w, h) => W(w, h, '#2F5D4A') + `<rect x="10" y="10" width="${w - 20}" height="${h - 20}" fill="none" stroke="${woodD}" stroke-width="7"/>` + hz(180, 86, '中国', 104, 0, '#F4F1E6', .9)
+      + lion(180, 146, .54, 'miss') + sweat(130, 140) + sweat(232, 144, .8) + bubble(286, 52, 62, 30, 228, 104, '……', 18)
+      + note(18, 168, 0, ['He can’t read', 'a single word.'])],
+  ]), page('u5b', 'C', [
+    [[['学习，学习！', 'xuéxí, xuéxí!', 'study, study!']], (w, h) => W(w, h, '#2C2350') + win(26, 24, 74, 60, '#1B1750') + moon(50, 44, 9) + clock(326, 48, 20, 9, 0)
+      + `<circle cx="132" cy="104" r="70" fill="#FFE3A8" opacity=".25"/>` + lion(204, 112, .46, 'read', 0, false) + table(200, 160, 230)
+      + `<path d="M112 150V96L136 80" fill="none" stroke="#2B2B33" stroke-width="5"/><path d="M122 78L150 70L160 92L136 98Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><rect x="100" y="146" width="28" height="6" fill="#2B2B33"/>`
+      + `<path d="M168 148Q188 140 204 148Q220 140 240 148V156Q220 150 204 156Q188 150 168 156Z" fill="#FFF8EE" stroke="${ln}" stroke-width="2.5"/>` + card(258, 120, 46, 34, ['字'], 20, 8)],
+    [[['中国！中文！', 'Zhōngguó! Zhōngwén!', 'China! Chinese!']], (w, h) => W(w, h, '#F2E2C4') + board(22, 30, 224, 96, '中国 中文', 38) + ground(w, h, 150, '#C98E55')
+      + lion(302, 104, .48, 'fire') + arm(278, 104, 252, 80) + paw(250, 76, -30) + shout(302, 34, 50, 20, '中文!', 16)],
+    [[['好学生！', 'hǎo xuésheng', 'good student!']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 92, 150) + friend('dragon', 92, 156, .62) + onFriend(92, 156, .62, glasses)
+      + shout(92, 44, 74, 24, '好学生!', 18) + star(24, 120, 9, '#fff') + star(160, 110, 7, '#fff')],
+    [[['我认识汉字！', 'wǒ rènshi hànzì', 'I know characters!']], (w, h) => W(w, h, '#FFC44D') + rays(96, 140, 340, 16, '#FFE08A', .9) + ground(w, h, 208, '#E8A33C')
+      + friend('rabbit', 40, 180, .3, -6, false, true) + friend('panda', 148, 176, .28, 6, false, true) + lion(96, 140, .48, 'star')
+      + bubble(100, 40, 104, 28, 96, 70, '我认识汉字!', 14) + seal(146, 210, 24)],
+  ])];
+
+  /* ---- Unit 6, travel: the last train home leaves without him ---- */
+  const u6 = [page('u6a', 'A', [
+    [[['喂？', 'wéi?', 'hello? (on the phone)'], ['回家！', 'huí jiā!', 'come home!']], (w, h) => grad(w, h, '#2C2350', '#E07A5F')
+      + `<path d="M-20 160V96H30V70H70V110H110V58H160V100H200V76H250V112H290V64H340V100H380V160Z" fill="#3A2A6E"/>`
+      + [[40, 84], [86, 120], [124, 74], [136, 96], [214, 90], [262, 124], [306, 80], [318, 106]].map(([x, y]) => `<rect x="${x}" y="${y}" width="9" height="9" fill="#FFD98A"/>`).join('')
+      + ground(w, h, 160, '#4A3E70') + lion(110, 112, .48, 'happy') + phone(152, 96, .8, 18) + paw(150, 108, -20)
+      + `<path d="M170 76Q180 86 172 98M178 68Q194 86 180 106" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`
+      + bubble(256, 64, 92, 30, 196, 90, '回家!', 18) + `<circle cx="324" cy="62" r="24" fill="#FFF8EE" stroke="${ln}" stroke-width="3"/>` + friend('rabbit', 324, 72, .2, 0, false, true)
+      + note(8, 8, 0, ['A trip to the big city.'])],
+    [[['火车？飞机？', 'huǒchē? fēijī?', 'train? plane?']], (w, h) => W(w, h, '#B9D2E6') + ground(w, h, 176, '#8E8AA8')
+      + sign(26, 30, 92, 30, '火车', 18, '#3E7FB1', '#fff') + `<path d="M24 36L10 45L24 54Z" fill="#3E7FB1" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/>`
+      + sign(70, 74, 92, 30, '飞机', 18, '#E5483F', '#fff') + `<path d="M164 80L178 89L164 98Z" fill="#E5483F" stroke="${ln}" stroke-width="2.5" stroke-linejoin="round"/>`
+      + lion(92, 150, .38, 'lost') + q(40, 130, 24, -12) + q(146, 136, 22, 12)],
+    [[['飞机…', 'fēijī…', 'plane…']], (w, h) => grad(w, h, '#7CC0F0', '#D6F1FF') + xcloud(150, 110, .5) + plane(96, 64, .9, -16)
+      + ground(w, h, 190, '#9A96AE') + `<path d="M-20 200H200" stroke="#fff" stroke-width="4" stroke-dasharray="16 12"/>` + speed([[30, 150, 22], [36, 168, 18]]) + lion(122, 152, .4, 'cheer', 10)
+      + note(22, 180, 0, ['Wrong way!'])],
+    [null, (w, h) => grad(w, h, '#1B1750', '#3A2A6E') + `<rect x="-20" y="-20" width="${w + 40}" height="42" fill="#2C2350"/>` + [60, 180, 300].map(x => `<circle cx="${x}" cy="22" r="5" fill="#FFF3C4"/>`).join('')
+      + clock(44, 64, 22, 9, 0) + `<rect x="40" y="86" width="8" height="84" fill="#5A5470"/>` + train(170, 160, .9, 3) + speed([[116, 120, 30], [112, 140, 34], [120, 100, 26]])
+      + ground(w, h, 170, '#8E8AA8') + lion(84, 128, .46, 'miss', -6) + arm(106, 128, 132, 108) + paw(136, 104, 30) + sweat(54, 110)
+      + note(170, 186, 0, ['The last train is leaving!'])],
+  ]), page('u6b', 'D', [
+    [[['请问…出租车？', 'qǐngwèn… chūzūchē?', 'excuse me… a taxi?'], ['那边！', 'nàbiān!', 'over there!']], (w, h) => pop(w, h, '#F0703C', '#FFA05C', 92, 150) + ground(w, h, 200, '#B9876A')
+      + lion(54, 162, .4, 'focus', 4) + friend('panda', 132, 152, .4, 0, true) + `<path d="M150 136L176 120" stroke="#2B2B33" stroke-width="12" stroke-linecap="round"/>`
+      + bubble(58, 40, 86, 26, 56, 110, '出租车?', 15) + shout(126, 96, 40, 18, '那边!', 14, '#2E9E6B')],
+    [[['去哪儿？', 'qù nǎr?', 'where to?'], ['回家！', 'huí jiā!', 'home!']], (w, h) => W(w, h, '#3A2A6E') + `<rect x="10" y="80" width="160" height="70" rx="8" fill="#1B1750" stroke="${ln}" stroke-width="3"/>`
+      + [[30, 100], [60, 120], [96, 96], [130, 116], [150, 100]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#FFD98A"/>`).join('')
+      + friend('tiger', 54, 156, .42) + `<circle cx="30" cy="196" r="22" fill="none" stroke="#2B2B33" stroke-width="7"/>` + lion(134, 156, .4, 'fire')
+      + `<rect x="-20" y="196" width="${w + 40}" height="40" fill="#B8332C" stroke="${ln}" stroke-width="3"/>`
+      + bubble(54, 36, 82, 26, 56, 92, '去哪儿?', 15) + shout(136, 54, 38, 20, '回家!', 14)],
+    [[['开车！', 'kāichē!', 'drive!']], (w, h) => grad(w, h, '#1B1750', '#3A2A6E') + stars(w, 60, 8, 4) + moon(320, 36, 12)
+      + `<path d="M-20 86H380" stroke="#5A5470" stroke-width="4"/>` + train(-60, 84, .55, 4) + ground(w, h, 138, '#4A3E70') + `<path d="M-20 150H380" stroke="#FFD98A" stroke-width="3" stroke-dasharray="18 14"/>`
+      + speed([[120, 106, 40], [110, 122, 48], [128, 138, 34]]) + taxi(230, 140, 1) + lion(226, 106, .12, 'fire', 0, false)],
+    [[['睡觉！', 'shuìjiào', 'time to sleep!']], (w, h) => W(w, h, '#3A2A6E') + win(262, 30, 64, 56, '#1B1750') + moon(282, 48, 8) + ground(w, h, 186, '#2C2350')
+      + bedBack(150, 138, 200) + lion(100, 114, .38, 'sleep', -16, false) + blanket(150, 138, 200, '#E5483F') + friend('rabbit', 304, 150, .34, -4)
+      + zz(150, 66, 22) + note(150, 186, 0, ['Home at last.']) + seal(18, 172)],
+  ])];
+
+  /* ---- Unit 7, describing things: a snow day, a cold, and a doctor with a needle ---- */
+  const u7 = [page('u7a', 'B', [
+    [[['下雪了！', 'xià xuě le!', 'it’s snowing!']], (w, h) => grad(w, h, '#9FC6E8', '#E6F2FB') + snow(w, 240, 26, 5) + ground(w, h, 236, '#fff', '#9FB8CC')
+      + snowman(148, 238, .9) + lion(74, 192, .46, 'cheer', -6) + shout(92, 70, 72, 26, '下雪了!', 18)],
+    [[['好玩儿！', 'hǎowánr!', 'so much fun!']], (w, h) => grad(w, h, '#9FC6E8', '#E6F2FB') + snow(w, 230, 22, 8) + ground(w, h, 226, '#fff', '#9FB8CC')
+      + lion(64, 186, .42, 'wink', 10) + dog(132, 214, .9, true) + `<circle cx="112" cy="138" r="9" fill="#fff" stroke="${ln}" stroke-width="2.5"/>` + speed([[124, 132, 18], [126, 144, 14]], '#9FB8CC')
+      + shout(98, 62, 62, 24, '好玩儿!', 17)],
+    [[['太冷了…', 'tài lěng le…', 'too cold…']], (w, h) => W(w, h, '#2C2350') + win(108, 30, 56, 48, '#1B1750') + `<g transform="translate(108 30)">${snow(56, 48, 6, 3, 2)}</g>`
+      + lion(92, 156, .56, 'tired', 0, false) + `<path d="M28 300V206Q92 176 156 206V300Z" fill="#3E7FB1" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/><path d="M40 230Q92 210 144 230M40 256Q92 236 144 256" fill="none" stroke="#fff" stroke-width="2.5" opacity=".5"/>`
+      + shiver(18, 120) + shiver(166, 120, -1) + shiver(14, 160) + shiver(170, 160, -1) + sweat(140, 112) + hzO(130, 96, 'ACHOO!', 18, -10, '#fff')
+      + note(10, 16, 0, ['That night…'])],
+    [[['你怎么样？', 'nǐ zěnmeyàng?', 'how are you feeling?']], (w, h) => pop(w, h, '#B23A2C', '#D9443A', 52, 262) + friend('dragon', 112, 152, .56) + onFriend(112, 152, .56, docCap)
+      + needle(116, 214, .9, 145) + bubble(100, 36, 98, 28, 110, 92, '你怎么样?', 15) + lion(54, 264, .34, 'oops', -8) + sweat(20, 240) + sweat(88, 246, .8) + hzO(150, 274, '!', 34, 10, gold)],
+  ]), page('u7b', 'A', [
+    [[['我生病了，很冷！', 'wǒ shēngbìng le, hěn lěng!', 'I’m ill, I’m very cold!']], (w, h) => pop(w, h, '#FFC44D', '#FFE08A', 96, 110)
+      + arm(70, 130, 40, 70) + arm(126, 130, 156, 70) + lion(96, 108, .58, 'fire', -4, false) + paw(38, 64, -30) + paw(158, 64, 30)
+      + bubble(264, 66, 156, 34, 160, 96, '我生病了,很冷!', 17)],
+    [[['喝茶，休息！', 'hē chá, xiūxi!', 'drink tea and rest!']], (w, h) => pop(w, h, '#5CC8A8', '#8FE0C4', 93, 130) + friend('dragon', 88, 130, .56) + onFriend(88, 130, .56, docCap)
+      + cup(150, 160, 1.2) + steam(150, 138, .8) + bubble(96, 40, 104, 28, 92, 70, '喝茶,休息!', 15)],
+    [[['吃苹果！', 'chī píngguǒ!', 'eat an apple!']], (w, h) => W(w, h, '#FFE3B0') + win(118, 22, 48, 40, '#BDE9FF') + lion(126, 100, .42, 'happy', 0, false)
+      + `<rect x="74" y="134" width="130" height="90" fill="#3E7FB1" stroke="${ln}" stroke-width="3"/>` + friend('panda', 52, 150, .42)
+      + `<path d="M80 170H136L128 196H88Z" fill="${wood}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>` + apple(96, 164, .6) + apple(116, 162, .6) + apple(106, 152, .6)
+      + bubble(80, 36, 90, 26, 62, 108, '吃苹果!', 15)],
+    [[['天气真好！', 'tiānqì zhēn hǎo!', 'what lovely weather!'], ['我很高兴！', 'wǒ hěn gāoxìng!', 'I’m so happy!']], (w, h) => grad(w, h, '#7CC0F0', '#E6F2FB') + sun(316, 46, 20)
+      + ground(w, h, 172, '#fff', '#9FB8CC') + snowman(50, 176, .9) + friend('rabbit', 112, 140, .36, -6, false, true) + friend('panda', 318, 140, .36, 6, false, true)
+      + lion(186, 124, .48, 'cheer') + scarf(186, 124, .48) + dog(246, 166, .9, true)
+      + bubble(186, 40, 116, 28, 186, 70, '我很高兴!', 16) + seal(14, 186)],
+  ])];
+
+  /* ---- Unit 8, little words: a present hidden 在桌子下, the finale of HSK 1 ---- */
+  const u8 = [page('u8a', 'C', [
+    [[['在桌子下', 'zài zhuōzi xià', 'under the table']], (w, h) => W(w, h, '#F2C9A0') + `<rect x="20" y="40" width="70" height="128" fill="#5A3B1E" stroke="${ln}" stroke-width="3"/><path d="M90 40L112 50V160L90 168Z" fill="#B8332C" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+      + win(268, 50, 60, 50, '#BDE9FF') + ground(w, h, 168, '#C98E55') + lion(156, 118, .5, 'wow') + card(198, 60, 88, 60, ['在桌子下'], 16, 6) + paw(204, 116, -20) + paw(282, 124, 20)
+      + note(8, 8, 0, ['A note from his friends!'])],
+    [[['在哪儿？', 'zài nǎr?', 'where is it?']], (w, h) => grad(w, h, '#8FD3F0', '#D6F1FF') + xcloud(320, 34, .6) + `<rect x="40" y="110" width="280" height="80" fill="#F2C9A0" stroke="${ln}" stroke-width="3"/>`
+      + roof(180, 112, 310, 26, '#2C5A4F') + win(80, 130, 40, 34) + win(240, 130, 40, 34) + lion(190, 52, .38, 'lost', 8) + q(250, 36, 24, 12) + q(140, 30, 18, -10)
+      + bubble(102, 40, 92, 28, 158, 58, '在哪儿?', 16) + note(222, 136, 0, ['He can’t read it!'])],
+    [null, (w, h) => W(w, h, '#F2C9A0') + ground(w, h, 202, '#C98E55')
+      + `<g transform="rotate(180 140 186)"><rect x="118" y="160" width="44" height="8" fill="${wood}" stroke="${ln}" stroke-width="2.5"/><path d="M122 168V196M158 168V196M122 160V130H158V160" fill="none" stroke="${woodD}" stroke-width="5"/></g>`
+      + [[36, 80, -20, '#3E7FB1'], [140, 70, 24, red], [150, 124, -40, '#5CC898'], [30, 140, 30, gold2]].map(([x, y, r, c]) => `<rect x="${x - 14}" y="${y - 10}" width="28" height="20" rx="2" fill="${c}" stroke="${ln}" stroke-width="2.5" transform="rotate(${r} ${x} ${y})"/>`).join('')
+      + speed([[60, 60, 14], [112, 52, 12]], ln) + lion(84, 164, .42, 'focus', -10) + note(10, 18, 0, ['He looks everywhere…'])],
+    [[['没有！', 'méiyǒu!', 'nothing!']], (w, h) => pop(w, h, '#4A3E70', '#5C4A8C', 92, 190) + lion(92, 104, .46, 'miss', 0, false) + gift(92, 206, 1.5, '#C98E55', true)
+      + paw(58, 166, -10) + paw(126, 166, 10) + shout(104, 36, 52, 22, '没有!', 18) + sweat(40, 90) + sweat(146, 96, .8)],
+  ]), page('u8b', 'A', [
+    [[['在…桌子…下！', 'zài… zhuōzi… xià!', 'under… the table!']], (w, h) => pop(w, h, '#FFC44D', '#FFE08A', 80, 100) + lion(80, 100, .56, 'read', 0, false)
+      + card(150, 38, 192, 84, ['在 桌子 下'], 30, 2) + paw(198, 130, 0) + star(340, 150, 8, '#fff')],
+    [[['这是什么？', 'zhè shì shénme?', 'what is this?']], (w, h) => W(w, h, '#F2C9A0') + ground(w, h, 156, '#C98E55') + rays(96, 124, 90, 12, '#FFF3C4', .7)
+      + table(96, 78, 168, 78) + gift(96, 156, 1) + star(150, 110, 7, '#fff') + star(44, 104, 6, '#fff') + lion(30, 132, .3, 'wow', -10)],
+    [[['一级！', 'yī jí!', 'level one!']], (w, h) => W(w, h, '#7A2E4E') + rays(92, 104, 260, 16, '#FFD15C', .45) + gift(92, 206, 1.2, red, true) + medal(92, 112, 1.3)
+      + star(30, 60, 9, '#fff') + star(156, 50, 7, '#fff') + star(160, 170, 6, '#fff')],
+    [[['你会说中文了！', 'nǐ huì shuō Zhōngwén le!', 'you can speak Chinese now!'], ['谢谢大家！', 'xièxie dàjiā!', 'thank you, everyone!']], (w, h) => grad(w, h, '#261B5C', '#B0478C')
+      + burst(36, 90, 26, gold) + burst(326, 86, 26, '#FFB4A6') + burst(300, 30, 14, gold) + ground(w, h, 194, '#4A3589')
+      + `<path d="M64 24H296L308 41L296 58H64L52 41Z" fill="${gold2}" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>${hz(180, 42, '你会说中文了!', 20, 0, fl)}`
+      + friend('dragon', 52, 156, .4, -6) + friend('tiger', 112, 166, .34) + friend('panda', 250, 166, .34, 0, false, true) + friend('rabbit', 310, 156, .4, 6, false, true)
+      + medal(180, 186, .5) + lion(180, 130, .5, 'star') + shout(296, 104, 50, 18, '谢谢大家!', 12)
+      + confetti([[100, 80, 20, red], [262, 80, -30, gold], [140, 100, 40, '#8FD3C0'], [224, 96, -15, '#FF9AA6'], [70, 120, 60, gold], [290, 130, 10, '#8FD3C0']]) + seal(326, 192, 26)],
+  ])];
+
+  return {
+    2: { title: 'The party at seven', pages: u2 },
+    3: { title: 'The lost little panda', pages: u3 },
+    4: { title: 'One hungry lion', pages: u4 },
+    5: { title: 'First day at school', pages: u5 },
+    6: { title: 'The last train home', pages: u6 },
+    7: { title: 'Snow day', pages: u7 },
+    8: { title: 'The hidden present', pages: u8 },
+  };
+})());
 /* one panel of a part, clipped to its slanted shape */
 const comicPanel = (pg, i) => `<clipPath id="cmc${pg.id}${i}"><polygon points="${pg.panels[i].clip}"/></clipPath><g clip-path="url(#cmc${pg.id}${i})">${pg.panels[i].art()}</g>`;
-const comicThumb = (pg, i) => `<svg viewBox="${pg.panels[i].box.join(' ')}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${comicPanel(pg, i)}</svg>`;
+const comicThumb = (pg, i = pg.thumb ?? 2) => `<svg viewBox="${pg.panels[i].box.join(' ')}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${comicPanel(pg, i)}</svg>`;
 const comicSeen = un => db.comic?.[un] || {};   // { p1, p2 }: when you watched each part of a unit's comic
 const CM_FLAG = `<svg viewBox="0 0 30 46" aria-hidden="true"><defs><clipPath id="cmFlagC"><path d="M5 5H27L23 12.5L27 20H5Z"/></clipPath></defs><path d="M5 4V44" stroke="#3B1A12" stroke-width="3.5" stroke-linecap="round"/><path d="M5 5H27L23 12.5L27 20H5Z" fill="#fff"/><g clip-path="url(#cmFlagC)" fill="#3B1A12">${[0, 1, 2, 3].flatMap(i => [0, 1, 2].filter(j => (i + j) % 2 === 0).map(j => `<rect x="${5 + i * 5.5}" y="${5 + j * 5}" width="5.5" height="5"/>`)).join('')}</g><path d="M5 5H27L23 12.5L27 20H5Z" fill="none" stroke="#3B1A12" stroke-width="2.5" stroke-linejoin="round"/><circle cx="5" cy="4" r="3" fill="#F4C14E" stroke="#3B1A12" stroke-width="2"/></svg>`;
 const COMIC_I = ic('<path d="M5 5.5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-6.5L8 19.5v-4H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1z"/>');
@@ -3589,7 +3908,7 @@ function UnitLevels() {
   return `<div class="lv-list">${LES_UNITS.map(([en, zh], u) => {
     const un = u + 1, st = unitState(un), C = COMIC[un], on = un === cur && st.open;
     return `<button class="lv${st.won ? ' won' : st.open ? '' : ' locked'}${on ? ' cur' : ''}" data-act="unit-open" data-u="${un}" aria-label="Unit ${un}, ${esc(en)}${st.won ? ', won' : st.open ? `, ${st.nd} of ${st.ls.length} lessons done` : ', locked'}">
-      <span class="lv-pic">${C ? comicThumb(C.pages[st.won && comicSeen(un).p2 ? 1 : 0], 2) : `<span class="lv-zh" lang="zh" style="font-size:${[0, 30, 26, 19][[...zh].length] || 16}px">${zh}</span>`}${st.won ? `<i class="lv-badge">${TROPHY_I}</i>` : st.open ? '' : `<i class="lv-badge">${LOCK_I}</i>`}</span>
+      <span class="lv-pic">${C ? comicThumb(C.pages[st.won && comicSeen(un).p2 ? 1 : 0]) : `<span class="lv-zh" lang="zh" style="font-size:${[0, 30, 26, 19][[...zh].length] || 16}px">${zh}</span>`}${st.won ? `<i class="lv-badge">${TROPHY_I}</i>` : st.open ? '' : `<i class="lv-badge">${LOCK_I}</i>`}</span>
       <span class="lv-main"><small>Unit ${un}</small><b>${esc(en)}</b>
         <span class="lv-pips" aria-hidden="true">${st.ls.map((_, i) => `<i${i < st.nd ? ' class="on"' : ''}></i>`).join('')}<i class="boss${st.won ? ' on' : ''}"></i></span></span>
       ${on ? `<em>${st.nd ? 'Continue' : 'Play'}</em>` : I.chev}</button>`;
@@ -9132,7 +9451,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.02';
+const APP_VERSION = '3.03';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -9227,7 +9546,7 @@ function devSheet() {
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
-      ${p('devComic', 'Play: Unit 1 comic, both parts', 'Tap through part 1 and the ending. Your own progress stays as it is')}
+      ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
     <div class="list-group">
@@ -9249,7 +9568,7 @@ function devSheet() {
     sh.querySelector('#devMile').onclick = play(function milestone() { const { n } = practiceStreak(); momentMile(MILES.includes(n) ? n : 7); });
     sh.querySelector('#devBack').onclick = play(function welcomeBack() { momentBack(4, 12); });
     sh.querySelector('#devPay').onclick = play(function paywallPreview() { paywall(); });
-    sh.querySelector('#devComic').onclick = play(function comicPreview() { comicReplay(1, { demo: 1, all: 1 }); });
+    sh.querySelector('#devComic').onclick = () => { closeSheet(); setTimeout(() => openSheet(`<h3 style="margin:0 0 14px">Which unit?</h3><div class="list-group">${LES_UNITS.map(([en], u) => `<button class="list-btn" data-cu="${u + 1}"><span>Unit ${u + 1}<br><small>${esc(COMIC[u + 1]?.title || en)}</small></span><span class="side">${I.chev}</span></button>`).join('')}</div>`, s2 => s2.querySelectorAll('[data-cu]').forEach(b => { b.onclick = play(function comicPreview() { comicReplay(+b.dataset.cu, { demo: 1, all: 1 }); }); })), 320); };
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/1'); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
     sh.querySelector('#devLvZero').onclick = lvGo('levels reset', devLvZero, 'Levels are back to the start');
