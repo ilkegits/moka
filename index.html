@@ -7957,7 +7957,7 @@ const Trail = (() => {
        in brown ink, misty shan-shui peaks, ink trees and rocks, a brush line along the coast, ink rivers, and little ink
        pavilions at the great food cities. Everything that stands on it is drawn in ink (ink) */
     food: { ink: true, tint: { land: '#ECDFBF', plat: '#E8DBBA', sand: '#F0E2BF', loess: '#ECDDB8', plain: '#F0E5C7', grass: '#EAE1C1', wood: '#E5DCBA', south: '#E9E0BF', basin: '#EBE1C0' },
-      woods: WOODS, water: '#D9D5BD', lake: 'rgba(40,62,72,.5)', rim: '#F7EED8', lift: 'rgba(70,48,20,.34)', shade: [78, 60, 36], hi: [255, 251, 238], stone: [226, 219, 200],
+      woods: WOODS, sparse: 2.2, water: '#D9D5BD', lake: 'rgba(40,62,72,.5)', rim: '#F7EED8', lift: 'rgba(70,48,20,.34)', shade: [78, 60, 36], hi: [255, 251, 238], stone: [226, 219, 200],
       river: ['rgba(40,62,72,.16)', 'rgba(40,62,72,.62)'], pins: false } };
   /* v3.38: the food cities of the ink map, each a little pavilion with its name: [name, lon, lat] */
   const INK_TOWNS = [['北京', 116.4, 39.9], ['西安', 108.94, 34.34], ['成都', 104.07, 30.67], ['上海', 121.47, 31.23], ['广州', 113.26, 23.13], ['武汉', 114.3, 30.59], ['昆明', 102.71, 25.04], ['拉萨', 91.11, 29.65], ['哈尔滨', 126.63, 45.75], ['长沙', 112.94, 28.23], ['兰州', 103.83, 36.06]];
@@ -8057,16 +8057,16 @@ const Trail = (() => {
       const clear = (lon, lat, room) => { if (K.pins && nearest(lon, lat, WALL, true)[0] < .5) return false; for (const s of SITES) if (Math.hypot((lon - s[0]) * CS, lat - s[1]) < room) return false; for (const [a, b, rx, ry] of LAKES) if (((lon - a) / rx) ** 2 + ((lat - b) / ry) ** 2 < 1.6) return false; return true; };
       const T = TEX.things, ok = (lon, lat) => { const c = cell(lon, lat); return c >= 0 && M[c] && pip(lon, lat, CHINA) ? c : -1; }, put = (t, lon, lat, o) => { const [x, y] = wp(lon, lat); T.push({ t, x, y, ...o }); };
       for (const [hm, wd, pts] of RIDGE) { let n = 0;   // mountains: one peak every couple of degrees along each real range; the low ranges are green mounds instead
-        for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (hm > 2400 ? (wd < .65 ? 2.5 : 1.8) : 1.6)));
+        for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]], len = Math.hypot((b[0] - a[0]) * CS, b[1] - a[1]), steps = Math.max(1, Math.round(len / (hm > 2400 ? (wd < .65 ? 2.5 : 1.8) : 1.6) / (K.sparse || 1)));   // v3.41: the ink map spaces them further apart (sparse)
           for (let k = i ? 1 : 0; k <= steps; k++, n++) { const t = k / steps, h1 = hash(n * 7 + 3, Math.round(hm)), lon = a[0] + (b[0] - a[0]) * t + (h1 - .5) * wd * .5, lat = a[1] + (b[1] - a[1]) * t + (hash(n, Math.round(hm) + 9) - .5) * wd * .5;
             if (ok(lon, lat) < 0 || !clear(lon, lat, 1.5)) continue; const kind = kindAt(lon, lat), size = .8 + h1 * .35;
             if (hm > 2400) put('peak', lon, lat, { h: (11 + hm / 520) * size, tone: kind === 'sand' && hm < 4400 ? 'sand' : 'stone', snow: hm > (lat > 39 ? 3600 : 4700) ? .42 : hm > 3200 ? .2 : 0, k: h1 });
             else put('mound', lon, lat, { h: (5.5 + hm / 420) * size, tone: kind === 'sand' || kind === 'loess' || kind === 'land' ? 'dry' : lat > 41 ? 'pine' : K.farm && lat < 32 && lon > 108 ? 'tea' : 'green', k: h1 }); } } }   // the food map: the low hills of the south-east are tea gardens
       for (let b = 0; b < 16; b++) for (let a = 0; a < 27; a++) { const h1 = hash(a + 900, b), h2 = hash(b, a + 900), lon = TEX.lon + (a + .2 + h1 * .6) * 2.4, lat = TEX.lat - (b + .2 + h2 * .6) * 2.4, c = ok(lon, lat); if (c < 0 || !clear(lon, lat, 1.6)) continue;   // a few more on the high ground between the ranges and in the deserts
         const e = E[c], kind = kindAt(lon, lat);
-        if (e > 3600 && h1 < .22) put('peak', lon, lat, { h: 13 + h2 * 5, tone: 'stone', snow: .26, k: h2 });
-        else if (kind === 'sand' && e < 1900 && h2 < .45) put('mound', lon, lat, { h: 4.5 + h1 * 2.5, tone: 'sand', k: h1 });
-        else if (e > 900 && e < 3200 && kind !== 'sand' && h2 < .3) put('mound', lon, lat, { h: 6 + h1 * 3, tone: kind === 'loess' || kind === 'land' || kind === 'plat' ? 'dry' : 'green', k: h1 }); }
+        const sp = K.sparse || 1; if (e > 3600 && h1 < .22 / sp) put('peak', lon, lat, { h: 13 + h2 * 5, tone: 'stone', snow: .26, k: h2 });
+        else if (kind === 'sand' && e < 1900 && h2 < .45 / sp) put('mound', lon, lat, { h: 4.5 + h1 * 2.5, tone: 'sand', k: h1 });
+        else if (e > 900 && e < 3200 && kind !== 'sand' && h2 < .3 / sp) put('mound', lon, lat, { h: 6 + h1 * 3, tone: kind === 'loess' || kind === 'land' || kind === 'plat' ? 'dry' : 'green', k: h1 }); }
       /* v3.30, the food map: patches of fields. Each is two to four fields side by side, all turned the same way, each field
          one crop of its region; none on high ground, on a river, a lake or the coast. TEX.fields, in world units; farms are
          the same patches as [lon, lat, how far they reach in degrees], so that nothing else is planted on a field */
@@ -8232,10 +8232,10 @@ const Trail = (() => {
     const inkRock = (x, y, s) => { c.beginPath(); ROCK.forEach(([px, py], i) => c[i ? 'lineTo' : 'moveTo'](x + px * s, y + py * s)); c.closePath(); c.fillStyle = 'rgba(120,110,95,.22)'; c.fill(); c.strokeStyle = inkc(.78); c.lineWidth = .8 * ip; c.stroke();
       c.beginPath(); c.moveTo(x - .36 * s, y - 1.06 * s); c.quadraticCurveTo(x + .02 * s, y - .7 * s, x + .08 * s, y - .5 * s); c.lineTo(x + .3 * s, y); c.strokeStyle = inkc(.45); c.lineWidth = .55 * ip; c.stroke(); };
     const inkThing = (o, x, y, k, zg) => {
-      if (o.t === 'peak') { const h = o.h * .92, tint = o.tone === 'sand' ? OCHRE : k < .34 ? TEAL : null, a = .6;
-        inkPeak(x - h * .53, y + h * .09, h * .94, h * .59, a * .65, tint, 0, k * 11 + 1);
+      if (o.t === 'peak') { const h = o.h * .92, tint = o.tone === 'sand' ? OCHRE : k < .34 ? TEAL : null, a = .6, near = h * z > 30;   // from far one peak; closer, its two smaller neighbours
+        if (near) inkPeak(x - h * .53, y + h * .09, h * .94, h * .59, a * .65, tint, 0, k * 11 + 1);
         inkPeak(x + h * .06, y, h * 1.3, h, a, tint, o.snow, k * 11 + 2);
-        inkPeak(x + h * .59, y + h * .18, h * .82, h * .47, a * .8, tint, 0, k * 11 + 3);
+        if (near) inkPeak(x + h * .59, y + h * .18, h * .82, h * .47, a * .8, tint, 0, k * 11 + 3);
         mist(x, y + h * .12, h * 1.06); }
       else if (o.t === 'mound') { const h = o.h, w = h * 1.5, tint = o.tone === 'dry' || o.tone === 'sand' ? OCHRE : TEAL, near = h * z > 20;
         inkHill(x - w * .42, y - h * .12, w * .7, h * .8, 0, .3, tint, near, k * 17 + 1); inkHill(x + w * .1, y, w, h, (k - .5) * w * .2, .4, tint, true, k * 17 + 2);
@@ -10824,7 +10824,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.40';
+const APP_VERSION = '3.41';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
