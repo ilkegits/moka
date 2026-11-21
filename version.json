@@ -1,1 +1,1 @@
-{"version": "3.53", "notes": "Decks: the word bank is a rolling counter with today's new words; New deck opens with the keyboard up and goes straight on to adding cards; adding cards stays open like Anki, fills in pinyin and meaning, and suggests the Chinese for an English word"}
+{"version":"3.54","notes":"Streak kept: after your first practice of the day the count rolls up by one and today’s dot fills in. At 7 days (and every milestone after) you get a streak card to share. The Developer menu can play both"}
