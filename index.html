@@ -183,9 +183,46 @@ button.pill.on{box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 8px 14px -10px rgba(30
 .crs-fold-main b{font-weight:800;font-size:17px}
 .crs-fold-main small{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crs-fold-chev{flex:none;color:var(--muted);transition:transform .2s}
-.crs-low .crs-fold-seal svg.i{width:22px;height:22px;stroke-width:2.6}
+/* v3.61: the levels below yours, folded into one row: a stack of their own seals (一 二 三, each in its level's colour,
+   tilted like stamps pressed one on another) with a jade tick. Open, the seals fan out side by side and the level cards
+   drop in one after another; closed again, the seals slide back into a stack */
+.crs-low{background:linear-gradient(100deg,color-mix(in srgb,var(--c0) 9%,var(--card)),var(--card) 62%)}
+.crs-stack{flex:none;position:relative;display:flex;align-items:center;padding:3px 3px 3px 2px}
+.crs-stack i{--o0:-25px;--o1:var(--of);flex:none;width:38px;height:38px;margin-left:var(--o0);border-radius:10px;display:grid;place-items:center;
+  background:var(--c);color:#fff;font:700 19px/1 var(--hanzi);font-style:normal;text-shadow:0 1px 0 rgba(0,0,0,.18);
+  box-shadow:0 0 0 2.5px var(--card),inset 0 -3px 0 rgba(0,0,0,.18);transform:rotate(var(--r))}
+.crs-stack i:first-child{--o0:0px;--o1:0px}
+.crs-low.open .crs-stack i{margin-left:var(--o1);transform:none}
+.crs-stack-ok{position:absolute;right:-4px;top:-3px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--jade);color:#fff;box-shadow:0 0 0 2.5px var(--card)}
+.crs-stack-ok svg.i{width:13px;height:13px;stroke-width:3.4}
+.crs-low.open .crs-stack-ok{opacity:0;transform:scale(.4)}
 .crs-low.open .crs-fold-chev{transform:rotate(90deg)}
+.crs-low.anim .crs-stack i{animation:crsFan .42s cubic-bezier(.3,1.4,.5,1) both}
+.crs-low.shut .crs-stack i{animation:crsShut .34s cubic-bezier(.3,1.3,.5,1) both}
+.crs-low.anim .crs-stack i:nth-child(2),.crs-low.shut .crs-stack i:nth-child(5){animation-delay:.03s}
+.crs-low.anim .crs-stack i:nth-child(3),.crs-low.shut .crs-stack i:nth-child(4){animation-delay:.06s}
+.crs-low.anim .crs-stack i:nth-child(4),.crs-low.shut .crs-stack i:nth-child(3){animation-delay:.09s}
+.crs-low.anim .crs-stack i:nth-child(5),.crs-low.shut .crs-stack i:nth-child(2){animation-delay:.12s}
+.crs-low.anim .crs-stack i:nth-child(6){animation-delay:.15s}
+.crs-low.anim .crs-stack-ok{animation:crsOkOut .2s ease-in both}
+.crs-low.shut .crs-stack-ok{animation:crsOkIn .4s .22s cubic-bezier(.3,1.6,.5,1) both}
+.crs-low.anim .crs-fold-chev{animation:crsChevOpen .3s cubic-bezier(.3,1.4,.5,1)}
+.crs-low.shut .crs-fold-chev{animation:crsChevShut .3s cubic-bezier(.3,1.4,.5,1)}
+@keyframes crsFan{from{margin-left:var(--o0);transform:rotate(var(--r))}}
+@keyframes crsShut{from{margin-left:var(--o1);transform:none}}
+@keyframes crsOkOut{from{opacity:1;transform:none}}
+@keyframes crsOkIn{from{opacity:0;transform:scale(.4)}}
+@keyframes crsChevOpen{from{transform:none}}
+@keyframes crsChevShut{from{transform:rotate(90deg)}}
 .crs-lows{display:contents}
+.crs-lows.anim>.crs{animation:crsIn .46s cubic-bezier(.2,.9,.3,1.12) both}
+.crs-lows.anim>.crs:nth-child(2){animation-delay:.07s}
+.crs-lows.anim>.crs:nth-child(3){animation-delay:.14s}
+.crs-lows.anim>.crs:nth-child(4){animation-delay:.21s}
+.crs-lows.anim>.crs:nth-child(5){animation-delay:.28s}
+.crs-lows.anim>.crs:nth-child(6){animation-delay:.35s}
+@keyframes crsIn{from{opacity:0;transform:translateY(-18px) scale(.94)}}
+@media (prefers-reduced-motion:reduce){.crs-low *,.crs-lows>.crs{animation:none!important}}
 .crs-cap{display:block;padding:14px 16px 16px 18px}
 .crs-top{display:flex;align-items:center;gap:10px}
 .crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
@@ -3496,8 +3533,12 @@ function CourseBlock() {
       <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span><span class="crs-fold-chev">${I.chev}</span></button>`;
   /* the levels below the one you started on are open but folded into one row, so your own level is what you see first */
   const start = Math.min(7, db.prefs.level || 1), lowN = start - 1;
-  const fold = lowN ? `<button class="crs-fold crs-low${S.lowOpen ? ' open' : ''}" data-act="crs-low" aria-expanded="${!!S.lowOpen}"><span class="crs-fold-seal" style="--crs:${CRS[1][0]}">${I.check}</span>
-      <span class="crs-fold-main"><b>${lowN > 1 ? `HSK 1–${lowN}` : 'HSK 1'}</b><small>Below your level · already known</small></span><span class="crs-fold-chev">${I.chev}</span></button>` : '';
+  /* v3.61: a stack of the folded levels' own seals; S.lowAnim says the row was just tapped, so it plays its open or close once */
+  const mo = S.lowAnim ? (S.lowOpen ? ' anim' : ' shut') : ''; S.lowAnim = false;
+  const tilt = [-7, 4, -3, 6, -5, 3];
+  const stack = `<span class="crs-stack" aria-hidden="true" style="--of:${lowN > 3 ? -18 : -5}px">${lv.filter(x => x.l < start).map((x, i) => `<i style="--c:${CRS[x.l][0]};--r:${tilt[i]}deg">${zh[x.l][0]}</i>`).join('')}<span class="crs-stack-ok">${I.check}</span></span>`;
+  const fold = lowN ? `<button class="crs-fold crs-low${S.lowOpen ? ' open' : ''}${mo}" data-act="crs-low" aria-expanded="${!!S.lowOpen}" style="--c0:${CRS[lowN][0]}">${stack}
+      <span class="crs-fold-main"><b>${lowN > 1 ? `HSK 1–${lowN}` : 'HSK 1'}</b><small>${S.lowOpen ? 'Tap to fold them away' : 'Below your level · already known'}</small></span><span class="crs-fold-chev">${I.chev}</span></button>` : '';
   const card = x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
     const foot = !lvHas(x.l) ? '<span class="crs-locked">Coming soon</span>' : locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
@@ -3509,7 +3550,7 @@ function CourseBlock() {
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
         ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
   };
-  return `<div class="crs-list">${basics}${fold}${lowN && S.lowOpen ? `<div class="crs-lows">${lv.filter(x => x.l < start).map(card).join('')}</div>` : ''}${lv.filter(x => x.l >= start).map(card).join('')}</div>`;
+  return `<div class="crs-list">${basics}${fold}${lowN && S.lowOpen ? `<div class="crs-lows${mo}">${lv.filter(x => x.l < start).map(card).join('')}</div>` : ''}${lv.filter(x => x.l >= start).map(card).join('')}</div>`;
 }
 /* ---------- HSK 1 course: tap the HSK 1 picture on Learn ----------
    HSK levels are lessons only: the HSK 1 page holds the lessons path, still locked. The four foundation topics
@@ -11830,7 +11871,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.60';
+const APP_VERSION = '3.61';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12690,7 +12731,7 @@ const A = {
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
   'basics-open': () => nav('#/basics'),
-  'crs-low': () => { S.lowOpen = !S.lowOpen; S.instant = true; render(); },
+  'crs-low': () => { S.lowOpen = !S.lowOpen; S.lowAnim = true; S.instant = true; try { navigator.vibrate?.(8); } catch (_) {} render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
   'c1-back': () => goBack(S.cUnit ? '#/course/' + (S.cLv || 1) : S.cPart ? '#/basics' : '#/learn'),
