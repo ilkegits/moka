@@ -1935,6 +1935,49 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-hud-t i{font-style:normal;font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .un-hud-t i[lang]{font-family:var(--hanzi);font-size:14.5px;letter-spacing:.04em}
 .un-hud .btn{flex:none;height:54px;padding:0 24px;font-size:17px}
+/* v3.48: HSK 2's path. The page is a sheet of 田字格 practice paper (a background on the strip, five squares across, no
+   canvas), every lesson a round button in a square of its own. --k: the screen's width over 360, so the buttons grow
+   with the squares. A button's colours: --f face, --l the lip under it, --e its inner edge, --t the character */
+.uc-pp .uc-strip{min-height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23C0392B'%3E%3Cpath d='M0 0H72V72H0Z' stroke-opacity='.3'/%3E%3Cpath d='M36 0V72M0 36H72' stroke-opacity='.26' stroke-dasharray='4 4' stroke-dashoffset='-2'/%3E%3C/svg%3E") 0 0/20% auto}
+.uc-pp>.bar::before{content:"";position:absolute;left:-20px;right:-20px;top:0;height:136px;z-index:-1;pointer-events:none;background:linear-gradient(var(--paper) 66%,transparent)}
+.uc-path .un-bg{background:none}
+.uc-path .un-bg canvas{display:none}
+.uc-pane.uc-path.locked .uc-stage{filter:none}
+.uc-path .un-node{--f:#EFE7D8;--l:#D6C9B3;--e:#E2D7C3;--t:#BDB09A;display:block;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*58px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
+.uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFDD86,#F4C14E 62%);--l:#C4902A;--e:rgba(255,255,255,.42);--t:#3B1A12}
+.uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:#BC1A2C;--e:rgba(255,255,255,.24);--t:var(--seal-ink);z-index:2}
+.uc-path .un-node small{display:none}
+.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*3px);border-radius:50%;font:900 calc(var(--k,1)*28px)/1 "Noto Serif SC",var(--hanzi);
+  background:var(--f);color:var(--t);box-shadow:inset 0 0 0 2px var(--e),0 calc(var(--k,1)*5px) 0 var(--l);transform:translateY(calc(var(--k,1)*-2.5px));transition:transform .08s,box-shadow .08s}
+.uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2.5px));box-shadow:inset 0 0 0 2px var(--e),0 0 0 var(--l)}
+.uc-path .un-node[data-s="cur"]::before{content:"";position:absolute;inset:calc(var(--k,1)*-9px);border-radius:50%;border:calc(var(--k,1)*4px) solid color-mix(in srgb,var(--seal-btn) 30%,transparent);animation:ppRing 1.8s ease-in-out infinite}
+.uc-path .un-node.pp-pop{animation:ppPop .55s ease-out}
+.pp-go{display:none;position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);width:70px;margin-left:-35px;padding:8px 0 9px;border-radius:12px;background:var(--card);color:var(--seal-btn);
+  font:700 15px/1 var(--display);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
+.pp-go::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
+.un-node[data-s="cur"] .pp-go{display:block}
+@keyframes ppBob{50%{transform:translateY(-5px)}}
+@keyframes ppRing{50%{transform:scale(1.09);opacity:.45}}
+@keyframes ppPop{35%{transform:translate(-50%,-50%) scale(1.24)}70%{transform:translate(-50%,-50%) scale(.95)}}
+.uc-path .un-node.un-boss{width:150px;height:auto;border-radius:0;transform:translate(-50%,-142px) scale(calc(var(--k,1)*.8));transform-origin:50% 142px}
+.uc-path .uc-chal{top:164px;height:34px;padding:0 15px;border-radius:17px;font-size:16.5px}
+.uc-path .uc-chal svg.i{width:19px;height:19px}
+.uc-path .un-shi{width:calc(var(--k,1)*72px);height:calc(var(--k,1)*68px);margin-left:calc(var(--k,1)*-36px)}
+.pp-head{position:absolute;left:0;right:0;z-index:1;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 22px;text-align:center;pointer-events:none}
+.pp-head small{padding:1px 9px;background:var(--paper);font:800 11px/1.3 var(--ui);letter-spacing:.16em;text-transform:uppercase;color:var(--seal)}
+.pp-head small span{font:700 13.5px/1 var(--hanzi);letter-spacing:.08em}
+.pp-head b{display:flex;align-items:center;width:100%;font:600 21px/1.15 var(--display);letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+.pp-head b::before,.pp-head b::after{content:"";flex:1;height:2px;border-radius:1px;background:var(--line-2)}
+.pp-head b span{padding:2px 12px 3px;background:var(--paper)}
+.pp-head em{display:flex;align-items:center;gap:5px;padding:1px 9px;background:var(--paper);font:600 12.5px/1.3 var(--ui);font-style:normal;color:var(--muted)}
+.pp-head em svg.i{flex:none;width:14px;height:14px}
+.pp-head.locked b{color:var(--ink-2)}
+.pp-jump{position:absolute;right:2px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:3;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:var(--card);color:var(--seal-btn);box-shadow:0 0 0 2px var(--line-2),0 4px 0 1px var(--line-2)}
+.pp-jump[hidden]{display:none}
+.pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
+.pp-jump.up svg{transform:rotate(-90deg)}
+.pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
+@media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop{animation:none}}
 /* ---------- the comic: one dark page, a panel per tap ---------- */
 #ob.cm{background:#241210;overflow:hidden;cursor:pointer}
 #ob.cm .ob-in{padding:0;height:100%;min-height:0}
@@ -4164,22 +4207,29 @@ function unitNodes(n) {
    no page and no round table, and its steamers stand a little closer together (SIDE_GAP)
    v3.45: HSK 2 is one city you swipe along, every unit the same 'city' look (ilkem: "pick one theme, no more upswipe
    downswipe... city aesthetic, bc its about eating out, directions, out and about"): see cityPlan. Its gates, pagoda
-   and court looks are no longer used */
+   and court looks are no longer used
+   v3.48: HSK 2 is a path down one page (ilkem: "a complete redesign. orientate urself on duolingos design roadmap...
+   i dont want the city or nature anymore. just a blank tianzige inspired bg suffices"): look 'path'. No town is
+   painted: the page is a sheet of red 田字格 practice paper, five squares across, and every lesson is a round button
+   in a square of its own with the lesson's character on it (gold once done, red with a Start flag for the next one,
+   pale for the ones to come). The buttons zig-zag down, Hu Hu's challenge closes each unit, and a heading on the sheet
+   opens the next. The city (cityPlan, cityKit) is no longer used */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
 const SIDE_GAP = { 1: 128 };
 /* v3.44: on HSK 1's street the units run into each other (ilkem: "huhus challange station should be connected with the
    first baozi station of the next unit", "the rapid transition to the next weather isnt cool... the pixels being in a
    natural transition"): the path goes on from Hu Hu's shrine across the seam to the next unit's first steamer, and each
    unit's ground, light and weather fade into its neighbour's over a wide band at every seam (uwJoin, SJ in unitWorld) */
-const SIDE_JOIN = { 1: 1, 2: 1 };
+const SIDE_JOIN = { 1: 1 };
 const uwJoin = un => { const L = unitLay(un); if (!SIDE_JOIN[unitLv(un)] || (L !== 'side' && L !== 'city')) return null; const us = ucList(unitLv(un)), i = us.indexOf(un); if (i < 0) return null;
   const ok = u => u != null && unitLay(u) === L ? u : null; return { pv: ok(us[i - 1]), nx: ok(us[i + 1]) }; };   // how far apart the steamers stand on a level's street (150 if not given)
-const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['city', 'city', 'city', 'city'], 3: ['tall', 'tall', 'tall', 'tall'] };
+const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['path', 'path', 'path', 'path'], 3: ['tall', 'tall', 'tall', 'tall'] };
 const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall', city: 'side' };
-const UC_VERT = { 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
+const UC_VERT = { 2: 1, 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
 const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
 const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
+const PP_C = 72, PP_COL = [2, 3, 2, 1];   // the path's sheet: a 田字格 square is 72 map units (five across); the column each lesson's square is in, in turn
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4192,6 +4242,8 @@ function unitMap(un, n) {
   if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'city') { const P0 = cityPlan(unitLv(un)), C = P0.byU[un], g = ([col, row]) => [140 * col - C.O, CITY_Y0 + 70 * row];
     return { lay, pts: [...C.pts.map(g), g(C.boss)], W: C.W, H: 580, city: C }; }
+  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, pts = Array.from({ length: n }, (_, i) => [C * (PP_COL[i % 4] + .5), C * (r0 + i + .5)]);   // a lesson a row, each in the middle of its square; two rows for the heading first (one bare row in the first unit)
+    pts.push([180, C * (r0 + n + 1) + 48]); return { lay, pts, W: 360, H: C * (r0 + n + 3), head: r0 > 1 ? 76 : 0 }; }   // a whole number of rows, so the squares run on from unit to unit
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4210,6 +4262,7 @@ function unitMap(un, n) {
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
+  if (lay === 'path') return i === pts.length - 1 ? [x - 98, y - 74] : [x + (PP_COL[i % 4] > 2 || i % 4 === 2 ? 68 : -68), y - 34];   // in the empty square beside his lesson, on the outside of the bend
   if (i === pts.length - 1 && lay === 'tall') return [x + (x < 180 ? 78 : -74), y - 40];
   if (i === pts.length - 1 && (lay === 'pagoda' || lay === 'peaks')) return [x - 74, y - 40];
   if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
@@ -4232,9 +4285,11 @@ function ucPane(u) {
   unRnd[u] = eat >= 0 ? eat : Math.min(st.at, n - 1);   // a table comes turned to the lesson you are on (or the one he is about to eat)
   const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
+  const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
-      <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+      <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
+  const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
   const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${lay === 'raft' ? UN_RAFT : ''}${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
@@ -4242,8 +4297,8 @@ function ucPane(u) {
     + `<span class="un-spin" style="${pct([R.cx, R.cy + R.ry + 118])}"><button data-spin="-1"${off} aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1"${off} aria-label="Turn the table on">›</button></span>` : '';
   return `<section class="uc-pane uc-${unitFrame(lay)}${unitFrame(lay) !== lay ? ` uc-${lay}` : ''}${uwJoin(u) ? ' uc-join' : ''}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
     <div class="uc-in"><div class="uc-stage"><div class="un-bg" aria-hidden="true"><canvas class="uw"></canvas></div>
-      <div class="un-map" data-w="${W}" data-h="${H}">${table}${nodes}${shrine}${shi}</div></div></div>
-    ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${unK(u)} · ${esc(UNIT(u)[0])}</b><small>Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</small></div>`}</section>`;
+      <div class="un-map" data-w="${W}" data-h="${H}">${head}${table}${nodes}${shrine}${shi}</div></div></div>
+    ${st.open || path ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${unK(u)} · ${esc(UNIT(u)[0])}</b><small>Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</small></div>`}</section>`;
 }
 function ucHud(u) {
   const lv = unitLv(u), st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(lv), due = utDue(lv), L = st.ls[st.nd], last = unitLast(u), up = lv < 7 && lvHas(lv + 1);
@@ -4253,12 +4308,12 @@ function ucHud(u) {
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
 }
 function UnitView(un) {
-  const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1);
-  return `<div class="screen fade-in c1 un uc${UC_VERT[unitLv(u)] ? ' uc-v' : ''}"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
+  const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1), pp = unitLay(u) === 'path';
+  return `<div class="screen fade-in c1 un uc${UC_VERT[unitLv(u)] ? ' uc-v' : ''}${pp ? ' uc-pp' : ''}"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
     <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${unK(u)}</small><b>${esc(UNIT(u)[0])}</b></span>
       <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > us[0] ? '' : ' disabled'}>${I.chev}</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < us.at(-1) ? '' : ' disabled'}>${I.chev}</button></span></div>
     <button class="icon-btn" data-act="comic-replay" data-u="${u}" aria-label="Watch the comic again">${COMIC_I}</button></header>
-    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>
+    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>${pp ? `<button class="pp-jump" hidden aria-label="Back to your lesson">${I.chev}</button>` : ''}
     <div class="un-hud">${ucHud(u)}</div></div>`;
 }
 /* size every unit on the strip to the space between the sign and the card at the bottom: a street is as high as that
@@ -4271,7 +4326,7 @@ function ucFit() {
       p.style.width = stg.style.width = vw + 'px'; stg.style.height = t0 + mh + (k === ps.length - 1 ? bot : 0) + 'px';
       Object.assign(map.style, { width: vw + 'px', height: mh + 'px', left: '0px', top: t0 + 'px' });
       const lk = p.querySelector('.uc-lock'); if (lk) lk.style.left = vw / 2 + 'px'; });
-    sc.dataset.top = top; return; }
+    sc.dataset.top = top; sc.style.setProperty('--k', (vw / 360).toFixed(4)); sc.firstElementChild.style.backgroundPositionY = top + 'px'; return; }   // v3.48: the path's buttons and its paper squares grow with the screen; the squares start where the first unit does
   sc.querySelectorAll('.uc-pane').forEach(p => {
     const map = p.querySelector('.un-map'), stg = p.querySelector('.uc-stage'), W = +map.dataset.w, H = +map.dataset.h;
     let mw = vw, mh = vw * H / W, pw = vw, sh = Math.max(vh, top + mh + bot), my = top;
@@ -4373,7 +4428,12 @@ function mountUnit(un) {
     if (touch || !sc.isConnected) return; paintAhead(); if (ucSnap()) return;
     const u = ucWhich(); if (u !== ucNew) return; ucNew = 0;
     if (S.view === 'course' && !ucAuto && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, () => setTimeout(ucSnap, 60), comicSeen(u).p1 ? { demo: 1 } : {}); }, ms); };
-  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); }); rest(170); }, { passive: true });
+  // v3.48, the path: a round button brings you back to Shi Shi while he is off the screen (its arrow points to where he is)
+  const jump = $('.pp-jump'), jumpSet = () => { if (!jump || !shi?.isConnected) return; const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect(), up = r.bottom < s.top + 112, dn = r.top > s.bottom - 96;
+    jump.hidden = !(up || dn); jump.classList.toggle('up', up); };
+  if (jump) { jump.onclick = () => { if (!shi?.isConnected) return; haptic(8); const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect();
+    sc.scrollTo({ top: Math.max(0, sc.scrollTop + r.top + r.height / 2 - s.top - sc.clientHeight * .45), behavior: stillMotion() ? 'auto' : 'smooth' }); }; jumpSet(); }
+  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); jumpSet(); }); rest(170); }, { passive: true });
   sc.addEventListener('touchstart', () => { touch = true; clearTimeout(ucQuiet); }, { passive: true });
   const up = () => { touch = false; rest(220); }; sc.addEventListener('touchend', up, { passive: true }); sc.addEventListener('touchcancel', up, { passive: true });
   document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
@@ -4385,7 +4445,7 @@ function mountUnit(un) {
     if (unitLay(me) === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
     if (eat != null) shi.innerHTML = (shi.querySelector('.un-raft')?.outerHTML || '') + shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
     if (db.unitAt?.[me] !== st.at) { (db.unitAt ||= {})[me] = st.at; save(); } };
-  if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => setTimeout(hop, 250)); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
+  if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) (unitLay(me) === 'path' ? ppEat : unitEat)(me, +eat, () => setTimeout(hop, 250)); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
   document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if ($('.uc-scroll') === sc && !$('.uw-anim')) sc.querySelectorAll('.uc-pane[data-p]').forEach(p => unitWorld(+p.dataset.u, ucEat?.u === +p.dataset.u ? { skip: ucEat.i } : {})); });
   // Hu Hu was beaten somewhere else: the ending plays here
   comicLoad(unitLv(go)).then(got => { if (!sc.isConnected) return; if (got && unitLv(go) > 1) ucU = 0, ucSet(ucWhich());   // the comics just came: the pill takes their titles
@@ -4657,6 +4717,7 @@ const CITY_U = {
 Object.assign(UW_MORE, { 201: [UW_C_MORNING, 'city', []], 202: [UW_C_AFTERNOON, 'city', []], 203: [UW_C_GOLDEN, 'city', []], 204: [UW_C_SUNSET, 'city', []], 205: [UW_C_BLUE, 'city', []], 206: [UW_C_NEWYEAR, 'city', ['fire']] });
 function unitWorld(un, o = {}) {
   const G = uwGeo(un); if (!G) return null;
+  if (G.lay === 'path') return G;   // v3.48: the path has no painted town: its paper is a background and its buttons are in the page
   const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2);
   cv.width = Math.round(W * D); cv.height = Math.round(H * D); cv.style.width = W + 'px'; cv.style.height = H + 'px';
   const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
@@ -5450,6 +5511,13 @@ function uwBunDraw(c, x, by, s, bites, sd) {
   c.fillStyle = 'rgba(255,138,150,.8)'; [-1, 1].forEach(k => { c.beginPath(); c.ellipse(k * 13.5, -r * .2, 3.2, 2, 0, 0, 7); c.fill(); });
   c.strokeStyle = '#3B1A12'; c.lineWidth = 1.4; c.beginPath(); c.arc(0, -r * .24, 2.2, .3, Math.PI - .3); c.stroke();
   c.restore();
+}
+/* v3.48, the path of HSK 2: the lesson you just finished turns gold with a little bounce while Shi Shi cheers, then the
+   next button turns red and he hops on to it. then: what happens after (Shi Shi hops on) */
+function ppEat(un, i, then) {
+  const p = ucPane$(un), a = p?.querySelector(`.un-node[data-i="${i}"]`), b = p?.querySelector(`.un-node[data-i="${i + 1}"]`), shi = $('#unShi'); if (!a) { then(); return; }
+  haptic(12); a.dataset.s = 'done'; a.classList.add('pp-pop'); if (shi) shi.innerHTML = shiBody('love');
+  setTimeout(() => { a.classList.remove('pp-pop'); if (b) b.dataset.s = 'cur'; then(); }, 600);
 }
 /* the baozi of a lesson you just finished: the lid lifts and a little baozi pops up; it hops out in an arc into Shi
    Shi's open mouth, and he eats it right there in three bites (crumbs fly), then the lid drops back and the steamer
@@ -11443,7 +11511,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.47';
+const APP_VERSION = '3.48';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
