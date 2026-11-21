@@ -3706,7 +3706,7 @@ const unitDone = un => LESSONS.every(L => L.un !== un || lesDone(L.n));
    comic's ending). The unit's comic plays when you start its first lesson (lesStart), not when you open the unit.
    Red envelopes (利是) stand on the path: one after half of a unit's lessons, a bigger one where the challenge used
    to close the unit. db.lixi = { '<unit>m' | '<unit>e': { t: when it was opened, n: coins } }, counted by coinEarned */
-const LV_DUO = { 2: 1 };
+const LV_DUO = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1 };   // v3.50: every level (ilkem: "Build the same for all hsks"); it was HSK 2 alone in v3.49
 const unitWon = un => LV_DUO[unitLv(un)] ? unitDone(un) : utPassed(un);
 const LX_PAY = { m: 20, e: 50 };
 const lxGot = (un, w) => db.lixi?.[un + w];
@@ -4262,7 +4262,7 @@ function unitNodes(n) {
    in a square of its own with the lesson's character on it (gold once done, red with a Start flag for the next one,
    pale for the ones to come). The buttons zig-zag down, Hu Hu's challenge closes each unit, and a heading on the sheet
    opens the next. The city (cityPlan, cityKit) is no longer used */
-const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
+const UNIT_LAYS = ['path', 'path', 'path', 'path'];   // v3.50: every level is the path on 田字格 paper (ilkem: "Build the same for all hsks"). The street, page, table, river and city looks above are no longer used
 const SIDE_GAP = { 1: 128 };
 /* v3.44: on HSK 1's street the units run into each other (ilkem: "huhus challange station should be connected with the
    first baozi station of the next unit", "the rapid transition to the next weather isnt cool... the pixels being in a
@@ -4271,9 +4271,9 @@ const SIDE_GAP = { 1: 128 };
 const SIDE_JOIN = { 1: 1 };
 const uwJoin = un => { const L = unitLay(un); if (!SIDE_JOIN[unitLv(un)] || (L !== 'side' && L !== 'city')) return null; const us = ucList(unitLv(un)), i = us.indexOf(un); if (i < 0) return null;
   const ok = u => u != null && unitLay(u) === L ? u : null; return { pv: ok(us[i - 1]), nx: ok(us[i + 1]) }; };   // how far apart the steamers stand on a level's street (150 if not given)
-const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['path', 'path', 'path', 'path'], 3: ['tall', 'tall', 'tall', 'tall'] };
+const LV_LAYS = {};   // a level's own looks, if it should differ from UNIT_LAYS (none since v3.50)
 const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall', city: 'side' };
-const UC_VERT = { 2: 1, 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
+const UC_VERT = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1 };   // levels whose units stack down one page instead of a strip you swipe along
 const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
 const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
@@ -4609,6 +4609,7 @@ function uwGeo(un) {
   if (ucPre?.u === un) { const a = spots[ucPre.i], b = spots[ucPre.i + 1]; if (a) a.state = 'cur'; if (b?.state === 'cur') b.state = 'locked'; }   // until he eats it, the town looks as you left it
   const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k, m, px };
   out.ml = M.left - B.left; out.mt = M.top - B.top;
+  if (m.lay === 'path') return out;   // v3.50: nothing is painted for the path
   if (m.lay === 'peaks' || m.lay === 'tall') {   // v3.36: rope bridges from top to top, sagging in the middle
     for (let i = 0; i < n; i++) { const a = px(pts[i]), b = px(pts[i + 1]), sag = 34 * k;
       for (let t = .1; t < .92; t += .065) { const u = 1 - t, x = u * u * a[0] + 2 * u * t * (a[0] + b[0]) / 2 + t * t * b[0], y = u * u * a[1] + 2 * u * t * ((a[1] + b[1]) / 2 + sag) + t * t * b[1] - 10;
@@ -5727,10 +5728,10 @@ function shiBody(mood) {
 }
 /* v3.49, the Duolingo flow: a unit's comic plays when you start its first lesson (from its button, the card's Start or
    Play on the map), and its Start button goes on into the lesson */
-const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && !lesDone(n) && n === lesNext(L.lv) && unitLessons(L.un)[0]?.n === n && !comicSeen(L.un).p1; };
+const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && !lesDone(n) && n === lesNext(L.lv) && unitLessons(L.un)[0]?.n === n && !!COMIC[L.un] && !comicSeen(L.un).p1; };   // ask once the level's comics are in (comicLoad)
 function lesStart(n) {
-  const go = () => nav(lesUrl(n)); if (!lesComicDue(n)) { go(); return; }
-  const L = LES(n); comicLoad(L.lv).then(() => { if (COMIC[L.un]) comicPlay(L.un, 0, go); else go(); });
+  const go = () => nav(lesUrl(n)), L = LES(n); if (!L) { go(); return; }
+  comicLoad(L.lv).then(() => { if (lesComicDue(n)) comicPlay(L.un, 0, go); else go(); });
 }
 /* a red envelope (利是) on the path: red paper, a gold cash coin for a seal; opened, its flap stands up */
 const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
@@ -11608,7 +11609,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.49';
+const APP_VERSION = '3.50';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12427,7 +12428,7 @@ const A = {
   'c1-open': t => nav('#/course/' + (lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1)),
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
-  'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; if (lesComicDue(n)) lesStart(n); else lesSheet(n); }, () => toast('Lessons need the internet the first time')),
+  'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')),
   'les-go': t => { closeSheet(true); lesStart(+t.dataset.n); },
   'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
