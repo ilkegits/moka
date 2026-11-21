@@ -1,1 +1,1 @@
-{"version": "3.52", "notes": "The Decks page is about making your own decks: a big Make a deck button with topic ideas, deck rows show how many cards to add, and the word bank is one small line. The swiping daily cards are gone"}
+{"version": "3.53", "notes": "Decks: the word bank is a rolling counter with today's new words; New deck opens with the keyboard up and goes straight on to adding cards; adding cards stays open like Anki, fills in pinyin and meaning, and suggests the Chinese for an English word"}
