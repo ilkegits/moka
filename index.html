@@ -448,16 +448,36 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .deck-plus{color:var(--seal)}
 .deck-plus::after{display:none}
 .deck-plus svg.i{width:22px;height:22px}
-/* Home: making a deck is the first thing under "Your decks", a blank stack waiting to be filled */
-.deck-new{display:flex;align-items:center;gap:14px;width:100%;padding:13px 12px 13px 16px;margin-bottom:10px;text-align:left;border-radius:14px;
-  background:var(--seal-soft);border:1.5px dashed color-mix(in srgb,var(--seal) 42%,transparent);transition:background .25s}
-.deck-new:active{background:color-mix(in srgb,var(--seal) 16%,transparent);transition:none}
-.deck-new:not(:has(+ .decks)){margin-bottom:22px}
-.deck-new .deck-face{color:var(--seal);border-color:color-mix(in srgb,var(--seal) 35%,transparent)}
-.deck-new .deck-face::after{display:none}
-.deck-new .deck-name{color:var(--seal)}
-.deck-new-go{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:var(--seal);border:1.5px solid color-mix(in srgb,var(--seal) 45%,transparent)}
-.deck-new-go svg.i{width:20px;height:20px;stroke-width:2.4}
+/* v3.52 Decks: making your own deck is the main thing on the page (mk-), the word bank is one small line (wb-mini) */
+.wb-mini{display:flex;align-items:center;gap:12px;width:100%;padding:9px 12px 9px 9px;margin:-4px 0 14px;background:var(--card);border-radius:14px;box-shadow:var(--ring);text-align:left;transition:background .25s}
+.wb-mini:active{background:var(--paper-deep);transition:none}
+.wb-mini-hz{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--jade-soft);color:var(--jade);font:600 19px/1 var(--hanzi)}
+.wb-mini-t{flex:1;min-width:0;font-size:15px;line-height:1.25;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-mini-t>small{display:block;font-size:12.5px;color:var(--muted)}
+.wb-mini-t b{font:600 18px/1 var(--display);color:var(--ink);font-variant-numeric:lining-nums;margin-right:4px}
+.wb-mini-t i{font-style:normal;font-size:13.5px;font-weight:600;color:var(--jade)}
+.mk{position:relative;padding:20px 18px 16px;margin-bottom:28px;background:var(--card);border-radius:18px;box-shadow:var(--shadow)}
+.mk-top{display:flex;gap:10px;align-items:flex-start}
+.mk-txt{flex:1;min-width:0}
+.mk-h{margin:0;font:600 25px/1.1 var(--display);letter-spacing:-.01em;color:var(--ink)}
+.mk-p{margin:8px 0 0;font-size:14.5px;line-height:1.4;color:var(--ink-2)}
+/* two practice-paper cards: one with a word on, and in front a blank one waiting for yours */
+.mk-fan{position:relative;flex:none;width:108px;height:96px;margin:-4px -4px 0 0}
+.mk-fan .tzg{position:absolute;--s:60px;border-radius:7px}
+.mk-fan .tzg b{position:absolute;inset:0;display:grid;place-items:center;font:400 34px/1 var(--hanzi);color:var(--ink)}
+.mk-fan .f1{left:2px;top:2px;transform:rotate(-9deg)}
+.mk-fan .f3{left:44px;top:30px;transform:rotate(6deg);background:#FFF5F1;box-shadow:0 0 0 1.5px var(--seal-btn),var(--shadow-sm)}
+.mk-fan .f3 b{color:var(--seal-btn)}
+.mk-fan .f3 svg.i{width:26px;height:26px;stroke-width:2.6}
+.mk-go{margin-top:16px}
+.mk-or{margin:14px 2px 8px;font-size:13px;color:var(--muted)}
+.mk-ideas{display:flex;gap:8px}
+.mk-idea{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 6px;border-radius:11px;background:var(--card-2);border:1px solid var(--line);font-size:14px;font-weight:500;color:var(--ink-2);transition:background .25s}
+.mk-idea b{font:400 19px/1 var(--hanzi);color:var(--seal)}
+.mk-idea:active{background:var(--paper-deep);transition:none}
+/* a deck with fewer than 10 cards: a thin bar in its colour toward 10 */
+.deck-bar{display:block;width:100%;max-width:150px;height:5px;margin-top:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.deck-bar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
 .sh-n{font-size:14px;color:var(--muted)}
 .deck-meta{flex:1;min-width:0}
 .deck-name{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7477,21 +7497,35 @@ function Home() {
   return `<div class="screen fade-in">
     <div class="section-head cal-head pg-head"><h2>Decks <span class="cal-zh">卡片</span></h2>
       <span class="pg-tr">${StreakBtn()}${MenuBtn()}</span></div>
-    ${HotdStack()}
-    <div class="section-head"><h2>Your decks</h2>${db.decks.length ? `<span class="sh-n">${plural(db.decks.length, 'deck')}</span>` : ''}</div>
-    <button class="deck-new" data-act="new-deck">
-      <div class="deck-stack"><span></span><span></span><div class="deck-face">新</div></div>
-      <div class="deck-meta"><div class="deck-name">${db.decks.length ? 'New deck' : 'Make your first deck'}</div><div class="deck-count">Cards with your own words</div></div>
-      <span class="deck-new-go">${I.plus}</span></button>
-    ${db.decks.length ? `<div class="decks">${db.decks.map(DeckTile).join('')}</div>` : ''}
-    <div class="section-head cal-head"><h2>Word bank <span class="cal-zh">词库</span></h2></div>
-    ${BankTile()}
-    ${(t => t ? `<div class="section-head"><h2>Pick up where you left off</h2></div>
-    <div class="decks">${t}</div>` : '')(LastTile())}
+    ${BankMini()}
+    ${DeckMaker()}
+    ${db.decks.length ? `<div class="section-head"><h2>Your decks</h2><span class="sh-n">${plural(db.decks.length, 'deck')}</span></div>
+    <div class="decks">${db.decks.map(DeckTile).join('')}</div>` : ''}
     <div class="section-head"><h2>Ready-made decks</h2><button class="link-btn" data-act="open-hsk">See all</button></div>
     ${HskShelf()}
     <p class="shelf-note">HSK levels 1 to 9. Tick the words you already know and they go into your word bank.</p>
   </div>`;
+}
+/* v3.52: the word bank as one small line at the top of Decks; tap it for the word bank page */
+function BankMini() {
+  const n = db.bank.length, pv = provenCount();
+  return `<button class="wb-mini" data-act="open-bank" aria-label="Word bank: ${plural(n, 'word')}, ${pv} proven">
+    <span class="wb-mini-hz" aria-hidden="true">词</span>
+    <span class="wb-mini-t"><small>Word bank</small><b>${n.toLocaleString('en')}</b>${n === 1 ? 'word' : 'words'}${pv ? ` · <i>${pv.toLocaleString('en')} proven</i>` : ''}</span>
+    <span class="chev">${I.chev}</span></button>`;
+}
+/* v3.52: making a deck of your own words is the main thing on Decks: one red button, and three topics that open the
+   New deck pop-up with the name filled in, for anyone who doesn't know where to start */
+const DECK_IDEAS = [['家', 'Family'], ['吃', 'Food'], ['旅', 'Travel']];
+function DeckMaker() {
+  const mine = db.decks.some(d => d.cards.length) && db.decks.length > 1;
+  return `<section class="mk" aria-label="Make a deck">
+    <div class="mk-top"><div class="mk-txt"><h2 class="mk-h">${mine ? 'Make another deck' : 'Make your own deck'}</h2>
+      <p class="mk-p">Pick a topic and add the words you want to learn. Practise them with flip cards and writing.</p></div>
+      <div class="mk-fan" aria-hidden="true"><div class="tzg f1">${TZG}<b>你</b></div><div class="tzg f3">${TZG}<b>${I.plus}</b></div></div></div>
+    <button class="btn btn-seal wide mk-go" data-act="new-deck">${I.plus}Make a deck</button>
+    <p class="mk-or">Or start with a topic</p>
+    <div class="mk-ideas">${DECK_IDEAS.map(([h, n]) => `<button class="mk-idea" data-act="new-deck" data-name="${n}"><b>${h}</b>${n}</button>`).join('')}</div></section>`;
 }
 /* ---------- Hanzi of the day ----------
    One single character a day from the HSK lists at your level, one you don't know yet. It hides under gold foil on
@@ -9799,11 +9833,13 @@ function LastTile() {
     <span class="chev">${I.chev}</span></button>`;
   return deck && db.decks.length > 3 ? DeckTile(deck) : '';   // every deck is already listed above; repeat one only in a long list
 }
+const DECK_FULL = 10;   // v3.52: a deck with fewer cards than this shows how many to add, with a bar toward it
 function DeckTile(d) {
-  const first = hanChars(d.cards[0]?.hanzi)[0] || '字';
+  const first = hanChars(d.cards[0]?.hanzi)[0] || '字', n = d.cards.length, k = d.cards.filter(isKnown).length;
+  const count = n < DECK_FULL ? n ? `${plural(n, 'card')} · add ${DECK_FULL - n} more` : `No cards yet · add ${DECK_FULL} words` : `${plural(n, 'card')}${k ? ` · ${k} known` : ''}`;
   return `<button class="deck" data-act="open-deck" data-id="${d.id}" style="--accent:${d.accent}">
     <div class="deck-stack"><span></span><span></span><div class="deck-face">${esc(first)}</div></div>
-    <div class="deck-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${plural(d.cards.length, 'card')}${(k => k ? ` · ${k} known` : '')(d.cards.filter(isKnown).length)}</div></div>
+    <div class="deck-meta"><div class="deck-name">${esc(d.name)}</div><div class="deck-count">${count}</div>${n < DECK_FULL ? `<span class="deck-bar"><i style="width:${gBar(n / DECK_FULL)}%"></i></span>` : ''}</div>
     <span class="chev">${I.chev}</span></button>`;
 }
 function dots(c) {
@@ -10892,10 +10928,10 @@ function confirmSheet(title, body, yesLabel, onYes) {
 let toastT;
 function toast(msg) { LOG.add('toast', msg); const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
 
-function deckSheet(d) {
+function deckSheet(d, name = '') {   // name: a topic from the Decks page, filled in for you
   let accent = d?.accent || ACCENTS[db.decks.length % ACCENTS.length];
   openSheet(`<h3>${d ? 'Edit deck' : 'New deck'}</h3>
-    <label class="field"><span class="lbl">Name</span><input class="input" id="dname" placeholder="e.g. HSK 1 · Food · Travel" value="${esc(d?.name || '')}" maxlength="40" autocomplete="off"></label>
+    <label class="field"><span class="lbl">Name</span><input class="input" id="dname" placeholder="e.g. HSK 1 · Food · Travel" value="${esc(d?.name || name)}" maxlength="40" autocomplete="off"></label>
     <div class="field"><span class="lbl">Colour</span><div class="swatches">${ACCENTS.map(c => `<button class="sw ${c === accent ? 'on' : ''}" style="--c:${c}" data-c="${c}" aria-label="colour"></button>`).join('')}</div></div>
     <button class="btn btn-primary wide" id="dsave" style="margin-top:8px">${d ? 'Save' : 'Create deck'}</button>
     ${d ? `<button class="btn btn-danger wide" id="ddel" style="margin-top:6px">${I.trash}Delete deck</button>` : ''}`,
@@ -11701,7 +11737,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.51';
+const APP_VERSION = '3.52';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12481,7 +12517,7 @@ const A = {
   'goal': () => goalSheet(),
   'home': () => goBack('#/'),
   'open-deck': t => nav('#/deck/' + t.dataset.id),
-  'new-deck': () => deckSheet(null),
+  'new-deck': t => deckSheet(null, t?.dataset.name || ''),
   'quick-add': () => quickAddSheet(),
   'open-bank': () => nav('#/bank'),
   'map-city': t => mapPick(+t.dataset.lv),
