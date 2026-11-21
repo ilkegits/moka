@@ -4391,18 +4391,21 @@ function unitMap(un, n) {
        smooth wave, 67 × sin(stop × 48°) either side of the middle (0, +50, +67, +40, −14, −58, −64 …). The red envelope
        is a stop on the path like Duolingo's chest, one per unit after a random number of its lessons (lxAt). Then the finish,
        where Shi Shi stands once the unit is done. At each far point of the wave a big friend stands on the other side, in
-       the hollow (x 88 or 276, as Duolingo's characters); at the last one it is Hu Hu with his bonus. Shi Shi waits beside
-       his lesson on the outside of the wave, so he never meets them */
+       the hollow (x 88 or 272, as Duolingo's characters). v3.58 (ilkem: "the tiger shouldnt be a bonus. get rid of it"): no
+       Hu Hu on the path. Shi Shi waits beside his lesson on the outside of the wave, so he never meets them. v3.58 (ilkem:
+       "the space between the last station of a unit and the title of the next unit is too far... the same distance to the
+       next lesson station after the title"): a unit ends 56 below its last stop, so the next title (76 into its unit) is
+       132 below it, as far as that unit's first stop is below the title. Only the level's last unit keeps a stop of room
+       for the finish, where Shi Shi stands once it is all done */
     const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, S = 83, y0 = C * r0 + 64, TH = 48 * Math.PI / 180, mN = lxAt(un, n);
     const stop = i => [180 + 67 * Math.sin(i * TH), y0 + i * S], side = i => Math.sin(i * TH) > .05 ? 1 : -1;
     const sl = Array.from({ length: n }, (_, i) => i < mN ? i : i + 1); sl.push(n + 1);   // each lesson's stop (the envelope takes stop mN), then the finish
     const pts = sl.map(stop), kinds = ['write', 'read', 'bao', 'ink'], peaks = [];
-    for (let k = 0; (90 + 180 * k) / 48 <= n + 1.5; k++) peaks.push([(90 + 180 * k) / 48, k % 2 ? 272 : 88]);
-    const [hp, hx] = peaks.pop(), hu = [hx, y0 + hp * S];
+    for (let k = 0; (90 + 180 * k) / 48 <= n; k++) peaks.push([(90 + 180 * k) / 48, k % 2 ? 272 : 88]);   // not so far down that a friend would reach the next title
     const pals = peaks.map(([p, x], j) => { const r = Math.round(p), li = Math.min(n - 1, Math.max(0, r > mN ? r - 1 : r));
       return { p: [x, y0 + p * S + 7], s: li, k: kinds[(unK(un) + j) % 4], f: x > 180 }; });   // on the right they face left, so their paper is towards the path
-    const H = Math.ceil(Math.max(y0 + (n + 1) * S + 40, hu[1] + 96) / C) * C;   // whole squares, so the paper runs on from unit to unit
-    return { lay, pts, W: 360, H, head: r0 > 1 ? 76 : 0, sl, side, end: stop(mN), lxN: mN, lxL: { e: side(mN) < 0 }, hu, pals }; }
+    const H = Math.round(unitLast(un) ? y0 + (n + 1) * S + 40 : y0 + n * S + 56);   // the paper is one sheet behind all the units, so a unit need not be whole squares
+    return { lay, pts, W: 360, H, head: r0 > 1 ? 76 : 0, sl, side, end: stop(mN), lxN: mN, lxL: { e: side(mN) < 0 }, pals }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4449,13 +4452,12 @@ function ucPane(u) {
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
-  /* v3.49, the path: no shrine. Red envelopes (ready once the lessons before them are done) and Hu Hu's bonus challenge beside the last one */
+  /* v3.49, the path: no shrine. The red envelope (ready once the lessons before it are done); since v3.58 no Hu Hu bonus */
   const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
   const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
-  const huS = r?.pass ? 'won' : chal && st.open ? 'ready' : 'locked';
   const extras = !path ? '' : lx('e', m.end, lxS('e', m.lxN))
-    + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i])).join('')
-    + `<button class="pp-hu" data-s="${huS}" style="${pct(m.hu)}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's bonus challenge${huS === 'won' ? ', won' : huS === 'ready' ? ', for extra coins' : ', locked'}">${huHu(huS === 'won' ? 'dizzy' : huS === 'ready' ? 'fire' : 'cocky')}<i>${huS === 'won' ? `${TROPHY_I}${r.best}%` : 'Bonus'}</i></button>`;
+    + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i])).join('');
+
   const shrine = path ? extras : `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
   const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${lay === 'raft' ? UN_RAFT : ''}${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
@@ -6273,6 +6275,8 @@ function lesAct(k, b) {
     return;
   }
   if (k === 'end') { const un = E.test, back = () => goBack('#/course/' + (LES(E.n)?.lv || 1));   // a boss beaten, the first time or again: the comic's ending plays before you go back
+    const L = !un && LES(E.n), fin = L && LV_DUO[L.lv] && lesDone(E.n) && unitLessons(L.un).at(-1)?.n === E.n && COMIC[L.un];   // v3.58: on the path (no Hu Hu), the unit's last lesson brings the ending
+    if (fin) { comicPlay(L.un, COMIC[L.un].pages.length - 1, back); return; }
     if (un && E.pass && COMIC[un] && comicSeen(un).p1) comicPlay(un, 1, back); else back(); return; }
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test); lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
@@ -11824,7 +11828,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.57';
+const APP_VERSION = '3.58';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
