@@ -1980,11 +1980,11 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-pane.uc-path.locked .uc-stage{filter:none}
 /* v3.49: true circles (ilkem: "more circle-like and not a bit like oval-like... the mini shine which the start button has"):
    the lip is inside the circle now, like the red buttons: darker along the bottom, a thin light edge on top, a soft shadow below. --d: that shadow */
-.uc-path .un-node{--f:#EFE7D8;--l:rgba(120,95,60,.2);--e:rgba(255,255,255,.7);--t:#BDB09A;--d:rgba(120,95,60,.4);display:block;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*58px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
+.uc-path .un-node{--f:#EFE7D8;--l:rgba(120,95,60,.2);--e:rgba(255,255,255,.7);--t:#BDB09A;--d:rgba(120,95,60,.4);display:block;width:calc(var(--k,1)*66px);height:calc(var(--k,1)*66px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
 .uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFE08C,#F4C14E 58%);--l:rgba(140,85,0,.3);--e:rgba(255,255,255,.5);--t:#3B1A12;--d:rgba(150,100,10,.65)}
 .uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:rgba(60,10,5,.3);--e:rgba(255,255,255,.3);--t:var(--seal-ink);--d:rgba(120,30,20,.7);z-index:3}
 .uc-path .un-node small{display:none}
-.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*28px)/1 "Noto Serif SC",var(--hanzi);
+.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*31px)/1 "Noto Serif SC",var(--hanzi);
   background:var(--f);color:var(--t);box-shadow:inset 0 calc(var(--k,1)*-4px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*9px) calc(var(--k,1)*12px) calc(var(--k,1)*-9px) var(--d);transition:transform .08s,box-shadow .08s}
 .uc-path .un-node[data-s="cur"] .un-spot{text-shadow:0 1.5px 0 rgba(90,10,5,.45)}
 .uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2px));box-shadow:inset 0 calc(var(--k,1)*-2px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*4px) calc(var(--k,1)*8px) calc(var(--k,1)*-8px) var(--d)}
@@ -1994,8 +1994,6 @@ button.st-d:active{transform:scale(.9);transition:none}
   font:700 15px/1 var(--display);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
 .pp-go::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
 .un-node[data-s="cur"] .pp-go{display:block}
-.pp-go-r .pp-go,.pp-go-l .pp-go{bottom:auto;top:50%;margin:-17px 0 0}.pp-go-r .pp-go{left:calc(100% + var(--k,1)*12px)}.pp-go-l .pp-go{left:auto;right:calc(100% + var(--k,1)*12px)}
-.pp-go-r .pp-go::after{left:0;top:50%;margin:-6px 0 0 -6px;transform:rotate(135deg)}.pp-go-l .pp-go::after{left:100%;top:50%;margin:-6px 0 0 -6px;transform:rotate(-45deg)}   /* v3.55: right under the halfway envelope the Start flag stands beside its lesson (away from Shi Shi), so it covers neither envelope */
 @keyframes ppBob{50%{transform:translateY(-5px)}}
 @keyframes ppRing{50%{transform:scale(1.09);opacity:.45}}
 @keyframes ppPop{35%{transform:translate(-50%,-50%) scale(1.24)}70%{transform:translate(-50%,-50%) scale(.95)}}
@@ -2004,8 +2002,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-path .uc-chal svg.i{width:19px;height:19px}
 .uc-path .un-shi{width:calc(var(--k,1)*72px);height:calc(var(--k,1)*68px);margin-left:calc(var(--k,1)*-36px)}
 /* v3.49: red envelopes on the path, and Hu Hu's bonus challenge beside the last one */
-.pp-lx{position:absolute;z-index:1;width:calc(var(--k,1)*42px);height:calc(var(--k,1)*52.5px);padding:0;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
-.pp-lx-e{width:calc(var(--k,1)*52px);height:calc(var(--k,1)*65px)}
+.pp-lx{position:absolute;z-index:1;width:calc(var(--k,1)*62px);height:calc(var(--k,1)*78px);padding:0;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
+.pp-lx-e{width:calc(var(--k,1)*66px);height:calc(var(--k,1)*82px)}
 .pp-lx>svg{position:relative;display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 calc(var(--k,1)*3px) 0 rgba(120,20,15,.25));transform-origin:50% 88%}
 .pp-lx[data-s="locked"]>svg{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.55}
 .pp-lx[data-s="open"]>svg{filter:none;opacity:.78}
@@ -2024,7 +2022,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes ppLxPop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 @keyframes ppWin{0%{opacity:0;transform:translate(-50%,12px) scale(.6)}16%{opacity:1;transform:translate(-50%,-6px) scale(1.12)}28%{transform:translate(-50%,-4px) scale(1)}78%{opacity:1;transform:translate(-50%,-10px)}100%{opacity:0;transform:translate(-50%,-28px)}}
 /* v3.51: friends at work beside the path */
-.pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*122px);height:calc(var(--k,1)*102px);transform:translate(-50%,-58%);pointer-events:none}
+.pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*170px);height:calc(var(--k,1)*142px);transform:translate(-50%,-58%);pointer-events:none}
 .pp-pal>svg{display:block;width:100%;height:100%;overflow:visible}
 .pw-cover,.pw-brush,.pw-panda,.pr-body,.pr-page,.pr-up,.pb-body,.pb-card,.pb-steam path,.pi-body,.pi-cover,.pi-dot{transform-box:fill-box}
 .uc-pane.locked .pp-pal{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.5}
@@ -2063,7 +2061,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes piHop{0%,100%{transform:translateY(0) scale(1.08,.92)}15%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(.95,1.05)}85%{transform:translateY(0) scale(1)}}
 @keyframes piPaint{0%,8%{transform:scaleX(1);opacity:1}50%,82%{transform:scaleX(0);opacity:1}88%{transform:scaleX(0);opacity:0}92%{transform:scaleX(1);opacity:0}100%{transform:scaleX(1);opacity:1}}
 @keyframes piDot{0%,40%{transform:scale(0)}55%{transform:scale(1.2)}100%{transform:scale(1)}}
-.pp-hu{position:absolute;z-index:1;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*50px);padding:0;transform:translate(-50%,-60%);-webkit-tap-highlight-color:transparent}
+.pp-hu{position:absolute;z-index:1;width:calc(var(--k,1)*104px);height:calc(var(--k,1)*90px);padding:0;transform:translate(-50%,-60%);-webkit-tap-highlight-color:transparent}
 .pp-hu>svg{display:block;width:100%;height:100%;overflow:visible}
 .pp-hu[data-s="locked"]>svg{filter:grayscale(1) sepia(.4) brightness(1.4) contrast(.55);opacity:.6}
 .pp-hu:active>svg{transform:translateY(2px)}
@@ -4373,8 +4371,8 @@ const UC_VERT = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1 };   // levels whose 
 const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
 const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
-const PP_C = 72, PP_COL = [2, 3, 2, 1];   // the path's sheet: a 田字格 square is 72 map units (five across); the column each lesson's square is in, in turn
-const lxMidN = n => { const s = Math.ceil(n / 2) - 1; return s - s % 2 + 1; };   // v3.55: the halfway envelope opens after this many lessons (about half, so that it can sit in a bend of the path)
+const PP_C = 72;   // the path's sheet: a 田字格 square is 72 map units (five across)
+const lxMidN = n => Math.ceil(n / 2);   // the halfway envelope opens after this many lessons
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4387,21 +4385,24 @@ function unitMap(un, n) {
   if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'city') { const P0 = cityPlan(unitLv(un)), C = P0.byU[un], g = ([col, row]) => [140 * col - C.O, CITY_Y0 + 70 * row];
     return { lay, pts: [...C.pts.map(g), g(C.boss)], W: C.W, H: 580, city: C }; }
-  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, sq = (c, s) => [C * (c + .5), C * (r0 + s + .5)], at = s => sq(PP_COL[s % 4], s), side = s => PP_COL[s % 4] > 2 || s % 4 === 2 ? 1 : -1;
-    /* a lesson a row, each in the middle of its square, zig-zagging without a break; one row on, the finish, where Shi Shi
-       stands once the unit is done; two rows for the heading first (one bare row in the first unit). v3.55 (ilkem, with a
-       Duolingo screenshot: "i want the lixi to be the chests place", "the place where u see the avatars, i want the side
-       characters"): a red envelope sits tucked into the bend of the path right after its lesson, like Duolingo's chest, in
-       the middle column of an odd row, between the bent-out lesson and the ones above and below it. In the wide empty side
-       the path bends away from (left in rows 1, 5, 9…, right in rows 3, 7…) stands a friend at work, big; in the last
-       envelope's row it is Hu Hu with his bonus instead. Shi Shi always stands on the other side, so nothing meets him */
-    const pts = Array.from({ length: n + 1 }, (_, s) => at(s));
-    const bend = (s, dy) => { const r = s % 2 ? s : s + 1; return [r, [C * 2.5, C * (r0 + r + .5 + dy)]]; };   // after lesson s: beside it (s odd) or beside the next one (s even)
-    const hol = (r, dy) => [r % 4 === 1 ? 72 : 288, C * (r0 + r + .5 + dy)];   // the middle of that row's wide empty side
-    const sM = lxMidN(n) - 1, [rm, mid] = bend(sM, -.2), [re, end] = bend(n - 1, (n - 1) % 2 ? .1 : -.15);   // nudged towards the lesson they follow; after an odd lesson the next one's Start flag would cover the lower half
-    const kinds = ['write', 'read', 'bao', 'ink'], pals = [];
-    for (let r = 1; r <= n; r += 2) if (r !== rm && r !== re) pals.push({ p: hol(r, .3), s: r, k: kinds[(unK(un) + pals.length) % 4], f: r % 4 === 3 });   // on the right of the path they face left, so their paper is towards it
-    return { lay, pts, W: 360, H: C * (r0 + n + 2), head: r0 > 1 ? 76 : 0, sl: pts.map((_, s) => s), side, mid, midN: sM + 1, end, lxL: { m: rm % 4 === 1, e: re % 4 === 1 }, hu: hol(re, .12), pals }; }   // a whole number of rows, so the squares run on from unit to unit
+  if (lay === 'path') {
+    /* v3.56, Duolingo's own layout (ilkem: "i want the exact placements of duolingo lessons and the chest should be a lixi"),
+       measured from their screenshot of the Duolingo path and scaled to 360 across: the stops go down 83 apart along a
+       smooth wave, 67 × sin(stop × 48°) either side of the middle (0, +50, +67, +40, −14, −58, −64 …). The red envelopes
+       are stops on the path like Duolingo's chest: one after half the lessons, one after the last. One stop on, the finish,
+       where Shi Shi stands once the unit is done. At each far point of the wave a big friend stands on the other side, in
+       the hollow (x 88 or 276, as Duolingo's characters); at the last one it is Hu Hu with his bonus. Shi Shi waits beside
+       his lesson on the outside of the wave, so he never meets them */
+    const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, S = 83, y0 = C * r0 + 64, TH = 48 * Math.PI / 180, mN = lxMidN(n);
+    const stop = i => [180 + 67 * Math.sin(i * TH), y0 + i * S], side = i => Math.sin(i * TH) > .05 ? 1 : -1;
+    const sl = Array.from({ length: n }, (_, i) => i < mN ? i : i + 1); sl.push(n + 2);   // each lesson's stop (the envelopes take stops mN and n + 1), then the finish
+    const pts = sl.map(stop), kinds = ['write', 'read', 'bao', 'ink'], peaks = [];
+    for (let k = 0; (90 + 180 * k) / 48 <= n + 2.5; k++) peaks.push([(90 + 180 * k) / 48, k % 2 ? 272 : 88]);
+    const [hp, hx] = peaks.pop(), hu = [hx, y0 + hp * S];
+    const pals = peaks.map(([p, x], j) => { const r = Math.round(p), li = Math.min(n - 1, Math.max(0, r > mN ? r - 1 : r));
+      return { p: [x, y0 + p * S + 7], s: li, k: kinds[(unK(un) + j) % 4], f: x > 180 }; });   // on the right they face left, so their paper is towards the path
+    const H = Math.ceil(Math.max(y0 + (n + 2) * S + 40, hu[1] + 96) / C) * C;   // whole squares, so the paper runs on from unit to unit
+    return { lay, pts, W: 360, H, head: r0 > 1 ? 76 : 0, sl, side, mid: stop(mN), midN: mN, end: stop(n + 1), lxL: { m: side(mN) < 0, e: side(n + 1) < 0 }, hu, pals }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4420,7 +4421,7 @@ function unitMap(un, n) {
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
-  if (lay === 'path') return i === pts.length - 1 ? [x, y - 34] : [x + m.side(m.sl[i]) * 68, y - 34];   // in the empty square beside his lesson, on the outside of the bend; at the finish once the unit is done (v3.51)
+  if (lay === 'path') return i === pts.length - 1 ? [x, y - 34] : [x + m.side(m.sl[i]) * 72, y - 34];   // in the empty square beside his lesson, on the outside of the bend; at the finish once the unit is done (v3.51)
   if (i === pts.length - 1 && lay === 'tall') return [x + (x < 180 ? 78 : -74), y - 40];
   if (i === pts.length - 1 && (lay === 'pagoda' || lay === 'peaks')) return [x - 74, y - 40];
   if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
@@ -4445,7 +4446,7 @@ function ucPane(u) {
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${path && i === m.midN + 1 ? (m.side(i) > 0 ? ' pp-go-l' : ' pp-go-r') : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   /* v3.49, the path: no shrine. Red envelopes (ready once the lessons before them are done) and Hu Hu's bonus challenge beside the last one */
@@ -11823,7 +11824,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.55';
+const APP_VERSION = '3.56';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
