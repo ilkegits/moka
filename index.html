@@ -4144,11 +4144,12 @@ function unitNodes(n) {
                    court   a temple courtyard round a bronze incense burner, on one screen; Hu Hu at the hall
    HSK 3, river    raft    a street along a river: lessons on jetties on both banks, Shi Shi rides a bamboo raft
                    stones  big flat stones zig-zagging up the page across the water, little stones for the path
-                   peaks   tall karst peaks with a lesson on each top and rope bridges between, climbing up
+                   peaks   tall karst peaks with a lesson on each top and rope bridges between, climbing up. v3.40:
+                           a tight zig-zag (left, middle, right, middle...) on one screen, their feet behind the card
    Each borrows its frame (how it is sized and scrolled) from the first three: UN_FRAME */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
 const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['raft', 'stones', 'raft', 'peaks'] };
-const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'snake', raft: 'side', court: 'round' };
+const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round' };
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4168,8 +4169,8 @@ function unitMap(un, n) {
   if (lay === 'pagoda') { const T = 90, F = Math.ceil(n / 2), base = (F + 1) * T + 170, pts = Array.from({ length: n }, (_, i) => { const f = i / 2 | 0, r = (i ^ f) & 1;   // first floor left then right, the next right then left, and so on up
       return [180 + (r ? 1 : -1) * (92 - 8 * f), base - (f + 1) * T]; });
     pts.push([180, base - (F + 1) * T]); return { lay, pts, W: 360, H: base + 70, base: [180, base], T, F }; }
-  if (lay === 'peaks') { const base = n * 118 + 400, pts = Array.from({ length: n }, (_, i) => [i % 2 ? 252 : 108, base - 190 - i * 118]);
-    pts.push([180, base - 200 - n * 118]); return { lay, pts, W: 360, H: base + 50, hs: pts.map((_, i) => i === n ? 150 : 140 + (i * 41) % 70) }; }
+  if (lay === 'peaks') { const S = 55, X = [84, 180, 276, 180], top = 120, pts = Array.from({ length: n }, (_, i) => [X[i % 4], top + 70 + (n - 1 - i) * S]);   // first lesson at the bottom
+    pts.push([X[n % 4], top]); return { lay, pts, W: 360, H: pts[0][1] + 100, hs: pts.map((_, i) => i === n ? 150 : 140 + (i * 41) % 70) }; }
   const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
 }
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
@@ -4179,6 +4180,7 @@ const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.leng
   if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
   if (i < pts.length - 1) { if (lay === 'raft') return [x - 70, m.riv - 52];   // on his raft by the jetty
     if (lay === 'pagoda') return [x + (x < 180 ? -46 : 46), y - 54];
+    if (lay === 'peaks' && x === 180) return [x + (i && pts[i - 1][0] > 180 ? 50 : -50), y - 50];   // a middle peak: on the side he came from, clear of the next steamer
     if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks') return [x + (x < 180 ? 50 : -50), y - 50]; }
   return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
 const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
@@ -4196,7 +4198,7 @@ function ucPane(u) {
   const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda') && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
@@ -10822,7 +10824,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.39';
+const APP_VERSION = '3.40';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
