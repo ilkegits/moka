@@ -1850,6 +1850,12 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-auto i{width:8px;height:8px;border-radius:50%;background:#E5483F;animation:unAura 1.2s ease-in-out infinite}
 .uc-in{height:100%;overflow:hidden}
 .uc-snake .uc-in{overflow-y:auto;scrollbar-width:none;overscroll-behavior-y:contain}
+/* v3.42: HSK 3 is one page you scroll down through, unit after unit, with no sideways swipe */
+.uc-v .uc-scroll{overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:auto;overscroll-behavior-y:contain}
+.uc-v .uc-strip{flex-direction:column;width:auto;height:auto}
+.uc-v .uc-pane{height:auto}
+.uc-v .uc-in{height:auto;overflow:visible}
+.uc-v .uc-lock{top:150px;transform:translate(-50%,0)}
 .uc-stage{position:relative}
 .uc-stage .un-bg{left:0;right:0}
 .uc-stage .un-bg::before{display:none}
@@ -1888,7 +1894,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-boss.won .uc-chal{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
 @keyframes ucChal{50%{transform:translateX(-50%) scale(1.07)}}
 .uc-round .un-boss{transform:translate(-50%,-142px) scale(.72);transform-origin:50% 142px}
-.uc-pagoda .un-boss,.uc-peaks .un-boss{transform:translate(-50%,-142px) scale(.62);transform-origin:50% 142px}
+.uc-pagoda .un-boss,.uc-peaks .un-boss,.uc-tall .un-boss{transform:translate(-50%,-142px) scale(.62);transform-origin:50% 142px}
 .un-shi .un-raft{position:absolute;left:-30px;top:40px;width:130px;height:56px;z-index:-1;pointer-events:none}
 .un-boss-fig svg{display:block;width:100%;height:100%;overflow:visible}
 .un-boss-aura{position:absolute;left:50%;top:96px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;
@@ -4146,10 +4152,19 @@ function unitNodes(n) {
                    stones  big flat stones zig-zagging up the page across the water, little stones for the path
                    peaks   tall karst peaks with a lesson on each top and rope bridges between, climbing up. v3.40:
                            a tight zig-zag (left, middle, right, middle...) on one screen, their feet behind the card
-   Each borrows its frame (how it is sized and scrolled) from the first three: UN_FRAME */
+   Each borrows its frame (how it is sized and scrolled) from the first three: UN_FRAME
+   v3.42: HSK 3 is one page you scroll down, every unit the same 'tall' look (ilkem: "for hsk3, everything is gonna move
+   downwards, every unit. no more right swiping"): the lessons zig-zag down, each steamer on top of something high (green
+   karst peaks, stepped rice-terrace hills, sandstone pillars with pines, wooden stilt towers, a kind per unit in turn),
+   rope bridges between them, Hu Hu on the last; grass below, a river along one side in some units. The seasons and the
+   river change gently across the seams between units (UC_VERT, UW3_*) */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
-const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['raft', 'stones', 'raft', 'peaks'] };
-const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round' };
+const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['tall', 'tall', 'tall', 'tall'] };
+const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall' };
+const UC_VERT = { 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
+const ucV = () => !!document.querySelector('.uc.uc-v');
+const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
+const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4169,6 +4184,8 @@ function unitMap(un, n) {
   if (lay === 'pagoda') { const T = 90, F = Math.ceil(n / 2), base = (F + 1) * T + 170, pts = Array.from({ length: n }, (_, i) => { const f = i / 2 | 0, r = (i ^ f) & 1;   // first floor left then right, the next right then left, and so on up
       return [180 + (r ? 1 : -1) * (92 - 8 * f), base - (f + 1) * T]; });
     pts.push([180, base - (F + 1) * T]); return { lay, pts, W: 360, H: base + 70, base: [180, base], T, F }; }
+  if (lay === 'tall') { const S = 92, X = [84, 180, 276, 180], pts = Array.from({ length: n }, (_, i) => [X[i % 4], 110 + i * S]);   // first lesson at the top, then down
+    pts.push([X[n % 4], pts[n - 1][1] + 150]); return { lay, pts, W: 360, H: pts[n][1] + 170, kind: UW3_KIND[(unK(un) - 1) % UW3_KIND.length], hs: pts.map((_, i) => i === n ? 120 : 128 + (i * 37) % 56) }; }
   if (lay === 'peaks') { const S = 55, X = [84, 180, 276, 180], top = 120, pts = Array.from({ length: n }, (_, i) => [X[i % 4], top + 70 + (n - 1 - i) * S]);   // first lesson at the bottom
     pts.push([X[n % 4], top]); return { lay, pts, W: 360, H: pts[0][1] + 100, hs: pts.map((_, i) => i === n ? 150 : 140 + (i * 41) % 70) }; }
   const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
@@ -4176,12 +4193,13 @@ function unitMap(un, n) {
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
+  if (i === pts.length - 1 && lay === 'tall') return [x + (x < 180 ? 78 : -74), y - 40];
   if (i === pts.length - 1 && (lay === 'pagoda' || lay === 'peaks')) return [x - 74, y - 40];
   if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
   if (i < pts.length - 1) { if (lay === 'raft') return [x - 70, m.riv - 52];   // on his raft by the jetty
     if (lay === 'pagoda') return [x + (x < 180 ? -46 : 46), y - 54];
-    if (lay === 'peaks' && x === 180) return [x + (i && pts[i - 1][0] > 180 ? 50 : -50), y - 50];   // a middle peak: on the side he came from, clear of the next steamer
-    if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks') return [x + (x < 180 ? 50 : -50), y - 50]; }
+    if ((lay === 'peaks' || lay === 'tall') && x === 180) return [x + (i && pts[i - 1][0] > 180 ? 50 : -50), y - 50];   // a middle peak: on the side he came from, clear of the next steamer
+    if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks' || lay === 'tall') return [x + (x < 180 ? 50 : -50), y - 50]; }
   return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
 const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
 const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !utPassed(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
@@ -4219,7 +4237,7 @@ function ucHud(u) {
 }
 function UnitView(un) {
   const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1);
-  return `<div class="screen fade-in c1 un uc"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
+  return `<div class="screen fade-in c1 un uc${UC_VERT[unitLv(u)] ? ' uc-v' : ''}"><header class="bar"><button class="icon-btn" data-act="c1-back" aria-label="Back">${I.back}</button>
     <div class="bar-title un-sign"><span class="un-sign-board"><small>Unit ${unK(u)}</small><b>${esc(UNIT(u)[0])}</b></span>
       <span class="uc-pill"><button data-uc="-1" aria-label="Previous unit"${u > us[0] ? '' : ' disabled'}>${I.chev}</button><b>${ucLabel(u)}</b><button data-uc="1" aria-label="Next unit"${u < us.at(-1) ? '' : ' disabled'}>${I.chev}</button></span></div>
     <button class="icon-btn" data-act="comic-replay" data-u="${u}" aria-label="Watch the comic again">${COMIC_I}</button></header>
@@ -4231,6 +4249,12 @@ function UnitView(un) {
 function ucFit() {
   const sc = $('.uc-scroll'); if (!sc) return; const vw = sc.clientWidth, vh = sc.clientHeight, S0 = sc.getBoundingClientRect();
   const top = Math.max(0, ($('.uc>.bar')?.getBoundingClientRect().bottom ?? S0.top) - S0.top - 6), bot = Math.max(0, S0.bottom - ($('.uc .un-hud')?.getBoundingClientRect().top ?? S0.bottom) + 4), av = vh - top - bot;
+  if (ucV()) { const ps = [...sc.querySelectorAll('.uc-pane')];   // the units down one page: each as wide as the screen and as tall as it needs, the first under the sign, the last above the card
+    ps.forEach((p, k) => { const map = p.querySelector('.un-map'), stg = p.querySelector('.uc-stage'), mh = vw * +map.dataset.h / +map.dataset.w, t0 = k ? 0 : top;
+      p.style.width = stg.style.width = vw + 'px'; stg.style.height = t0 + mh + (k === ps.length - 1 ? bot : 0) + 'px';
+      Object.assign(map.style, { width: vw + 'px', height: mh + 'px', left: '0px', top: t0 + 'px' });
+      const lk = p.querySelector('.uc-lock'); if (lk) lk.style.left = vw / 2 + 'px'; });
+    sc.dataset.top = top; return; }
   sc.querySelectorAll('.uc-pane').forEach(p => {
     const map = p.querySelector('.un-map'), stg = p.querySelector('.uc-stage'), W = +map.dataset.w, H = +map.dataset.h;
     let mw = vw, mh = vw * H / W, pw = vw, sh = Math.max(vh, top + mh + bot), my = top;
@@ -4243,7 +4267,7 @@ function ucFit() {
 }
 let ucU = 0, ucEat = null, ucPre = null, ucQuiet;   // ucPre: a baozi about to be eaten (its steamer still shown as it was); ucEat: the one being eaten (painted on the canvas above, not in the town)
 /* the unit in the middle of the screen becomes the one the sign, the pill, the comic button and the card are about */
-function ucWhich() { const sc = $('.uc-scroll'), x = sc.scrollLeft + sc.clientWidth / 2; let u = 0; sc.querySelectorAll('.uc-pane').forEach(p => { if (!u || p.offsetLeft <= x) u = +p.dataset.u; }); return u; }
+function ucWhich() { const sc = $('.uc-scroll'), v = ucV(), x = v ? sc.scrollTop + sc.clientHeight / 2 : sc.scrollLeft + sc.clientWidth / 2; let u = 0; sc.querySelectorAll('.uc-pane').forEach(p => { if (!u || (v ? p.offsetTop : p.offsetLeft) <= x) u = +p.dataset.u; }); return u; }
 let ucNew = 0;   // a unit you just moved on into: its comic plays once you stop there
 function ucSet(u) {
   if (u === ucU) return; if (ucU && u === ucU + 1) ucNew = u; else if (u < ucU) ucNew = 0; ucU = u; const us = ucList(unitLv(u)), b = $('.un-sign-board');
@@ -4255,13 +4279,13 @@ function ucSet(u) {
 }
 /* the strip at rest across the line between two units: slide to whichever has more of the screen. true if it moves */
 function ucSnap() {
-  const sc = $('.uc-scroll'); if (!sc) return false; const a = sc.scrollLeft, w = sc.clientWidth;
+  const sc = $('.uc-scroll'); if (!sc || ucV()) return false; const a = sc.scrollLeft, w = sc.clientWidth;
   for (const p of sc.querySelectorAll('.uc-pane')) { const b = p.offsetLeft;
     if (b > a + 2 && b < a + w - 2) { sc.scrollTo({ left: b - a > w / 2 ? b - w : b, behavior: stillMotion() ? 'auto' : 'smooth' }); return true; } }
   return false;
 }
 let ucKeep = null;   // where the strip (and each snake page) was, to draw it again in the same place
-const ucHold = () => { const sc = $('.uc-scroll'); ucKeep = sc ? { x: sc.scrollLeft, y: Object.fromEntries([...sc.querySelectorAll('.uc-snake')].map(p => [p.dataset.u, p.querySelector('.uc-in').scrollTop])) } : null; };
+const ucHold = () => { const sc = $('.uc-scroll'); ucKeep = sc ? { x: sc.scrollLeft, t: sc.scrollTop, y: Object.fromEntries([...sc.querySelectorAll('.uc-snake')].map(p => [p.dataset.u, p.querySelector('.uc-in').scrollTop])) } : null; };
 /* the course playing itself (Developer): Shi Shi eats his way along every unit, beats Hu Hu at the shrine and moves on
    to the next, with no lessons in between. Your real levels are kept first (devLvKeep) and put back when it ends, when
    you tap Stop or when you leave the course */
@@ -4296,19 +4320,21 @@ function ucAutoEnd(msg) {
   devLvRestore(); save(); toast(msg); if (S.view === 'course') { S.instant = true; render(); }
 }
 /* go to a unit: its start (a street from where you came in) */
-function ucGo(u, smooth = !stillMotion()) { const sc = $('.uc-scroll'), p = ucPane$(u); if (sc && p) sc.scrollTo({ left: p.offsetLeft, behavior: smooth ? 'smooth' : 'auto' }); }
+function ucGo(u, smooth = !stillMotion()) { const sc = $('.uc-scroll'), p = ucPane$(u); if (!sc || !p) return; const how = smooth ? 'smooth' : 'auto';
+  if (ucV()) sc.scrollTo({ top: p.previousElementSibling ? p.offsetTop - (+sc.dataset.top || 0) : 0, behavior: how }); else sc.scrollTo({ left: p.offsetLeft, behavior: how }); }
 /* bring a point of a unit's map into view: along the street, or down the snake page */
 function ucFocus(u, fx, fy, smooth) {
   const sc = $('.uc-scroll'), p = ucPane$(u); if (!sc || !p) return;
   const map = p.querySelector('.un-map').getBoundingClientRect(), x = map.left + fx * map.width, y = map.top + fy * map.height, how = smooth && !stillMotion() ? 'smooth' : 'auto';
+  if (ucV()) { const r = sc.getBoundingClientRect(); sc.scrollTo({ top: Math.max(0, sc.scrollTop + y - r.top - sc.clientHeight * .45), behavior: how }); return; }
   if (p.classList.contains('uc-side')) { const s = sc.getBoundingClientRect(), to = sc.scrollLeft + x - s.left - sc.clientWidth * .35;
     sc.scrollTo({ left: Math.max(p.offsetLeft, Math.min(to, p.offsetLeft + p.offsetWidth - sc.clientWidth)), behavior: how }); }
   else { if (!smooth) sc.scrollLeft = p.offsetLeft; if (p.classList.contains('uc-snake')) { const inn = p.querySelector('.uc-in'), r = inn.getBoundingClientRect(); inn.scrollTo({ top: inn.scrollTop + y - r.top - inn.clientHeight * .45, behavior: how }); } }
 }
 /* paint the towns near the screen and let go of the far ones (a street's town is a big picture) */
 function ucPaint() {
-  const sc = $('.uc-scroll'); if (!sc) return; const a = sc.scrollLeft, w = sc.clientWidth;
-  sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = p.offsetLeft, r = l + p.offsetWidth, near = r > a - w && l < a + 2 * w;
+  const sc = $('.uc-scroll'); if (!sc) return; const v = ucV(), a = v ? sc.scrollTop : sc.scrollLeft, w = v ? sc.clientHeight : sc.clientWidth;
+  sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = v ? p.offsetTop : p.offsetLeft, r = l + (v ? p.offsetHeight : p.offsetWidth), near = r > a - w && l < a + 2 * w;
     if (near && !p.dataset.p) { if (unitWorld(u, ucEat?.u === u ? { skip: ucEat.i } : {})) p.dataset.p = 1; }
     else if (p.dataset.p && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; delete p._glow; } });
 }
@@ -4317,8 +4343,8 @@ function mountUnit(un) {
   const us = ucList(unitLv(un)), go = us.includes(un) ? un : us.at(-1), me = ucMe(unitLv(un)), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
   ucFit(); ucU = 0; ucEat = null; ucPre = eat != null ? { u: me, i: +eat } : null;
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
-  if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
-  else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else sc.scrollLeft = ucPane$(go).offsetLeft;
+  if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; sc.scrollTop = ucKeep.t || 0; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
+  else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else if (ucV()) ucGo(go, false); else sc.scrollLeft = ucPane$(go).offsetLeft;
   ucSet(go); ucPaint();
   let raf = 0, touch = false;
   // once the strip comes to rest it never stays across two units: it settles on the one that has more of the screen.
@@ -4411,10 +4437,20 @@ const UW_LV = {
   6: { pals: [UW_WALL, UW_WALL_DUSK, UW_WALL_SNOW], base: ['wall'], extra: [[], [1], [8], [3], [7], [2]] },
   7: { pals: [UW_PALACE, UW_PALACE_DAY, 1, 8], base: ['palace'], extra: [['fire'], [1], [3], ['sky'], [5], [4], [2], ['pagoda'], [6]] },
 };
+/* v3.42: HSK 3's seasons down the page, a palette per unit (UW_MORE below): misty morning, spring, summer, golden
+   autumn, dusk. Each unit's ground fades into the next one's across the seam, so the page changes gently */
+const UW3_MIST = { grass: '#A6CDB2', grass2: '#AFD4BA', plaza: '#E4E6D4', wall: '#F4F1E6', wall2: '#DDE6DC', roof: '#3E6A6E', win: '#BDE9FF', tree: '#5A9A86', tree2: '#78B6A0', trunk: '#6A5A48', rock: '#A9B4B0', shadow: 'rgba(40,70,70,.2)', grid: '40,80,70', vig: 'rgba(0,0,0,0)', water: '#78BCCC', mist: .5 };
+const UW3_SPRING = { ...UW3_MIST, grass: '#9ECB70', grass2: '#A8D37A', tree: '#4E9A56', tree2: '#6CB86A', trunk: '#7A5236', rock: '#9AA89E', shadow: 'rgba(30,50,40,.22)', grid: '40,70,40', water: '#4FB0CF', mist: .18 };
+const UW3_SUMMER = { ...UW3_SPRING, grass: '#7DB65C', grass2: '#87BF66', tree: '#3B864A', tree2: '#56A65C', water: '#3A9EC0', mist: .1 };
+const UW3_GOLD = { ...UW3_SPRING, grass: '#C4B86A', grass2: '#CDC174', tree: '#98883A', tree2: '#C2A84C', trunk: '#6A4A30', rock: '#B0A088', shadow: 'rgba(100,60,20,.24)', grid: '100,70,20', water: '#4E9CB4', mist: .12 };
+const UW3_DUSK = { ...UW3_SPRING, grass: '#A99C7C', grass2: '#B2A584', tree: '#66765A', tree2: '#86946A', trunk: '#4A3424', rock: '#9A8E96', shadow: 'rgba(70,40,60,.28)', grid: '70,40,60', water: '#6C8EB4', mist: .3 };
+Object.assign(UW_MORE, Object.fromEntries([UW3_MIST, UW3_SPRING, UW3_SPRING, UW3_SUMMER, UW3_SUMMER, UW3_GOLD, UW3_GOLD, UW3_DUSK, UW3_MIST, UW3_SPRING].map((q, k) => [301 + k, [q, 'tall', []]])));
 const uwPal = un => { const T = UW_LV[unitLv(un)], p = UW_MORE[un]?.[0] ?? UW_PAL[un] ?? (T ? T.pals[(unK(un) - 1) % T.pals.length] : (unK(un) - 1) % 8 + 1); return typeof p === 'object' ? p : UW_PAL[p] || UW_PAL[1]; };
 const uwMarks = un => { const T = UW_LV[unitLv(un)]; return UW_MORE[un]?.[2] || (un <= 8 ? [un] : T ? [...T.base, ...T.extra[(unK(un) - 1) % T.extra.length]] : [(unK(un) - 1) % 8 + 1]); };
 const uwHex = c => c[0] === '#' ? [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)) : c.match(/\d+/g).slice(0, 3).map(Number);
 const uwSh = (c, k) => `rgb(${uwHex(c).map(v => Math.round(Math.max(0, Math.min(255, k >= 0 ? v + (255 - v) * k : v * (1 + k))))).join(',')})`;   // k > 0 lighter, k < 0 darker
+const uwMix = (a, b, t) => { const A = uwHex(a), B = uwHex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
+const uwHash = (a, b) => { let h = Math.imul(a, 73856093) ^ Math.imul(b, 19349663); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };   // a steady 0..1 for a tile, the same in every pane
 const UW_HZ = '"Noto Serif SC","Songti SC","STSong",serif';
 /* the path's curves, in the map's 360-wide units: one smooth line through the nodes, looping outward where a row turns back */
 const unitSegs = pts => pts.slice(1).map(([x1, y1], k) => { const [x0, y0] = pts[k];
@@ -4429,7 +4465,8 @@ function uwGeo(un) {
   const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.i], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
   if (ucPre?.u === un) { const a = spots[ucPre.i], b = spots[ucPre.i + 1]; if (a) a.state = 'cur'; if (b?.state === 'cur') b.state = 'locked'; }   // until he eats it, the town looks as you left it
   const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k, m, px };
-  if (m.lay === 'peaks') {   // v3.36: rope bridges from top to top, sagging in the middle
+  out.ml = M.left - B.left; out.mt = M.top - B.top;
+  if (m.lay === 'peaks' || m.lay === 'tall') {   // v3.36: rope bridges from top to top, sagging in the middle
     for (let i = 0; i < n; i++) { const a = px(pts[i]), b = px(pts[i + 1]), sag = 34 * k;
       for (let t = .1; t < .92; t += .065) { const u = 1 - t, x = u * u * a[0] + 2 * u * t * (a[0] + b[0]) / 2 + t * t * b[0], y = u * u * a[1] + 2 * u * t * ((a[1] + b[1]) / 2 + sag) + t * t * b[1] - 10;
         trail.push({ x, y, done: i < st.at }); } }
@@ -4521,7 +4558,7 @@ function unitWorld(un, o = {}) {
   const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
   const pal = uwPal(un), marks = uwMarks(un), has = m => marks.includes(m), night = pal.glow === 'night', warm = !!pal.glow;
   let seed = un * 131 + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const TW = 44, TH = 22, ox = W / 2, oy = H * .5;
+  const TW = 44, TH = 22, ox = W / 2, oy = G.lay === 'tall' ? H * .5 - (((box.closest('.uc-pane')?.offsetTop || 0) + H * .5) % TH) : H * .5;   // down the page the tiles line up across the seams
   const P = (i, j, z = 0) => [ox + (i - j) * TW / 2, oy + (i + j) * TH / 2 - z];
   const IJ = (x, y) => { const a = (x - ox) / (TW / 2), b = (y - oy) / (TH / 2); return [(a + b) / 2, (b - a) / 2]; };
   const poly = (pts, fill) => { c.beginPath(); pts.forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = fill; c.fill(); };
@@ -4531,7 +4568,18 @@ function unitWorld(un, o = {}) {
   /* the ground: grass, and paving round the boss */
   const cs = [IJ(-60, -60), IJ(W + 60, -60), IJ(-60, H + 60), IJ(W + 60, H + 60)];
   const i0 = Math.floor(Math.min(...cs.map(p => p[0]))), i1 = Math.ceil(Math.max(...cs.map(p => p[0]))), j0 = Math.floor(Math.min(...cs.map(p => p[1]))), j1 = Math.ceil(Math.max(...cs.map(p => p[1])));
-  const round = G.lay === 'round', lay = G.lay, M = G.m, PX = G.px, high = lay === 'pagoda' || lay === 'peaks', pc = IJ(G.boss.x, G.boss.y);
+  const round = G.lay === 'round', lay = G.lay, M = G.m, PX = G.px, tall = lay === 'tall', high = lay === 'pagoda' || lay === 'peaks' || tall, pc = IJ(G.boss.x, G.boss.y);
+  /* v3.42: HSK 3's downward page. A unit's ground fades into its neighbour's over the last 200 units before a seam (they
+     meet half and half on it), and the river runs along a side, swinging in or out across a seam instead of stopping */
+  const T3 = tall ? (() => { const us = lvUnits(unitLv(un)).map(U => U.un), ix = us.indexOf(un), pv = us[ix - 1], nx = us[ix + 1], k = G.k, top0 = box.closest('.uc-pane')?.offsetTop || 0, Z = 200;
+    const sm = t => t * t * (3 - 2 * t), side = u => u == null ? 0 : UW3_RIV[(unK(u) - 1) % UW3_RIV.length], me = side(un);
+    const wt = y => { const a = y / k, b = (H - y) / k; return pv != null && a < Z ? [pv, .5 * (1 - sm(a / Z))] : nx != null && b < Z ? [nx, .5 * (1 - sm(b / Z))] : [null, 0]; };
+    const bank = (sd, yg) => sd ? (sd > 0 ? 332 : 28) + 12 * Math.sin(yg / 110) + 6 * Math.sin(yg / 37) : null;
+    const rivX = y => { const yg = (top0 + y) / k, [q, w] = wt(y), sq = side(q); let a = bank(me, yg), b = q == null ? a : bank(sq, yg);
+      if (a == null && b == null) return null; if (a == null) a = sq > 0 ? 470 : -110; if (b == null) b = me > 0 ? 470 : -110; return a + (b - a) * w; };
+    return { d: Math.round((top0 + oy) / TH), wt, rivX, wet: (x, y) => { const r = rivX(y); return r != null && Math.abs((x - G.ml) / k - r) < 40; },
+      mix: (key, q, w) => q == null || !w ? pal[key] : uwMix(pal[key], uwPal(q)[key], w) };
+  })() : null;
   /* v3.36: paving under the temple looks: along the road of the gates, the courtyard, round the pagoda's foot */
   const pave = new Set(), paveAt = (x, y, r) => { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) if (Math.abs(i + .5 - a) + Math.abs(j + .5 - b) <= r) pave.add(key(i, j)); };
   if (lay === 'gates') { G.trail.forEach(d => paveAt(d.x, d.y, 1.4)); G.spots.forEach(s => paveAt(s.x, s.y, 2.2)); }
@@ -4545,14 +4593,16 @@ function unitWorld(un, o = {}) {
     for (const f of [.24, .76, .5, .36, .64, .14, .88]) { const y = f * H; if (y > 70 && ys.every(v => Math.abs(v - y) > far)) { const q = IJ(W / 2, y); rivS = Math.round(q[0] + q[1]); break; } } }
   let rivD = 3;
   if (lay === 'raft') { const q = IJ(W / 2, PX([0, M.riv])[1]); rivS = Math.round(q[0] + q[1]) - 3; rivD = 6; }   // v3.36: the river runs right along the street
-  const water = lay === 'stones' ? (i, j) => { const [x, y] = P(i + .5, j + .5); return x > 52 * G.k + 14 * Math.sin(y / 52) && x < W - 52 * G.k + 14 * Math.sin(y / 61 + 1); }   // the whole page is river but its banks
+  const water = tall ? (i, j) => T3.wet(...P(i + .5, j + .5)) : lay === 'stones' ? (i, j) => { const [x, y] = P(i + .5, j + .5); return x > 52 * G.k + 14 * Math.sin(y / 52) && x < W - 52 * G.k + 14 * Math.sin(y / 61 + 1); }   // the whole page is river but its banks
     : (i, j) => { if (rivS == null) return false; const s = i + j - rivS - Math.round(Math.sin((i - j) * .45) * 1.2); return s >= 0 && s < rivD; };
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
     const n = (rnd() - .5) * .07, pz = plaza(i, j);
+    if (tall) { const gi = i + T3.d, gj = j + T3.d, hn = (uwHash(gi, gj) - .5) * .07, [q, w] = T3.wt(P(i + .5, j + .5)[1]);
+      poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], water(i, j) ? uwSh(T3.mix('water', q, w), hn * 1.4 + (((gi - gj) % 3 + 3) % 3 ? 0 : .08)) : uwSh(T3.mix(((gi * 7 + gj * 3) % 5 + 5) % 5 ? 'grass' : 'grass2', q, w), hn)); continue; }
     poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], !pz && water(i, j) ? uwSh(pal.water || '#3FA2C6', n * 1.4 + ((i - j) % 3 ? 0 : .08))
       : uwSh(pz ? pal.plaza : (i * 7 + j * 3) % 5 ? pal.grass : pal.grass2, n + (pz && (i + j) % 2 ? -.06 : 0)));
   }
-  for (let k = 0; k < 26; k++) { const x = rnd() * W, y = rnd() * H, r = 40 + rnd() * 30;   // soft darker patches
+  for (let k = 0; k < 26; k++) { const x = rnd() * W, y = tall ? 110 + rnd() * (H - 220) : rnd() * H, r = 40 + rnd() * 30;   // soft darker patches (away from the seams down the page)
     c.save(); c.translate(x, y); c.scale(1, .5); const g = c.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, uwSh(pal.grass, -.2)); g.addColorStop(1, 'rgba(0,0,0,0)');
     c.globalAlpha = .4; c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill(); c.restore(); }
   // 田字格 on every tile
@@ -4570,7 +4620,7 @@ function unitWorld(un, o = {}) {
   const uwPeakZ = i => { const s = i < G.spots.length ? G.spots[i] : { x: G.boss.x, y: G.boss.y }, [a, b] = IJ(s.x, s.y - 6 + G.m.hs[i] * G.k); return a + b; };
   const uwPebble = (c, x, y) => { c.fillStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(x, y + 2, 12, 6, 0, 0, 7); c.fill(); c.fillStyle = '#7E857C'; c.beginPath(); c.ellipse(x, y + 1, 9, 4.6, 0, 0, 7); c.fill(); c.fillStyle = '#C9CDC2'; c.beginPath(); c.ellipse(x, y - 1, 9, 4.6, 0, 0, 7); c.fill(); };   // post: drawn over the town (the path up the pagoda, the rope bridges)
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j) || water(i, j)) occ.add(key(i, j));
-  if (rivS != null) { c.save(); c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1.6; c.lineCap = 'round';   // ripples
+  if (rivS != null || tall) { c.save(); c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1.6; c.lineCap = 'round';   // ripples
     for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (water(i, j) && !plaza(i, j) && (i * 5 + j * 3) % 4 === 0) { c.beginPath(); c.moveTo(...P(i + .25, j + .7)); c.lineTo(...P(i + .7, j + .25)); c.stroke(); }
     c.restore(); }
   const planked = new Set(), plank = (i, j) => { if (!water(i, j) || planked.has(key(i, j))) return; planked.add(key(i, j));
@@ -4586,14 +4636,14 @@ function unitWorld(un, o = {}) {
   else {
     if (rivS != null && !['raft', 'stones', 'peaks', 'pagoda'].includes(lay)) G.trail.forEach(({ x, y }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) plank(ti + a, tj + b); });
     if (!high) G.trail.forEach(({ x, y, done }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b)); if (lay === 'stones') uwPebble(c, x, y); else uwDot(c, x, y, done); });
-    const zOf = s => lay === 'pagoda' ? 1e6 + s.i : lay === 'peaks' ? uwPeakZ(s.i) + .02 : IJ(s.x, s.y).map(Math.floor).reduce((a, b) => a + b) + 1.5;
+    const zOf = s => lay === 'pagoda' ? 1e6 + s.i : lay === 'peaks' || tall ? uwPeakZ(s.i) + .02 : IJ(s.x, s.y).map(Math.floor).reduce((a, b) => a + b) + 1.5;
     G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); if (!high) for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
       if (s.i !== o.skip) objs.push({ z: zOf(s), draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
     uwLayFill();
   }
 
   /* what stands in the town */
-  const free = (i, j, w, d, pad = 0) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > 50 && y < H - 30 && x > -20 && x < W + 20; };
+  const free = (i, j, w, d, pad = 0) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > (tall ? 80 : 50) && y < H - 30 && x > -20 && x < W + 20; };
   const take = (i, j, w, d) => { for (let a = i; a < i + w; a++) for (let b = j; b < j + d; b++) occ.add(key(a, b)); };
   // a free place for a landmark w by d tiles and tall px high: its height covers the tiles behind it on screen too, so those must be free as well
   const spot = (w, d, cands, tall = 40) => { const up = Math.ceil(tall / TH); for (const [fx, fy] of cands) { const [ci, cj] = IJ(fx * W, fy * H), i = Math.round(ci - w / 2), j = Math.round(cj - d / 2);
@@ -4631,6 +4681,10 @@ function unitWorld(un, o = {}) {
     g.addColorStop(0, uwSh(pal.rock, .25)); g.addColorStop(1, uwSh(pal.rock, -.35)); c.fillStyle = g; c.beginPath(); c.moveTo(x - 9 * s, y); c.quadraticCurveTo(x - 9 * s, y - 11 * s, x - s, y - 12 * s); c.quadraticCurveTo(x + 9 * s, y - 10 * s, x + 9 * s, y); c.closePath(); c.fill(); } });
   const pole = (i, j, h = 46) => objs.push({ z: i + j + .5, sh: () => shade(i + .44, j + .44, .12, .12, h), draw: () => { const [x, y] = P(i + .5, j + .5);
     c.fillStyle = '#2A1C1C'; c.fillRect(x - 1.6, y - h, 3.2, h); c.fillRect(x - 6, y - h, 12, 2.4); lantern(x - 5, y - h + 8, 4.2); lantern(x + 5, y - h + 8, 4.2); lights.push([x, y, 34, .5]); } });
+  const bamboo = (i, j, s = 1) => objs.push({ z: i + j + .5, sh: () => blob(i + .5, j + .5, 12 * s, 40 * s), draw: () => { const [x, y] = P(i + .5, j + .5);   // v3.42: a clump of bamboo
+    for (let m = 0; m < 5; m++) { const bx = x + (m - 2) * 4 * s, h = (36 + (m * 13) % 20) * s, lean = (m - 2) * 1.6 * s;
+      c.strokeStyle = m % 2 ? uwSh(pal.tree2, .12) : pal.tree; c.lineWidth = 2.3 * s; c.lineCap = 'round'; c.beginPath(); c.moveTo(bx, y); c.quadraticCurveTo(bx + lean, y - h * .6, bx + lean * 2, y - h); c.stroke();
+      c.fillStyle = uwSh(pal.tree2, m % 2 ? .1 : -.05); for (let q = 0; q < 3; q++) { const ly = y - h * (.5 + q * .2), lx = bx + lean * (1.1 + q * .4); c.beginPath(); c.ellipse(lx + (q % 2 ? 5 : -5) * s, ly, 6.5 * s, 1.8 * s, q % 2 ? .5 : -.5, 0, 7); c.fill(); } } } });
   const at = (p, w, d, f) => { if (p) objs.push({ z: p[0] + p[1] + w + d, ...f(p[0], p[1]) }); };
   /* ---- v3.36: the pieces of the temple and river looks ---- */
   function occR(x, y, r) { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) occ.add(key(i, j)); }
@@ -4654,12 +4708,64 @@ function unitWorld(un, o = {}) {
     const h = yb - yt; c.save(); c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 14, yb, wd * 1.1, wd * .4, 0, 0, 7); c.fill(); c.restore();
     const g = c.createLinearGradient(x - wd, 0, x + wd, 0); g.addColorStop(0, uwSh(pal.tree2, .25)); g.addColorStop(.45, pal.tree2); g.addColorStop(1, uwSh(pal.tree, -.3));
     c.beginPath(); c.moveTo(x - wd, yb); c.bezierCurveTo(x - wd * .9, yb - h * .45, x - wd * .7, yt + 18, x - wd * .55, yt + 6); c.quadraticCurveTo(x, yt - 10, x + wd * .55, yt + 6);
-    c.bezierCurveTo(x + wd * .7, yt + 18, x + wd * .9, yb - h * .45, x + wd, yb); c.closePath(); c.fillStyle = g; c.fill();
+    c.bezierCurveTo(x + wd * .7, yt + 18, x + wd * .9, yb - h * .45, x + wd, yb); c.quadraticCurveTo(x, yb + wd * .32, x - wd, yb); c.closePath(); c.fillStyle = g; c.fill();
     c.save(); c.clip(); c.strokeStyle = 'rgba(30,70,50,.26)'; c.lineWidth = 2;
     for (let k = 0; k < 9; k++) { const xx = x - wd + (k + .5) * wd * 2 / 9 + rnd() * 8 - 4; c.beginPath(); c.moveTo(xx, yt + 20 + rnd() * 30); c.quadraticCurveTo(xx + 4, yb - h * .4, xx - 2, yb); c.stroke(); }
     c.fillStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.ellipse(x - wd * .45, yt + h * .35, wd * .18, h * .3, -.1, 0, 7); c.fill(); c.restore();
     const tg = c.createLinearGradient(0, yt - 14, 0, yt + 14); tg.addColorStop(0, uwSh(pal.grass2, .2)); tg.addColorStop(1, pal.grass); c.beginPath(); c.ellipse(x, yt + 4, wd * .58, 15, 0, 0, 7); c.fillStyle = tg; c.fill(); }
+  function ropes(all) { c.save(); c.lineCap = 'round';   // the rope bridges from top to top, plank by plank
+        for (let i = 0; i < all.length - 1; i++) { const A = all[i], B = all[i + 1], sag = 34 * G.k, ax = A.x + (B.x > A.x ? 26 : -26), bx2 = B.x + (B.x > A.x ? -26 : 26), ay = A.y - 10, by2 = B.y - 10, mx = (ax + bx2) / 2, my = (ay + by2) / 2 + sag;
+          const q = t => { const u = 1 - t; return [u * u * ax + 2 * u * t * mx + t * t * bx2, u * u * ay + 2 * u * t * my + t * t * by2]; };
+          for (let t = .06; t < .96; t += .06) { const [x, y] = q(t); c.strokeStyle = i < G.spots.filter(s => s.state === 'done').length ? '#A8743E' : '#8A5A2E'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 1, y - 5); c.lineTo(x + 1, y + 5); c.stroke(); }
+          c.strokeStyle = '#5A3A1E'; c.lineWidth = 1.6; [-5, 5].forEach(o => { c.beginPath(); c.moveTo(ax, ay + o); c.quadraticCurveTo(mx, my + o, bx2, by2 + o); c.stroke(); }); }
+    c.restore(); }
+  /* ---- v3.42: what HSK 3's steamers stand on. Each takes the top (x, yt) and foot height yb, wd its size ---- */
+  const pine = (x, y, s) => { c.fillStyle = pal.trunk; c.fillRect(x - s, y - 4 * s, 2 * s, 4 * s);
+    [[-3, 8], [-8, 6], [-12, 4]].forEach(([dy, w]) => { c.fillStyle = uwSh(pal.tree, -.18); c.beginPath(); c.moveTo(x - w * s, y + dy * s); c.lineTo(x, y + (dy - 9) * s); c.lineTo(x + w * s, y + dy * s); c.closePath(); c.fill();
+      c.fillStyle = uwSh(pal.tree2, -.05); c.beginPath(); c.moveTo(x - w * .2 * s, y + dy * s); c.lineTo(x, y + (dy - 9) * s); c.lineTo(x - w * s, y + dy * s); c.closePath(); c.fill(); }); };
+  function pillar(x, yt, yb, wd) {   // a tall sandstone column, layered, with pines on its mossy top and a ledge
+    const w = wd * .7, h = yb - yt, N = 14, lx = t => x - w * (1 + .14 * t) + 3.5 * Math.sin(t * 8 + x * .07), rx = t => x + w * (1 + .12 * t) + 3 * Math.sin(t * 6.5 + x * .05);
+    c.save(); c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 12, yb, w * 1.5, w * .45, 0, 0, 7); c.fill(); c.restore();
+    const path = () => { c.beginPath(); c.moveTo(lx(0), yt + 4); for (let k = 1; k <= N; k++) c.lineTo(lx(k / N), yt + 4 + h * k / N); c.quadraticCurveTo(x, yt + 4 + h + w * .45, rx(1), yt + 4 + h); for (let k = N - 1; k >= 0; k--) c.lineTo(rx(k / N), yt + 4 + h * k / N); c.closePath(); };
+    const g = c.createLinearGradient(x - w * 1.2, 0, x + w * 1.2, 0); g.addColorStop(0, '#DCCAA8'); g.addColorStop(.42, '#C2AA86'); g.addColorStop(1, '#7A624C');
+    path(); c.fillStyle = g; c.fill();
+    c.save(); path(); c.clip(); c.strokeStyle = 'rgba(80,55,35,.3)'; c.lineWidth = 1.4;
+    for (let yy = yt + 16; yy < yb; yy += 9 + rnd() * 6) { c.beginPath(); c.moveTo(x - w * 1.4, yy); c.quadraticCurveTo(x, yy + 4, x + w * 1.4, yy - 1); c.stroke(); }
+    c.strokeStyle = 'rgba(60,40,25,.32)'; c.lineWidth = 1.2; for (let m = 0; m < 3; m++) { const xx = x - w * .55 + m * w * .55 + rnd() * 6; c.beginPath(); c.moveTo(xx, yt + 20 + rnd() * 20); c.lineTo(xx + rnd() * 4 - 2, yb - rnd() * 30); c.stroke(); }
+    c.fillStyle = 'rgba(70,110,50,.28)'; c.beginPath(); c.ellipse(x - w * .55, yt + h * .55, w * .25, h * .12, .2, 0, 7); c.fill(); c.restore();
+    pine(lx(.42) + 3, yt + 4 + h * .42, .8);
+    const tg = c.createLinearGradient(0, yt - 10, 0, yt + 14); tg.addColorStop(0, uwSh(pal.grass2, .15)); tg.addColorStop(1, uwSh(pal.tree, -.05)); c.beginPath(); c.ellipse(x, yt + 4, w * 1.1, 12, 0, 0, 7); c.fillStyle = tg; c.fill();
+    pine(x - w * .95, yt + 2, .95); pine(x + w * 1.02, yt + 5, 1.1); }
+  function terrace(x, yt, yb, wd) {   // a round hill cut into rice terraces, a lit lip and a shaded step on each, water glinting in some
+    const w = wd * 1.3, h = yb - yt, ww = y => w * (.42 + .58 * Math.pow(Math.max(0, (y - yt) / h), .6));
+    c.save(); c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 14, yb, w * 1.15, w * .4, 0, 0, 7); c.fill(); c.restore();
+    const path = () => { c.beginPath(); c.moveTo(x - ww(yt), yt + 4); for (let k = 1; k <= 16; k++) { const y = yt + 4 + (h - 4) * k / 16; c.lineTo(x - ww(y), y); } c.quadraticCurveTo(x, yb + w * .34, x + ww(yb), yb); for (let k = 15; k >= 0; k--) { const y = yt + 4 + (h - 4) * k / 16; c.lineTo(x + ww(y), y); } c.closePath(); };
+    const g = c.createLinearGradient(x - w, 0, x + w, 0); g.addColorStop(0, uwSh(pal.grass2, .12)); g.addColorStop(.45, pal.grass); g.addColorStop(1, uwSh(pal.tree, -.25));
+    path(); c.fillStyle = g; c.fill(); c.save(); path(); c.clip();
+    for (let y = yt + 17, b = 0; y < yb + 4; y += 11, b++) { const e = ww(y) + 4;
+      c.strokeStyle = 'rgba(40,60,20,.3)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x - e, y + 3); c.quadraticCurveTo(x, y + 12, x + e, y + 3); c.stroke();
+      c.strokeStyle = 'rgba(255,255,225,.45)'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x - e, y); c.quadraticCurveTo(x, y + 9, x + e, y); c.stroke();
+      if (b % 3 === 1) { c.strokeStyle = 'rgba(200,236,255,.6)'; c.lineWidth = 2.4; c.beginPath(); c.moveTo(x - e * .8, y + 4); c.quadraticCurveTo(x - e * .3, y + 9, x + e * .15, y + 7.5); c.stroke(); } }
+    c.restore();
+    const tg = c.createLinearGradient(0, yt - 10, 0, yt + 14); tg.addColorStop(0, uwSh(pal.grass2, .2)); tg.addColorStop(1, pal.grass); c.beginPath(); c.ellipse(x, yt + 4, ww(yt) * 1.08, 12, 0, 0, 7); c.fillStyle = tg; c.fill(); }
+  function stilt(x, yt, yb, wd) {   // a wooden platform on tall stilts, braced, with a rail round its back
+    const w = wd * .78, d = w * .5, top = yt + 4, h = yb - top, C = [[x - w, top], [x, top - d], [x + w, top], [x, top + d]], L = C.map(([a, b]) => [x + (a - x) * .82, top + (b - top) * .82]);
+    c.save(); c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 12, yb + d * .5, w * 1.3, d * 1.1, 0, 0, 7); c.fill(); c.restore();
+    const leg = ([a, b], col, lw) => { c.strokeStyle = col; c.lineWidth = lw; c.beginPath(); c.moveTo(a, b); c.lineTo(a + (a - x) * .08, b + h); c.stroke(); c.fillStyle = '#8A8478'; c.beginPath(); c.ellipse(a + (a - x) * .08, b + h, lw * 1.3, lw * .6, 0, 0, 7); c.fill(); };
+    c.lineCap = 'round'; leg(L[1], '#4E3218', 4); leg(L[0], '#7A5230', 4.5); leg(L[2], '#5E3E22', 4.5);
+    c.strokeStyle = '#6A4628'; c.lineWidth = 2; for (let y0 = 22; y0 < h - 30; y0 += 46) [[0, 3], [3, 2]].forEach(([p, q]) => { const A = L[p], B = L[q]; c.beginPath(); c.moveTo(A[0], A[1] + y0); c.lineTo(B[0], B[1] + y0 + 40); c.moveTo(A[0], A[1] + y0 + 40); c.lineTo(B[0], B[1] + y0); c.stroke(); });
+    leg(L[3], '#8A5E34', 5);
+    poly([C[0], C[3], [C[3][0], C[3][1] + 7], [C[0][0], C[0][1] + 7]], '#6A4628'); poly([C[3], C[2], [C[2][0], C[2][1] + 7], [C[3][0], C[3][1] + 7]], '#4E3218');
+    poly(C, '#C69A62'); c.strokeStyle = 'rgba(90,55,25,.4)'; c.lineWidth = 1; for (let t = .2; t < 1; t += .2) { c.beginPath(); c.moveTo(C[0][0] + (C[1][0] - C[0][0]) * t, C[0][1] + (C[1][1] - C[0][1]) * t); c.lineTo(C[3][0] + (C[2][0] - C[3][0]) * t, C[3][1] + (C[2][1] - C[3][1]) * t); c.stroke(); }
+    c.strokeStyle = '#7A5230'; c.lineWidth = 2; [C[0], C[1], C[2]].forEach(([a, b]) => { c.beginPath(); c.moveTo(a, b); c.lineTo(a, b - 12); c.stroke(); });
+    c.beginPath(); c.moveTo(C[0][0], C[0][1] - 11); c.lineTo(C[1][0], C[1][1] - 11); c.lineTo(C[2][0], C[2][1] - 11); c.stroke(); }
   function uwLayFill() {
+    if (tall) { const all = [...G.spots, { i: G.spots.length, x: G.boss.x, y: G.boss.y, boss: 1 }], body = { karst, terrace, pillar, stilt }[M.kind] || karst;
+      all.forEach(s => { const h = M.hs[s.i] * G.k, yt = s.y - 6, yb = yt + h, wd = (s.boss ? 64 : 54) * Math.min(1.15, G.k); occR(s.x, yb, 2.6); objs.push({ z: uwPeakZ(s.i), draw: () => body(s.x, yt, yb, wd) }); });
+      post.push(() => { ropes(all); if (!pal.mist) return;   // mist drifting between the peaks, away from the seams
+        for (let k = 0; k < 3; k++) { const y = 160 + rnd() * (H - 320); for (let m = 0; m < 6; m++) { const x = (m / 5) * W, r = 110, g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(255,255,255,${.5 * pal.mist})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+          c.save(); c.translate(x, y); c.scale(1, .3); c.translate(-x, -y); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.restore(); } } });
+    }
     if (lay === 'gates') G.spots.forEach(s => paifang(s.x, s.y - 30));
     if (lay === 'stones') {
       G.spots.forEach(s => { const z = zOfSpot(s) - .01; objs.push({ z, draw: () => { const x = s.x, y = s.y + 6, rx = 48, ry = 25;
@@ -4711,12 +4817,7 @@ function unitWorld(un, o = {}) {
     if (lay === 'peaks') { const all = [...G.spots, { i: G.spots.length, x: G.boss.x, y: G.boss.y, boss: 1 }];
       all.forEach(s => { const h = M.hs[s.i] * G.k, yt = s.y - 6, yb = yt + h, wd = (s.boss ? 64 : 56) * Math.min(1.15, G.k), [a, b] = IJ(s.x, yb); occR(s.x, yb, 2.6);
         objs.push({ z: uwPeakZ(s.i), draw: () => karst(s.x, yt, yb, wd) }); });
-      post.push(() => { c.save(); c.lineCap = 'round';   // the rope bridges, plank by plank
-        for (let i = 0; i < all.length - 1; i++) { const A = all[i], B = all[i + 1], sag = 34 * G.k, ax = A.x + (B.x > A.x ? 26 : -26), bx2 = B.x + (B.x > A.x ? -26 : 26), ay = A.y - 10, by2 = B.y - 10, mx = (ax + bx2) / 2, my = (ay + by2) / 2 + sag;
-          const q = t => { const u = 1 - t; return [u * u * ax + 2 * u * t * mx + t * t * bx2, u * u * ay + 2 * u * t * my + t * t * by2]; };
-          for (let t = .06; t < .96; t += .06) { const [x, y] = q(t); c.strokeStyle = i < G.spots.filter(s => s.state === 'done').length ? '#A8743E' : '#8A5A2E'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 1, y - 5); c.lineTo(x + 1, y + 5); c.stroke(); }
-          c.strokeStyle = '#5A3A1E'; c.lineWidth = 1.6; [-5, 5].forEach(o => { c.beginPath(); c.moveTo(ax, ay + o); c.quadraticCurveTo(mx, my + o, bx2, by2 + o); c.stroke(); }); }
-        c.restore();
+      post.push(() => { ropes(all);
         for (let k = 0; k < 3; k++) { const y = H * (.35 + k * .25); c.save(); for (let m = 0; m < 6; m++) { const x = (m / 5) * W, g = c.createRadialGradient(x, y, 0, x, y, 120); g.addColorStop(0, 'rgba(255,255,255,.32)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.save(); c.translate(x, y); c.scale(1, .3); c.beginPath(); c.arc(0, 0, 120, 0, 7); c.fill(); c.restore(); } c.restore(); } });
     }
   }
@@ -4804,14 +4905,21 @@ function unitWorld(un, o = {}) {
     lantern(...P(i + .2, j + 3.2, 34), 5); lantern(...P(i + 3.8, j + 3.2, 34), 5); } }));
 
   // lantern poles beside the path, now and then
-  let lastY = -1e9; G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
+  let lastY = -1e9; if (!tall) G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
   // houses and trees on the open ground (a long street gets more of them)
   const spread = G.lay === 'side' ? W / G.k / 360 : 1;
-  for (let t = 0, made = 0; t < 500 && made < Math.round((has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
+  for (let t = 0, made = 0; t < 500 && made < Math.round((tall ? 0 : has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
     if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
-  for (let t = 0, made = 0, most = Math.round(26 * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
-    if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
+  for (let t = 0, made = 0, most = Math.round((tall ? 34 : 26) * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
+    if (tall && rnd() < .22) bamboo(fi, fj, .9 + rnd() * .4); else if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
 
+  if (tall) { const y = H * (.3 + .4 * rnd()), r = T3.rivX(y);   // v3.42: a fisherman on his bamboo raft, on the river
+    if (r != null && r > 6 && r < 354) { const x = G.ml + r * G.k, [a, b] = IJ(x, y); objs.push({ z: a + b, draw: () => {
+      c.fillStyle = 'rgba(0,40,60,.22)'; c.beginPath(); c.ellipse(x + 3, y + 7, 30, 8, 0, 0, 7); c.fill();
+      for (let m = 0; m < 5; m++) { c.fillStyle = m % 2 ? '#CDB463' : '#E6D58A'; c.strokeStyle = '#7E6E28'; c.lineWidth = .8; c.beginPath(); c.ellipse(x - 4 + m * 2.4, y - 4 + m * 3.2, 25, 2.6, -.32, 0, 7); c.fill(); c.stroke(); }
+      c.strokeStyle = '#4A3220'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x + 4, y - 18); c.lineTo(x + 30, y - 40); c.stroke();
+      c.fillStyle = '#3E5A7A'; c.fillRect(x - 3, y - 16, 8, 13); c.fillStyle = '#E8D3A0'; c.beginPath(); c.moveTo(x - 9, y - 15); c.lineTo(x + 1, y - 25); c.lineTo(x + 11, y - 15); c.closePath(); c.fill();
+      c.fillStyle = '#1E2228'; c.beginPath(); c.ellipse(x - 14, y - 6, 4, 6, 0, 0, 7); c.fill(); c.beginPath(); c.arc(x - 15, y - 13, 2.6, 0, 7); c.fill(); c.fillStyle = '#E8B040'; c.beginPath(); c.moveTo(x - 17, y - 13); c.lineTo(x - 22, y - 12); c.lineTo(x - 17, y - 11.5); c.fill(); } }); } }
   /* paint: shadows, then everything back to front, then light */
   objs.forEach(b => b.sh && b.sh());
   objs.sort((a, b) => a.z - b.z).forEach(b => b.draw());
@@ -4834,7 +4942,8 @@ function unitWorld(un, o = {}) {
     c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, s * 6); g.addColorStop(0, 'rgba(255,200,110,.45)'); g.addColorStop(1, 'rgba(255,200,110,0)'); c.fillStyle = g; c.fillRect(x - s * 6, y - s * 6, s * 12, s * 12); c.restore();
     c.fillStyle = '#FFD58A'; c.beginPath(); c.moveTo(x - s, y - s * 1.3); c.lineTo(x + s, y - s * 1.3); c.lineTo(x + s * .8, y + s); c.lineTo(x - s * .8, y + s); c.fill(); }
   if (pal.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { c.beginPath(); c.arc(rnd() * W, rnd() * H, 1.2 + rnd() * 1.8, 0, 7); c.fill(); } }
-  const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H);
+  if (tall) { const v = c.createLinearGradient(0, 0, W, 0); v.addColorStop(0, 'rgba(20,40,30,.16)'); v.addColorStop(.18, 'rgba(20,40,30,0)'); v.addColorStop(.82, 'rgba(20,40,30,0)'); v.addColorStop(1, 'rgba(20,40,30,.16)'); c.fillStyle = v; c.fillRect(0, 0, W, H); }   // down the page only the sides darken, so the seams don't show
+  else { const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H); }
   cv.classList.add('on');
   if (round) unitTable(un, o.skip); else uwGlowSet(box.closest('.uc-pane'), G);
   return G;
@@ -4859,9 +4968,9 @@ function uwGlowSet(p, G) {
 }
 function uwGlowTick(now) {
   uwGlowRaf = 0; const sc = $('.uc-scroll'); if (!sc) return;
-  const a = sc.scrollLeft, w = sc.clientWidth, still = stillMotion();
+  const v = ucV(), a = v ? sc.scrollTop : sc.scrollLeft, w = v ? sc.clientHeight : sc.clientWidth, still = stillMotion();
   sc.querySelectorAll('.uc-pane[data-p]').forEach(p => {
-    const l = p.offsetLeft, cv = p.querySelector('canvas.uw-glow'); if (!still && (l + p.offsetWidth < a || l > a + w) || !cv || !p._glow) return;
+    const l = v ? p.offsetTop : p.offsetLeft, cv = p.querySelector('canvas.uw-glow'); if (!still && (l + (v ? p.offsetHeight : p.offsetWidth) < a || l > a + w) || !cv || !p._glow) return;
     const c = cv.getContext('2d'), head = still ? -1e9 : (now * .13) % (p._glowLen + 300) - 150;   // the wave: 130 px a second
     c.clearRect(0, 0, cv.width, cv.height); c.globalCompositeOperation = 'lighter';
     p._glow.forEach(d => { const k = Math.exp(-((d.s - head) ** 2) / 3200), tw = still ? 1 : .8 + .2 * Math.sin(now / 520 + d.s / 19);
@@ -4993,8 +5102,8 @@ function unitEat(un, i, then) {
   frame(performance.now());
 }
 let uwRz;
-addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { const sc = $('.uc-scroll'); if (!sc || $('.uw-anim')) return; const p = ucPane$(ucU), off = p ? sc.scrollLeft - p.offsetLeft : 0;
-  ucFit(); if (p) sc.scrollLeft = p.offsetLeft + off; sc.querySelectorAll('.uc-pane[data-p]').forEach(q => delete q.dataset.p); ucPaint(); }, 150); });
+addEventListener('resize', () => { clearTimeout(uwRz); uwRz = setTimeout(() => { const sc = $('.uc-scroll'); if (!sc || $('.uw-anim')) return; const p = ucPane$(ucU), v = ucV(), off = p ? v ? sc.scrollTop - p.offsetTop : sc.scrollLeft - p.offsetLeft : 0;
+  ucFit(); if (p && v) sc.scrollTop = p.offsetTop + off; else if (p) sc.scrollLeft = p.offsetLeft + off; sc.querySelectorAll('.uc-pane[data-p]').forEach(q => delete q.dataset.p); ucPaint(); }, 150); });
 /* Hu Hu, the challenger: a tiger's head on two little feet, like Shi Shi. cocky: one brow up, a fang out, arms folded;
    fire: your challenge is open, fists up; dizzy: beaten, spiral eyes and a plaster */
 function huHu(mood = 'cocky') {
@@ -10824,7 +10933,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.41';
+const APP_VERSION = '3.42';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
