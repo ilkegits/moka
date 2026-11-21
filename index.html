@@ -4157,9 +4157,12 @@ function unitNodes(n) {
    downwards, every unit. no more right swiping"): the lessons zig-zag down, each steamer on top of something high (green
    karst peaks, stepped rice-terrace hills, sandstone pillars with pines, wooden stilt towers, a kind per unit in turn),
    rope bridges between them, Hu Hu on the last; grass below, a river along one side in some units. The seasons and the
-   river change gently across the seams between units (UC_VERT, UW3_*) */
+   river change gently across the seams between units (UC_VERT, UW3_*)
+   v3.43: HSK 1 is all street (ilkem: "i dont want the alternating anymore, everything should be the swipeable mode"):
+   no page and no round table, and its steamers stand a little closer together (SIDE_GAP) */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
-const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['tall', 'tall', 'tall', 'tall'] };
+const SIDE_GAP = { 1: 128 };   // how far apart the steamers stand on a level's street (150 if not given)
+const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['tall', 'tall', 'tall', 'tall'] };
 const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall' };
 const UC_VERT = { 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
 const ucV = () => !!document.querySelector('.uc.uc-v');
@@ -4174,7 +4177,7 @@ const unRndAng = (i, n, rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
    the table each steamer's size (the back ones are further away) */
 function unitMap(un, n) {
   const lay = unitLay(un);
-  if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 250, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
+  if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -10933,7 +10936,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.42';
+const APP_VERSION = '3.43';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
