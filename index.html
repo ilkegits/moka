@@ -1938,18 +1938,22 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* v3.48: HSK 2's path. The page is a sheet of 田字格 practice paper (a background on the strip, five squares across, no
    canvas), every lesson a round button in a square of its own. --k: the screen's width over 360, so the buttons grow
    with the squares. A button's colours: --f face, --l the lip under it, --e its inner edge, --t the character */
-.uc-pp .uc-strip{min-height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23C0392B'%3E%3Cpath d='M0 0H72V72H0Z' stroke-opacity='.3'/%3E%3Cpath d='M36 0V72M0 36H72' stroke-opacity='.26' stroke-dasharray='4 4' stroke-dashoffset='-2'/%3E%3C/svg%3E") 0 0/20% auto}
+:root{--tzg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' fill='none' stroke='%23C0392B'%3E%3Cpath d='M0 0H72V72H0Z' stroke-opacity='.3'/%3E%3Cpath d='M36 0V72M0 36H72' stroke-opacity='.26' stroke-dasharray='4 4' stroke-dashoffset='-2'/%3E%3C/svg%3E")}   /* a square of 田字格 practice paper: red edge, dashed cross */
+.uc-pp .uc-strip{min-height:100%;background:var(--tzg) 0 0/20% auto}
 .uc-pp>.bar::before{content:"";position:absolute;left:-20px;right:-20px;top:0;height:136px;z-index:-1;pointer-events:none;background:linear-gradient(var(--paper) 66%,transparent)}
 .uc-path .un-bg{background:none}
 .uc-path .un-bg canvas{display:none}
 .uc-pane.uc-path.locked .uc-stage{filter:none}
-.uc-path .un-node{--f:#EFE7D8;--l:#D6C9B3;--e:#E2D7C3;--t:#BDB09A;display:block;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*58px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
-.uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFDD86,#F4C14E 62%);--l:#C4902A;--e:rgba(255,255,255,.42);--t:#3B1A12}
-.uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:#BC1A2C;--e:rgba(255,255,255,.24);--t:var(--seal-ink);z-index:2}
+/* v3.49: true circles (ilkem: "more circle-like and not a bit like oval-like... the mini shine which the start button has"):
+   the lip is inside the circle now, like the red buttons: darker along the bottom, a thin light edge on top, a soft shadow below. --d: that shadow */
+.uc-path .un-node{--f:#EFE7D8;--l:rgba(120,95,60,.2);--e:rgba(255,255,255,.7);--t:#BDB09A;--d:rgba(120,95,60,.4);display:block;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*58px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
+.uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFE08C,#F4C14E 58%);--l:rgba(140,85,0,.3);--e:rgba(255,255,255,.5);--t:#3B1A12;--d:rgba(150,100,10,.65)}
+.uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:rgba(60,10,5,.3);--e:rgba(255,255,255,.3);--t:var(--seal-ink);--d:rgba(120,30,20,.7);z-index:2}
 .uc-path .un-node small{display:none}
-.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*3px);border-radius:50%;font:900 calc(var(--k,1)*28px)/1 "Noto Serif SC",var(--hanzi);
-  background:var(--f);color:var(--t);box-shadow:inset 0 0 0 2px var(--e),0 calc(var(--k,1)*5px) 0 var(--l);transform:translateY(calc(var(--k,1)*-2.5px));transition:transform .08s,box-shadow .08s}
-.uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2.5px));box-shadow:inset 0 0 0 2px var(--e),0 0 0 var(--l)}
+.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*28px)/1 "Noto Serif SC",var(--hanzi);
+  background:var(--f);color:var(--t);box-shadow:inset 0 calc(var(--k,1)*-4px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*9px) calc(var(--k,1)*12px) calc(var(--k,1)*-9px) var(--d);transition:transform .08s,box-shadow .08s}
+.uc-path .un-node[data-s="cur"] .un-spot{text-shadow:0 1.5px 0 rgba(90,10,5,.45)}
+.uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2px));box-shadow:inset 0 calc(var(--k,1)*-2px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*4px) calc(var(--k,1)*8px) calc(var(--k,1)*-8px) var(--d)}
 .uc-path .un-node[data-s="cur"]::before{content:"";position:absolute;inset:calc(var(--k,1)*-9px);border-radius:50%;border:calc(var(--k,1)*4px) solid color-mix(in srgb,var(--seal-btn) 30%,transparent);animation:ppRing 1.8s ease-in-out infinite}
 .uc-path .un-node.pp-pop{animation:ppPop .55s ease-out}
 .pp-go{display:none;position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);width:70px;margin-left:-35px;padding:8px 0 9px;border-radius:12px;background:var(--card);color:var(--seal-btn);
@@ -1963,6 +1967,36 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-path .uc-chal{top:164px;height:34px;padding:0 15px;border-radius:17px;font-size:16.5px}
 .uc-path .uc-chal svg.i{width:19px;height:19px}
 .uc-path .un-shi{width:calc(var(--k,1)*72px);height:calc(var(--k,1)*68px);margin-left:calc(var(--k,1)*-36px)}
+/* v3.49: red envelopes on the path, and Hu Hu's bonus challenge beside the last one */
+.pp-lx{position:absolute;z-index:1;width:calc(var(--k,1)*42px);height:calc(var(--k,1)*52.5px);padding:0;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
+.pp-lx-e{width:calc(var(--k,1)*52px);height:calc(var(--k,1)*65px)}
+.pp-lx>svg{position:relative;display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 calc(var(--k,1)*3px) 0 rgba(120,20,15,.25));transform-origin:50% 88%}
+.pp-lx[data-s="locked"]>svg{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.55}
+.pp-lx[data-s="open"]>svg{filter:none;opacity:.78}
+.pp-lx[data-s="ready"]{z-index:2}
+.pp-lx[data-s="ready"]>svg{animation:ppLx 2.4s ease-in-out infinite}
+.pp-lx[data-s="ready"]::before{content:"";position:absolute;left:50%;top:50%;width:170%;aspect-ratio:1;margin:-85% 0 0 -85%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,50,.6),rgba(255,190,50,.22) 60%,transparent);animation:ppRing 1.8s ease-in-out infinite}
+.pp-lx:active>svg{transform:scale(.94)}
+.pp-lx-n{display:none;position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);padding:3px 7px 4px;border-radius:9px;background:#F8CF5F;color:#5A3200;font:800 11.5px/1 var(--ui);font-style:normal;white-space:nowrap;box-shadow:inset 0 -2px 0 rgba(140,85,0,.25)}
+.pp-lx[data-s="ready"] .pp-lx-n{display:block}
+.pp-lx.pp-lx-pop>svg{animation:ppLxPop .5s cubic-bezier(.2,1.3,.4,1)}
+.pp-lx-win{position:absolute;left:50%;bottom:calc(100% + 2px);z-index:3;display:flex;align-items:center;gap:4px;font:800 19px/1 var(--ui);color:#9A5200;white-space:nowrap;pointer-events:none;animation:ppWin 1.6s ease-out both}
+.pp-lx-win svg{flex:none;width:22px;height:22px}
+.pp-lx .chs-c{top:40%;z-index:3;pointer-events:none}
+@keyframes ppLx{0%,58%,100%{transform:rotate(0)}66%{transform:rotate(-9deg)}74%{transform:rotate(8deg)}82%{transform:rotate(-5deg)}90%{transform:rotate(3deg)}}
+@keyframes ppLxPop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes ppWin{0%{opacity:0;transform:translate(-50%,12px) scale(.6)}16%{opacity:1;transform:translate(-50%,-6px) scale(1.12)}28%{transform:translate(-50%,-4px) scale(1)}78%{opacity:1;transform:translate(-50%,-10px)}100%{opacity:0;transform:translate(-50%,-28px)}}
+.pp-hu{position:absolute;z-index:1;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*50px);padding:0;transform:translate(-50%,-60%);-webkit-tap-highlight-color:transparent}
+.pp-hu>svg{display:block;width:100%;height:100%;overflow:visible}
+.pp-hu[data-s="locked"]>svg{filter:grayscale(1) sepia(.4) brightness(1.4) contrast(.55);opacity:.6}
+.pp-hu:active>svg{transform:translateY(2px)}
+.pp-hu>i{position:absolute;left:50%;top:calc(100% + 1px);transform:translateX(-50%);display:flex;align-items:center;gap:3px;height:21px;padding:0 9px 1px;border-radius:11px;background:var(--card);color:var(--muted);font:700 11.5px/1 var(--ui);font-style:normal;white-space:nowrap;box-shadow:0 0 0 1.5px var(--line-2)}
+.pp-hu>i svg.i{width:12px;height:12px}
+.pp-hu[data-s="ready"]>i{color:var(--seal);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--seal) 45%,transparent)}
+.pp-hu[data-s="won"]>i{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 1.5px #3B1A12}
+/* v3.49: the unit's name and the story's name in Satoshi on the path's sign */
+.uc-pp .un-sign-board b{font:800 19px/1.15 var(--ui);letter-spacing:0}
+.uc-pp .uc-pill b{font:700 13px/1.6 var(--ui);letter-spacing:0}
 .pp-head{position:absolute;left:0;right:0;z-index:1;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 22px;text-align:center;pointer-events:none}
 .pp-head small{padding:1px 9px;background:var(--paper);font:800 11px/1.3 var(--ui);letter-spacing:.16em;text-transform:uppercase;color:var(--seal)}
 .pp-head small span{font:700 13.5px/1 var(--hanzi);letter-spacing:.08em}
@@ -1977,23 +2011,24 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
 .pp-jump.up svg{transform:rotate(-90deg)}
 .pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
-@media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop{animation:none}}
-/* ---------- the comic: one dark page, a panel per tap ---------- */
-#ob.cm{background:#241210;overflow:hidden;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop,.pp-lx>svg,.pp-lx::before{animation:none!important}.pp-lx-win{animation:none;transform:translate(-50%,-8px)}}
+/* ---------- the comic: one page, a panel per tap. v3.49: on 田字格 paper, not a dark page (ilkem: "it shouldn't be like a dark
+   background of the comic. It should ideally be a light background, like in the Tianzige") ---------- */
+#ob.cm{background:var(--paper) var(--tzg) 50% 0/78px auto;overflow:hidden;cursor:pointer}
 #ob.cm .ob-in{padding:0;height:100%;min-height:0}
-.cm-bar{display:flex;align-items:center;flex:none;height:calc(46px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 6px 0 18px;color:#FFF3E2}
+.cm-bar{display:flex;align-items:center;flex:none;height:calc(46px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 6px 0 18px;color:var(--ink)}
 .cm-bar b{flex:1;min-width:0;font:600 17px/1.1 var(--display);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cm-skip{flex:none;height:42px;padding:0 12px;font-size:14px;font-weight:700;color:#BFA994}
+.cm-skip{flex:none;height:42px;padding:0 12px;font-size:14px;font-weight:700;color:var(--muted)}
 .cm-stage{position:relative;flex:1;min-height:0}
 .cm-stage svg{position:absolute;inset:0;width:100%;height:100%}
 .cm-pan{opacity:0;transform-box:fill-box;transform-origin:50% 50%}
 .cm-pan.on{opacity:1;animation:cmIn .46s cubic-bezier(.2,1.25,.35,1) both}
 @keyframes cmIn{from{opacity:0;transform:translateX(var(--dx)) scale(.84) rotate(-3deg)}}
 .cm-foot{flex:none;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-height:128px;padding:8px 20px calc(16px + env(safe-area-inset-bottom))}
-.cm-line{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 16px;min-height:26px;margin:0;font-size:13.5px;line-height:1.5;color:#D8C5B0}
-.cm-line b{margin-right:6px;font-family:var(--hanzi);font-weight:600;font-size:17px;color:#FFF3E2}
-.cm-line i{margin-right:6px;font-style:normal;font-weight:700;color:#F4C14E}
-.cm-hint{display:grid;place-items:center;height:54px;margin:0;font-size:14px;font-weight:700;color:#BFA994;animation:cmHint 1.5s ease-in-out infinite}
+.cm-line{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 16px;min-height:26px;margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.cm-line b{margin-right:6px;font-family:var(--hanzi);font-weight:600;font-size:17px;color:var(--ink)}
+.cm-line i{margin-right:6px;font-style:normal;font-weight:700;color:var(--seal)}
+.cm-hint{display:grid;place-items:center;height:54px;margin:0;font-size:14px;font-weight:700;color:var(--muted);animation:cmHint 1.5s ease-in-out infinite}
 @keyframes cmHint{50%{opacity:.35}}
 .cm-go{width:100%;height:54px;font-size:17px;animation:donePop .45s cubic-bezier(.2,.9,.3,1.3) both}
 .cm-hint[hidden],.cm-go[hidden]{display:none}
@@ -3654,7 +3689,7 @@ function lesRow(h) {   // { h, p, en } for a lesson word
   return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
 }
 const lesDone = n => !!db.lessons[n]?.done;
-const lvWon = lv => lvUnits(lv).every(U => utPassed(U.un));
+const lvWon = lv => lvUnits(lv).every(U => unitWon(U.un));
 /* the level your lessons go on in (Play on the map): from where you started up to the highest level you have open, the
    first one with a boss still standing; your highest level if all are beaten; 0 if it has no lessons */
 function playLv() { const b = openLevel(); for (let l = Math.min(b, db.prefs.level || 1); l <= b; l++) if (lvHas(l) && !lvWon(l)) return l; return lvHas(b) ? b : 0; }
@@ -3664,10 +3699,22 @@ const lesHz = (h, kind = 0) => { const n = [...h].length; return ([[0, 112, 92, 
 const UT_PASS = 80;   // % right to pass
 const utPassed = un => !!db.utests[un]?.pass;
 const unitDone = un => LESSONS.every(L => L.un !== un || lesDone(L.n));
+/* v3.49: the Duolingo flow, for the levels listed here (HSK 2, the path). ilkem: "the challenge is voluntary for extra
+   points. When the last lecture is [done] in Unit 1, then Unit 2 opens up... instead of the challenge, I want the Li Xi...
+   I just want the Duolingo flow". In these levels a unit is won once its lessons are done (unitWon): that opens the next
+   unit and, after the last one, the next level. Hu Hu's challenge stays as a bonus beside the path (100 coins, and the
+   comic's ending). The unit's comic plays when you start its first lesson (lesStart), not when you open the unit.
+   Red envelopes (利是) stand on the path: one after half of a unit's lessons, a bigger one where the challenge used
+   to close the unit. db.lixi = { '<unit>m' | '<unit>e': { t: when it was opened, n: coins } }, counted by coinEarned */
+const LV_DUO = { 2: 1 };
+const unitWon = un => LV_DUO[unitLv(un)] ? unitDone(un) : utPassed(un);
+const LX_PAY = { m: 20, e: 50 };
+const lxGot = (un, w) => db.lixi?.[un + w];
 /* the unit test standing between you and the next lesson (its unit number), or 0: the next lesson starts a new unit, none of
    that unit is done yet, and the test before it isn't passed. Lessons you already finished stay open. All lessons done: the last test */
 function utDue(lv = playLv()) {
   const us = lvUnits(lv); if (!us.length) return 0;
+  if (LV_DUO[lv]) return 0;   // v3.49: no test stands in the way there
   const n = lesNext(lv), last = us.at(-1).un;
   if (!n) return utPassed(last) ? 0 : last;
   const L = LES(n); if (UNIT(L.un).k === 1 || LESSONS.some(x => x.un === L.un && lesDone(x.n))) return 0;
@@ -4148,19 +4195,20 @@ function comicPlay(un, part, then, o = {}) {
 }
 
 const unitLessons = un => LESSONS.filter(L => L.un === un);
-const unitOpen = un => { const U = UNIT(un); return !!U && ((U.k === 1 ? U.lv <= openLevel() : utPassed(un - 1)) || unitLessons(un).some(L => lesDone(L.n))); };   // a level's first unit is open once the level is
+const unitOpen = un => { const U = UNIT(un); return !!U && ((U.k === 1 ? U.lv <= openLevel() : unitWon(un - 1)) || unitLessons(un).some(L => lesDone(L.n))); };   // a level's first unit is open once the level is
 /* where a unit stands. at = the place on its path: 0 to n-1 the lesson you are on, n the boss, n+1 won */
-function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = utPassed(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
+function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = unitWon(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
 function unitGo(un) {   // tap a unit: its comic first (the first time, and again each time you come back to a unit you have won), whose Start button opens the campaign
   if (!UNIT(un)) return;
-  if (!unitOpen(un)) { toast(`Beat Hu Hu's challenge in Unit ${unK(un) - 1} first`); return; }
+  if (!unitOpen(un)) { toast(LV_DUO[unitLv(un)] ? `Finish Unit ${unK(un) - 1} first` : `Beat Hu Hu's challenge in Unit ${unK(un) - 1} first`); return; }
   const go = () => nav(unitUrl(un));
+  if (LV_DUO[unitLv(un)]) { go(); return; }   // v3.49: the roadmap first; its comic waits for the first lesson
   comicLoad(unitLv(un)).then(() => { if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go(); });
 }
 /* the lessons page: every unit as a level. Its picture is a panel of its comic (or its name in hanzi), the dots are
    its lessons and the diamond its boss */
 function UnitLevels(lv = S.cLv || 1) {
-  const us = lvUnits(lv), cur = us.find(U => !utPassed(U.un))?.un || 0;   // the unit you are on (0: every boss beaten)
+  const us = lvUnits(lv), cur = us.find(U => !unitWon(U.un))?.un || 0;   // the unit you are on (0: every boss beaten)
   return `<div class="lv-list">${us.map(U => {
     const [en, zh] = U, un = U.un, st = unitState(un), C = COMIC[un], on = un === cur && st.open;
     return `<button class="lv${st.won ? ' won' : st.open ? '' : ' locked'}${on ? ' cur' : ''}" data-act="unit-open" data-u="${un}" aria-label="Unit ${U.k}, ${esc(en)}${st.won ? ', won' : st.open ? `, ${st.nd} of ${st.ls.length} lessons done` : ', locked'}">
@@ -4242,8 +4290,12 @@ function unitMap(un, n) {
   if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'city') { const P0 = cityPlan(unitLv(un)), C = P0.byU[un], g = ([col, row]) => [140 * col - C.O, CITY_Y0 + 70 * row];
     return { lay, pts: [...C.pts.map(g), g(C.boss)], W: C.W, H: 580, city: C }; }
-  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, pts = Array.from({ length: n }, (_, i) => [C * (PP_COL[i % 4] + .5), C * (r0 + i + .5)]);   // a lesson a row, each in the middle of its square; two rows for the heading first (one bare row in the first unit)
-    pts.push([180, C * (r0 + n + 1) + 48]); return { lay, pts, W: 360, H: C * (r0 + n + 3), head: r0 > 1 ? 76 : 0 }; }   // a whole number of rows, so the squares run on from unit to unit
+  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, mid = Math.ceil(n / 2), at = s => [C * (PP_COL[s % 4] + .5), C * (r0 + s + .5)], side = s => PP_COL[s % 4] > 2 || s % 4 === 2 ? 1 : -1;
+    /* a stop a row, each in the middle of its square: the lessons, a red envelope after half of them (v3.49) and a bigger one
+       after the last (where Shi Shi stands once the unit is done); two rows for the heading first (one bare row in the first
+       unit). sl: each stop's place in the zig-zag; hu: Hu Hu and his bonus challenge, two squares off the last envelope */
+    const sl = Array.from({ length: n }, (_, i) => i < mid ? i : i + 1), e = n + 1, pts = [...sl.map(at), at(e)];
+    return { lay, pts, W: 360, H: C * (r0 + n + 3), head: r0 > 1 ? 76 : 0, sl: [...sl, e], side, mid: at(mid), midN: mid, hu: [C * (PP_COL[e % 4] - 2 * side(e) + .5), C * (r0 + e + .5)] }; }   // a whole number of rows, so the squares run on from unit to unit
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4262,7 +4314,7 @@ function unitMap(un, n) {
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
-  if (lay === 'path') return i === pts.length - 1 ? [x - 98, y - 74] : [x + (PP_COL[i % 4] > 2 || i % 4 === 2 ? 68 : -68), y - 34];   // in the empty square beside his lesson, on the outside of the bend
+  if (lay === 'path') return [x + m.side(m.sl[i]) * 68, y - 34];   // in the empty square beside his stop, on the outside of the bend
   if (i === pts.length - 1 && lay === 'tall') return [x + (x < 180 ? 78 : -74), y - 40];
   if (i === pts.length - 1 && (lay === 'pagoda' || lay === 'peaks')) return [x - 74, y - 40];
   if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
@@ -4271,8 +4323,8 @@ const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.leng
     if ((lay === 'peaks' || lay === 'tall') && x === 180) return [x + (i && pts[i - 1][0] > 180 ? 50 : -50), y - 50];   // a middle peak: on the side he came from, clear of the next steamer
     if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks' || lay === 'tall') return [x + (x < 180 ? 50 : -50), y - 50]; }
   return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' || lay === 'city' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
-const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
-const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !utPassed(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
+const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 || LV_DUO[lv] ? us : us.slice(0, k + 1); };   // v3.49: the path shows every unit, the locked ones pale   // the units on the strip, by number: the level's open ones and its first locked one
+const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !unitWon(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
 const ucPane$ = u => document.querySelector(`.uc-pane[data-u="${u}"]`);
 const ucLabel = u => esc(COMIC[u]?.title || UNIT(u)[1]);
 /* v3.36: the bamboo raft Shi Shi rides on the river (HSK 3's raft units) */
@@ -4289,8 +4341,14 @@ function ucPane(u) {
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
-  const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
-  const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
+  const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
+  /* v3.49, the path: no shrine. Red envelopes (ready once the lessons before them are done) and Hu Hu's bonus challenge beside the last one */
+  const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
+  const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
+  const huS = r?.pass ? 'won' : chal && st.open ? 'ready' : 'locked';
+  const extras = !path ? '' : lx('m', m.mid, lxS('m', m.midN)) + lx('e', pts[n], lxS('e', n))
+    + `<button class="pp-hu" data-s="${huS}" style="${pct(m.hu)}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's bonus challenge${huS === 'won' ? ', won' : huS === 'ready' ? ', for extra coins' : ', locked'}">${huHu(huS === 'won' ? 'dizzy' : huS === 'ready' ? 'fire' : 'cocky')}<i>${huS === 'won' ? `${TROPHY_I}${r.best}%` : 'Bonus'}</i></button>`;
+  const shrine = path ? extras : `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
   const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${lay === 'raft' ? UN_RAFT : ''}${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
   const R = UN_RND, table = lay === 'round' ? `<span class="un-grip" style="left:${((R.cx - R.rx - 64) / W * 100).toFixed(2)}%;top:${((R.cy - R.ry - 70) / H * 100).toFixed(2)}%;width:${((R.rx + 64) * 2 / W * 100).toFixed(2)}%;height:${((R.ry + 70) * 2 / H * 100).toFixed(2)}%"></span>`
@@ -4302,6 +4360,11 @@ function ucPane(u) {
 }
 function ucHud(u) {
   const lv = unitLv(u), st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(lv), due = utDue(lv), L = st.ls[st.nd], last = unitLast(u), up = lv < 7 && lvHas(lv + 1);
+  if (LV_DUO[lv]) {   // v3.49: no challenge in the way. A unit just finished: its red envelope first, then on to the next unit
+    if (!st.open) return `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
+    if (st.won && !lxGot(u, 'e')) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>A red envelope for you</b><i>${LX_PAY.e} coins inside</i></span><button class="btn btn-seal" data-act="lx-open" data-k="${u}e">Open</button>`;
+    if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
+  }
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${unK(u) - 1}</b><i>His challenge opens Unit ${unK(u)}</i></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
     : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
@@ -4414,9 +4477,11 @@ function ucPaint(ahead) {
 function mountUnit(un) {
   const sc = $('.uc-scroll'); if (!sc) return;
   const us = ucList(unitLv(un)), go = us.includes(un) ? un : us.at(-1), me = ucMe(unitLv(un)), shi = $('#unShi'), eat = shi?.dataset.eat, st = unitState(me);
+  { const lv = unitLv(un); if (LV_DUO[lv] && lvWon(lv) && lv < 7 && (db.prefs.unlocked || 1) < lv + 1) { db.prefs.unlocked = lv + 1; save(); } }   // v3.49: every lesson done before the challenge became a bonus: the next level is open
   ucFit(); ucU = 0; ucEat = null; ucPre = eat != null ? { u: me, i: +eat } : null;
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
   if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; sc.scrollTop = ucKeep.t || 0; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
+  else if (LV_DUO[unitLv(go)] && go !== me && unitWon(go) && !lxGot(go, 'e') && ucPane$(go)?.querySelector('.pp-lx-e')) { const e = ucPane$(go).querySelector('.pp-lx-e'); ucFocus(go, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, false); }   // v3.49: a unit just finished: at its red envelope
   else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else if (ucV()) ucGo(go, false); else sc.scrollLeft = ucPane$(go).offsetLeft;
   ucSet(go); ucPaint();
   let raf = 0, touch = false, idle = 0;
@@ -4427,7 +4492,7 @@ function mountUnit(un) {
   const rest = ms => { clearTimeout(ucQuiet); ucQuiet = setTimeout(() => {
     if (touch || !sc.isConnected) return; paintAhead(); if (ucSnap()) return;
     const u = ucWhich(); if (u !== ucNew) return; ucNew = 0;
-    if (S.view === 'course' && !ucAuto && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, () => setTimeout(ucSnap, 60), comicSeen(u).p1 ? { demo: 1 } : {}); }, ms); };
+    if (S.view === 'course' && !ucAuto && !LV_DUO[unitLv(u)] && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, () => setTimeout(ucSnap, 60), comicSeen(u).p1 ? { demo: 1 } : {}); }, ms); };
   // v3.48, the path: a round button brings you back to Shi Shi while he is off the screen (its arrow points to where he is)
   const jump = $('.pp-jump'), jumpSet = () => { if (!jump || !shi?.isConnected) return; const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect(), up = r.bottom < s.top + 112, dn = r.top > s.bottom - 96;
     jump.hidden = !(up || dn); jump.classList.toggle('up', up); };
@@ -5660,6 +5725,35 @@ function shiBody(mood) {
     : arm(-44, 44, -72, 70, 12) + arm(44, 44, 72, 70, 12) + paw(-74, 74, 200, .85) + paw(74, 74, 160, .85);
   return `<svg class="shi-body" viewBox="-104 -92 208 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="48" ry="8" fill="#000" opacity=".2"/>${arms}${lion(0, 0, 1, mood)}</svg>`;
 }
+/* v3.49, the Duolingo flow: a unit's comic plays when you start its first lesson (from its button, the card's Start or
+   Play on the map), and its Start button goes on into the lesson */
+const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && !lesDone(n) && n === lesNext(L.lv) && unitLessons(L.un)[0]?.n === n && !comicSeen(L.un).p1; };
+function lesStart(n) {
+  const go = () => nav(lesUrl(n)); if (!lesComicDue(n)) { go(); return; }
+  const L = LES(n); comicLoad(L.lv).then(() => { if (COMIC[L.un]) comicPlay(L.un, 0, go); else go(); });
+}
+/* a red envelope (利是) on the path: red paper, a gold cash coin for a seal; opened, its flap stands up */
+const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
+  ? '<path d="M6 21Q24-6 42 21Z" fill="#F7786B" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><rect x="5" y="19" width="38" height="37" rx="5" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><circle cx="24" cy="37.5" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><path d="M19.8 37.6l3 3 5.6-6.2" fill="none" stroke="#7A4A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+  : '<rect x="5" y="5" width="38" height="51" rx="6" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><path d="M5.5 12.5Q24 34 42.5 12.5V11a6 6 0 0 0-6-6H11.5a6 6 0 0 0-6 6Z" fill="#F4574A" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="25" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><rect x="20.6" y="21.6" width="6.8" height="6.8" rx="1" fill="#E3352B" stroke="#A8721A" stroke-width="1.6"/><path d="M14 47h20" stroke="#F8CF5F" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>') + '</svg>';
+/* open one (k: '<unit>m' or '<unit>e'): its coins come out right there and count at once. Locked: it says what is left */
+function lixiOpen(k) {
+  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? st.ls.length : Math.ceil(st.ls.length / 2);
+  if (!UNIT(un) || !LX_PAY[w] || lxGot(un, w)) return;
+  if (!st.open || st.nd < need) { toast(st.open ? `${plural(need - st.nd, 'more lesson')} to open it` : `Finish Unit ${unK(un) - 1} first`); return; }
+  const n = LX_PAY[w]; (db.lixi ||= {})[k] = { t: Date.now(), n };
+  if (db.coinShown != null) db.coinShown += n;   // shown here, so not poured into the bag again at the next payoff
+  save(); LOG.add('lixi', { unit: un, which: w, n, bal: coinBal() });
+  const el = document.querySelector(`.pp-lx[data-k="${k}"]`), sc = $('.uc-scroll'), hud = $('.uc .un-hud');
+  const show = () => { if (!el?.isConnected) return; haptic(14); el.dataset.s = 'open'; el.querySelector('svg').outerHTML = lixiSvg(true); el.classList.add('pp-lx-pop');
+    el.insertAdjacentHTML('beforeend', `<span class="pp-lx-win" role="status">${coinSvg()}<b>+${n}</b></span>` + [[-40, -10, 0], [40, -14, 70], [-31, 24, 120], [33, 26, 40]].map(([x, y, d]) => `<i class="chs-c" style="--x:${x}px;--y:${y}px;animation-delay:${d}ms">${coinSvg()}</i>`).join(''));
+    el.setAttribute('aria-label', `Red envelope, ${n} coins, opened`);
+    setTimeout(() => { el.classList.remove('pp-lx-pop'); el.querySelectorAll('.pp-lx-win,.chs-c').forEach(x => x.remove()); }, 1700); };
+  if (hud && ucU) hud.innerHTML = ucHud(ucU);
+  if (!el || !sc) return;
+  const r = el.getBoundingClientRect(), s = sc.getBoundingClientRect();
+  if (r.top < s.top + 150 || r.bottom > s.bottom - 110) { ucFocus(un, parseFloat(el.style.left) / 100, parseFloat(el.style.top) / 100, true); setTimeout(show, stillMotion() ? 0 : 480); } else show();
+}
 function lesSheet(n) {   // tap a lesson on the path: its words, and Start
   const L = LES(n), done = lesDone(n), next = lesNext(L.lv), due = utDue(L.lv);
   if (!done && due) { toast(`Pass the Unit ${unK(due)} test first`); return; }
@@ -5695,7 +5789,7 @@ function utSheet(un) {   // tap a unit test on the path
   const r = db.utests[un], n = unitLessons(un).length * UT_PER, last = unitLast(un);
   openSheet(`<div class="les-sh-top"><small>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</small><h3>Hu Hu's challenge</h3></div>
     <p class="ut-sh-what">${n} words from this unit, and two characters to write from memory. Each question comes once.</p>
-    <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${last ? lvDoneSay(unitLv(un)) : `opens Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])}`}</span></div>
+    <div class="ut-sh-goal"><b>${UT_PASS}%</b><span>right ${LV_DUO[unitLv(un)] ? `wins the bonus: ${PAY.unit} coins` : last ? lvDoneSay(unitLv(un)) : `opens Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])}`}</span></div>
     ${r?.pass ? `<p class="muted les-sh-note">Passed with ${r.best}%. Take it again any time.</p>` : r ? `<p class="muted les-sh-note">Your best so far: ${r.best}%.</p>` : ''}
     <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Challenge him again' : 'Take the challenge'}</button>`);
 }
@@ -5937,7 +6031,8 @@ function lesEndHtml() {
 function utEndHtml() {   // a unit test's result: passed (the next unit opens) or not yet (the words you missed, and Try again)
   const E = S.les, un = E.test, last = unitLast(un), lv = unitLv(un), missed = E.words.filter(w => E.missed.has(w.h));
   const right = E.total - E.dropW - E.wrong, of = E.total - E.dropW;
-  const sub = E.pass ? last ? `All of ${HSK_NAME(lv)} done.${lv < 7 ? ` ${HSK_NAME(lv + 1)} is open.` : ''}` : `Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])} is open.`
+  const sub = LV_DUO[lv] ? E.pass ? 'You beat Hu Hu. The bonus is yours.' : `You need ${UT_PASS}% to win the bonus. Go over the words below and try again.`
+    : E.pass ? last ? `All of ${HSK_NAME(lv)} done.${lv < 7 ? ` ${HSK_NAME(lv + 1)} is open.` : ''}` : `Unit ${unK(un) + 1} · ${esc(UNIT(un + 1)[0])} is open.`
     : `You need ${UT_PASS}% to ${last ? `finish ${HSK_NAME(lv)}` : `open Unit ${unK(un) + 1}`}. Go over the words below and try again.`;
   const mood = E.pass ? E.pct === 100 ? 'star' : 'cheer' : 'oops';
   return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
@@ -6095,6 +6190,7 @@ function finishLesson() {
   const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts;
   rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct); rec.pts = Math.max(rec.pts || 0, E.pts); rec.seals = Math.max(rec.seals || 0, seals);
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
+  { const lv = LES(E.n)?.lv; if (LV_DUO[lv] && lvLes(lv).every(L => lesDone(L.n))) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, lv + 1)); }   // v3.49: where the challenge is a bonus, a level's last lesson opens the next level
   E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
@@ -8147,7 +8243,8 @@ function coinEarned() {
   const les = Object.values(db.lessons || {}).filter(r => r?.done > from).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
   const story = new Set((db.readDone || []).filter(x => x.done > from).map(x => x.zh)).size;
   const chest = (db.chests || []).reduce((a, c) => a + (c.t > from ? c.n : 0), 0);   // the daily chest (chestTap)
-  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest;
+  const lixi = Object.values(db.lixi || {}).reduce((a, x) => a + (x.t > from ? x.n : 0), 0);   // v3.49: the red envelopes on the path (lixiOpen)
+  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest + lixi;
 }
 const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0) + Object.keys(db.foodOwn || {}).reduce((a, id) => a + (foodOf(id)?.price || 0), 0);
 /* v3.45: the food map's foods. One famous dish for a food city, bought with coins like a monument (db.foodOwn = { food: when you
@@ -9467,7 +9564,7 @@ function trailGo(lv) {
   LOG.add('map-build', { lv });
   if (trailLessons()) { const due = utDue(), n = lesNext();
     if (due) { A['ut-node']({ dataset: { u: due } }); return; }
-    if (n) { nav(lesUrl(n)); return; } }
+    if (n) { lesStart(n); return; } }
   nav('#/hsk/' + openLevel());
 }
 /* ---------- Prove words (once Fast unlock; the code still calls it Fast build: S.fb, #/build) ----------
@@ -11511,7 +11608,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.48';
+const APP_VERSION = '3.49';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -11559,7 +11656,7 @@ function nameSheet() {
    proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
    bag at nothing; neither pours a payoff for what it changed (db.coinShown). Set my coins (devCoinSet) puts any number in the
    bag by moving db.coinAdj, also kept first so Restore gives your own coins back. */
-const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
+const DEV_LV = ['lessons', 'utests', 'comic', 'lixi', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
   devLvKeep(); const now = Date.now();
@@ -11571,7 +11668,7 @@ function devLvMax() {
 }
 function devLvZero() {
   devLvKeep();
-  db.lessons = {}; db.utests = {}; db.comic = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
+  db.lessons = {}; db.utests = {}; db.comic = {}; db.lixi = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
   db.monOwn = {}; db.foodOwn = {}; db.foodSeen = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
 }
 function devLvRestore() {
@@ -12330,8 +12427,9 @@ const A = {
   'c1-open': t => nav('#/course/' + (lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1)),
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
-  'les-node': t => loadHsk().then(() => lesSheet(+t.dataset.n), () => toast('Lessons need the internet the first time')),
-  'les-go': t => { closeSheet(true); nav(lesUrl(+t.dataset.n)); },
+  'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; if (lesComicDue(n)) lesStart(n); else lesSheet(n); }, () => toast('Lessons need the internet the first time')),
+  'les-go': t => { closeSheet(true); lesStart(+t.dataset.n); },
+  'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
   'basics-open': () => nav('#/basics'),
