@@ -4145,7 +4145,9 @@ function unitNodes(n) {
    level (unK), whatever its world. A table seats up to nine steamers (all units have 9 lessons or fewer).
    v3.36: HSK 2 and 3 have looks of their own instead, from their worlds, in the same four-step rhythm:
    HSK 2, temples  gates   a stone road winding up the page, a painted gate behind every lesson
-                   pagoda  one tall pagoda, a balcony for every lesson, climbing up the page to Hu Hu on top
+                   pagoda  one pagoda, a balcony for every lesson, climbing up to Hu Hu on top. v3.38: two lessons a
+                           floor (left and right), so it fits on one screen like the table: no scrolling up a unit
+                           you reach by swiping sideways (ilkem: "it should start downstairs", "compress it without a scroll")
                    court   a temple courtyard round a bronze incense burner, on one screen; Hu Hu at the hall
    HSK 3, river    raft    a street along a river: lessons on jetties on both banks, Shi Shi rides a bamboo raft
                    stones  big flat stones zig-zagging up the page across the water, little stones for the path
@@ -4153,7 +4155,7 @@ function unitNodes(n) {
    Each borrows its frame (how it is sized and scrolled) from the first three: UN_FRAME */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
 const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['raft', 'stones', 'raft', 'peaks'] };
-const UN_FRAME = { gates: 'snake', pagoda: 'snake', stones: 'snake', peaks: 'snake', raft: 'side', court: 'round' };
+const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'snake', raft: 'side', court: 'round' };
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4170,8 +4172,9 @@ function unitMap(un, n) {
   if (lay === 'court') { const pts = Array.from({ length: n }, (_, i) => { const t = (200 - 220 * i / Math.max(1, n - 1)) * Math.PI / 180; return [180 + 132 * Math.cos(t), 330 + 80 * Math.sin(t)]; });
     pts.push([180, 196]); return { lay, pts, W: 360, H: 560, mid: [180, 330] }; }
   if (lay === 'gates' || lay === 'stones') { const pts = Array.from({ length: n }, (_, i) => [i % 2 ? 258 : 102, 156 + i * 118]); pts.push([180, 156 + n * 118 + 40]); return { lay, pts, W: 360, H: pts[n][1] + 110 }; }
-  if (lay === 'pagoda') { const T = 96, base = (n + 1) * T + 230, pts = Array.from({ length: n }, (_, i) => [180 + (i % 2 ? 1 : -1) * (86 - 5 * i), base - (i + 1) * T]);   // first lesson at the bottom
-    pts.push([180, base - (n + 1) * T]); return { lay, pts, W: 360, H: base + 80, base: [180, base], T }; }
+  if (lay === 'pagoda') { const T = 90, F = Math.ceil(n / 2), base = (F + 1) * T + 170, pts = Array.from({ length: n }, (_, i) => { const f = i / 2 | 0, r = (i ^ f) & 1;   // first floor left then right, the next right then left, and so on up
+      return [180 + (r ? 1 : -1) * (92 - 8 * f), base - (f + 1) * T]; });
+    pts.push([180, base - (F + 1) * T]); return { lay, pts, W: 360, H: base + 70, base: [180, base], T, F }; }
   if (lay === 'peaks') { const base = n * 118 + 400, pts = Array.from({ length: n }, (_, i) => [i % 2 ? 252 : 108, base - 190 - i * 118]);
     pts.push([180, base - 200 - n * 118]); return { lay, pts, W: 360, H: base + 50, hs: pts.map((_, i) => i === n ? 150 : 140 + (i * 41) % 70) }; }
   const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
@@ -4200,7 +4203,7 @@ function ucPane(u) {
   const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || lay === 'court' && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda') && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
@@ -4700,12 +4703,13 @@ function unitWorld(un, o = {}) {
       const [ca, cb] = IJ(mx, my);   // a low wall along the two near sides of the courtyard
       [[ca - 6.8, cb + 6.5, 13.6, .3], [ca + 6.5, cb - 6.8, .3, 13.6]].forEach(([i, j, w, d]) => objs.push({ z: i + j + w + d, sh: () => shade(i, j, w, d, 16), draw: () => { block(i, j, w, d, 16, '#C6402F'); roof(i, j, w, d, 16, 5, pal.glow ? '#2A2448' : '#2D3F5E', .12); } }));
     }
-    if (lay === 'pagoda') { const [bx, by] = PX(M.base), n = G.spots.length, ws = G.spots.map(s => Math.max(1.8, Math.abs(s.x - bx) / (TW / 2) - 1.3)), hw = M.T * G.k - 42;
+    if (lay === 'pagoda') { const [bx, by] = PX(M.base), n = M.F, fl = f => G.spots.filter(s => (s.i / 2 | 0) === f), hw = Math.max(16, M.T * G.k - 42);   // n floors, each with its lessons' balconies
+      const ws = Array.from({ length: n }, (_, f) => Math.max(1.8, Math.max(...fl(f).map(s => Math.abs(s.x - bx))) / (TW / 2) - 1.3));
       const w = t => t === 0 ? ws[0] + .3 : t <= n ? ws[t - 1] : Math.max(1.8, ws[n - 1] - .3);
-      const zt = t => t === 0 ? 0 : by - (t <= n ? G.spots[t - 1].y : G.boss.y);
+      const zt = t => t === 0 ? 0 : by - (t <= n ? fl(t - 1)[0].y : G.boss.y);
       const [pa, pb] = IJ(bx, by); occR(bx, by, w(0) / 2 + 1.6); occCol(bx, (w(0) / 2 + 1) * TW / 2, G.boss.y - 120, by);
       objs.push({ z: pa + pb + w(0) / 2, sh: () => shade(pa - w(0) / 2 - .2, pb - w(0) / 2 - .2, w(0) + .4, w(0) + .4, n * 60), draw: () => {
-        for (let t = 0; t <= n + 1; t++) { tier(bx, by, w(t), zt(t), hw); if (t >= 1 && t <= n) { const s = G.spots[t - 1]; balcony(s.x, by + 6, zt(t) - 6); } }
+        for (let t = 0; t <= n + 1; t++) { tier(bx, by, w(t), zt(t), hw); if (t >= 1 && t <= n) fl(t - 1).forEach(s => balcony(s.x, by + 6, zt(t) - 6)); }
         block(pa - .08, pb - .08, .16, .16, 30, '#F4C14E', zt(n + 1) + hw + 30); } });
       post.push(() => G.trail.forEach(d => uwDot(c, d.x, d.y, d.done)));
     }
@@ -10813,7 +10817,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.37';
+const APP_VERSION = '3.38';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
