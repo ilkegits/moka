@@ -8081,7 +8081,24 @@ function coinEarned() {
   const chest = (db.chests || []).reduce((a, c) => a + (c.t > from ? c.n : 0), 0);   // the daily chest (chestTap)
   return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest;
 }
-const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0);
+const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0) + Object.keys(db.foodOwn || {}).reduce((a, id) => a + (foodOf(id)?.price || 0), 0);
+/* v3.45: the food map's foods. One famous dish for a food city, bought with coins like a monument (db.foodOwn = { food: when you
+   bought it }). site: where it stands, just east of its city's pavilion; ar: its cut-out's height over width (food/<id>-i.webp,
+   baked in foods3d/studio.html with ?cut=1; food/<id>.webp is its picture for the shop) */
+const FOOD = [
+  { id: 'roujiamo', name: 'Roujiamo', nzh: '肉夹馍', en: "Xi'an", zh: '西安', site: [110.2, 34.1], price: 150, ar: .635, the: 'the ', about: 'Chopped braised pork stuffed into a crisp flatbread. People call it the Chinese hamburger.' },
+  { id: 'regan', name: 'Hot dry noodles', nzh: '热干面', en: 'Wuhan', zh: '武汉', site: [115.6, 30.35], price: 200, ar: .679, the: 'the ', about: 'Springy noodles tossed in sesame paste, Wuhan\'s breakfast on the go.' },
+  { id: 'xlb', name: 'Soup dumplings', nzh: '小笼包', en: 'Shanghai', zh: '上海', site: [122.75, 31.0], price: 300, ar: .681, the: 'the ', about: 'Little dumplings with eighteen folds and hot soup inside. Bite gently.' },
+  { id: 'hargow', name: 'Shrimp dumplings', nzh: '虾饺', en: 'Guangzhou', zh: '广州', site: [114.55, 22.9], price: 400, ar: .685, the: 'the ', about: 'See-through dumplings with a whole shrimp inside, the star of morning tea.' },
+  { id: 'mapo', name: 'Mapo tofu', nzh: '麻婆豆腐', en: 'Chengdu', zh: '成都', site: [105.35, 30.45], price: 500, ar: .640, the: '', about: 'Soft tofu in a fiery red sauce with minced beef and numbing Sichuan pepper.' },
+  { id: 'lanzhou', name: 'Lanzhou beef noodles', nzh: '兰州牛肉面', en: 'Lanzhou', zh: '兰州', site: [105.1, 35.85], price: 600, ar: .640, the: '', about: 'Clear beef broth, white radish, red chili oil, green coriander and noodles pulled by hand while you wait.' },
+  { id: 'gbr', name: 'Crispy sweet and sour pork', nzh: '锅包肉', en: 'Harbin', zh: '哈尔滨', site: [127.9, 45.55], price: 800, ar: .631, the: 'the ', about: 'Crisp slices of pork in a shiny sweet and sour glaze, first made in Harbin.' },
+  { id: 'guoqiao', name: 'Crossing-the-bridge noodles', nzh: '过桥米线', en: 'Kunming', zh: '昆明', site: [103.95, 24.8], price: 1000, ar: .656, the: 'the ', about: 'A bowl of very hot broth: you slide in the rice noodles and toppings yourself.' },
+  { id: 'kebab', name: 'Red willow lamb skewers', nzh: '红柳烤肉', en: 'Kashgar', zh: '喀什', site: [77.3, 39.25], price: 1200, ar: .560, the: 'the ', about: 'Fist-sized lamb and fat grilled on red willow branches, dusted with cumin and chili.' },
+  { id: 'duck', name: 'Peking roast duck', nzh: '北京烤鸭', en: 'Beijing', zh: '北京', site: [117.65, 39.65], price: 1500, ar: .583, the: 'the ', about: 'A glossy duck roasted over fruit wood, its crisp skin sliced at the table.' },
+];
+const foodOf = id => FOOD.find(f => f.id === id);
+const foodOwns = id => !!db.foodOwn?.[id];
 const coinBal = () => Math.max(0, coinEarned() + (db.coinAdj || 0) - coinSpent());
 const coinFmt = n => n.toLocaleString('en');
 function takePay() {   // what came in since the bag was last filled on screen: { n, bal }, or null
@@ -8386,6 +8403,7 @@ const Trail = (() => {
     [[95.3, 5.6], [98, 4], [100.4, 2.2], [103.8, -1], [102.3, -4], [100.3, -1], [98.6, 1.7], [96.5, 3.8]]];
   const CHINA = [...NE, ...COAST, ...WEST];
   const SITE = Object.fromEntries(TRAIL.map(c => [c.lv, c.site]));   // where each monument stands
+  const FSITE = Object.fromEntries(FOOD.map(f => [f.id, f.site]));   // v3.45: where each food stands on the food map
   // the kinds of country, later ones over earlier ones
   const BIOME = [
     ['plat', [[77, 36.5], [79, 32], [82, 30], [86, 28], [92, 27.6], [97, 28], [100, 28.5], [102.5, 30.5], [103.4, 33.5], [102, 36.5], [99, 38.6], [95, 39], [90, 37], [84, 36.6], [80, 37.4]]],
@@ -8461,7 +8479,7 @@ const Trail = (() => {
       woods: WOODS, sparse: 2.2, water: '#D9D5BD', lake: 'rgba(40,62,72,.5)', rim: '#F7EED8', lift: 'rgba(70,48,20,.34)', shade: [78, 60, 36], hi: [255, 251, 238], stone: [226, 219, 200],
       river: ['rgba(40,62,72,.16)', 'rgba(40,62,72,.62)'], pins: false } };
   /* v3.38: the food cities of the ink map, each a little pavilion with its name: [name, lon, lat] */
-  const INK_TOWNS = [['北京', 116.4, 39.9], ['西安', 108.94, 34.34], ['成都', 104.07, 30.67], ['上海', 121.47, 31.23], ['广州', 113.26, 23.13], ['武汉', 114.3, 30.59], ['昆明', 102.71, 25.04], ['拉萨', 91.11, 29.65], ['哈尔滨', 126.63, 45.75], ['长沙', 112.94, 28.23], ['兰州', 103.83, 36.06]];
+  const INK_TOWNS = [['北京', 116.4, 39.9], ['西安', 108.94, 34.34], ['成都', 104.07, 30.67], ['上海', 121.47, 31.23], ['广州', 113.26, 23.13], ['武汉', 114.3, 30.59], ['昆明', 102.71, 25.04], ['拉萨', 91.11, 29.65], ['哈尔滨', 126.63, 45.75], ['长沙', 112.94, 28.23], ['兰州', 103.83, 36.06], ['喀什', 75.99, 39.47]];   // v3.45: Kashgar, for its lamb skewers
   let SKIN = SKINS.mon;
   const HGT = { E: null, M: null, done: false };   // the heights of the land, worked out once and shared by both maps
   let DRAWN = null, CHINA_D = '';
@@ -8859,6 +8877,14 @@ const Trail = (() => {
     if (fresh) s += `<path class="tm-spark" d="M0 -3.5L.9 -.9L3.5 0L.9 .9L0 3.5L-.9 .9L-3.5 0L-.9 -.9Z" transform="translate(${-c.w + 4} ${-c.h + 4})"/><path class="tm-spark" style="animation-delay:-1.2s" d="M0 -3L.8 -.8L3 0L.8 .8L0 3L-.8 .8L-3 0L-.8 -.8Z" transform="translate(${c.w - 3} ${-c.h + 12})"/>`;
     return s + `<rect x="${f(-w * .8)}" y="${-top - 4}" width="${f(w * 1.6)}" height="${top + 14}" fill="transparent"/>`;   // narrow enough that neighbours (Shanghai, Hangzhou) do not steal each other's taps
   }
+  function dishPin(fd, own, bal) {
+    if (!own) return monument(null, { done: false, n: Math.min(fd.price, bal), total: fd.price });
+    const w = 22, h = w * 2 * fd.ar, fresh = !db.foodSeen?.[fd.id];
+    let s = `<ellipse class="tm-ring" rx="${w + 4}" ry="6.4" cy="1.5"/>`;
+    if (fresh) s += `<ellipse class="tm-ping" rx="${w - 1}" ry="4.6" cy="1"/>`;
+    s += `<g class="tm-up"><g class="tm-mon"><image href="food/${fd.id}-i.webp" x="${-w}" y="${f(-h * .86)}" width="${w * 2}" height="${f(h)}"/></g></g>`;
+    return s + `<rect x="${-w}" y="${f(-h * .9)}" width="${w * 2}" height="${f(h * .9 + 6)}" fill="transparent"/>`;
+  }
   const mini = (lv, st, show) => { const c = TRAIL[lv - 1]; return st.done || show ? `<svg${st.done ? '' : ' class="sil"'} viewBox="${-c.w - 5} ${-c.h - 3} ${c.w * 2 + 10} ${c.h + 8}" aria-hidden="true">${cutout(c)}</svg>`   // the same monument, for its card; one you do not own yet is only its silhouette
     : `<svg viewBox="-12 -12 24 24" aria-hidden="true"><g class="tm-q" transform="rotate(-6)"><rect x="-8" y="-8" width="16" height="16" rx="3.6"/><text y="4.6" text-anchor="middle">?</text></g></svg>`; };
   /* the camera */
@@ -8871,7 +8897,7 @@ const Trail = (() => {
     if (!pip(lon, lat, CORE)) {   // v3.12: or near a monument, so the camera can always come right down to one on the coast, an island or the far edge (Sanya, Taipei, Shanghai, Kashgar)
       const r = Math.min(6, .13 * (CAM.vh || CAM.h) / cl(o.z, zMin(), zMax()) / UY + .3);   // in degrees; wider than any view of a monument sets the middle away from it
       let n = nearest(lon, lat, CORE);
-      for (const s of Object.values(SITE)) { const dx = (lon - s[0]) * CS, dy = lat - s[1], d = Math.hypot(dx, dy);
+      for (const s of [...Object.values(SITE), ...Object.values(FSITE)]) { const dx = (lon - s[0]) * CS, dy = lat - s[1], d = Math.hypot(dx, dy);
         if (d <= r) { n = null; break; }
         if (d - r < n[0]) n = [d - r, s[0] + dx / d * r / CS, s[1] + dy / d * r]; }
       if (n) { lon = n[1]; lat = n[2]; } }
@@ -8884,7 +8910,7 @@ const Trail = (() => {
   const mScale = () => { const zo = (CAM.vw || CAM.w) / 76; return 1.5 * Math.pow(Math.min(CAM.z, zo) / 1.5, .6) * Math.pow(Math.max(1, CAM.z / zo), .2); };   // monuments grow more slowly than the land; v3.00: past the old closest view, slower still, so a price tag never fills the screen
   const camT = () => `translate(${(CAM.w / 2 - CAM.x * CAM.z).toFixed(2)} ${(CAM.h / 2 - CAM.y * CAM.z).toFixed(2)}) scale(${CAM.z.toFixed(4)})`;
   const texT = () => { const [x, y] = wp(TEX.lon, TEX.lat); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)}px,${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}px) scale(${(CAM.z / TEX.pxu).toFixed(5)})`; };
-  const pinT = lv => { const [x, y] = wp(...SITE[lv]); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
+  const pinT = lv => { const [x, y] = wp(...(SITE[lv] || FSITE[lv])); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   const CHEST = [115.5, 13];   // the daily chest's island, in the open South China Sea
   const chestT = () => { const [x, y] = wp(...CHEST); return `translate(${((x - CAM.x) * CAM.z + CAM.w / 2).toFixed(2)} ${((y - CAM.y) * CAM.z + CAM.h / 2).toFixed(2)}) scale(${mScale().toFixed(3)})`; };
   const nearby = () => CAM.z >= zHome() * 1.5;   // close enough for the price tags; from further away each is only a coin
@@ -8892,11 +8918,16 @@ const Trail = (() => {
     const fresh = states.find(x => x.done && !x.seen);
     return fresh ? view(...SITE[fresh.lv], CAM.w / 185, .47) : null; };
   function map(states, kind) {   // kind: 'mon' the monument map, 'food' the food map
-    const food = use(kind) === 'food'; if (food) CAM.sel = 0;
+    const food = use(kind) === 'food';
     if (CAM.x == null) Object.assign(CAM, home());
     const [under, over] = drawn(), box = `viewBox="0 0 ${CAM.w} ${CAM.h}" preserveAspectRatio="xMidYMid slice"`;
     let s = `<div class="tm-world"><svg id="tmSea" ${box} aria-hidden="true"><g class="tm-cam" transform="${camT()}">${under}</g></svg>
-      <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="${food ? 'The food map of China, an ink painting on silk paper: misty ink mountains, rivers and little pavilions at the great food cities, with clouds drifting over it. The foods are still to come. Drag to move it, pinch to zoom' : 'A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is'}"><g class="tm-cam" transform="${camT()}">${over}</g>`;
+      <svg id="tmSvg" ${box}${nearby() ? ' class="near"' : ''} role="group" aria-label="${food ? 'The food map of China, an ink painting on silk paper: misty ink mountains, rivers and little pavilions at the great food cities, with clouds drifting over it. Each famous dish stands by its city once it is yours; the others show their price. Drag to move it, pinch to zoom, tap a dish to see what it is' : 'A map of China with your monuments, and the price of each one you do not own yet. Drag to move it, pinch to zoom, tap a monument to see what it is'}"><g class="tm-cam" transform="${camT()}">${over}</g>`;
+    if (food) { const bal = coinBal(); CAM.sel = 0;   // v3.45: the foods, northern ones first
+      FOOD.slice().sort((a, b) => b.site[1] - a.site[1]).forEach(fd => { const own = foodOwns(fd.id), can = !own && bal >= fd.price;
+        const say = own ? `${fd.name}, ${fd.en}, yours` : `${fd.name}, ${fd.en}: ${fd.price} coins${can ? ', you can buy it' : ''}`;
+        s += `<g class="tm-pin${CAM.fsel === fd.id ? ' sel' : ''}" data-act="food-city" data-lv="${fd.id}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(fd.id)}">${dishPin(fd, own, bal)}</g>`; }); }
+    else CAM.fsel = 0;
     if (!food) TRAIL.map((c, i) => ({ c, st: states[i], i })).sort((a, b) => SITE[b.c.lv][1] - SITE[a.c.lv][1]).forEach(({ c, st }) => {   // northern ones first, so nearer ones overlap them
       const say = st.done ? `${c.name}, ${c.en}, yours` : `${c.name}, ${c.en}: ${st.total} coins${st.n >= st.total ? ', you can buy it' : ''}`;
       s += `<g class="tm-pin${CAM.sel === c.lv ? ' sel' : ''}" data-act="map-city" data-lv="${c.lv}" role="button" tabindex="0" aria-label="${say}" transform="${pinT(c.lv)}">${monument(c, st)}</g>`; });
@@ -9033,7 +9064,16 @@ const Trail = (() => {
       setTimeout(() => { if (!done) { fanfare(); try { navigator.vibrate?.(20); } catch (_) {} } }, DROP + 385);   // it lands
       rf = requestAnimationFrame(frame);
     };
-    CAM.api = { fly, show, mark: () => pins.forEach(p => p.classList.toggle('sel', +p.dataset.lv === CAM.sel)) };
+    /* v3.45: the moment you buy a food: the map glides down to its city and the dish drops onto its spot by the pavilion */
+    const showFood = (id, end) => {
+      const pin = pins.find(p => p.dataset.lv === id), mon = pin?.querySelector('.tm-mon'), [x, y] = wp(...FSITE[id]), z = zMax() * .62, to = { x, y: y + .14 * (CAM.vh || CAM.h) / z, z };   // the dish a little above the middle, clear of its card
+      if (!mon || stillMotion()) { fly(to, 0, end); fanfare(); return; }
+      mon.style.opacity = '0';
+      fly(to, 1300, () => { if (!svg.isConnected) return; mon.style.opacity = '';
+        mon.animate([{ opacity: 0, transform: 'translateY(-40px) scale(.7)' }, { opacity: 1, transform: 'translateY(0) scale(1.12,.86)', offset: .62 }, { opacity: 1, transform: 'scale(.97,1.04)', offset: .82 }, { opacity: 1, transform: 'none' }], { duration: 620, easing: 'cubic-bezier(.4,0,.7,1)' });
+        setTimeout(() => { fanfare(); try { navigator.vibrate?.(20); } catch (_) {} }, 385); setTimeout(end, 700); }, t => (1 - Math.cos(Math.PI * t)) / 2);
+    };
+    CAM.api = { fly, show, showFood, mark: () => pins.forEach(p => p.classList.toggle('sel', p.dataset.lv === String(CAM.sel) || p.dataset.lv === CAM.fsel)) };
     const goal = CAM.goal, first = !CAM.seen, states = trailStates(), fresh = states.filter(x => x.done && !x.seen).length; CAM.seen = true;
     if (first && !from) Object.assign(CAM, home());
     if (from || !SKIN.pins) CAM.land = false; else if (fresh > (CAM.news || 0)) CAM.land = true;   // land: the camera still has to come down to a monument you just bought
@@ -9044,7 +9084,7 @@ const Trail = (() => {
     if (from && SKIN.pins) { Object.assign(CAM, clampV(view(...SITE[from], zMax(), .56))); apply(); fly(near(from), 700); }
     else if (!first && goal && !CAM.land) fly(goal, 500);   // redrawn mid-flight (the HSK lists arrived): carry on to where it was going
   }
-  const near = lv => view(...SITE[lv], cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
+  const near = lv => view(...(SITE[lv] || FSITE[lv]), cl(CAM.z, CAM.w / 150, CAM.w / 105), .4);   // close on a monument, clear of its card
   const focus = lv => CAM.api?.fly(near(lv), 560);
   const dive = lv => CAM.api?.fly(view(...SITE[lv], zMax(), .56), 440);
   function lanterns(m, lit, night) {   // mastered words: red lanterns on a rope across the sky; dim while proven words wait for review
@@ -9088,22 +9128,23 @@ const trailBar = st => `<div class="mp-seg one" aria-hidden="true"><i class="${s
 function TrailView() {
   const sts = trailStates(), C = Trail.CAM, bal = coinBal();
   if (S.mapFrom || S.mapShow) mapUse('mon');   // a monument is waiting to be shown: that is on the monument map
-  const food = mapKind() === 'food';   // v3.30: the food map has only its ground so far: no monuments, no shop lantern, no medallion
+  if (S.foodShow) mapUse('food');   // a food just bought lands on the food map
+  const food = mapKind() === 'food';   // v3.45: the food map has its own shop lantern, a medallion of your foods and the foods' price tags
   if (S.mapFrom && !S.mapShow) C.sel = S.mapFrom;   // back from a monument's page: its card is open again (not when you come back to watch one you just bought land)
   return `<div class="screen fade-in mp-page">
     <div class="tm-stage${food ? ' food' : ''}" id="mpMap">${Trail.map(sts, food ? 'food' : 'mon')}
-      <div class="section-head cal-head tm-head pg-head"><h2>${food ? 'Food map <span class="cal-zh">美食</span>' : 'Monument map <span class="cal-zh">地图</span>'}</h2><span class="tm-tr"><button class="tm-wallet tm-ui${sts.some(x => !x.done && x.n >= x.total) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
-      ${food ? '' : shopBtn(sts) + monBtn(sts)}${mapsBtn()}
-      <div class="tm-slot" id="tmSlot">${C.sel && !food ? mapCard(C.sel) : ''}</div>
+      <div class="section-head cal-head tm-head pg-head"><h2>${food ? 'Food map <span class="cal-zh">美食</span>' : 'Monument map <span class="cal-zh">地图</span>'}</h2><span class="tm-tr"><button class="tm-wallet tm-ui${(food ? FOOD.some(f => !foodOwns(f.id) && bal >= f.price) : sts.some(x => !x.done && x.n >= x.total)) ? ' can' : ''}" data-act="shop" aria-label="${coinFmt(bal)} coins in Shi Shi's bag. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span></div>
+      ${food ? shopBtn(sts, FOOD.filter(f => !foodOwns(f.id) && bal >= f.price).length) + foodBtn() : shopBtn(sts) + monBtn(sts)}${mapsBtn()}
+      <div class="tm-slot" id="tmSlot">${food ? (C.fsel ? foodCard(C.fsel) : '') : C.sel ? mapCard(C.sel) : ''}</div>
       <div class="tm-gobar">${goBtn()}</div>
     </div>
   </div>`;
 }
 const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && LES(lesNext())?.k;   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
   return due ? `Unit ${unK(due)} test` : n ? `Lesson ${n}` : 'Learn'; };   // the HSK list: a plain command, not the list's name
-const shopBtn = sts => {   // the Shop lantern; lit, with a count, once you can buy a monument
-  const n = sts.filter(x => !x.done && x.n >= x.total).length, K = '#5A0F08', G = '#FFC21F';
-  return `<button class="tm-shopb tm-ui${n ? ' can' : ''}" data-act="shop" aria-label="Open the shop${n ? `: you can buy ${n} monument${n > 1 ? 's' : ''}` : ''}"><svg viewBox="0 0 64 86" aria-hidden="true">
+const shopBtn = (sts, fn) => {   // the Shop lantern; lit, with a count, once you can buy a monument (fn: on the food map, how many foods you can buy)
+  const n = fn ?? sts.filter(x => !x.done && x.n >= x.total).length, K = '#5A0F08', G = '#FFC21F', what = fn == null ? 'monument' : 'food';
+  return `<button class="tm-shopb tm-ui${n ? ' can' : ''}" data-act="shop" aria-label="Open the shop${n ? `: you can buy ${n} ${what}${n > 1 ? 's' : ''}` : ''}"><svg viewBox="0 0 64 86" aria-hidden="true">
     <defs><radialGradient id="tmLanDay" cx="45%" cy="38%" r="65%"><stop offset="0" stop-color="#F0473A"/><stop offset="1" stop-color="#B41D17"/></radialGradient>
     <radialGradient id="tmLanLit" cx="45%" cy="42%" r="65%"><stop offset="0" stop-color="#FFE27A"/><stop offset=".35" stop-color="#FF7A3A"/><stop offset="1" stop-color="#D2281C"/></radialGradient>
     <radialGradient id="tmLanHalo"><stop offset="0" stop-color="#FFE27A" stop-opacity=".8"/><stop offset="1" stop-color="#FFE27A" stop-opacity="0"/></radialGradient></defs>
@@ -9129,6 +9170,18 @@ const monBtn = sts => {   // across from the Shop: a gold medallion with your ne
     <text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:800 13px var(--display)" fill="#fff">${n}</text>
   </svg></button>`;
 };
+const foodBtn = () => {   // v3.45: the food map's medallion, where the monuments' one is: your newest food and how many you own; none yet: the cheapest, grey
+  const own = FOOD.filter(f => foodOwns(f.id)), n = own.length, K = '#5A0F08';
+  const fd = n ? own.reduce((a, b) => db.foodOwn[b.id] >= db.foodOwn[a.id] ? b : a) : FOOD[0], iw = 44, ih = iw * fd.ar;
+  return `<button class="tm-monb tm-ui${n ? '' : ' none'}" data-act="food-lib" aria-label="${n} of ${FOOD.length} foods are yours. Open your foods"><svg viewBox="0 0 64 74" aria-hidden="true">
+    <defs><radialGradient id="tmFoodGold" cx="42%" cy="36%" r="70%"><stop offset="0" stop-color="#FFE98F"/><stop offset=".55" stop-color="#FFC21F"/><stop offset="1" stop-color="#D98A0E"/></radialGradient><clipPath id="tmFoodClip"><circle cx="32" cy="31" r="21"/></clipPath></defs>
+    <circle cx="32" cy="31" r="29" fill="url(#tmFoodGold)" stroke="${K}" stroke-width="2"/><circle cx="32" cy="31" r="21.5" fill="#FFF3D6" stroke="#B9770D" stroke-width="1.6"/>
+    <image class="tm-monb-pic" href="food/${fd.id}-i.webp" x="${32 - iw / 2}" y="${(32 - ih / 2).toFixed(1)}" width="${iw}" height="${ih.toFixed(1)}" clip-path="url(#tmFoodClip)"/>
+    <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+    <rect x="${32 - (n > 9 ? 15 : 12)}" y="51" width="${n > 9 ? 30 : 24}" height="20" rx="10" fill="#D9412F" stroke="${K}" stroke-width="1.8"/>
+    <text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:800 13px var(--display)" fill="#fff">${n}</text>
+  </svg></button>`;
+};
 const mapKind = () => db.prefs.map === 'food' ? 'food' : 'mon';   // v3.30: the map you chose in Maps; it stays chosen
 const mapUse = k => { if (mapKind() !== k) { db.prefs.map = k; save(); } };
 const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments medallion: the maps you can travel to. v3.30: two of them, the monument map and the food map
@@ -9142,7 +9195,7 @@ const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments med
     <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
     <rect x="12" y="52" width="40" height="18" rx="5" fill="#FFF8F2" stroke="#E7D2AE" stroke-width="1"/><text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:700 12.5px var(--display)" fill="#9E1A14">Maps</text>
   </svg></button>`; };
-const MAPS = [['mon', 'Monuments', '名胜', 'Buy the great sights of China'], ['food', 'Food', '美食', 'The foods are coming soon']];
+const MAPS = [['mon', 'Monuments', '名胜', 'Buy the great sights of China'], ['food', 'Food', '美食', 'Collect the famous dishes of China']];
 function mapsSheet() {   // the Maps button: the two maps, each as a small picture of itself; a tap goes there
   const now = mapKind(); LOG.add('maps', { now });
   const card = ([k, name, zh, say]) => `<button class="shop-it maps-it${k === now ? ' on' : ''}" data-act="map-pick" data-k="${k}" aria-label="${name} map. ${k === now ? 'You are here' : say}">
@@ -9227,8 +9280,8 @@ function brokeShi() {
     + `<circle cx="-12" cy="-2" r="2.6" fill="#C9AE84"/><circle cx="12" cy="-2" r="2.6" fill="#C9AE84"/></g>`
     + `<ellipse cy="2" rx="3.2" ry="7" fill="#7A5A34"/><path d="M-1.5 -4l-4 -6M1.5 -4l4 -6" stroke="#7A5A34" stroke-width="1.6" stroke-linecap="round"/></g></g></svg>`;
 }
-function brokeSheet(lv) {
-  const c = TRAIL[lv - 1], st = trailState(lv), left = st.total - st.n, k = st.n / st.total, L = coinFmt(left), the = theName(c);
+function brokeSheet(lv, fd) {   // fd: a food (v3.45), instead of the monument lv
+  const c = TRAIL[lv - 1], st = fd ? { n: Math.min(coinBal(), fd.price), total: fd.price } : trailState(lv), left = st.total - st.n, k = st.n / st.total, L = coinFmt(left), the = fd ? fd.the + fd.name : theName(c);
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const say = k >= .8 ? pick([`So close! Only ${L} coins left, and ${the} is ours!`, `Just ${L} more coins! I can almost touch it!`])
     : k >= .5 ? pick([`More than halfway! ${L} coins to go. Let's grab them!`, `We're over halfway there! ${L} more and it's ours.`])
@@ -9236,7 +9289,7 @@ function brokeSheet(lv) {
     : pick([`Oops, my bag is empty! Let's fill it up together.`, `Not a coin in here yet… but one lesson starts filling it!`]);
   const les = trailLessons(), due = les && utDue(), n = les && !due && lesNext();
   const go = due ? `Unit ${unK(due)} test` : n ? 'Next lesson' : 'Learn words', sub = due ? 'Pass it and 100 coins drop in' : n ? `Lesson ${LES(n).k} · ${esc(LES(n).title)}` : `HSK ${openLevel()} words`;
-  LOG.add('shop-broke', { lv, have: st.n, price: st.total });
+  LOG.add('shop-broke', { lv, food: fd?.id, have: st.n, price: st.total }); lv ||= 1;
   openSheet(`<div class="bk"><h3 class="bk-h">Not enough coins yet</h3>${brokeShi()}<p class="bk-say">${say}</p>
     <span class="tm-now-bar bk-bar"><i style="width:${gBar(k)}%"></i><b>${coinFmt(st.n)} / ${coinFmt(st.total)}</b></span>
     <p class="bk-how">Every lesson puts ${PAY.les} coins in the bag, and every word you prove ${PAY.word} more.</p>
@@ -9265,6 +9318,70 @@ function shopBuy(lv) {
   closeSheet(); Trail.CAM.sel = 0; S.mapShow = lv; mapUse('mon');   // no page after it: on the map it lands on its spot, and the camera tilts and swings round it (Trail's show)
   setTimeout(() => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } else nav('#/map'); }, 340);
 }
+/* ---------- v3.45: the food shop, your foods and the food card: the monuments' ones, for the ten famous dishes ---------- */
+const foodPic = (fd, own) => `<img src="food/${fd.id}.webp" alt="" loading="lazy">${own ? '<i class="shop-own">Yours</i>' : ''}`;   // unlike a monument, a food is shown before you buy it: a plate's silhouette says nothing
+function foodShopHtml(id) {
+  const bal = coinBal(), own = FOOD.filter(f => foodOwns(f.id)).length;
+  const top = `<div class="shop-top"><h3>Food shop <span class="cal-zh">美食店</span></h3><span class="shop-bal" aria-label="${coinFmt(bal)} coins">${coinSvg()}<b>${coinFmt(bal)}</b></span></div>`;
+  const fd = id && foodOf(id);
+  if (fd) { const mine = foodOwns(fd.id);
+    const act = mine ? `<button class="btn btn-seal wide" data-act="food-go" data-id="${fd.id}">See it on your map</button>` : foodBuyBtn(fd, ' wide');
+    return `${top}<div class="shop-det"><button class="shop-back" data-act="food-back">${I.back}<span>All foods</span></button>
+      <div class="shop-hero"><img src="food/${fd.id}.webp" alt="${esc(fd.name)} from ${esc(fd.en)}">${mine ? '<i class="shop-own">Yours</i>' : ''}</div>
+      <small class="tm-city">${esc(fd.en)} <b>${fd.zh}</b></small><h4>${fd.name} <span>${fd.nzh}</span></h4>
+      <p class="shop-about">${fd.about}</p>${mine ? '' : `<p class="shop-cost">${coinSvg()}<b>${coinFmt(fd.price)}</b> coins</p>`}${act}</div>`; }
+  const card = f => { const mine = foodOwns(f.id), can = !mine && bal >= f.price;
+    return `<button class="shop-it${mine ? ' own' : can ? ' can' : ''}" data-act="food-item" data-id="${f.id}" aria-label="${f.name}, ${mine ? 'yours' : `${f.price} coins${can ? ', you can buy it' : ''}`}">
+      <span class="shop-pic">${foodPic(f, mine)}</span><b>${f.name}</b><small>${esc(f.en)}</small><span class="shop-price">${mine ? 'On your map' : `${coinSvg()}${coinFmt(f.price)}`}</span></button>`; };
+  return `${top}<p class="muted shop-sub">Buy a famous dish and it stands by its city on your food map. ${own ? `${own} of ${FOOD.length} are yours.` : 'Start with a cheap one.'}</p>
+    <div class="shop-grid">${FOOD.slice().sort((a, b) => foodOwns(a.id) - foodOwns(b.id) || a.price - b.price).map(card).join('')}</div>${earnHow()}`;
+}
+const foodBuyBtn = (fd, cls = '') => `<button class="btn btn-seal shop-buy${cls}" data-act="food-buy" data-id="${fd.id}">Buy for ${coinSvg()}${coinFmt(fd.price)}</button>`;
+function foodShopSheet(id) {
+  const body = $('#shopBody'); LOG.add('food-shop', { id: id || '', coins: coinBal() });
+  if (body) { body.innerHTML = foodShopHtml(id); body.closest('.sheet').scrollTop = 0; return; }
+  openSheet(`<div class="shop" id="shopBody">${foodShopHtml(id)}</div>`);
+}
+function foodLibSheet() {   // the food medallion: every food you have, newest first; tap one and the map flies to it
+  const own = FOOD.filter(f => foodOwns(f.id)).sort((a, b) => db.foodOwn[b.id] - db.foodOwn[a.id]), left = FOOD.length - own.length;
+  LOG.add('food-lib', { own: own.length });
+  const top = `<div class="shop-top"><h3>Your foods <span class="cal-zh">美食</span></h3><span class="lib-n">${own.length} of ${FOOD.length}</span></div>`;
+  if (!own.length) return openSheet(`<div class="shop lib">${top}<p class="muted shop-sub">Buy your first food in the shop and it shows up here.</p><button class="btn btn-seal wide" data-act="shop">Open the shop</button></div>`);
+  const card = f => `<button class="shop-it own" data-act="food-go" data-id="${f.id}" aria-label="${f.name}, ${esc(f.en)}. Show it on the map">
+    <span class="shop-pic"><img src="food/${f.id}.webp" alt="" loading="lazy"></span><b>${f.name}</b><small>${esc(f.en)}</small></button>`;
+  openSheet(`<div class="shop lib">${top}<p class="muted shop-sub">Tap one to see it on your map.</p><div class="shop-grid">${own.map(card).join('')}</div>
+    ${left ? `<button class="link-btn lib-more" data-act="shop">${left} more to collect in the shop</button>` : ''}</div>`);
+}
+function foodCard(id) {   // a tap on a food: its name, and its price and Buy, or that it is yours
+  const fd = foodOf(id); if (!fd) return '';
+  const mine = foodOwns(id), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
+  const med = `<div class="tm-med"><svg viewBox="0 ${(36 * fd.ar - 31).toFixed(1)} 72 62" aria-hidden="true"><image href="food/${id}-i.webp" width="72" height="${(72 * fd.ar).toFixed(1)}"/></svg></div>`;
+  const head = `<small class="tm-city">${esc(fd.en)} <b>${fd.zh}</b></small><h3>${fd.name} <span>${fd.nzh}</span></h3>`;
+  if (!mine) { const can = coinBal() >= fd.price;
+    return `<div class="tm-card tm-ui" role="dialog" aria-label="${fd.name}: ${fd.price} coins">${x}${med}
+    <div class="tm-body">${head}<p class="tm-price">${coinSvg()}<b>${coinFmt(fd.price)}</b> coins${can ? '<em>You can buy it</em>' : ''}</p><p class="tm-about">${fd.about}</p></div>
+    <div class="tm-acts">${foodBuyBtn(fd)}</div></div>`; }
+  return `<div class="tm-card tm-ui done" role="dialog" aria-label="${fd.name}, ${esc(fd.en)}">${x}${med}
+    <div class="tm-body">${head}<p>${db.foodSeen?.[id] ? '' : '<em>New</em>'}Yours · worth ${coinFmt(fd.price)} coins</p><p class="tm-about">${fd.about}</p></div></div>`;
+}
+function foodBuy(id) {   // Buy: with the coins it is bought at once and lands on the food map; without them Shi Shi shows his empty bag
+  const fd = foodOf(id); if (!fd || foodOwns(id)) return;
+  if (coinBal() < fd.price) { brokeSheet(0, fd); return; }
+  (db.foodOwn ||= {})[id] = Date.now(); save();
+  LOG.add('food-buy', { id, price: fd.price, left: coinBal() });
+  closeSheet(); Trail.CAM.fsel = 0; S.foodShow = id; mapUse('food');
+  setTimeout(() => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } else nav('#/map'); }, 340);
+}
+function foodShowEnd(id) {   // after it lands: its card is up, and it no longer counts as new
+  if (S.view !== 'map' || S.mapLv) return;
+  Trail.CAM.fsel = id; const s = $('#tmSlot'); if (s) s.innerHTML = foodCard(id); Trail.CAM.api?.mark();
+  (db.foodSeen ||= {})[id] = 1; save(); LOG.add('food-seen', { id });
+}
+function foodPick(id) {   // tap a food: the map flies to it and its card comes up
+  const C = Trail.CAM; if (performance.now() < C.noClick) return;
+  C.fsel = id; LOG.add('food-city', { id }); const s = $('#tmSlot'); if (s) s.innerHTML = foodCard(id); C.api?.mark(); Trail.focus(id);
+}
+const mapFood = then => { if (mapKind() !== 'food') { mapUse('food'); if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } } then(); };
 function mapShowEnd(lv) {   // after the buy moment: its card is up, and it no longer counts as new
   if (S.view !== 'map' || S.mapLv) return;
   Trail.CAM.sel = lv; const s = $('#tmSlot'); if (s) s.innerHTML = mapCard(lv); Trail.CAM.api?.mark();
@@ -9276,7 +9393,7 @@ function mapPick(lv) {   // tap a monument: the map flies to it and its card com
 }
 const mapMon = then => { if (mapKind() !== 'mon') { mapUse('mon'); if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } } then(); };   // v3.30: something about a monument, asked for from the food map: back to the monument map first
 const mapRepin = () => { if (S.view === 'map' && !S.mapLv) { S.instant = true; render(); } };   // a new goal: the map is drawn again, and Shi Shi stands over it
-function mapClose() { Trail.CAM.sel = 0; const s = $('#tmSlot'); if (s) s.innerHTML = ''; Trail.CAM.api?.mark(); }
+function mapClose() { Trail.CAM.sel = 0; Trail.CAM.fsel = 0; const s = $('#tmSlot'); if (s) s.innerHTML = ''; Trail.CAM.api?.mark(); }
 const trailLessons = () => !!playLv();   // you go on with your level's lessons; a level without lessons ticks words in its list
 function trailGo(lv) {
   LOG.add('map-build', { lv });
@@ -9386,10 +9503,11 @@ function mapZoom(lv) {   // Visit: the map dives into the city, then the monumen
 }
 function mountMap() {   // the map answers your fingers; back from a monument's page, it pulls out of that city
   if (S.mapLv) return;
-  const lv = S.mapFrom, buy = S.mapShow; S.mapFrom = 0; S.mapShow = 0; Trail.mount(buy ? 0 : lv);
-  if (S.mapFresh) S.mapShi = !buy && !lv && db.coinIntro && !Trail.CAM.sel && !$('#ob') ? 1 : 0;   // he comes when you open the Map, and stays through redraws until sent off
+  const lv = S.mapFrom, buy = S.mapShow, fbuy = S.foodShow; S.mapFrom = 0; S.mapShow = 0; S.foodShow = 0; Trail.mount(buy ? 0 : lv);
+  if (S.mapFresh) S.mapShi = !buy && !fbuy && !lv && db.coinIntro && !Trail.CAM.sel && !$('#ob') ? 1 : 0;   // he comes when you open the Map, and stays through redraws until sent off
   if (S.mapShi) mapShi(S.mapShi++ > 1);
   if (buy) Trail.CAM.api?.show(buy, () => mapShowEnd(buy));   // just bought: it lands on the map
+  if (fbuy) Trail.CAM.api?.showFood(fbuy, () => foodShowEnd(fbuy));
   if (!db.coinIntro && !$('#ob')) { db.coinIntro = 1; save(); setTimeout(() => { if (S.view === 'map' && !$('#ob')) coinIntro(); }, 450); }
 }
 function mapShi(again) {   // Shi Shi beside Play as the Map opens, saying what Play gives you; a tap on him plays, any other touch on the map sends him off (again: the map was only drawn again, so no entrance)
@@ -9410,8 +9528,8 @@ function coinIntro() {   // once, the first time the Map opens with coins: what 
   if (P) setTimeout(() => coinRain($('#ob'), P), 600);
 }
 document.addEventListener('keydown', e => {   // a monument on the map opens with Enter or Space too; Escape puts its card away
-  const p = e.target.closest?.('.tm-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); mapPick(+p.dataset.lv); }
-  else if (e.key === 'Escape' && S.view === 'map' && !S.mapLv && Trail.CAM.sel) mapClose();
+  const p = e.target.closest?.('.tm-pin'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); p.dataset.act === 'food-city' ? foodPick(p.dataset.lv) : mapPick(+p.dataset.lv); }
+  else if (e.key === 'Escape' && S.view === 'map' && !S.mapLv && (Trail.CAM.sel || Trail.CAM.fsel)) mapClose();
 });
 /* the last thing you used: the story you are reading, or your last deck; with neither, a button to make a deck */
 function LastTile() {
@@ -11325,7 +11443,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.45';
+const APP_VERSION = '3.46';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -11373,7 +11491,7 @@ function nameSheet() {
    proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
    bag at nothing; neither pours a payoff for what it changed (db.coinShown). Set my coins (devCoinSet) puts any number in the
    bag by moving db.coinAdj, also kept first so Restore gives your own coins back. */
-const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish'];
+const DEV_LV = ['lessons', 'utests', 'comic', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
   devLvKeep(); const now = Date.now();
@@ -11381,11 +11499,12 @@ function devLvMax() {
   LES_UNITS.forEach(U => { const r = db.utests[U.un] ||= {}; r.pass ||= now; r.last ||= now; r.best = Math.max(r.best || 0, 100); const c = (db.comic ||= {})[U.un] ||= {}; c.p1 ||= now; c.p2 ||= now; });
   db.unitAt = {}; db.prefs.unlocked = 7; db.mapMax = 1; delete db.mapFrom; db.monOpen = Object.fromEntries(TRAIL.map(c => [c.lv, 1]));
   db.monOwn = Object.fromEntries(TRAIL.map(c => [c.lv, db.monOwn?.[c.lv] || now])); delete db.monWish; db.coinShown = coinEarned();
+  db.foodOwn = Object.fromEntries(FOOD.map(f => [f.id, db.foodOwn?.[f.id] || now])); db.foodSeen = Object.fromEntries(FOOD.map(f => [f.id, 1]));
 }
 function devLvZero() {
   devLvKeep();
   db.lessons = {}; db.utests = {}; db.comic = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
-  db.monOwn = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
+  db.monOwn = {}; db.foodOwn = {}; db.foodSeen = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
 }
 function devLvRestore() {
   const K = db.devLv; if (!K) return;
@@ -12113,7 +12232,13 @@ const A = {
   'map-close': () => mapClose(),
   'map-back': () => { S.instant = true; goBack('#/map'); },
   'map-build': t => { closeSheet(true); trailGo(+t.dataset.lv); },
-  shop: () => shopSheet(),
+  shop: () => S.view === 'map' && !S.mapLv && mapKind() === 'food' ? foodShopSheet() : shopSheet(),
+  'food-city': t => foodPick(t.dataset.lv),
+  'food-lib': () => foodLibSheet(),
+  'food-item': t => foodShopSheet(t.dataset.id),
+  'food-back': () => foodShopSheet(),
+  'food-buy': t => foodBuy(t.dataset.id),
+  'food-go': t => { closeSheet(); const id = t.dataset.id; if (S.view === 'map' && !S.mapLv) setTimeout(() => mapFood(() => foodPick(id)), 300); else { mapUse('food'); Trail.CAM.fsel = id; nav('#/map'); } },
   'coin-intro-shop': () => closeLayer(() => shopSheet()),
   'shop-item': t => shopSheet(+t.dataset.lv),
   'mon-lib': () => libSheet(),
