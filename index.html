@@ -1982,7 +1982,7 @@ button.st-d:active{transform:scale(.9);transition:none}
    the lip is inside the circle now, like the red buttons: darker along the bottom, a thin light edge on top, a soft shadow below. --d: that shadow */
 .uc-path .un-node{--f:#EFE7D8;--l:rgba(120,95,60,.2);--e:rgba(255,255,255,.7);--t:#BDB09A;--d:rgba(120,95,60,.4);display:block;width:calc(var(--k,1)*58px);height:calc(var(--k,1)*58px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
 .uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFE08C,#F4C14E 58%);--l:rgba(140,85,0,.3);--e:rgba(255,255,255,.5);--t:#3B1A12;--d:rgba(150,100,10,.65)}
-.uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:rgba(60,10,5,.3);--e:rgba(255,255,255,.3);--t:var(--seal-ink);--d:rgba(120,30,20,.7);z-index:2}
+.uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:rgba(60,10,5,.3);--e:rgba(255,255,255,.3);--t:var(--seal-ink);--d:rgba(120,30,20,.7);z-index:3}
 .uc-path .un-node small{display:none}
 .uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*28px)/1 "Noto Serif SC",var(--hanzi);
   background:var(--f);color:var(--t);box-shadow:inset 0 calc(var(--k,1)*-4px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*9px) calc(var(--k,1)*12px) calc(var(--k,1)*-9px) var(--d);transition:transform .08s,box-shadow .08s}
@@ -1994,6 +1994,8 @@ button.st-d:active{transform:scale(.9);transition:none}
   font:700 15px/1 var(--display);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
 .pp-go::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
 .un-node[data-s="cur"] .pp-go{display:block}
+.pp-go-r .pp-go,.pp-go-l .pp-go{bottom:auto;top:50%;margin:-17px 0 0}.pp-go-r .pp-go{left:calc(100% + var(--k,1)*12px)}.pp-go-l .pp-go{left:auto;right:calc(100% + var(--k,1)*12px)}
+.pp-go-r .pp-go::after{left:0;top:50%;margin:-6px 0 0 -6px;transform:rotate(135deg)}.pp-go-l .pp-go::after{left:100%;top:50%;margin:-6px 0 0 -6px;transform:rotate(-45deg)}   /* v3.55: right under the halfway envelope the Start flag stands beside its lesson (away from Shi Shi), so it covers neither envelope */
 @keyframes ppBob{50%{transform:translateY(-5px)}}
 @keyframes ppRing{50%{transform:scale(1.09);opacity:.45}}
 @keyframes ppPop{35%{transform:translate(-50%,-50%) scale(1.24)}70%{transform:translate(-50%,-50%) scale(.95)}}
@@ -2013,6 +2015,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-lx:active>svg{transform:scale(.94)}
 .pp-lx-n{display:none;position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);padding:3px 7px 4px;border-radius:9px;background:#F8CF5F;color:#5A3200;font:800 11.5px/1 var(--ui);font-style:normal;white-space:nowrap;box-shadow:inset 0 -2px 0 rgba(140,85,0,.25)}
 .pp-lx[data-s="ready"] .pp-lx-n{display:block}
+.pp-lx-r .pp-lx-n,.pp-lx-l .pp-lx-n{bottom:auto;top:50%;transform:translateY(-50%)}.pp-lx-r .pp-lx-n{left:calc(100% + 4px)}.pp-lx-l .pp-lx-n{left:auto;right:calc(100% + 4px)}   /* v3.55: in the bend the coins tag sits on the open side, clear of the lessons above and below */
 .pp-lx.pp-lx-pop>svg{animation:ppLxPop .5s cubic-bezier(.2,1.3,.4,1)}
 .pp-lx-win{position:absolute;left:50%;bottom:calc(100% + 2px);z-index:3;display:flex;align-items:center;gap:4px;font:800 19px/1 var(--ui);color:#9A5200;white-space:nowrap;pointer-events:none;animation:ppWin 1.6s ease-out both}
 .pp-lx-win svg{flex:none;width:22px;height:22px}
@@ -2021,7 +2024,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes ppLxPop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 @keyframes ppWin{0%{opacity:0;transform:translate(-50%,12px) scale(.6)}16%{opacity:1;transform:translate(-50%,-6px) scale(1.12)}28%{transform:translate(-50%,-4px) scale(1)}78%{opacity:1;transform:translate(-50%,-10px)}100%{opacity:0;transform:translate(-50%,-28px)}}
 /* v3.51: friends at work beside the path */
-.pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*86px);height:calc(var(--k,1)*72px);transform:translate(-50%,-58%);pointer-events:none}
+.pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*122px);height:calc(var(--k,1)*102px);transform:translate(-50%,-58%);pointer-events:none}
 .pp-pal>svg{display:block;width:100%;height:100%;overflow:visible}
 .pw-cover,.pw-brush,.pw-panda,.pr-body,.pr-page,.pr-up,.pb-body,.pb-card,.pb-steam path,.pi-body,.pi-cover,.pi-dot{transform-box:fill-box}
 .uc-pane.locked .pp-pal{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.5}
@@ -4371,8 +4374,7 @@ const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
 const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
 const PP_C = 72, PP_COL = [2, 3, 2, 1];   // the path's sheet: a 田字格 square is 72 map units (five across); the column each lesson's square is in, in turn
-const PP_FREE = [[0, 4], [0, 1], [0, 4], [3, 4]];   // v3.51: the columns left empty in each row, in turn: not the lesson's, not Shi Shi's beside it, not under the next lesson's Start flag
-const ppRnd = un => { let a = (un * 2654435761) >>> 0 || 1; return () => (a = Math.imul(a ^ a >>> 15, 2246822507) + 1013904223 >>> 0) / 4294967296; };   // the same random squares for a unit every time
+const lxMidN = n => { const s = Math.ceil(n / 2) - 1; return s - s % 2 + 1; };   // v3.55: the halfway envelope opens after this many lessons (about half, so that it can sit in a bend of the path)
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4385,24 +4387,21 @@ function unitMap(un, n) {
   if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'city') { const P0 = cityPlan(unitLv(un)), C = P0.byU[un], g = ([col, row]) => [140 * col - C.O, CITY_Y0 + 70 * row];
     return { lay, pts: [...C.pts.map(g), g(C.boss)], W: C.W, H: 580, city: C }; }
-  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, mid = Math.ceil(n / 2), sq = (c, s) => [C * (c + .5), C * (r0 + s + .5)], at = s => sq(PP_COL[s % 4], s), side = s => PP_COL[s % 4] > 2 || s % 4 === 2 ? 1 : -1;
+  if (lay === 'path') { const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, sq = (c, s) => [C * (c + .5), C * (r0 + s + .5)], at = s => sq(PP_COL[s % 4], s), side = s => PP_COL[s % 4] > 2 || s % 4 === 2 ? 1 : -1;
     /* a lesson a row, each in the middle of its square, zig-zagging without a break; one row on, the finish, where Shi Shi
-       stands once the unit is done; two rows for the heading first (one bare row in the first unit). v3.51 (ilkem: "the lixi
-       should not interrupt the lessons pathway... at random in the spaces next to the pathway"): the red envelopes, Hu Hu's
-       bonus and now and then a friend at work stand in the empty squares beside the path, picked at random for each unit
-       (always the same ones for that unit). The empty squares of a row (PP_FREE) keep clear of the lesson, of Shi Shi's
-       square beside it and of the Start flag over the next lesson */
-    const pts = Array.from({ length: n + 1 }, (_, s) => at(s)), rnd = ppRnd(un), used = [];
-    const pick = (rows, near) => { const c = rows.flatMap(s => s < 0 ? [] : PP_FREE[s % 4].map(k => [k, s])).filter(([k, s]) => !used.some(([k2, s2]) => k2 === k && s2 === s));
-      if (!c.length) return null; const nc = near ? c.filter(([k, s]) => k !== near[0] || Math.abs(s - near[1]) > 1) : c, c2 = nc.length ? nc : c;   // Hu Hu: the nearest square, but never right above or below the envelope (their tags would touch)
-      const q = near ? c2.sort((a, b) => Math.hypot(a[0] - near[0], a[1] - near[1]) - Math.hypot(b[0] - near[0], b[1] - near[1]))[0] : c[Math.floor(rnd() * c.length)]; used.push(q); return q; };
-    const m1 = pick([mid - 1, mid]), e1 = pick([n - 1, n, n + 1]), h1 = pick([n - 1, n, n + 1], e1);
-    const pals = [], kinds = ['write', 'read', 'bao', 'ink'], k0 = Math.floor(rnd() * 4), want = rnd() < .2 ? 0 : rnd() < .55 ? 1 : 2;
-    for (let t = 0; t < 8 && pals.length < want; t++) {   // a friend keeps a square's distance from the envelopes, Hu Hu and the other friend
-      const s = Math.floor(rnd() * (n + 1)), ks = PP_FREE[s % 4], k = ks[Math.floor(rnd() * ks.length)];
-      if (used.some(([k2, s2]) => Math.abs(k2 - k) <= 1 && Math.abs(s2 - s) <= 1)) continue;
-      used.push([k, s]); pals.push({ p: sq(k + (k === 0 ? .08 : k === 4 ? -.08 : 0), s), s, k: kinds[(k0 + pals.length) % 4], f: k > 2 }); }   // on the right of the path they face left, so their paper is towards it
-    return { lay, pts, W: 360, H: C * (r0 + n + 2), head: r0 > 1 ? 76 : 0, sl: pts.map((_, s) => s), side, mid: sq(...m1), midN: mid, end: sq(...e1), hu: sq(...h1), pals }; }   // a whole number of rows, so the squares run on from unit to unit
+       stands once the unit is done; two rows for the heading first (one bare row in the first unit). v3.55 (ilkem, with a
+       Duolingo screenshot: "i want the lixi to be the chests place", "the place where u see the avatars, i want the side
+       characters"): a red envelope sits tucked into the bend of the path right after its lesson, like Duolingo's chest, in
+       the middle column of an odd row, between the bent-out lesson and the ones above and below it. In the wide empty side
+       the path bends away from (left in rows 1, 5, 9…, right in rows 3, 7…) stands a friend at work, big; in the last
+       envelope's row it is Hu Hu with his bonus instead. Shi Shi always stands on the other side, so nothing meets him */
+    const pts = Array.from({ length: n + 1 }, (_, s) => at(s));
+    const bend = (s, dy) => { const r = s % 2 ? s : s + 1; return [r, [C * 2.5, C * (r0 + r + .5 + dy)]]; };   // after lesson s: beside it (s odd) or beside the next one (s even)
+    const hol = (r, dy) => [r % 4 === 1 ? 72 : 288, C * (r0 + r + .5 + dy)];   // the middle of that row's wide empty side
+    const sM = lxMidN(n) - 1, [rm, mid] = bend(sM, -.2), [re, end] = bend(n - 1, (n - 1) % 2 ? .1 : -.15);   // nudged towards the lesson they follow; after an odd lesson the next one's Start flag would cover the lower half
+    const kinds = ['write', 'read', 'bao', 'ink'], pals = [];
+    for (let r = 1; r <= n; r += 2) if (r !== rm && r !== re) pals.push({ p: hol(r, .3), s: r, k: kinds[(unK(un) + pals.length) % 4], f: r % 4 === 3 });   // on the right of the path they face left, so their paper is towards it
+    return { lay, pts, W: 360, H: C * (r0 + n + 2), head: r0 > 1 ? 76 : 0, sl: pts.map((_, s) => s), side, mid, midN: sM + 1, end, lxL: { m: rm % 4 === 1, e: re % 4 === 1 }, hu: hol(re, .12), pals }; }   // a whole number of rows, so the squares run on from unit to unit
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4446,12 +4445,12 @@ function ucPane(u) {
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${path && i === m.midN + 1 ? (m.side(i) > 0 ? ' pp-go-l' : ' pp-go-r') : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   /* v3.49, the path: no shrine. Red envelopes (ready once the lessons before them are done) and Hu Hu's bonus challenge beside the last one */
   const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
-  const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
+  const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
   const huS = r?.pass ? 'won' : chal && st.open ? 'ready' : 'locked';
   const extras = !path ? '' : lx('m', m.mid, lxS('m', m.midN)) + lx('e', m.end, lxS('e', n))
     + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i])).join('')
@@ -5836,7 +5835,7 @@ function shiBody(mood) {
 }
 /* v3.49, the Duolingo flow: a unit's comic plays when you start its first lesson (from its button, the card's Start or
    Play on the map), and its Start button goes on into the lesson */
-const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && !lesDone(n) && n === lesNext(L.lv) && unitLessons(L.un)[0]?.n === n && !!COMIC[L.un] && !comicSeen(L.un).p1; };   // ask once the level's comics are in (comicLoad)
+const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && (lesDone(n) || n === lesNext(L.lv)) && unitLessons(L.un)[0]?.n === n && !!COMIC[L.un]; };   // v3.55 (ilkem: "when i click the first lesson of the unit, i wanna see the comic"): every time, also when you have seen it or redo the lesson   // ask once the level's comics are in (comicLoad)
 function lesStart(n) {
   const go = () => nav(lesUrl(n)), L = LES(n); if (!L) { go(); return; }
   comicLoad(L.lv).then(() => { if (lesComicDue(n)) comicPlay(L.un, 0, go); else go(); });
@@ -5884,7 +5883,7 @@ const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
   : '<rect x="5" y="5" width="38" height="51" rx="6" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><path d="M5.5 12.5Q24 34 42.5 12.5V11a6 6 0 0 0-6-6H11.5a6 6 0 0 0-6 6Z" fill="#F4574A" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="25" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><rect x="20.6" y="21.6" width="6.8" height="6.8" rx="1" fill="#E3352B" stroke="#A8721A" stroke-width="1.6"/><path d="M14 47h20" stroke="#F8CF5F" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>') + '</svg>';
 /* open one (k: '<unit>m' or '<unit>e'): its coins come out right there and count at once. Locked: it says what is left */
 function lixiOpen(k) {
-  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? st.ls.length : Math.ceil(st.ls.length / 2);
+  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? st.ls.length : lxMidN(st.ls.length);
   if (!UNIT(un) || !LX_PAY[w] || lxGot(un, w)) return;
   if (!st.open || st.nd < need) { toast(st.open ? `${plural(need - st.nd, 'more lesson')} to open it` : `Finish Unit ${unK(un) - 1} first`); return; }
   const n = LX_PAY[w]; (db.lixi ||= {})[k] = { t: Date.now(), n };
@@ -11824,7 +11823,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.54';
+const APP_VERSION = '3.55';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
