@@ -3498,10 +3498,10 @@ function CourseBlock() {
       <span class="crs-fold-main"><b>${lowN > 1 ? `HSK 1–${lowN}` : 'HSK 1'}</b><small>Below your level · already known</small></span><span class="crs-fold-chev">${I.chev}</span></button>` : '';
   const card = x => {
     const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
-    const foot = locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
+    const foot = !lvHas(x.l) ? '<span class="crs-locked">Coming soon</span>' : locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
       : !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
       : `<span class="crs-bar"><i style="width:${gBar(f)}%"></i></span><span class="crs-pct">${goLab(x.k, x.n, String, ' words')}</span>`;
-    return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${locked ? 'crs-locked' : lvHas(x.l) ? 'c1-open' : 'hsk-level'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
+    return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${!lvHas(x.l) ? 'crs-soon' : locked ? 'crs-locked' : 'c1-open'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
       <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg>${locked ? `<span class="crs-lock">${LOCK_I}</span>` : ''}</span>
       <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
         ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
@@ -11828,7 +11828,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.58';
+const APP_VERSION = '3.59';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12678,7 +12678,8 @@ const A = {
   'fb-quit': () => goBack('#/map'),
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
-  'c1-open': t => nav('#/course/' + (lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1)),
+  'c1-open': t => { const lv = lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1; nav(LV_DUO[lv] ? unitUrl(ucMe(lv)) : '#/course/' + lv); },   // v3.59 (ilkem: "when u click hskx, u straightly go to the roadmap"): a level opens on its path, at your unit
+  'crs-soon': t => toast(`${HSK_NAME(+t.dataset.lv)} is coming soon`),   // a level with no lessons yet (HSK 7)
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
   'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')),
