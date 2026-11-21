@@ -4161,18 +4161,21 @@ function unitNodes(n) {
    rope bridges between them, Hu Hu on the last; grass below, a river along one side in some units. The seasons and the
    river change gently across the seams between units (UC_VERT, UW3_*)
    v3.43: HSK 1 is all street (ilkem: "i dont want the alternating anymore, everything should be the swipeable mode"):
-   no page and no round table, and its steamers stand a little closer together (SIDE_GAP) */
+   no page and no round table, and its steamers stand a little closer together (SIDE_GAP)
+   v3.45: HSK 2 is one city you swipe along, every unit the same 'city' look (ilkem: "pick one theme, no more upswipe
+   downswipe... city aesthetic, bc its about eating out, directions, out and about"): see cityPlan. Its gates, pagoda
+   and court looks are no longer used */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
 const SIDE_GAP = { 1: 128 };
 /* v3.44: on HSK 1's street the units run into each other (ilkem: "huhus challange station should be connected with the
    first baozi station of the next unit", "the rapid transition to the next weather isnt cool... the pixels being in a
    natural transition"): the path goes on from Hu Hu's shrine across the seam to the next unit's first steamer, and each
    unit's ground, light and weather fade into its neighbour's over a wide band at every seam (uwJoin, SJ in unitWorld) */
-const SIDE_JOIN = { 1: 1 };
-const uwJoin = un => { if (!SIDE_JOIN[unitLv(un)] || unitLay(un) !== 'side') return null; const us = ucList(unitLv(un)), i = us.indexOf(un); if (i < 0) return null;
-  const ok = u => u != null && unitLay(u) === 'side' ? u : null; return { pv: ok(us[i - 1]), nx: ok(us[i + 1]) }; };   // how far apart the steamers stand on a level's street (150 if not given)
-const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['tall', 'tall', 'tall', 'tall'] };
-const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall' };
+const SIDE_JOIN = { 1: 1, 2: 1 };
+const uwJoin = un => { const L = unitLay(un); if (!SIDE_JOIN[unitLv(un)] || (L !== 'side' && L !== 'city')) return null; const us = ucList(unitLv(un)), i = us.indexOf(un); if (i < 0) return null;
+  const ok = u => u != null && unitLay(u) === L ? u : null; return { pv: ok(us[i - 1]), nx: ok(us[i + 1]) }; };   // how far apart the steamers stand on a level's street (150 if not given)
+const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['city', 'city', 'city', 'city'], 3: ['tall', 'tall', 'tall', 'tall'] };
+const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall', city: 'side' };
 const UC_VERT = { 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
 const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
@@ -4187,6 +4190,8 @@ const unRndAng = (i, n, rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
 function unitMap(un, n) {
   const lay = unitLay(un);
   if (lay === 'side') { const G = SIDE_GAP[unitLv(un)] || 150, pts = Array.from({ length: n }, (_, i) => [110 + i * G, [360, 230, 380, 250][i % 4]]); pts.push([n * G + 100 + G, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
+  if (lay === 'city') { const P0 = cityPlan(unitLv(un)), C = P0.byU[un], g = ([col, row]) => [140 * col - C.O, CITY_Y0 + 70 * row];
+    return { lay, pts: [...C.pts.map(g), g(C.boss)], W: C.W, H: 580, city: C }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4212,7 +4217,7 @@ const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.leng
     if (lay === 'pagoda') return [x + (x < 180 ? -46 : 46), y - 54];
     if ((lay === 'peaks' || lay === 'tall') && x === 180) return [x + (i && pts[i - 1][0] > 180 ? 50 : -50), y - 50];   // a middle peak: on the side he came from, clear of the next steamer
     if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks' || lay === 'tall') return [x + (x < 180 ? 50 : -50), y - 50]; }
-  return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
+  return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' || lay === 'city' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
 const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
 const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !utPassed(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
 const ucPane$ = u => document.querySelector(`.uc-pane[data-u="${u}"]`);
@@ -4343,12 +4348,13 @@ function ucFocus(u, fx, fy, smooth) {
     sc.scrollTo({ left: Math.max(p.offsetLeft, Math.min(to, p.offsetLeft + p.offsetWidth - sc.clientWidth)), behavior: how }); }
   else { if (!smooth) sc.scrollLeft = p.offsetLeft; if (p.classList.contains('uc-snake')) { const inn = p.querySelector('.uc-in'), r = inn.getBoundingClientRect(); inn.scrollTo({ top: inn.scrollTop + y - r.top - inn.clientHeight * .45, behavior: how }); } }
 }
-/* paint the towns near the screen and let go of the far ones (a street's town is a big picture) */
-function ucPaint() {
+/* paint the towns near the screen and let go of the far ones (a street's town is a big picture). v3.45: while the
+   strip is at rest (ahead), the towns a little further on are painted too, so a swipe seldom has to stop and paint one */
+function ucPaint(ahead) {
   const sc = $('.uc-scroll'); if (!sc) return; const v = ucV(), a = v ? sc.scrollTop : sc.scrollLeft, w = v ? sc.clientHeight : sc.clientWidth;
-  sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = v ? p.offsetTop : p.offsetLeft, r = l + (v ? p.offsetHeight : p.offsetWidth), near = r > a - w && l < a + 2 * w;
-    if (near && !p.dataset.p) { if (unitWorld(u, ucEat?.u === u ? { skip: ucEat.i } : {})) p.dataset.p = 1; }
-    else if (p.dataset.p && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; delete p._glow; } });
+  sc.querySelectorAll('.uc-pane').forEach(p => { const u = +p.dataset.u, l = v ? p.offsetTop : p.offsetLeft, r = l + (v ? p.offsetHeight : p.offsetWidth), near = ahead ? r > a - 2 * w && l < a + 3.5 * w : r > a - w && l < a + 2 * w;
+    if (near && !p.dataset.p && !(ahead && ucPaint.did)) { if (unitWorld(u, ucEat?.u === u ? { skip: ucEat.i } : {})) { p.dataset.p = 1; if (ahead) ucPaint.did = 1; } }
+    else if (p.dataset.p && !near && (r < a - 3 * w || l > a + 4 * w) && !p.querySelector('.uw-anim')) { p.querySelectorAll('.un-bg canvas').forEach(c => { c.width = c.height = 0; c.classList.remove('on'); }); delete p.dataset.p; delete p._glow; } });
 }
 function mountUnit(un) {
   const sc = $('.uc-scroll'); if (!sc) return;
@@ -4358,11 +4364,13 @@ function mountUnit(un) {
   if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; sc.scrollTop = ucKeep.t || 0; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
   else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else if (ucV()) ucGo(go, false); else sc.scrollLeft = ucPane$(go).offsetLeft;
   ucSet(go); ucPaint();
-  let raf = 0, touch = false;
+  let raf = 0, touch = false, idle = 0;
+  const paintAhead = () => { clearTimeout(idle); idle = setTimeout(() => { if (!sc.isConnected || touch) return; ucPaint.did = 0; ucPaint(true); if (ucPaint.did) paintAhead(); }, 260); };   // one town at a time while nothing moves
+  paintAhead();
   // once the strip comes to rest it never stays across two units: it settles on the one that has more of the screen.
   // Then, if you just moved on into a unit, its comic plays (every unit starts with its comic; a new one counts as watched)
   const rest = ms => { clearTimeout(ucQuiet); ucQuiet = setTimeout(() => {
-    if (touch || !sc.isConnected || ucSnap()) return;
+    if (touch || !sc.isConnected) return; paintAhead(); if (ucSnap()) return;
     const u = ucWhich(); if (u !== ucNew) return; ucNew = 0;
     if (S.view === 'course' && !ucAuto && unitOpen(u) && COMIC[u] && !$('.cm-bar') && !$('.uw-anim')) comicPlay(u, 0, () => setTimeout(ucSnap, 60), comicSeen(u).p1 ? { demo: 1 } : {}); }, ms); };
   sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); }); rest(170); }, { passive: true });
@@ -4424,9 +4432,7 @@ const UW_T_GOLDEN = { glow: 'dusk', grass: '#B8A85E', grass2: '#C2B266', plaza: 
 const UW_T_SUNSET = { glow: 'dusk', grass: '#9A8A6A', grass2: '#A39272', plaza: '#E6B49A', wall: '#C9483E', wall2: '#D98A7A', roof: '#4A2E52', win: '#FFD98A', tree: '#5E6E4E', tree2: '#728058', trunk: '#5A3A2E', rock: '#9A8486', shadow: 'rgba(90,30,60,.3)', tint: 'rgba(255,110,110,.3)', grid: '90,40,50', vig: 'rgba(90,30,60,.26)' };
 const UW_T_BLUE = { glow: 'night', grass: '#56607E', grass2: '#5E6886', plaza: '#9A8CA4', wall: '#A8424A', wall2: '#B08A8A', roof: '#2E2A4E', win: '#FFD98A', tree: '#3A5A5E', tree2: '#4A6C6C', trunk: '#3A2A2A', rock: '#76768A', shadow: 'rgba(20,10,50,.32)', tint: 'rgba(255,140,120,.18)', amb: 'rgba(40,30,90,.1)', grid: '255,235,220', vig: 'rgba(30,20,60,.4)' };
 const UW_MORE = {
-  201: [UW_T_MORNING, 'gates', [4, 3]], 202: [UW_T_AFTERNOON, 'pagoda', [1, 3]], 203: [UW_T_GOLDEN, 'gates', [6]],
-  204: [UW_T_SUNSET, 'court', ['pitch', 3]], 205: [UW_T_BLUE, 'gates', [5]], 206: [UW_NEW_YEAR, 'pagoda', [8, 'sky', 'fire']],
-};
+};   // v3.45: HSK 2's units take the city's palettes (UW_C_*, set after them below)
 /* v3.32: each level's world, for its units without an entry above. pals: the palettes its units take in turn; base: the
    landmarks every unit has; extra: more landmarks, one set per unit in turn. HSK 3 is the Li
    River ('river': a river with a dragon boat runs through every town), HSK 4 the old temple town ('pagoda', the red
@@ -4489,6 +4495,21 @@ function uwGeo(un) {
       for (let t = 0; t <= 1; t += .02) { const a = a0 + (a1 - a0) * t, p = px([UN_RND.cx + UN_RND.rx * Math.cos(a), UN_RND.cy + UN_RND.ry * Math.sin(a)]), q = trail[trail.length - 1];
         if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 40 * o.sc) || (q && Math.hypot(q.x - p[0], q.y - p[1]) < 12)) continue;
         trail.push({ x: p[0], y: p[1], done: i < st.at }); } }
+    return out;
+  }
+  if (m.lay === 'city') {   // the city: the path runs down the middle of the walking streets, corner to corner (cityPlan)
+    const C = m.city, gp = ([col, row]) => px([140 * col - C.O, CITY_Y0 + 70 * row]);
+    const walk = (lat, done, front) => { const got = []; let run = 0;
+      for (let s = 0; s < lat.length - 1; s++) { const a = gp(lat[s]), b = gp(lat[s + 1]), L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        for (let d = 0; d < L; d += 2) { run += 2; if (run < 14) continue; run = 0; const p = [a[0] + (b[0] - a[0]) * d / L, a[1] + (b[1] - a[1]) * d / L];
+          if (p[0] < -14 || p[0] > B.width + 14 || spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 46) || Math.hypot(bx - p[0], (by - p[1]) * 2) < 64) continue;
+          got.push({ x: p[0], y: p[1], done: typeof done === 'function' ? done(s) : done }); } }
+      if (front) trail.unshift(...got); else trail.push(...got); };
+    const seq = [...C.pts, C.boss];
+    for (let i = 0; i < seq.length - 1; i++) walk(cityLeg(seq[i], seq[i + 1]), i < st.at);
+    out.join = uwJoin(un);
+    if (out.join?.pv != null) { const Q = cityPlan(unitLv(un)).byU[out.join.pv]; walk(cityLeg(Q.boss, C.pts[0]), utPassed(out.join.pv), true); }
+    if (out.join?.nx != null) { const Q = cityPlan(unitLv(un)).byU[out.join.nx]; walk(cityLeg(C.boss, Q.pts[0]), utPassed(un), false); }
     return out;
   }
   let run = 0;
@@ -4579,6 +4600,61 @@ function uwSteamer(c, lights, x, y, ch, state, a = {}) {
     c.restore(); }
 }
 
+/* ---- v3.45: HSK 2 is one city you swipe along (eating out, directions, out and about) ----
+   The whole level lies on one lattice of streets: a block every 7 tiles each way, roads 2 tiles wide. Lessons stand
+   on the corners, one block apart, so the path zig-zags gently from corner to corner; the streets it walks are paved
+   walking streets with 田字格 slabs, the others are roads with cars and zebra crossings. Hu Hu waits on a red square two
+   blocks after the last lesson, and the path goes on to the next unit's first corner. Everything is worked out for
+   the whole level at once (cityPlan), so a building across a seam is drawn the same in both units */
+const CITY_Y0 = 300, CITY_B = [0, 1, 0, -1];   // the middle of the street band, and how each lesson's corner goes up and down
+const cityCR = (col, row) => [(col + row) / 2, (row - col) / 2];
+const cityK = (i, j) => (i + 4096) * 8192 + j + 4096;   // a tile's key in the plan's sets   // a corner's place on the lattice from its column and row
+/* from one corner to another along the streets: first one way, then the other, turning where it keeps nearer the middle */
+function cityLeg(a, b) { const dc = b[0] - a[0], dr = b[1] - a[1], dI = (dc + dr) / 2, dJ = (dr - dc) / 2, c1 = [a[0] + dI, a[1] + dI], c2 = [a[0] - dJ, a[1] + dJ];
+  return [a, Math.abs(c1[1]) <= Math.abs(c2[1]) ? c1 : c2, b]; }
+const cityPlanC = {};
+function cityPlan(lv) {
+  if (cityPlanC[lv]) return cityPlanC[lv];
+  const units = [], byU = {}; let O = 0;
+  for (const U of lvUnits(lv)) { const n = unitLessons(U.un).length, c0 = O / 140, sh = (c0 + 1) % 2;   // the first corner one column in; the rows start up or level so every corner lands on the lattice
+    const q = { u: U.un, O, n, pts: Array.from({ length: n }, (_, i) => [c0 + 1 + i, CITY_B[(i + sh) % 4]]), boss: [c0 + n + 2, CITY_B[(n + 1 + sh) % 4]], W: 140 * (n + 4) };
+    units.push(q); byU[U.un] = q; O += q.W; }
+  const walk = new Set(), plaza = new Set(), keep = [], hero = new Map(), front = new Map(), corners = [], legs = [];
+  const tiles = (i0, i1, j0, j1) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) walk.add(cityK(i, j)); };
+  const lay = lat => { legs.push(lat); for (let s = 0; s < lat.length - 1; s++) { let [c, r] = lat[s]; const [c1, r1] = lat[s + 1], along = c1 - c === r1 - r, steps = Math.abs(r1 - r), sg = Math.sign(r1 - r);
+    for (let k = 0; k < steps; k++) { const nc = along ? c + sg : c - sg, nr = r + sg, [Ia, Ja] = cityCR(c, r), [Ib, Jb] = cityCR(nc, nr), i0 = Math.min(Ia, Ib) * 7, j0 = Math.min(Ja, Jb) * 7;
+      if (Ia !== Ib) tiles(i0 - 1, i0 + 7, j0 - 1, j0); else tiles(i0 - 1, i0, j0 - 1, j0 + 7);   // the street between two corners, and both crossings
+      c = nc; r = nr; } } };
+  units.forEach((q, k) => { const seq = [...q.pts, q.boss];
+    for (let i = 0; i < seq.length - 1; i++) lay(cityLeg(seq[i], seq[i + 1]));
+    if (units[k + 1]) lay(cityLeg(q.boss, units[k + 1].pts[0]));
+    const [Ib, Jb] = cityCR(...q.boss); for (let i = Ib * 7 - 6; i <= Ib * 7 + 6; i++) for (let j = Jb * 7 - 6; j <= Jb * 7 + 6; j++) if (Math.abs(i + .5 - Ib * 7) + Math.abs(j + .5 - Jb * 7) < 4.6) plaza.add(cityK(i, j));
+    q.pts.forEach(([c, r]) => { const x = 140 * c, y = CITY_Y0 + 70 * r; corners.push(cityCR(c, r)); keep.push([x - 38, y - 64, x + 38, y + 8], [x - 92, y - 124, x - 34, y - 30]); });
+    const bx = 140 * q.boss[0], by = CITY_Y0 + 70 * q.boss[1]; keep.push([bx - 80, by - 176, bx + 80, by + 18], [bx - 140, by - 124, bx - 84, by - 30]);
+    const ev = q.pts.map((_, i) => i).filter(i => q.pts[i][1] === 0), m = ev.reduce((a, i) => Math.abs(i - q.n / 2) < Math.abs(a - q.n / 2) ? i : a, ev[0]), m2 = ev.find(i => i !== m && i > m) ?? ev.find(i => i !== m) ?? m;
+    const [hI, hJ] = cityCR(...q.pts[m]), [fI, fJ] = cityCR(...q.pts[m2]); hero.set((hI - 1) + ',' + (hJ - 1), q.u); front.set(fI + ',' + fJ, q.u); });
+  legs.forEach(lat => { for (let s = 0; s < lat.length - 1; s++) { const a = lat[s], b = lat[s + 1], L = Math.hypot(140 * (b[0] - a[0]), 70 * (b[1] - a[1]));   // the path's dots, kept in sight too
+    for (let d = 0; d < L; d += 18) { const x = 140 * (a[0] + (b[0] - a[0]) * d / L), y = CITY_Y0 + 70 * (a[1] + (b[1] - a[1]) * d / L); keep.push([x - 7, y - 5, x + 7, y + 5]); } } });
+  return cityPlanC[lv] = { units, byU, walk, plaza, keep, hero, front, corners, W: O };
+}
+/* the city's look by the hour: HSK 2 goes from morning to the snowy New Year night, as the temple town did */
+const UW_C_MORNING = { ...UW_T_MORNING, road: '#8A8F99', slab: '#F6E9CF', side: '#CBC8C2', plazaC: '#DE9A7E', grid: '196,72,56', fac: ['#F5EAD8', '#EFD3B7', '#D5E0E7', '#D9573F', '#C2DAC6'], glass: '#9FCDE9', top: '#CBC3B5', shopWin: '#FFF6E0', car: ['#E5483F', '#F4F1EA', '#3E6FA0', '#F4C14E'] };
+const UW_C_AFTERNOON = { ...UW_T_AFTERNOON, road: '#8C8C92', slab: '#F7E4BF', side: '#CEC6B8', plazaC: '#E19A78', grid: '190,70,40', fac: ['#F3E3C7', '#ECC7A1', '#D9DDDC', '#CF4B35', '#CAD8B5'], glass: '#A8CADD', top: '#C9BDA9', shopWin: '#FFF0CC', car: ['#E5483F', '#F4F1EA', '#3E6FA0', '#F4C14E'] };
+const UW_C_GOLDEN = { ...UW_T_GOLDEN, road: '#8A7E7A', slab: '#F8D9A8', side: '#D2BBA2', plazaC: '#E68E68', grid: '170,60,20', fac: ['#F3D6AF', '#EDB68D', '#DACAB8', '#D2482E', '#CEC08F'], glass: '#EAC28C', top: '#CAAA8A', shopWin: '#FFE7B0', car: ['#E5483F', '#F4F1EA', '#3E6FA0', '#F4C14E'] };
+const UW_C_SUNSET = { ...UW_T_SUNSET, road: '#7A707C', slab: '#F0C8B0', side: '#C7AAA2', plazaC: '#DC8676', grid: '160,50,60', fac: ['#ECCAB9', '#E3A995', '#CAB9C3', '#C9483E', '#BAAF9F'], glass: '#DA9CA2', top: '#B99B99', shopWin: '#FFE0B8', car: ['#E5483F', '#F4F1EA', '#3E6FA0', '#F4C14E'] };
+const UW_C_BLUE = { ...UW_T_BLUE, road: '#4E5268', slab: '#B9A9B8', side: '#878299', plazaC: '#A87A8E', grid: '255,215,200', fac: ['#9D93AF', '#A98B97', '#7F8BA7', '#A8424A', '#8B9B9F'], glass: '#5B6F9F', top: '#6F6B87', win: '#FFD98A', shopWin: '#FFE2A0', car: ['#E5483F', '#E8E4F0', '#5A8AC0', '#F4C14E'] };
+const UW_C_NEWYEAR = { ...UW_NEW_YEAR, road: '#8A90A8', slab: '#E2DCE6', side: '#C4C9D8', plazaC: '#C98A98', grid: '70,70,140', fac: ['#CAC3D7', '#C7A7A7', '#A9B5CF', '#B5483E', '#A9BBB9'], glass: '#6F7FAF', top: '#F3F5FB', shopWin: '#FFD98A', car: ['#E5483F', '#F4F1EA', '#3E6FA0', '#F4C14E'] };
+/* what each unit's streets are about: the words on its shop signs (all its own), the landmark behind the path, the
+   low one in front of it, and what the other blocks hold */
+const CITY_U = {
+  201: { signs: ['饭馆', '奶茶', '咖啡', '商场', '酒店', '绿茶', '红茶'], hero: 'restaurant', front: 'tables', mix: { shop: 5, old: 3, tower: 1, park: 1 } },
+  202: { signs: ['左边', '右边', '旁边', '门口', '前面', '后面', '洗手间'], hero: 'tower', front: 'park', posts: 1, mix: { shop: 4, tower: 2, park: 1, old: 1 } },
+  203: { signs: ['地铁', '车站', '机场', '机票', '门票', '旅游', '出国'], hero: 'station', front: 'metro', plane: 1, taxi: 1, mix: { shop: 4, tower: 2, park: 1, old: 1 } },
+  204: { signs: ['药店', '运动', '篮球', '足球', '游泳', '跳舞', '跑步'], hero: 'pharmacy', front: 'court', mix: { shop: 3, park: 3, tower: 1, old: 1 } },
+  205: { signs: ['考试', '教室', '书包', '本子', '高中', '开学', '笔'], hero: 'school', front: 'field', mix: { shop: 4, tower: 1, park: 2, old: 1 } },
+  206: { signs: ['过年', '快乐', '生日', '爷爷', '奶奶', '介绍'], hero: 'homes', front: 'fair', mix: { homes: 4, old: 3, shop: 2, park: 1 } },
+};
+Object.assign(UW_MORE, { 201: [UW_C_MORNING, 'city', []], 202: [UW_C_AFTERNOON, 'city', []], 203: [UW_C_GOLDEN, 'city', []], 204: [UW_C_SUNSET, 'city', []], 205: [UW_C_BLUE, 'city', []], 206: [UW_C_NEWYEAR, 'city', ['fire']] });
 function unitWorld(un, o = {}) {
   const G = uwGeo(un); if (!G) return null;
   const { box, W, H } = G, cv = box.querySelector('canvas.uw'), D = Math.min(devicePixelRatio || 1, 2);
@@ -4587,7 +4663,8 @@ function unitWorld(un, o = {}) {
   const pal = uwPal(un), marks = uwMarks(un), has = m => marks.includes(m), night = pal.glow === 'night', warm = !!pal.glow;
   let seed = un * 131 + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const offL = G.join ? box.closest('.uc-pane')?.offsetLeft || 0 : 0;
-  const TW = 44, TH = 22, ox = G.join ? W / 2 - ((offL + W / 2) % TW) : W / 2, oy = G.lay === 'tall' ? H * .5 - (((box.closest('.uc-pane')?.offsetTop || 0) + H * .5) % TH) : H * .5;   // down the page the tiles line up across the seams
+  const city = G.lay === 'city';   // v3.45: the city of HSK 2 lies on one lattice for the whole level, a tile 40 map units wide (cityPlan)
+  const TW = city ? 40 * G.k : 44, TH = TW / 2, ox = city ? G.ml - G.m.city.O * G.k : G.join ? W / 2 - ((offL + W / 2) % TW) : W / 2, oy = city ? G.mt + 24 + CITY_Y0 * G.k : G.lay === 'tall' ? H * .5 - (((box.closest('.uc-pane')?.offsetTop || 0) + H * .5) % TH) : H * .5;   // down the page the tiles line up across the seams
   const P = (i, j, z = 0) => [ox + (i - j) * TW / 2, oy + (i + j) * TH / 2 - z];
   const IJ = (x, y) => { const a = (x - ox) / (TW / 2), b = (y - oy) / (TH / 2); return [(a + b) / 2, (b - a) / 2]; };
   const poly = (pts, fill) => { c.beginPath(); pts.forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = fill; c.fill(); };
@@ -4620,6 +4697,7 @@ function unitWorld(un, o = {}) {
       c.save(); c.beginPath(); c.rect(x, 0, x1 - x, H); c.clip(); c.globalAlpha = 1 - w; draw(pal); if (w) { c.globalAlpha = w; draw(uwPal(q)); } c.restore(); x = x1; } };
     return { wt, mix, band, share, over, m: Math.round((offL + ox) / TW), snow: [pv, nx].some(u => u != null && uwPal(u).snow) };
   })() : null;
+  const CY = city ? cityKit() : null;
   /* v3.36: paving under the temple looks: along the road of the gates, the courtyard, round the pagoda's foot */
   const pave = new Set(), paveAt = (x, y, r) => { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) if (Math.abs(i + .5 - a) + Math.abs(j + .5 - b) <= r) pave.add(key(i, j)); };
   if (lay === 'gates') { G.trail.forEach(d => paveAt(d.x, d.y, 1.4)); G.spots.forEach(s => paveAt(s.x, s.y, 2.2)); }
@@ -4636,6 +4714,7 @@ function unitWorld(un, o = {}) {
   const water = tall ? (i, j) => T3.wet(...P(i + .5, j + .5)) : lay === 'stones' ? (i, j) => { const [x, y] = P(i + .5, j + .5); return x > 52 * G.k + 14 * Math.sin(y / 52) && x < W - 52 * G.k + 14 * Math.sin(y / 61 + 1); }   // the whole page is river but its banks
     : (i, j) => { if (rivS == null) return false; const s = i + j - rivS - Math.round(Math.sin((i - j) * .45) * 1.2); return s >= 0 && s < rivD; };
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+    if (city) { if (CY.onCv(i, j)) poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], CY.tileCol(i, j)); continue; }
     const n = (rnd() - .5) * .07, pz = plaza(i, j);
     if (tall) { const gi = i + T3.d, gj = j + T3.d, hn = (uwHash(gi, gj) - .5) * .07, [q, w] = T3.wt(P(i + .5, j + .5)[1]);
       poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], water(i, j) ? uwSh(T3.mix('water', q, w), hn * 1.4 + (((gi - gj) % 3 + 3) % 3 ? 0 : .08)) : uwSh(T3.mix(((gi * 7 + gj * 3) % 5 + 5) % 5 ? 'grass' : 'grass2', q, w), hn)); continue; }
@@ -4644,10 +4723,11 @@ function unitWorld(un, o = {}) {
     poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], !pz && water(i, j) ? uwSh(pal.water || '#3FA2C6', n * 1.4 + ((i - j) % 3 ? 0 : .08))
       : uwSh(pz ? pal.plaza : (i * 7 + j * 3) % 5 ? pal.grass : pal.grass2, n + (pz && (i + j) % 2 ? -.06 : 0)));
   }
-  for (let k = 0; k < 26; k++) { const x = SJ ? 80 + rnd() * (W - 160) : rnd() * W, y = tall ? 110 + rnd() * (H - 220) : rnd() * H, r = 40 + rnd() * 30;   // soft darker patches (away from the seams down the page and along the street)
+  for (let k = 0; k < (city ? 0 : 26); k++) { const x = SJ ? 80 + rnd() * (W - 160) : rnd() * W, y = tall ? 110 + rnd() * (H - 220) : rnd() * H, r = 40 + rnd() * 30;   // soft darker patches (away from the seams down the page and along the street)
     c.save(); c.translate(x, y); c.scale(1, .5); const g = c.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, uwSh(SJ ? SJ.mix('grass', x) : pal.grass, -.2)); g.addColorStop(1, 'rgba(0,0,0,0)');
     c.globalAlpha = .4; c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill(); c.restore(); }
   // 田字格 on every tile
+  if (city) CY.grid(); else {
   const gridA = a => SJ ? SJ.band(x => `rgba(${uwHex(SJ.mix('grid', x)).join(',')},${a})`) : `rgba(${pal.grid},${a})`;
   c.lineWidth = .8; c.strokeStyle = gridA(.13); c.beginPath();
   for (let i = i0; i <= i1 + 1; i++) { c.moveTo(...P(i, j0)); c.lineTo(...P(i, j1 + 1)); }
@@ -4655,14 +4735,14 @@ function unitWorld(un, o = {}) {
   c.stroke(); c.strokeStyle = gridA(.09); c.setLineDash([3, 3]); c.beginPath();
   for (let i = i0; i <= i1; i++) { c.moveTo(...P(i + .5, j0)); c.lineTo(...P(i + .5, j1 + 1)); }
   for (let j = j0; j <= j1; j++) { c.moveTo(...P(i0, j + .5)); c.lineTo(...P(i1 + 1, j + .5)); }
-  c.stroke(); c.setLineDash([]);
+  c.stroke(); c.setLineDash([]); }
 
   /* the path, lying on the ground (or, at the round table, the table: its turntable, path and steamers turn on a canvas of their own, unitTable) */
   const objs = [], lights = [], occ = new Set(), post = [];
   const zOfSpot = s => IJ(s.x, s.y).map(Math.floor).reduce((a, b) => a + b) + 1.5;
   const uwPeakZ = i => { const s = i < G.spots.length ? G.spots[i] : { x: G.boss.x, y: G.boss.y }, [a, b] = IJ(s.x, s.y - 6 + G.m.hs[i] * G.k); return a + b; };
   const uwPebble = (c, x, y) => { c.fillStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(x, y + 2, 12, 6, 0, 0, 7); c.fill(); c.fillStyle = '#7E857C'; c.beginPath(); c.ellipse(x, y + 1, 9, 4.6, 0, 0, 7); c.fill(); c.fillStyle = '#C9CDC2'; c.beginPath(); c.ellipse(x, y - 1, 9, 4.6, 0, 0, 7); c.fill(); };   // post: drawn over the town (the path up the pagoda, the rope bridges)
-  for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j) || water(i, j)) occ.add(key(i, j));
+  if (!city) for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j) || water(i, j)) occ.add(key(i, j));
   if (rivS != null || tall) { c.save(); c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1.6; c.lineCap = 'round';   // ripples
     for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (water(i, j) && !plaza(i, j) && (i * 5 + j * 3) % 4 === 0) { c.beginPath(); c.moveTo(...P(i + .25, j + .7)); c.lineTo(...P(i + .7, j + .25)); c.stroke(); }
     c.restore(); }
@@ -4802,6 +4882,267 @@ function unitWorld(un, o = {}) {
     poly(C, '#C69A62'); c.strokeStyle = 'rgba(90,55,25,.4)'; c.lineWidth = 1; for (let t = .2; t < 1; t += .2) { c.beginPath(); c.moveTo(C[0][0] + (C[1][0] - C[0][0]) * t, C[0][1] + (C[1][1] - C[0][1]) * t); c.lineTo(C[3][0] + (C[2][0] - C[3][0]) * t, C[3][1] + (C[2][1] - C[3][1]) * t); c.stroke(); }
     c.strokeStyle = '#7A5230'; c.lineWidth = 2; [C[0], C[1], C[2]].forEach(([a, b]) => { c.beginPath(); c.moveTo(a, b); c.lineTo(a, b - 12); c.stroke(); });
     c.beginPath(); c.moveTo(C[0][0], C[0][1] - 11); c.lineTo(C[1][0], C[1][1] - 11); c.lineTo(C[2][0], C[2][1] - 11); c.stroke(); }
+  /* ---- the city of HSK 2 (cityPlan): its ground, streets, blocks, cars and each unit's landmarks ----
+     Everything here is placed by the whole level's lattice (global tiles), so a pane draws every block that reaches
+     into it and two neighbouring units draw a block across their seam the same way. Colours fade from one unit's hour
+     into the next over 300 units each side of a seam, the same seen from either side */
+  function cityKit() {
+    const PL = cityPlan(unitLv(un)), K = G.k, O = G.m.city.O, F = 24;
+    const xg = x => (x - G.ml) / K + O, toPx = (gx, gy) => [G.ml + (gx - O) * K, G.mt + F + gy * K];
+    const unitAt = g => PL.units.find(q => g < q.O + q.W) || PL.units.at(-1), sm = t => t * t * (3 - 2 * t);
+    const mixAt = x => { const g = xg(x), q = unitAt(g), ix = PL.units.indexOf(q), dl = g - q.O, dr = q.O + q.W - g, Z = 300;
+      if (dl < Z && ix > 0) return [q.u, PL.units[ix - 1].u, .5 * (1 - sm(Math.max(0, dl) / Z))];
+      if (dr < Z && ix < PL.units.length - 1) return [q.u, PL.units[ix + 1].u, .5 * (1 - sm(Math.max(0, dr) / Z))];
+      return [q.u, null, 0]; };
+    const col = (key, x) => { const [a, b, w] = mixAt(x), A = uwPal(a)[key]; if (!w || b == null) return A; const B = uwPal(b)[key];
+      return Array.isArray(A) ? A.map((v, i) => uwMix(v, B[i], w)) : typeof A === 'string' && B ? uwMix(A, B, w) : A; };
+    const nightAt = x => { const [a, b, w] = mixAt(x), f = u => uwPal(u).glow === 'night' ? 1 : 0; return f(a) * (1 - w) + (b == null ? 0 : f(b) * w); };
+    const md = v => ((v % 7) + 7) % 7, rd = v => (md(v) === 6 || md(v) === 0) && (((md(v) ? (v + 1) / 7 : v / 7) % 2) + 2) % 2 === 0;   // a road on every other line of the lattice: big blocks, few cars
+    const kind = (i, j) => { const q = cityK(i, j); return PL.plaza.has(q) ? 'plaza' : PL.walk.has(q) ? 'walk' : rd(i) || rd(j) ? 'road' : 'side'; };
+    const TK = { road: 'road', walk: 'slab', plaza: 'plazaC', side: 'side' }, tc = {};   // the ground's colours, worked out once every 16 px along the level
+    const tileCol = (i, j) => { const k = kind(i, j), x = P(i + .5, j + .5)[0], b = Math.round(x / 16), ck = k + b, A = tc[ck] ||= uwHex(col(TK[k], b * 16));
+      const h = (uwHash(i, j) - .5) * .06 * (k === 'road' ? .5 : 1) + (k === 'walk' && (i + j) % 2 ? -.03 : k === 'plaza' && (i + j) % 2 ? -.05 : 0);
+      return `rgb(${A.map(v => Math.round(h >= 0 ? v + (255 - v) * h : v * (1 + h))).join(',')})`; };
+    const onCv = (i, j) => { const [x, y] = P(i + .5, j + .5); return x > -TW && x < W + TW && y > -TH * 2 && y < H + TH * 2; };   // only the tiles on this canvas
+    /* 田字格 on the paving: red and clear on the walking streets and the square, faint on the pavements, none on the roads */
+    const grid = () => { const B = {};
+      for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { if (!onCv(i, j)) continue; const k = kind(i, j); if (k === 'road') continue; const x = P(i + .5, j + .5)[0], key = (k === 'side' ? 's' : 'w') + '|' + Math.round(x / 40);
+        (B[key] ||= { k, x, t: [] }).t.push([i, j]); }
+      Object.values(B).forEach(({ k, x, t }) => { const g = uwHex(col('grid', x)).join(','), a = k === 'side' ? [.12, .07] : [.34, .22];
+        c.lineWidth = .9; c.strokeStyle = `rgba(${g},${a[0]})`; c.setLineDash([]); c.beginPath();
+        t.forEach(([i, j]) => { c.moveTo(...P(i, j + 1)); c.lineTo(...P(i, j)); c.lineTo(...P(i + 1, j)); }); c.stroke();
+        c.strokeStyle = `rgba(${g},${a[1]})`; c.setLineDash([3, 3]); c.beginPath();
+        t.forEach(([i, j]) => { c.moveTo(...P(i + .5, j)); c.lineTo(...P(i + .5, j + 1)); c.moveTo(...P(i, j + .5)); c.lineTo(...P(i + 1, j + .5)); }); c.stroke(); });
+      c.setLineDash([]);
+      c.lineWidth = 2.2 * K; c.lineCap = 'round'; c.beginPath();   // a red-brown edge along the walking streets
+      for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { if (!onCv(i, j) || kind(i, j) !== 'walk') continue; const nb = (a, b) => { const q = kind(a, b); return q === 'walk' || q === 'plaza'; };
+        if (!nb(i, j - 1)) { c.moveTo(...P(i, j)); c.lineTo(...P(i + 1, j)); } if (!nb(i, j + 1)) { c.moveTo(...P(i, j + 1)); c.lineTo(...P(i + 1, j + 1)); }
+        if (!nb(i - 1, j)) { c.moveTo(...P(i, j)); c.lineTo(...P(i, j + 1)); } if (!nb(i + 1, j)) { c.moveTo(...P(i + 1, j)); c.lineTo(...P(i + 1, j + 1)); } }
+      c.strokeStyle = 'rgba(150,50,35,.55)'; c.stroke(); };
+    /* what must stay in sight (the steamers, Shi Shi beside them, Hu Hu and the path): nothing may stand in front of them */
+    const keepPx = PL.keep.map(([x0, y0, x1, y1]) => [...toPx(x0, y0), ...toPx(x1, y1)]).filter(b => b[2] > -320 && b[0] < W + 320), KB = {};
+    keepPx.forEach(b => { for (let q = Math.floor(b[0] / 100); q <= Math.floor(b[2] / 100); q++) (KB[q] ||= []).push(b); });   // in strips 100 px wide, to look up fast
+    const inPoly = (pts, x, y) => { let s = 0; for (let k = 0; k < pts.length; k++) { const [ax, ay] = pts[k], [bx, by] = pts[(k + 1) % pts.length], cr = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
+      if (cr) { if (s && Math.sign(cr) !== s) return false; s = Math.sign(cr); } } return true; };
+    const hides = (i, j, w, d, h) => { const L0 = P(i, j + d), Bk = P(i, j), Rt = P(i + w, j), Fr = P(i + w, j + d), hull = [L0, [L0[0], L0[1] - h], [Bk[0], Bk[1] - h], [Rt[0], Rt[1] - h], Rt, Fr];
+      const x0 = L0[0], x1 = Rt[0], y0 = Bk[1] - h, y1 = Fr[1];
+      const near = new Set(); for (let q = Math.floor(x0 / 100); q <= Math.floor(x1 / 100); q++) (KB[q] || []).forEach(b => near.add(b));
+      return [...near].some(([a, b, cc, dd]) => cc > x0 && a < x1 && dd > y0 && b < y1 && ([[a, b], [cc, b], [a, dd], [cc, dd], [(a + cc) / 2, (b + dd) / 2]].some(([x, y]) => inPoly(hull, x, y)) || hull.some(([x, y]) => x > a && x < cc && y > b && y < dd))); };
+    const fitH = (i, j, w, d, h, min = 10 * K) => { for (let t = h; t >= min; t *= .86) if (!hides(i, j, w, d, t)) return t; return 0; };
+    const onPlaza = (i, j, w, d) => { for (let a = Math.floor(i); a < i + w; a++) for (let b = Math.floor(j); b < j + d; b++) if (PL.plaza.has(cityK(a, b)) || PL.walk.has(cityK(a, b))) return true; return false; };
+    const hsh = (a, b, s = 0) => uwHash(a * 37 + s * 101 + 11, b * 53 + s * 7 + 3);
+    /* a sign board on a face of a box (L: the left front face, R: the right one), u along the face, z0..z1 its height */
+    const fq = (f, i, j, w, d) => (u0, u1, z0, z1) => f === 'L' ? [P(i + w * u0, j + d, z0), P(i + w * u1, j + d, z0), P(i + w * u1, j + d, z1), P(i + w * u0, j + d, z1)]
+      : [P(i + w, j + d - d * u0, z0), P(i + w, j + d - d * u1, z0), P(i + w, j + d - d * u1, z1), P(i + w, j + d - d * u0, z1)];
+    const sign = (f, i, j, w, d, u0, u1, z0, z1, txt, bg, fg, lit) => { const q = fq(f, i, j, w, d)(u0, u1, z0, z1); poly(q, bg);
+      c.strokeStyle = uwSh(bg, -.35); c.lineWidth = 1; c.beginPath(); q.forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.closePath(); c.stroke();
+      const cx = (q[0][0] + q[2][0]) / 2, cy = (q[0][1] + q[2][1]) / 2, len = Math.abs(q[1][0] - q[0][0]), hh = Math.abs(q[0][1] - q[3][1]);
+      c.save(); c.translate(cx, cy); c.transform(1, f === 'L' ? .5 : -.5, 0, 1, 0, 0); c.font = `900 ${Math.round(hh * .74)}px ${UW_HZ}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+      const tw = c.measureText(txt).width; if (tw > len * .86) c.scale(len * .86 / tw, 1); c.fillStyle = fg; c.fillText(txt, 0, hh * .04); c.restore();
+      if (lit) lights.push([cx, cy, 34 * K, .8 * lit]); };
+    const vsign = (x, yTop, txt, bg, fg, lit) => { const s = 11 * K, n = [...txt].length; c.fillStyle = bg; c.fillRect(x - s * .62, yTop, s * 1.24, s * n * 1.12 + s * .3);   // an upright sign, the characters one under another
+      c.strokeStyle = uwSh(bg, -.35); c.lineWidth = 1; c.strokeRect(x - s * .62, yTop, s * 1.24, s * n * 1.12 + s * .3);
+      c.font = `900 ${Math.round(s)}px ${UW_HZ}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = fg; [...txt].forEach((ch, k) => c.fillText(ch, x, yTop + s * .7 + k * s * 1.12));
+      if (lit) lights.push([x, yTop + s * n * .56, 30 * K, .8 * lit]); };
+    const SIGN_C = [['#C6402F', '#FFE9A8'], ['#2D3F5E', '#FFFFFF'], ['#FFF6E4', '#C6402F'], ['#E9B949', '#5A1E12'], ['#2E7D5B', '#FFFFFF']];
+    /* a modern building: a shop on the ground floor (lit window, awning, sign), floors of windows above, a flat roof */
+    const bld = (i, j, w, d, h, o) => objs.push({ z: i + j + w + d, sh: () => shade(i, j, w, d, h), draw: () => {
+      const x = P(i + w / 2, j + d / 2)[0], nt = nightAt(x), fac = o.fac, gh = Math.min(h * .5, 22 * K), up = h - gh, flo = Math.max(0, Math.floor(up / (15 * K)));
+      const cW = col('win', x), cG = col('glass', x), cGn = uwSh(cG, -.25), cGd = [-.08, -.03, .02, .07].map(v => uwSh(cG, v));
+      const win = (k, fl) => hsh(k, fl, o.s) < (nt ? .72 : 0) ? cW : nt ? cGn : cGd[Math.floor(hsh(fl, k, o.s) * 4)];
+      block(i, j, w, d, h, fac, 0, (f, q) => { const fw = f === 'L' ? w : d, n = Math.max(1, Math.round(fw * 1.5));
+        if (o.glassy) { poly(q(.04, .96, (gh + 2 * K) / h, .97), uwSh(col('glass', x), nt ? -.3 : 0)); c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 1; for (let fl = 0; fl < flo; fl++) { const p = q(.04, .96, (gh + fl * 15 * K) / h, (gh + fl * 15 * K) / h); c.beginPath(); c.moveTo(...p[0]); c.lineTo(...p[1]); c.stroke(); }
+          for (let fl = 0; fl < flo; fl++) for (let k = 0; k < n; k++) if (hsh(k, fl, o.s + (f === 'L' ? 0 : 9)) < (nt ? .6 : .12)) poly(q((k + .15) / n, (k + .85) / n, (gh + (fl + .3) * 15 * K) / h, (gh + (fl + .8) * 15 * K) / h), nt ? col('win', x) : 'rgba(255,255,255,.35)'); }
+        else for (let fl = 0; fl < flo; fl++) for (let k = 0; k < n; k++) poly(q((k + .22) / n, (k + .78) / n, (gh + (fl + .3) * 15 * K) / h, (gh + (fl + .78) * 15 * K) / h), win(k + (f === 'L' ? 0 : 20), fl));
+        if (o.shop !== false) { poly(q(.06, .94, .04 * gh / h, gh * .72 / h), nt ? col('shopWin', x) : uwSh(col('shopWin', x), -.04)); poly(q(.4, .6, 0, gh * .62 / h), uwSh(fac, -.45));
+          if (nt) { const p = q(.06, .94, 0, gh * .7 / h); lights.push([(p[0][0] + p[1][0]) / 2, (p[0][1] + p[1][1]) / 2 + 4, 30 * K, .7]); } } });
+      poly([P(i, j, h), P(i + w, j, h), P(i + w, j + d, h), P(i, j + d, h)], o.top || col('top', x));
+      c.strokeStyle = uwSh(fac, -.25); c.lineWidth = 2; c.beginPath(); c.moveTo(...P(i, j + d, h)); c.lineTo(...P(i + w, j + d, h)); c.lineTo(...P(i + w, j, h)); c.stroke();
+      if (w > 1.2 && d > 1.2 && !o.bare) { const ai = i + w * .25, aj = j + d * .3; block(ai, aj, .5, .4, 5 * K, '#B8B4AC', h); if (h > 70 * K) { block(i + w * .6, j + d * .2, .45, .45, 9 * K, '#9A8E80', h); } }
+      if (o.awn && o.shop !== false) { const [a, b] = o.awn; for (let k = 0; k < 7; k++) { const u0 = .06 + k * .88 / 7, u1 = u0 + .88 / 7, z = gh * .8;
+        poly([P(i + w * u0, j + d, z), P(i + w * u1, j + d, z), P(i + w * u1, j + d + .32, z - 6 * K), P(i + w * u0, j + d + .32, z - 6 * K)], k % 2 ? b : a); } }
+      if (o.sign) sign('L', i, j, w, d, .1, .9, gh * .76, gh * .76 + Math.min(11 * K, up * .5 + 2 * K), o.sign, o.sc[0], o.sc[1], nt);
+      if (o.vs && h > 50 * K) { const [px, py] = P(i + w, j + d * .82, h - 8 * K); vsign(px + 2 * K, py, o.vs, o.vc[0], o.vc[1], nt); }
+      if (pal.snow) { c.strokeStyle = '#fff'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i, j + d, h)); c.lineTo(...P(i + w, j + d, h)); c.lineTo(...P(i + w, j, h)); c.stroke(); }
+    } });
+    /* an old house of the street: tiled roof, red pillars and lanterns */
+    const oldB = (i, j, w, d, h, o) => objs.push({ z: i + j + w + d, sh: () => shade(i - .3, j - .3, w + .6, d + .6, h + 18 * K), draw: () => { const x = P(i + w / 2, j + d / 2)[0], nt = nightAt(x);
+      block(i, j, w, d, h, o.fac, 0, (f, q) => { const n = f === 'L' ? Math.max(2, Math.round(w * 1.3)) : Math.max(1, Math.round(d * 1.1));
+        for (let k = 0; k < n; k++) { const u = (k + .5) / n; poly(q(u - .3 / n, u + .3 / n, .14, .66), nt ? col('win', x) : uwSh(col('shopWin', x), -.08)); if (nt && f === 'L') lights.push([...q(u, u, .4, .4)[0], 24 * K, .6]); }
+        if (f === 'L') { [0, 1].forEach(e => poly(q(e ? .95 : 0, e ? 1 : .05, 0, 1), '#7A1A12')); } });
+      roof(i, j, w, d, h, 18 * K, o.roof || col('roof', x), .42);
+      if (o.sign) sign('L', i, j, w, d, .22, .78, h * .7, h * .7 + 9 * K, o.sign, '#2D1A10', '#F4C14E', nt);
+      lantern(...P(i + .15, j + d + .2, h - 9 * K), 4.6 * K); lantern(...P(i + w - .15, j + d + .2, h - 9 * K), 4.6 * K);
+      if (pal.snow) { c.strokeStyle = '#fff'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i - .4, j + d + .4, h)); c.lineTo(...P(i + w + .4, j + d + .4, h)); c.stroke(); } } });
+    /* a homes block: balconies in rows, red lanterns on some at New Year */
+    const homesB = (i, j, w, d, h, o) => objs.push({ z: i + j + w + d, sh: () => shade(i, j, w, d, h), draw: () => { const x = P(i + w / 2, j + d / 2)[0], nt = nightAt(x), fl = Math.floor(h / (14 * K));
+      block(i, j, w, d, h, o.fac, 0, (f, q) => { const n = Math.max(1, Math.round((f === 'L' ? w : d) * 1.3));
+        for (let r = 0; r < fl; r++) for (let k = 0; k < n; k++) { const v0 = (r * 14 * K + 4 * K) / h, v1 = (r * 14 * K + 10 * K) / h; poly(q((k + .18) / n, (k + .82) / n, v0, v1), hsh(k, r, o.s) < (nt ? .7 : 0) ? col('win', x) : uwSh(col('glass', x), -.1));
+          poly(q((k + .12) / n, (k + .88) / n, v0 - 1.5 * K / h, v0), uwSh(o.fac, -.3));
+          if (o.ny && hsh(r, k, o.s + 3) < .3 && r > 0) { const p = q((k + .5) / n, (k + .5) / n, v1 + 1 * K / h, v1)[0]; lantern(p[0], p[1] + 3 * K, 3.4 * K); } } });
+      poly([P(i, j, h), P(i + w, j, h), P(i + w, j + d, h), P(i, j + d, h)], col('top', x));
+      if (o.ny) { sign('L', i, j, w, d, .38, .62, 3 * K, 12 * K, '福', '#C6402F', '#FFD866', nt); }
+      if (pal.snow) { c.strokeStyle = '#fff'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(...P(i, j + d, h)); c.lineTo(...P(i + w, j + d, h)); c.lineTo(...P(i + w, j, h)); c.stroke(); } } });
+    /* a patch of park: grass with its own 田字格, a few trees, a bench */
+    const park = (i, j, w, d, s) => { objs.push({ z: i + j + .01, draw: () => { const x = P(i + w / 2, j + d / 2)[0];
+        poly([P(i, j), P(i + w, j), P(i + w, j + d), P(i, j + d)], uwMix(col('grass', x), '#8FCB6A', .55)); c.strokeStyle = 'rgba(40,70,40,.14)'; c.lineWidth = .8; c.beginPath();
+        for (let t = 1; t < w; t++) { c.moveTo(...P(i + t, j)); c.lineTo(...P(i + t, j + d)); } for (let t = 1; t < d; t++) { c.moveTo(...P(i, j + t)); c.lineTo(...P(i + w, j + t)); } c.stroke();
+        c.strokeStyle = uwSh(col('grass', x), -.25); c.lineWidth = 1.4; c.beginPath(); [P(i, j), P(i + w, j), P(i + w, j + d), P(i, j + d)].forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.closePath(); c.stroke(); } });
+      for (let k = 0; k < 4; k++) { const ti = i + .5 + hsh(k, s, 1) * (w - 1), tj = j + .5 + hsh(s, k, 2) * (d - 1), sc = .75 + hsh(k, k, s) * .35; if (!hides(ti - .3, tj - .3, .6, .6, 52 * sc)) tree(ti - .5, tj - .5, sc); } };
+    const kiosk = (i, j, w, d, txt, s) => { const h = fitH(i, j, w, d, 17 * K, 9 * K); if (!h) return; bld(i, j, w, d, h, { fac: col('fac', P(i, j)[0])[s % 5], s, bare: 1, sign: txt, sc: SIGN_C[s % SIGN_C.length], awn: ['#E5483F', '#FFF6E8'] }); };
+    /* a street tree in its square bed, and a street lamp, on the pavement */
+    const sTree = (ti, tj, s) => { if (hides(ti - .25, tj - .25, .5, .5, 50 * s)) return; objs.push({ z: ti + tj, draw: () => poly([P(ti - .22, tj - .22), P(ti + .22, tj - .22), P(ti + .22, tj + .22), P(ti - .22, tj + .22)], 'rgba(90,70,50,.45)') }); tree(ti - .5, tj - .5, s); };
+    const lamp = (li, lj) => { const h = 40 * K; if (hides(li - .1, lj - .1, .2, .2, h)) return; objs.push({ z: li + lj + .2, sh: () => shade(li - .05, lj - .05, .1, .1, h), draw: () => { const [x, y] = P(li, lj), nt = nightAt(x);
+      c.fillStyle = '#3A3A44'; c.fillRect(x - 1.3, y - h, 2.6, h); c.fillRect(x - 1.3, y - h, 10 * K, 2.2); c.fillStyle = nt ? '#FFE9B0' : '#D8D8D0'; c.beginPath(); c.ellipse(x + 10 * K, y - h + 3, 4 * K, 2.2 * K, 0, 0, 7); c.fill();
+      if (nt) { lights.push([x + 10 * K, y - h + 4, 46 * K, .9]); lights.push([x + 8 * K, y, 40 * K, .6]); } } }); };
+    /* a car on a road, along i or along j */
+    const car = (ci, cj, along, colr, taxi) => { const w = along === 'i' ? 1.25 : .62, d = along === 'i' ? .62 : 1.25, i = ci - w / 2, j = cj - d / 2;
+      objs.push({ z: i + j + w + d - .3, sh: () => shade(i, j, w, d, 9 * K), draw: () => { const nt = nightAt(P(ci, cj)[0]);
+        c.fillStyle = 'rgba(20,20,30,.6)'; [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([a, b]) => { const [x, y] = P(i + w * (.18 + .64 * a), j + d * (.18 + .64 * b), 1.5 * K); c.beginPath(); c.ellipse(x, y, 2.6 * K, 1.6 * K, 0, 0, 7); c.fill(); });
+        block(i, j, w, d, 6 * K, colr, 2 * K);
+        const ca = along === 'i' ? [i + w * .22, j + d * .08, w * .5, d * .84] : [i + w * .08, j + d * .22, w * .84, d * .5]; block(...ca, 5 * K, nt ? '#3A3E58' : '#A9C9DF', 8 * K);
+        poly([P(ca[0], ca[1], 13 * K), P(ca[0] + ca[2], ca[1], 13 * K), P(ca[0] + ca[2], ca[1] + ca[3], 13 * K), P(ca[0], ca[1] + ca[3], 13 * K)], uwSh(colr, .15));
+        if (taxi) { const [x, y] = P(ci, cj, 15 * K); c.fillStyle = '#2E7D5B'; c.fillRect(x - 3 * K, y - 2 * K, 6 * K, 3 * K); }
+        if (nt) { const fr = along === 'i' ? P(i + w, cj, 5 * K) : P(ci, j + d, 5 * K); lights.push([fr[0], fr[1], 22 * K, .8]); } } }); };
+    const bus = (ci, cj, along) => { const w = along === 'i' ? 2.6 : .78, d = along === 'i' ? .78 : 2.6, i = ci - w / 2, j = cj - d / 2;
+      objs.push({ z: i + j + w + d - .3, sh: () => shade(i, j, w, d, 16 * K), draw: () => { const nt = nightAt(P(ci, cj)[0]);
+        block(i, j, w, d, 15 * K, '#3FA36B', 2 * K, (f, q) => { const n = Math.round((f === 'L' ? w : d) * 3); poly(q(0, 1, .05, .3), '#F4F1EA'); for (let k = 0; k < n; k++) poly(q((k + .12) / n, (k + .88) / n, .45, .85), nt ? '#FFE3A0' : '#BFDCEB'); });
+        poly([P(i, j, 17 * K), P(i + w, j, 17 * K), P(i + w, j + d, 17 * K), P(i, j + d, 17 * K)], '#5FBF86'); } }); };
+    /* each unit's two landmarks: one behind the path (tall), one in front of it (low, so the path stays in sight) */
+    const SPECIAL = {
+      restaurant: (i, j, s) => { const w = 3.6, d = 2.6; oldB(i + .7, j + 1.2, w, d, 30 * K, { fac: '#C6402F', roof: '#2D3F5E', sign: '饭馆' });
+        objs.push({ z: i + j + 7.8, draw: () => { c.save(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 4; c.lineCap = 'round'; [[1.6, -1], [2.5, 1], [3.4, -1]].forEach(([u, k]) => { const [x, y] = P(i + .7 + u, j + 2.2, 30 * K + 40); c.beginPath(); c.moveTo(x, y); c.bezierCurveTo(x + k * 8, y - 10, x - k * 8, y - 18, x, y - 28); c.stroke(); }); c.restore(); } });
+        kiosk(i + 1, j + 4.1, 1.4, .8, '奶茶', s); },
+      tables: (i, j, s) => { for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) { const ti = i + 1.4 + a * 1.9, tj = j + 1.4 + b * 1.9; if (hides(ti - .5, tj - .5, 1, 1, 24 * K)) continue;
+          objs.push({ z: ti + tj + .4, draw: () => { const [x, y] = P(ti, tj), cl = ['#E5483F', '#F4C14E', '#3E7FB1', '#5CC8A8'][(a * 2 + b + s) % 4];
+            c.fillStyle = 'rgba(30,20,20,.2)'; c.beginPath(); c.ellipse(x + 6, y + 2, 16 * K, 8 * K, 0, 0, 7); c.fill(); c.fillStyle = '#F4F1EA'; c.beginPath(); c.ellipse(x, y - 8 * K, 9 * K, 4.5 * K, 0, 0, 7); c.fill(); c.fillStyle = '#6A4A30'; c.fillRect(x - 1, y - 22 * K, 2, 22 * K);
+            for (let k = 0; k < 8; k++) { const t0 = k / 8 * Math.PI * 2, t1 = (k + 1) / 8 * Math.PI * 2; c.fillStyle = k % 2 ? '#FFF6E8' : cl; c.beginPath(); c.moveTo(x, y - 30 * K); c.lineTo(x + Math.cos(t0) * 18 * K, y - 20 * K + Math.sin(t0) * 8 * K); c.lineTo(x + Math.cos(t1) * 18 * K, y - 20 * K + Math.sin(t1) * 8 * K); c.closePath(); c.fill(); } } }); } },
+      tower: (i, j, s) => { const h = fitH(i + 1, j + 1, 2.8, 2.8, 170 * K, 60 * K); if (h) bld(i + 1, j + 1, 2.8, 2.8, h, { fac: col('fac', P(i, j)[0])[2], glassy: 1, s, sign: '门口', sc: SIGN_C[1], vs: '大楼', vc: SIGN_C[0] }); },
+      park: (i, j, s) => { park(i + .6, j + .6, 3.8, 3.8, s); const [bi, bj] = [i + 1.2, j + 3.6]; if (!hides(bi, bj, .4, .2, 30 * K)) objs.push({ z: bi + bj + .5, draw: () => { const [x, y] = P(bi, bj);   // "you are here": a map board
+        c.fillStyle = '#3A3A44'; c.fillRect(x - 1, y - 26 * K, 2, 26 * K); c.fillStyle = '#F4F1EA'; c.fillRect(x - 12 * K, y - 34 * K, 24 * K, 16 * K); c.strokeStyle = '#2D3F5E'; c.lineWidth = 1.4; c.strokeRect(x - 12 * K, y - 34 * K, 24 * K, 16 * K);
+        c.strokeStyle = '#9AA4B4'; c.beginPath(); c.moveTo(x - 10 * K, y - 22 * K); c.lineTo(x + 10 * K, y - 30 * K); c.moveTo(x - 6 * K, y - 33 * K); c.lineTo(x + 2 * K, y - 19 * K); c.stroke(); c.fillStyle = '#E5483F'; c.beginPath(); c.arc(x - 2 * K, y - 26 * K, 2.4 * K, 0, 7); c.fill(); } }); },
+      station: (i, j, s) => { const w = 3.8, d = 2.2, ii = i + .6, jj = j + 1.4, h = 44 * K;
+        objs.push({ z: ii + jj + w + d, sh: () => shade(ii, jj, w, d, h + 20 * K), draw: () => { const x = P(ii + w / 2, jj)[0], nt = nightAt(x);
+          block(ii, jj, w, d, h, '#E8E2D6', 0, (f, q) => { const n = f === 'L' ? 6 : 3; for (let k = 0; k < n; k++) { const u = (k + .5) / n; poly(q(u - .3 / n, u + .3 / n, .1, .55), nt ? col('win', x) : '#BFDCEB'); } poly(q(0, 1, .62, .7), '#C6402F'); });
+          block(ii + w * .38, jj + d * .3, w * .24, d * .4, 26 * K, '#E8E2D6', h, (f, q) => { if (f !== 'L') return; const p = q(.15, .85, .2, .85), cx = (p[0][0] + p[2][0]) / 2, cy = (p[0][1] + p[2][1]) / 2;
+            c.save(); c.translate(cx, cy); c.transform(1, .5, 0, 1, 0, 0); c.fillStyle = '#FFF3D6'; c.beginPath(); c.arc(0, 0, 8 * K, 0, 7); c.fill(); c.strokeStyle = '#2D3F5E'; c.lineWidth = 1.8; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -6 * K); c.moveTo(0, 0); c.lineTo(4 * K, 2 * K); c.stroke(); c.restore(); if (nt) lights.push([cx, cy, 26 * K, .8]); });
+          poly([P(ii, jj, h), P(ii + w, jj, h), P(ii + w, jj + d, h), P(ii, jj + d, h)], col('top', x));
+          sign('L', ii, jj, w, d, .25, .75, h * .74, h * .74 + 10 * K, '车站', '#2D3F5E', '#FFFFFF', nt); } }); },
+      metro: (i, j, s) => { const ii = i + 1.3, jj = j + 1.5, h = fitH(ii, jj, 1.6, 1, 15 * K, 8 * K); if (h) objs.push({ z: ii + jj + 2.6, sh: () => shade(ii, jj, 1.6, 1, h), draw: () => { const nt = nightAt(P(ii, jj)[0]);
+          poly([P(ii + .2, jj + .1), P(ii + 1.4, jj + .1), P(ii + 1.4, jj + .9), P(ii + .2, jj + .9)], '#2A2A34');
+          block(ii, jj, 1.6, .12, h, 'rgba(160,200,230,.7)'); block(ii, jj, .1, 1, h, '#C9D3DC'); block(ii + 1.5, jj, .1, 1, h, '#C9D3DC');
+          poly([P(ii - .05, jj - .05, h), P(ii + 1.65, jj - .05, h), P(ii + 1.65, jj + 1.05, h), P(ii - .05, jj + 1.05, h)], '#3E6FA0');
+          const [x, y] = P(ii + .1, jj + 1.1, h + 4 * K); c.fillStyle = '#3E6FA0'; c.fillRect(x - 1, y, 2, 4 * K); vsign(x, y - 30 * K, '地铁', '#C6402F', '#FFFFFF', nt); } });
+        const si = i + 1.2, sj = j + 3.7; if (!hides(si, sj, 1.8, .4, 18 * K)) objs.push({ z: si + sj + 2.2, sh: () => shade(si, sj, 1.8, .4, 18 * K), draw: () => {   // the bus stop
+          block(si + .1, sj + .3, .08, .08, 16 * K, '#3A3A44'); block(si + 1.6, sj + .3, .08, .08, 16 * K, '#3A3A44'); block(si, sj, 1.8, .06, 14 * K, 'rgba(170,210,235,.75)');
+          poly([P(si - .1, sj - .1, 17 * K), P(si + 1.9, sj - .1, 17 * K), P(si + 1.9, sj + .5, 17 * K), P(si - .1, sj + .5, 17 * K)], '#2E7D5B');
+          sign('L', si, sj, 1.8, .06, .55, .95, 9 * K, 13.5 * K, '公交车', '#F4F1EA', '#2E7D5B'); } });
+        bus(i + 3, j + 5.5, 'i'); },
+      pharmacy: (i, j, s) => { const h = fitH(i + .7, j + .8, 3.6, 2.2, 52 * K, 30 * K); if (h) objs.push({ z: i + j + 7.3, sh: () => shade(i + .7, j + .8, 3.6, 2.2, h + 14 * K), draw: () => { const ii = i + .7, jj = j + .8, w = 3.6, d = 2.2, x = P(ii, jj)[0], nt = nightAt(x);   // the sports hall, its roof curved
+          block(ii, jj, w, d, h, '#E9E4DA', 0, (f, q) => { const n = f === 'L' ? 5 : 3; for (let k = 0; k < n; k++) poly(q((k + .1) / n, (k + .9) / n, .15, .75), nt ? col('win', x) : '#BFDCEB'); poly(q(0, 1, .8, .9), '#3E6FA0'); });
+          for (let k = 0; k <= 10; k++) { const t = k / 10, z = h + Math.sin(t * Math.PI) * 14 * K, z2 = h + Math.sin((k + 1) / 10 * Math.PI) * 14 * K; if (k < 10) poly([P(ii, jj + d * t, z), P(ii + w, jj + d * t, z), P(ii + w, jj + d * (t + .1), z2), P(ii, jj + d * (t + .1), z2)], uwSh('#7FA9C9', .1 - t * .3)); }
+          sign('L', ii, jj, w, d, .3, .7, h * .3, h * .3 + 10 * K, '运动', '#3E6FA0', '#FFFFFF', nt); } });
+        const pi = i + 1, pj = j + 3.6, ph = fitH(pi, pj, 1.8, 1.1, 30 * K, 14 * K); if (ph) objs.push({ z: pi + pj + 2.9, sh: () => shade(pi, pj, 1.8, 1.1, ph), draw: () => { const nt = nightAt(P(pi, pj)[0]);   // the chemist's, a green cross over the door
+          block(pi, pj, 1.8, 1.1, ph, '#F2F0EA', 0, (f, q) => { if (f === 'L') { poly(q(.08, .92, .06, .55), nt ? '#E8FFF0' : '#D8F0E2'); poly(q(.42, .58, 0, .5), '#2E7D5B'); } });
+          poly([P(pi, pj, ph), P(pi + 1.8, pj, ph), P(pi + 1.8, pj + 1.1, ph), P(pi, pj + 1.1, ph)], col('top', P(pi, pj)[0]));
+          sign('L', pi, pj, 1.8, 1.1, .1, .62, ph * .62, ph * .92, '药店', '#2E7D5B', '#FFFFFF', nt);
+          const [x, y] = P(pi + 1.55, pj + 1.1, ph * .78); c.fillStyle = '#2EC46E'; c.fillRect(x - 2 * K, y - 6 * K, 4 * K, 12 * K); c.fillRect(x - 6 * K, y - 2 * K, 12 * K, 4 * K); lights.push([x, y, 30 * K, nt ? 1 : .3]); } }); },
+      court: (i, j, s) => objs.push({ z: i + j + .02, draw: () => { const ii = i + .7, jj = j + 1, w = 3.6, d = 2.4;   // a basketball court, flat
+          poly([P(ii, jj), P(ii + w, jj), P(ii + w, jj + d), P(ii, jj + d)], '#C9583E'); poly([P(ii + .2, jj + .2), P(ii + w - .2, jj + .2), P(ii + w - .2, jj + d - .2), P(ii + .2, jj + d - .2)], '#D9734E');
+          c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.5; const ln = pts => { c.beginPath(); pts.forEach((p, k) => k ? c.lineTo(...p) : c.moveTo(...p)); c.stroke(); };
+          ln([P(ii + .2, jj + .2), P(ii + w - .2, jj + .2), P(ii + w - .2, jj + d - .2), P(ii + .2, jj + d - .2), P(ii + .2, jj + .2)]); ln([P(ii + w / 2, jj + .2), P(ii + w / 2, jj + d - .2)]);
+          ln(Array.from({ length: 25 }, (_, k) => P(ii + w / 2 + .5 * Math.cos(k * Math.PI / 12), jj + d / 2 + .5 * Math.sin(k * Math.PI / 12))));
+          [ii + .25, ii + w - .25].forEach(gi => { const [x, y] = P(gi, jj + d / 2); c.fillStyle = '#3A3A44'; c.fillRect(x - 1, y - 20 * K, 2, 20 * K); c.fillStyle = '#FFFFFF'; c.fillRect(x - 5 * K, y - 26 * K, 10 * K, 7 * K); c.strokeStyle = '#E5483F'; c.lineWidth = 1.4; c.beginPath(); c.ellipse(x + (gi < ii + 1 ? 3 : -3) * K, y - 19 * K, 3 * K, 1.4 * K, 0, 0, 7); c.stroke(); });
+          const [bx, by] = P(ii + 1.2, jj + 1.6); c.fillStyle = '#E8792E'; c.beginPath(); c.arc(bx, by - 3, 3.4 * K, 0, 7); c.fill(); } }),
+      school: (i, j, s) => { const ii = i + .6, jj = j + 1.3, w = 3.8, d = 2, h = fitH(ii, jj, w, d, 46 * K, 26 * K); if (!h) return;
+        objs.push({ z: ii + jj + w + d, sh: () => shade(ii, jj, w, d, h + 10 * K), draw: () => { const x = P(ii, jj)[0], nt = nightAt(x);
+          block(ii, jj, w, d, h, '#F2E3C4', 0, (f, q) => { const n = f === 'L' ? 6 : 3, fl = Math.max(1, Math.floor(h / (14 * K))); for (let r = 0; r < fl; r++) for (let k = 0; k < n; k++) poly(q((k + .2) / n, (k + .8) / n, (r + .3) / fl, (r + .75) / fl), nt && hsh(k, r, 5) < .5 ? col('win', x) : '#BFDCEB'); });
+          roof(ii, jj, w, d, h, 14 * K, '#2C5A4F', .3); sign('L', ii, jj, w, d, .3, .7, h * .05, h * .05 + 9 * K, '高中', '#F4F1EA', '#C6402F', nt); } });
+        const [fi, fj] = [i + .7, j + 4.2]; if (!hides(fi, fj, .1, .1, 92 * K)) objs.push({ z: fi + fj + .2, draw: () => { const [x, y] = P(fi, fj); c.fillStyle = '#9A9A9A'; c.fillRect(x - 1.2, y - 90 * K, 2.4, 90 * K);
+          c.fillStyle = '#E5483F'; c.beginPath(); c.moveTo(x + 1, y - 90 * K); c.quadraticCurveTo(x + 14 * K, y - 93 * K, x + 26 * K, y - 87 * K); c.lineTo(x + 26 * K, y - 73 * K); c.quadraticCurveTo(x + 14 * K, y - 79 * K, x + 1, y - 76 * K); c.fill(); } }); },
+      field: (i, j, s) => objs.push({ z: i + j + .02, draw: () => { const [cx, cy] = P(i + 3, j + 3), rx = 3.4 * TW / 2 * .92, ry = 3.4 * TH / 2 * .92;   // a running track round a green
+          c.fillStyle = '#C9583E'; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, 7); c.fill(); c.fillStyle = '#6FBF5E'; c.beginPath(); c.ellipse(cx, cy, rx * .74, ry * .7, 0, 0, 7); c.fill();
+          c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; [.82, .9].forEach(t => { c.beginPath(); c.ellipse(cx, cy, rx * t, ry * (t - .02), 0, 0, 7); c.stroke(); }); } }),
+      homes: (i, j, s) => { const h = fitH(i + 1, j + 1, 2.8, 2.6, 130 * K, 50 * K); if (h) homesB(i + 1, j + 1, 2.8, 2.6, h, { fac: '#E6D2C0', ny: 1, s }); },
+      fair: (i, j, s) => { [[.9, 1], [2.6, 1], [.9, 2.8], [2.6, 2.8]].forEach(([a, b], k) => { const ii = i + a, jj = j + b; if (hides(ii, jj, 1.4, .9, 34 * K)) return;   // the New Year fair: red stalls under lanterns
+          objs.push({ z: ii + jj + 2.3, sh: () => shade(ii, jj, 1.4, .9, 34 * K), draw: () => { block(ii, jj, 1.4, .9, 13 * K, '#B07A44');
+            [[ii + .05, jj + .05], [ii + 1.3, jj + .05], [ii + .05, jj + .8], [ii + 1.3, jj + .8]].forEach(([a2, b2]) => block(a2, b2, .06, .06, 30 * K, '#7A1A12'));
+            for (let m = 0; m < 5; m++) { const a2 = ii - .1 + m * 1.6 / 5; poly([P(a2, jj - .15, 32 * K), P(a2 + 1.6 / 5, jj - .15, 32 * K), P(a2 + 1.6 / 5, jj + 1.1, 25 * K), P(a2, jj + 1.1, 25 * K)], m % 2 ? '#F4C14E' : '#C6402F'); }
+            lantern(...P(ii + .1, jj + 1.1, 22 * K), 4 * K); lantern(...P(ii + 1.3, jj + 1.1, 22 * K), 4 * K); } }); }); },
+    };
+    /* what goes on one lot of a block */
+    const lot = (i, j, w, d, u, T, s) => { if (onPlaza(i, j, w, d)) return; const x = P(i + w / 2, j + d / 2)[0], F5 = col('fac', x), r = hsh(s, 3, u);
+      const M = Object.entries(T.mix), tot = M.reduce((a, [, v]) => a + v, 0); let pick = M[0][0], acc = 0; for (const [k, v] of M) { acc += v / tot; if (r < acc) { pick = k; break; } }
+      if (pick === 'tower' && (w < 1.5 || d < 1.5)) pick = 'shop';
+      const word = T.signs[Math.floor(hsh(s, 9, u) * T.signs.length)], sc = SIGN_C[Math.floor(hsh(9, s, u) * SIGN_C.length)], fac = F5[Math.floor(hsh(s, 5, u) * 5)];
+      if (pick === 'park') return park(i, j, w, d, s);
+      if (pick === 'old') { const h = fitH(i - .3, j - .3, w + .6, d + .6, 46 * K, 30 * K); if (h) return oldB(i, j, w, d, h - 18 * K, { fac: hsh(s, 1) < .5 ? '#C6402F' : fac, sign: word }); }
+      if (pick === 'homes') { const h = fitH(i, j, w, d, (60 + hsh(s, 2) * 50) * K, 30 * K); if (h) return homesB(i, j, w, d, h, { fac, ny: uwPal(u).snow, s }); }
+      if (pick === 'tower') { const h = fitH(i, j, w, d, (86 + hsh(s, 4) * 50) * K, 60 * K); if (h) return bld(i, j, w, d, h, { fac, glassy: hsh(s, 6) < .6, s, sign: word, sc, vs: T.signs[(s + 2) % T.signs.length], vc: SIGN_C[(s + 1) % 5] }); }
+      const h = fitH(i, j, w, d, (34 + hsh(s, 7) * 30) * K, 16 * K); if (h) return bld(i, j, w, d, h, { fac, s, sign: word, sc, awn: hsh(s, 8) < .6 ? [['#E5483F', '#3E7FB1', '#2E7D5B', '#F4A23C'][s % 4], '#FFF6E8'] : null, vs: h > 54 * K && hsh(s, 10) < .5 ? T.signs[(s + 3) % T.signs.length] : null, vc: SIGN_C[(s + 2) % 5] });
+      park(i, j, w, d, s); };
+    const fill = () => {
+      const I0 = Math.floor(i0 / 7) - 1, I1 = Math.ceil(i1 / 7) + 1, J0 = Math.floor(j0 / 7) - 1, J1 = Math.ceil(j1 / 7) + 1;
+      /* the roads: a dashed line down the middle, zebra crossings where they meet a walking street, cars */
+      c.save(); c.lineCap = 'butt';
+      for (let I = I0; I <= I1; I++) for (let J = J0; J <= J1; J++) {
+        [['i', 7 * I + 3, 7 * J], ['j', 7 * I, 7 * J + 3]].forEach(([ax, ti, tj]) => { if (kind(ti, tj) !== 'road' || kind(ax === 'i' ? ti : ti - 1, ax === 'i' ? tj - 1 : tj) !== 'road') return;
+          const x = P(ti, tj)[0]; if (x < -80 || x > W + 80) return; c.strokeStyle = 'rgba(255,244,214,.7)'; c.lineWidth = 1.5 * K; c.beginPath();
+          for (let t = 1.5; t < 5.6; t += .95) { if (ax === 'i') { c.moveTo(...P(7 * I + t, 7 * J)); c.lineTo(...P(7 * I + t + .5, 7 * J)); } else { c.moveTo(...P(7 * I, 7 * J + t)); c.lineTo(...P(7 * I, 7 * J + t + .5)); } } c.stroke(); });
+        if (PL.walk.has(cityK(7 * I, 7 * J)) && PL.walk.has(cityK(7 * I - 1, 7 * J - 1))) {   // a corner on the path: zebra stripes on each road that meets it
+          c.fillStyle = 'rgba(255,255,255,.82)';
+          [[7 * I + 1, 'i'], [7 * I - 2, 'i'], [7 * J + 1, 'j'], [7 * J - 2, 'j']].forEach(([t, ax]) => { const ti = ax === 'i' ? t : 7 * I, tj = ax === 'i' ? 7 * J : t; if (kind(ti, tj) !== 'road') return;
+            for (let k = 0; k < 6; k++) { const m = (ax === 'i' ? 7 * J : 7 * I) - 1 + (k + .5) / 3; c.beginPath();
+              (ax === 'i' ? [P(t + .14, m - .09), P(t + .86, m - .09), P(t + .86, m + .09), P(t + .14, m + .09)] : [P(m - .09, t + .14), P(m + .09, t + .14), P(m + .09, t + .86), P(m - .09, t + .86)]).forEach((p, q) => q ? c.lineTo(...p) : c.moveTo(...p)); c.closePath(); c.fill(); } }); }
+      }
+      c.restore();
+      /* the kerbs round every block */
+      for (let I = I0; I <= I1; I++) for (let J = J0; J <= J1; J++) { const a = 7 * I + 1, b = 7 * J + 1, [x, y] = P(a + 2.5, b + 2.5); if (x < -150 * K || x > W + 150 * K || y < -90 * K || y > H + 90 * K) continue;
+        const kc = uwSh(col('side', x), -.28); poly([P(a, b + 5), P(a + 5, b + 5), P(a + 5, b + 5, -2.4 * K), P(a, b + 5, -2.4 * K)], kc); poly([P(a + 5, b + 5), P(a + 5, b), P(a + 5, b, -2.4 * K), P(a + 5, b + 5, -2.4 * K)], uwSh(kc, -.15));
+        c.strokeStyle = uwSh(col('side', x), .25); c.lineWidth = 1.2; c.beginPath(); c.moveTo(...P(a, b + 5)); c.lineTo(...P(a, b)); c.lineTo(...P(a + 5, b)); c.stroke(); }
+      /* the blocks: a landmark, or lots of shops, towers, old houses and parks; trees and lamps round the edge */
+      for (let I = I0; I <= I1; I++) for (let J = J0; J <= J1; J++) {
+        const a = 7 * I + 1, b = 7 * J + 1, [x, y] = P(a + 2.5, b + 2.5); if (x < -150 * K || x > W + 150 * K || y < -60 || y > H + 260 * K) continue;   // only blocks that reach onto this canvas
+        const u = unitAt(xg(x)).u, T = CITY_U[u] || CITY_U[201], s = Math.floor(hsh(I, J) * 1000), r = hsh(J, I, 4);
+        const sp = PL.hero.get(I + ',' + J) === u ? T.hero : PL.front.get(I + ',' + J) === u ? T.front : null;
+        if (sp) SPECIAL[sp](a, b, s);
+        else { const A = a + .75, B = b + .75, S = 3.5, g = .25, h2 = S / 2 - g / 2;
+          const lots = r < .34 ? [[A + .45, B + .45, S - .9, S - .9]] : r < .56 ? [[A, B + .4, h2, S - .4], [A + h2 + g, B + .4, h2, S - .4]] : r < .76 ? [[A + .4, B, S - .4, h2], [A + .4, B + h2 + g, S - .4, h2]] : r < .88 ? [[A, B, h2, h2], [A + h2 + g, B + h2 + g, h2, h2]] : [];
+          if (!lots.length) { park(A - .3, B - .3, S + .6, S + .6, s); kiosk(A + 1, B + S - .9, 1.3, .8, T.signs[s % T.signs.length], s); }
+          lots.forEach((L, k) => lot(...L, u, T, s + k * 17)); }
+        if (!onPlaza(a, b, 5, 5)) { [[a + .38, b + 5 - .38], [a + 5 - .38, b + 5 - .38], [a + 5 - .38, b + .38]].forEach(([li, lj], k) => { if (hsh(I + k, J, 6) < .3) lamp(li, lj); });
+          for (let t = 1.3; t < 4.2; t += 1.45) { if (hsh(I, J + t * 10, 7) < .6) sTree(a + t, b + 5 - .36, .62); if (hsh(I + t * 10, J, 8) < .6) sTree(a + 5 - .36, b + t, .62); } }
+      }
+      /* cars on the roads, a taxi or two in the travel unit */
+      for (let I = I0; I <= I1; I++) for (let J = J0; J <= J1; J++) [['i', 7 * I + 3, 7 * J], ['j', 7 * I, 7 * J + 3]].forEach(([ax, ti, tj]) => {
+        if (kind(ti, tj) !== 'road' || kind(ax === 'i' ? ti : ti - 1, ax === 'i' ? tj - 1 : tj) !== 'road') return; const r = hsh(I * 3 + (ax === 'i' ? 1 : 2), J, 9); if (r > .55) return;
+        const t = 1.8 + hsh(J, I * 5, 10) * 3.4, side = r < .27 ? -.5 : .5, ci = ax === 'i' ? 7 * I + t : 7 * I + side, cj = ax === 'i' ? 7 * J + side : 7 * J + t, x = P(ci, cj)[0];
+        if (x < -60 || x > W + 60 || hides(ci - .6, cj - .6, 1.2, 1.2, 16 * K)) return; const u = unitAt(xg(x)).u, T = CITY_U[u] || {}, cs = col('car', x);
+        car(ci, cj, ax, T.taxi && r < .3 ? '#F4C14E' : cs[Math.floor(hsh(I, J, 11) * cs.length)], T.taxi && r < .3); });
+      /* signposts at the corners of the directions unit: 左边 one way, 右边 the other */
+      PL.units.forEach(q => { if (!CITY_U[q.u]?.posts) return; q.pts.forEach(([cc, rr]) => { const [I, J] = cityCR(cc, rr), li = 7 * I - 1.75, lj = 7 * J - 1.75, [x, y] = P(li, lj); if (x < -60 || x > W + 60) return;
+        objs.push({ z: li + lj + .1, draw: () => { const h = 54 * K; c.fillStyle = '#3A3A44'; c.fillRect(x - 1.4, y - h, 2.8, h);
+          const arrow = (yy, dir, txt) => { const w = 30 * K, hh = 10 * K, x0 = dir < 0 ? x - w + 4 : x - 4; c.fillStyle = '#2D5FA0'; c.beginPath();
+            if (dir < 0) { c.moveTo(x0 - 6 * K, yy); c.lineTo(x0, yy - hh / 2); c.lineTo(x0 + w, yy - hh / 2); c.lineTo(x0 + w, yy + hh / 2); c.lineTo(x0, yy + hh / 2); } else { c.moveTo(x0, yy - hh / 2); c.lineTo(x0 + w, yy - hh / 2); c.lineTo(x0 + w + 6 * K, yy); c.lineTo(x0 + w, yy + hh / 2); c.lineTo(x0, yy + hh / 2); }
+            c.closePath(); c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 1; c.stroke(); c.font = `900 ${Math.round(7.4 * K)}px ${UW_HZ}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff'; c.fillText(txt, x0 + w / 2, yy + .5); };
+          arrow(y - h + 7 * K, -1, '左边'); arrow(y - h + 20 * K, 1, '右边'); } }); }); });
+      /* red lanterns on a wire across each walking street, halfway between two corners */
+      for (let I = I0; I <= I1; I++) for (let J = J0; J <= J1; J++) [['i', 7 * I + 3, 7 * J], ['j', 7 * I, 7 * J + 3]].forEach(([ax, ti, tj]) => {
+        if (kind(ti, tj) !== 'walk' || kind(ax === 'i' ? ti : ti - 1, ax === 'i' ? tj - 1 : tj) !== 'walk' || kind(ax === 'i' ? ti : ti - 2, ax === 'i' ? tj - 2 : tj) === 'walk') return;
+        const m = ax === 'i' ? 7 * I + 3.5 : 7 * J + 3.5, at = t => ax === 'i' ? [m, 7 * J + t] : [7 * I + t, m], z = 34 * K, [x] = P(...at(0)); if (x < -60 || x > W + 60) return;
+        objs.push({ z: (ax === 'i' ? m + 7 * J : 7 * I + m) + 1.2, draw: () => { const A = P(...at(-1.15)), B = P(...at(1.15)); c.fillStyle = '#5A3A2A'; [A, B].forEach(([x2, y2]) => c.fillRect(x2 - 1.2, y2 - z, 2.4, z));
+          const A2 = [A[0], A[1] - z + 2], B2 = [B[0], B[1] - z + 2], mid = [(A2[0] + B2[0]) / 2, (A2[1] + B2[1]) / 2 + 8 * K]; c.strokeStyle = '#3A2A22'; c.lineWidth = 1; c.beginPath(); c.moveTo(...A2); c.quadraticCurveTo(...mid, ...B2); c.stroke();
+          for (let k = 1; k <= 5; k++) { const t = k / 6, u = 1 - t, x2 = u * u * A2[0] + 2 * u * t * mid[0] + t * t * B2[0], y2 = u * u * A2[1] + 2 * u * t * mid[1] + t * t * B2[1]; lantern(x2, y2 + 5 * K, 3.6 * K); } } }); });
+      post.push(sky);
+    };
+    /* the plane over the travel unit, and its shadow on the streets */
+    const sky = () => PL.units.forEach(q => { if (!CITY_U[q.u]?.plane) return; const [x, y] = toPx(q.O + q.W * .62, 70); if (x < -80 || x > W + 80) return; const s = 1.15 * K;
+      c.save(); c.fillStyle = 'rgba(20,20,40,.16)'; c.translate(x + 60 * K, y + 150 * K); c.rotate(-.42); c.scale(s, s); c.beginPath(); c.ellipse(0, 0, 22, 4, 0, 0, 7); c.fill(); c.fillRect(-4, -18, 8, 36); c.restore();
+      c.save(); c.translate(x, y); c.rotate(-.42); c.scale(s, s); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(-30, -3); c.lineTo(-110, -3); c.moveTo(-30, 3); c.lineTo(-110, 3); c.stroke();
+      c.fillStyle = '#F4F4F6'; c.beginPath(); c.ellipse(0, 0, 24, 4.6, 0, 0, 7); c.fill(); c.fillStyle = '#DCDDE4'; c.beginPath(); c.moveTo(-3, 0); c.lineTo(-10, -20); c.lineTo(-4, -20); c.lineTo(8, 0); c.lineTo(-4, 20); c.lineTo(-10, 20); c.closePath(); c.fill();
+      c.fillStyle = '#C6402F'; c.beginPath(); c.moveTo(-20, 0); c.lineTo(-27, -9); c.lineTo(-22, -9); c.lineTo(-15, 0); c.closePath(); c.fill(); c.fillStyle = '#5A7AA6'; c.beginPath(); c.ellipse(17, -1, 4, 2, 0, 0, 7); c.fill(); c.restore(); });
+    return { tileCol, onCv, grid, fill, sky };
+  }
   function uwLayFill() {
     if (tall) { const all = [...G.spots, { i: G.spots.length, x: G.boss.x, y: G.boss.y, boss: 1 }], body = { karst, terrace, pillar, stilt }[M.kind] || karst;
       all.forEach(s => { const h = M.hs[s.i] * G.k, yt = s.y - 6, yb = yt + h, wd = (s.boss ? 64 : 54) * Math.min(1.15, G.k); occR(s.x, yb, 2.6); objs.push({ z: uwPeakZ(s.i), draw: () => body(s.x, yt, yb, wd) }); });
@@ -4948,12 +5289,12 @@ function unitWorld(un, o = {}) {
     lantern(...P(i + .2, j + 3.2, 34), 5); lantern(...P(i + 3.8, j + 3.2, 34), 5); } }));
 
   // lantern poles beside the path, now and then
-  let lastY = -1e9; if (!tall) G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
+  let lastY = -1e9; if (!tall && !city) G.trail.forEach(({ x, y }, k) => { if (y - lastY < 120 || k % 3) return; const [i, j] = IJ(x + 30, y).map(Math.floor); if (free(i, j, 1, 1)) { take(i, j, 1, 1); pole(i, j); lastY = y; } });
   // houses and trees on the open ground (a long street gets more of them)
   const spread = G.lay === 'side' ? W / G.k / 360 : 1;
-  for (let t = 0, made = 0; t < 500 && made < Math.round((tall ? 0 : has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
+  for (let t = 0, made = 0; t < 500 && made < Math.round((tall || city ? 0 : has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
     if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
-  for (let t = 0, made = 0, most = Math.round((tall ? 34 : 26) * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1, SJ ? [26, 84] : undefined)) continue; take(fi, fj, 1, 1); made++;
+  for (let t = 0, made = 0, most = Math.round((city ? 0 : tall ? 34 : 26) * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1, SJ ? [26, 84] : undefined)) continue; take(fi, fj, 1, 1); made++;
     if (tall && rnd() < .22) bamboo(fi, fj, .9 + rnd() * .4); else if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
 
   if (tall) { const y = H * (.3 + .4 * rnd()), r = T3.rivX(y);   // v3.42: a fisherman on his bamboo raft, on the river
@@ -4963,6 +5304,7 @@ function unitWorld(un, o = {}) {
       c.strokeStyle = '#4A3220'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x + 4, y - 18); c.lineTo(x + 30, y - 40); c.stroke();
       c.fillStyle = '#3E5A7A'; c.fillRect(x - 3, y - 16, 8, 13); c.fillStyle = '#E8D3A0'; c.beginPath(); c.moveTo(x - 9, y - 15); c.lineTo(x + 1, y - 25); c.lineTo(x + 11, y - 15); c.closePath(); c.fill();
       c.fillStyle = '#1E2228'; c.beginPath(); c.ellipse(x - 14, y - 6, 4, 6, 0, 0, 7); c.fill(); c.beginPath(); c.arc(x - 15, y - 13, 2.6, 0, 7); c.fill(); c.fillStyle = '#E8B040'; c.beginPath(); c.moveTo(x - 17, y - 13); c.lineTo(x - 22, y - 12); c.lineTo(x - 17, y - 11.5); c.fill(); } }); } }
+  if (city) CY.fill();   // the city's blocks, streets and cars (after the town's tools above are ready)
   /* paint: shadows, then everything back to front, then light */
   objs.forEach(b => b.sh && b.sh());
   objs.sort((a, b) => a.z - b.z).forEach(b => b.draw());
@@ -10983,7 +11325,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.44';
+const APP_VERSION = '3.45';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
