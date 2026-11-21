@@ -1905,6 +1905,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-lock b{font:600 16px/1.2 var(--display)}
 .uc-lock small{font-size:13px;color:var(--muted);line-height:1.3}
 .uc .un-hud{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;margin:0}
+#frame.tabs .uc .un-hud{bottom:calc(var(--tabh) + 22px + env(safe-area-inset-bottom))}   /* v3.60: on the lesson path the tab bar stays, so the lesson card sits just above it */
 .uc .un-hud:has(.un-hud-solo){justify-content:center;padding:0;background:none;box-shadow:none}
 .uc .un-hud .un-hud-solo{min-width:220px;height:60px;padding:0 36px;font-size:20px;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28),0 10px 22px -8px rgba(60,10,5,.7)}
 .un-grip{position:absolute;z-index:0;touch-action:pan-y}
@@ -2081,6 +2082,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-head em{display:flex;align-items:center;gap:5px;padding:1px 9px;background:var(--paper);font:600 12.5px/1.3 var(--ui);font-style:normal;color:var(--muted)}
 .pp-head em svg.i{flex:none;width:14px;height:14px}
 .pp-head.locked b{color:var(--ink-2)}
+#frame.tabs .pp-jump{bottom:calc(var(--tabh) + 114px + env(safe-area-inset-bottom))}
 .pp-jump{position:absolute;right:2px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:3;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:var(--card);color:var(--seal-btn);box-shadow:0 0 0 2px var(--line-2),0 4px 0 1px var(--line-2)}
 .pp-jump[hidden]{display:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
@@ -3153,7 +3155,7 @@ function render() {
 const TABS = [['decks', 'Decks', '#/'], ['learn', 'Lessons', '#/learn'], ['map', 'Map', '#/map'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
-  const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? S.cUnit ? null : 'learn' : S.view;   // a unit's campaign is its own full page, without the tab bar
+  const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? S.cUnit && !LV_DUO[S.cLv] ? null : 'learn' : S.view;   // an old-style unit campaign is its own full page, without the tab bar; v3.60 (ilkem: "u should still be able to see the task bar"): the lesson path keeps it
   const i = TABS.findIndex(t => t[0] === cur), bar = $('#tabbar'), frame = $('#frame');
   const wasShown = frame.classList.contains('tabs');
   frame.classList.toggle('tabs', i >= 0);
@@ -11828,7 +11830,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.59';
+const APP_VERSION = '3.60';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
