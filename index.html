@@ -1895,6 +1895,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .un-boss.won .uc-chal{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
 @keyframes ucChal{50%{transform:translateX(-50%) scale(1.07)}}
 .uc-round .un-boss{transform:translate(-50%,-142px) scale(.72);transform-origin:50% 142px}
+.uc-pagoda .un-boss,.uc-peaks .un-boss{transform:translate(-50%,-142px) scale(.62);transform-origin:50% 142px}
+.un-shi .un-raft{position:absolute;left:-30px;top:40px;width:130px;height:56px;z-index:-1;pointer-events:none}
 .un-boss-fig svg{display:block;width:100%;height:100%;overflow:visible}
 .un-boss-aura{position:absolute;left:50%;top:96px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(255,70,40,.55),rgba(255,120,40,.28) 55%,transparent);animation:unAura 2.2s ease-in-out infinite}
@@ -4139,10 +4141,21 @@ function unitNodes(n) {
    round  a round table with a lazy Susan: the steamers ride on the turntable round Hu Hu's shrine in the middle, and
           you spin it to bring a lesson to the front, where Shi Shi sits (units 4, 8, 12, ...)
    Every unit ends at the shrine of Hu Hu, the challenger: beating his challenge (the unit test) opens the next unit */
-/* v3.35: every level, HSK 1 to 9, goes street, page, street, table, street, page, street, table... by the unit's number
-   in its level (unK), whatever its world. A table seats up to nine steamers (all units have 9 lessons or fewer) */
+/* v3.35: every level goes street, page, street, table, street, page, street, table... by the unit's number in its
+   level (unK), whatever its world. A table seats up to nine steamers (all units have 9 lessons or fewer).
+   v3.36: HSK 2 and 3 have looks of their own instead, from their worlds, in the same four-step rhythm:
+   HSK 2, temples  gates   a stone road winding up the page, a painted gate behind every lesson
+                   pagoda  one tall pagoda, a balcony for every lesson, climbing up the page to Hu Hu on top
+                   court   a temple courtyard round a bronze incense burner, on one screen; Hu Hu at the hall
+   HSK 3, river    raft    a street along a river: lessons on jetties on both banks, Shi Shi rides a bamboo raft
+                   stones  big flat stones zig-zagging up the page across the water, little stones for the path
+                   peaks   tall karst peaks with a lesson on each top and rope bridges between, climbing up
+   Each borrows its frame (how it is sized and scrolled) from the first three: UN_FRAME */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
-const unitLay = un => UNIT_LAYS[(unK(un) - 1) % 4];
+const LV_LAYS = { 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['raft', 'stones', 'raft', 'peaks'] };
+const UN_FRAME = { gates: 'snake', pagoda: 'snake', stones: 'snake', peaks: 'snake', raft: 'side', court: 'round' };
+const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
+const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
 const unRnd = {};   // how far each round table is turned, in lessons: lesson unRnd[un] is at the front
 const unRndAng = (i, n, rot) => Math.PI / 2 + (i - rot) * 2 * Math.PI / n;
@@ -4153,16 +4166,33 @@ function unitMap(un, n) {
   if (lay === 'side') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, [360, 230, 380, 250][i % 4]]); pts.push([n * 150 + 250, 340]); return { lay, pts, W: pts[n][0] + 140, H: 580 }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
+  if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
+  if (lay === 'court') { const pts = Array.from({ length: n }, (_, i) => { const t = (200 - 220 * i / Math.max(1, n - 1)) * Math.PI / 180; return [180 + 132 * Math.cos(t), 330 + 80 * Math.sin(t)]; });
+    pts.push([180, 196]); return { lay, pts, W: 360, H: 560, mid: [180, 330] }; }
+  if (lay === 'gates' || lay === 'stones') { const pts = Array.from({ length: n }, (_, i) => [i % 2 ? 258 : 102, 156 + i * 118]); pts.push([180, 156 + n * 118 + 40]); return { lay, pts, W: 360, H: pts[n][1] + 110 }; }
+  if (lay === 'pagoda') { const T = 96, base = (n + 1) * T + 230, pts = Array.from({ length: n }, (_, i) => [180 + (i % 2 ? 1 : -1) * (86 - 5 * i), base - (i + 1) * T]);   // first lesson at the bottom
+    pts.push([180, base - (n + 1) * T]); return { lay, pts, W: 360, H: base + 80, base: [180, base], T }; }
+  if (lay === 'peaks') { const base = n * 118 + 400, pts = Array.from({ length: n }, (_, i) => [i % 2 ? 252 : 108, base - 190 - i * 118]);
+    pts.push([180, base - 200 - n * 118]); return { lay, pts, W: 360, H: base + 50, hs: pts.map((_, i) => i === n ? 150 : 140 + (i * 41) % 70) }; }
   const pts = unitNodes(n); return { lay, pts, W: 360, H: pts[n][1] + 96 };
 }
 /* Shi Shi waits beside the steamer he is at (on its open side, or before it on the street), or beside the shrine; at the table he keeps his seat by the front */
 const unitShiAt = (m, at) => { const { pts, lay } = m, i = Math.min(at, pts.length - 1), [x, y] = pts[i];
   if (lay === 'round') return [UN_RND.cx + 70, UN_RND.cy + UN_RND.ry - 40];
+  if (i === pts.length - 1 && (lay === 'pagoda' || lay === 'peaks')) return [x - 74, y - 40];
+  if (i === pts.length - 1 && lay === 'court') return [x - 92, y + 40];
+  if (i < pts.length - 1) { if (lay === 'raft') return [x - 70, m.riv - 52];   // on his raft by the jetty
+    if (lay === 'pagoda') return [x + (x < 180 ? -46 : 46), y - 54];
+    if (lay === 'court' || lay === 'gates' || lay === 'stones' || lay === 'peaks') return [x + (x < 180 ? 50 : -50), y - 50]; }
   return i === pts.length - 1 ? [x - 112, y - 44] : lay === 'side' ? [x - 62, y - 50] : [x + (x < 120 ? 52 : -52), y - 50]; };
 const ucList = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un), k = us.findIndex(u => !unitOpen(u)); return k < 0 ? us : us.slice(0, k + 1); };   // the units on the strip, by number: the level's open ones and its first locked one
 const ucMe = (lv = S.cLv || 1) => { const us = lvUnits(lv).map(U => U.un); return us.find(u => !utPassed(u)) ?? us.at(-1); };   // the unit Shi Shi is in: the level's first one not won
 const ucPane$ = u => document.querySelector(`.uc-pane[data-u="${u}"]`);
 const ucLabel = u => esc(COMIC[u]?.title || UNIT(u)[1]);
+/* v3.36: the bamboo raft Shi Shi rides on the river (HSK 3's raft units) */
+const UN_RAFT = '<svg class="un-raft" viewBox="0 0 130 56" aria-hidden="true"><ellipse cx="66" cy="38" rx="62" ry="13" fill="rgba(255,255,255,.4)"/>'
+  + [0, 1, 2, 3, 4, 5].map(k => `<rect x="${20 - k * 3.6}" y="${12 + k * 5}" width="96" height="6.4" rx="3.2" fill="${k % 2 ? '#CDB463' : '#E6D58A'}" stroke="#7E6E28" stroke-width="1.1"/>`).join('')
+  + '<path d="M28 14L12 44M100 14L84 44" stroke="#6A5A22" stroke-width="2" stroke-linecap="round"/><path d="M112 0L92 50" stroke="#4A3220" stroke-width="3.2" stroke-linecap="round"/></svg>';
 function ucPane(u) {
   const st = unitState(u), n = st.ls.length, me = st.open && u === ucMe(), r = db.utests[u], chal = st.nd === n;
   const seen = Math.min(db.unitAt?.[u] ?? st.at, st.at), eat = me && !stillMotion() && seen < st.at && st.at <= n ? st.at - 1 : -1;   // a lesson finished since you were here: Shi Shi eats its baozi first
@@ -4170,14 +4200,14 @@ function ucPane(u) {
   const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || lay === 'court' && cur ? ' front' : ''}" data-i="${i}" style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
       <span class="un-spot" lang="zh" aria-hidden="true"></span><small>${esc(L.title)}</small></button>`; }).join('');
   const shrine = `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
-  const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
+  const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${lay === 'raft' ? UN_RAFT : ''}${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
   const R = UN_RND, table = lay === 'round' ? `<span class="un-grip" style="left:${((R.cx - R.rx - 64) / W * 100).toFixed(2)}%;top:${((R.cy - R.ry - 70) / H * 100).toFixed(2)}%;width:${((R.rx + 64) * 2 / W * 100).toFixed(2)}%;height:${((R.ry + 70) * 2 / H * 100).toFixed(2)}%"></span>`
     + `<span class="un-spin" style="${pct([R.cx, R.cy + R.ry + 118])}"><button data-spin="-1"${off} aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1"${off} aria-label="Turn the table on">›</button></span>` : '';
-  return `<section class="uc-pane uc-${lay}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
+  return `<section class="uc-pane uc-${unitFrame(lay)}${unitFrame(lay) !== lay ? ` uc-${lay}` : ''}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
     <div class="uc-in"><div class="uc-stage"><div class="un-bg" aria-hidden="true"><canvas class="uw"></canvas></div>
       <div class="un-map" data-w="${W}" data-h="${H}">${table}${nodes}${shrine}${shi}</div></div></div>
     ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${unK(u)} · ${esc(UNIT(u)[0])}</b><small>Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</small></div>`}</section>`;
@@ -4309,7 +4339,7 @@ function mountUnit(un) {
   const hop = () => { if (!shi?.isConnected) return; const [fx, fy, l, t] = at(shi, shi.dataset.to);
     if (shi.style.left !== l || shi.style.top !== t) { shi.classList.add('hop'); shi.style.left = l; shi.style.top = t; if (ucU === me) ucFocus(me, fx, fy, true); }   // the street follows him
     if (unitLay(me) === 'round') unitSpin(me, Math.min(st.at, st.ls.length - 1));   // the table brings the next one round to him
-    if (eat != null) shi.innerHTML = shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
+    if (eat != null) shi.innerHTML = (shi.querySelector('.un-raft')?.outerHTML || '') + shiBody(st.won ? 'star' : st.nd === st.ls.length ? 'fire' : 'happy');
     if (db.unitAt?.[me] !== st.at) { (db.unitAt ||= {})[me] = st.at; save(); } };
   if (shi) { if (eat != null) setTimeout(() => { if (shi.isConnected) unitEat(me, +eat, () => setTimeout(hop, 250)); }, 450); else setTimeout(hop, stillMotion() ? 0 : 520); }
   document.fonts?.load(`700 30px ${UW_HZ}`, LES_LEAD.join('')).then(() => { if ($('.uc-scroll') === sc && !$('.uw-anim')) sc.querySelectorAll('.uc-pane[data-p]').forEach(p => unitWorld(+p.dataset.u, ucEat?.u === +p.dataset.u ? { skip: ucEat.i } : {})); });
@@ -4350,8 +4380,8 @@ const UW_PAL = {
 const UW_NIGHT_MKT = { glow: 'night', grass: '#4B3458', grass2: '#533A60', plaza: '#93718F', wall: '#C9497F', wall2: '#E3A27C', roof: '#34203F', win: '#FFD98A', tree: '#3C5A5C', tree2: '#4C6F6A', trunk: '#3A2A2A', rock: '#70668A', shadow: 'rgba(20,6,40,.36)', amb: 'rgba(70,16,70,.12)', grid: '255,225,240', vig: 'rgba(30,6,40,.5)' };
 const UW_NEW_YEAR = { glow: 'night', snow: 1, grass: '#AEBBD6', grass2: '#A5B2CE', plaza: '#9A93B8', wall: '#B5483E', wall2: '#C9A56A', roof: '#3A2E4E', win: '#FFC45E', tree: '#3E6A60', tree2: '#4E7C70', trunk: '#4A3424', rock: '#8E96AE', shadow: 'rgba(20,20,70,.3)', amb: 'rgba(30,20,90,.16)', grid: '40,50,110', vig: 'rgba(14,10,50,.5)' };
 const UW_MORE = {
-  201: [UW_NIGHT_MKT, 'side', [4, 3]], 202: [8, 'snake', [1, 3]], 203: [6, 'side', [6]],
-  204: [5, 'round', ['pitch', 3]], 205: [3, 'side', [5]], 206: [UW_NEW_YEAR, 'snake', [8, 'sky', 'fire']],
+  201: [UW_NIGHT_MKT, 'gates', [4, 3]], 202: [8, 'pagoda', [1, 3]], 203: [6, 'gates', [6]],
+  204: [5, 'court', ['pitch', 3]], 205: [3, 'gates', [5]], 206: [UW_NEW_YEAR, 'pagoda', [8, 'sky', 'fire']],
 };
 /* v3.32: each level's world, for its units without an entry above. pals: the palettes its units take in turn; base: the
    landmarks every unit has; extra: more landmarks, one set per unit in turn. HSK 3 is the Li
@@ -4392,7 +4422,13 @@ function uwGeo(un) {
   const px = ([x, y]) => [M.left - B.left + x * k, M.top - B.top + y * k + FOOT];
   const spots = st.ls.map((L, i) => { const [x, y] = px(pts[i]); return { i, x, y, ch: LES_LEAD[L.i], state: lesDone(L.n) ? 'done' : i === st.at && st.open ? 'cur' : 'locked', sc: m.sc?.[i] ?? 1 }; });
   if (ucPre?.u === un) { const a = spots[ucPre.i], b = spots[ucPre.i + 1]; if (a) a.state = 'cur'; if (b?.state === 'cur') b.state = 'locked'; }   // until he eats it, the town looks as you left it
-  const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k };
+  const [bx, by] = px(pts[n]), trail = [], out = { box, W: B.width, H: B.height, spots, boss: { x: bx, y: by }, trail, lay: m.lay, k, m, px };
+  if (m.lay === 'peaks') {   // v3.36: rope bridges from top to top, sagging in the middle
+    for (let i = 0; i < n; i++) { const a = px(pts[i]), b = px(pts[i + 1]), sag = 34 * k;
+      for (let t = .1; t < .92; t += .065) { const u = 1 - t, x = u * u * a[0] + 2 * u * t * (a[0] + b[0]) / 2 + t * t * b[0], y = u * u * a[1] + 2 * u * t * ((a[1] + b[1]) / 2 + sag) + t * t * b[1] - 10;
+        trail.push({ x, y, done: i < st.at }); } }
+    return out;
+  }
   if (m.lay === 'round') {   // on the table the path runs round the turntable, from the first lesson to the last
     for (let i = 0; i < n - 1; i++) { const a0 = unRndAng(i, n, rot), a1 = unRndAng(i + 1, n, rot);
       for (let t = 0; t <= 1; t += .02) { const a = a0 + (a1 - a0) * t, p = px([UN_RND.cx + UN_RND.rx * Math.cos(a), UN_RND.cy + UN_RND.ry * Math.sin(a)]), q = trail[trail.length - 1];
@@ -4489,13 +4525,22 @@ function unitWorld(un, o = {}) {
   /* the ground: grass, and paving round the boss */
   const cs = [IJ(-60, -60), IJ(W + 60, -60), IJ(-60, H + 60), IJ(W + 60, H + 60)];
   const i0 = Math.floor(Math.min(...cs.map(p => p[0]))), i1 = Math.ceil(Math.max(...cs.map(p => p[0]))), j0 = Math.floor(Math.min(...cs.map(p => p[1]))), j1 = Math.ceil(Math.max(...cs.map(p => p[1])));
-  const round = G.lay === 'round', pc = IJ(G.boss.x, G.boss.y), plaza = (i, j) => Math.abs(i + .5 - pc[0]) + Math.abs(j + .5 - pc[1]) < (round ? 9.5 : 5.2);
+  const round = G.lay === 'round', lay = G.lay, M = G.m, PX = G.px, high = lay === 'pagoda' || lay === 'peaks', pc = IJ(G.boss.x, G.boss.y);
+  /* v3.36: paving under the temple looks: along the road of the gates, the courtyard, round the pagoda's foot */
+  const pave = new Set(), paveAt = (x, y, r) => { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) if (Math.abs(i + .5 - a) + Math.abs(j + .5 - b) <= r) pave.add(key(i, j)); };
+  if (lay === 'gates') { G.trail.forEach(d => paveAt(d.x, d.y, 1.4)); G.spots.forEach(s => paveAt(s.x, s.y, 2.2)); }
+  if (lay === 'court') { const [a, b] = IJ(...PX(M.mid)); for (let i = Math.floor(a - 8); i <= a + 8; i++) for (let j = Math.floor(b - 8); j <= b + 8; j++) if (Math.abs(i + .5 - a) < 6.8 && Math.abs(j + .5 - b) < 6.8) pave.add(key(i, j)); }
+  if (lay === 'pagoda') paveAt(...PX(M.base), 7);
+  const plaza = (i, j) => pave.has(key(i, j)) || !high && Math.abs(i + .5 - pc[0]) + Math.abs(j + .5 - pc[1]) < (round ? 9.5 : 5.2);
   /* v3.32: a river (the Li River of HSK 3): a winding band of water three tiles deep right across the map, at a height
      where no steamer and no shrine stands. The path crosses it on planks, nothing is built in it, a dragon boat rides on it */
   let rivS = null;
   if (has('river')) { const ys = round ? [G.boss.y] : [...G.spots.map(s => s.y), G.boss.y], far = round ? 210 * G.k : 80;
     for (const f of [.24, .76, .5, .36, .64, .14, .88]) { const y = f * H; if (y > 70 && ys.every(v => Math.abs(v - y) > far)) { const q = IJ(W / 2, y); rivS = Math.round(q[0] + q[1]); break; } } }
-  const water = (i, j) => { if (rivS == null) return false; const s = i + j - rivS - Math.round(Math.sin((i - j) * .45) * 1.2); return s >= 0 && s < 3; };
+  let rivD = 3;
+  if (lay === 'raft') { const q = IJ(W / 2, PX([0, M.riv])[1]); rivS = Math.round(q[0] + q[1]) - 3; rivD = 6; }   // v3.36: the river runs right along the street
+  const water = lay === 'stones' ? (i, j) => { const [x, y] = P(i + .5, j + .5); return x > 52 * G.k + 14 * Math.sin(y / 52) && x < W - 52 * G.k + 14 * Math.sin(y / 61 + 1); }   // the whole page is river but its banks
+    : (i, j) => { if (rivS == null) return false; const s = i + j - rivS - Math.round(Math.sin((i - j) * .45) * 1.2); return s >= 0 && s < rivD; };
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
     const n = (rnd() - .5) * .07, pz = plaza(i, j);
     poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], !pz && water(i, j) ? uwSh(pal.water || '#3FA2C6', n * 1.4 + ((i - j) % 3 ? 0 : .08))
@@ -4514,7 +4559,10 @@ function unitWorld(un, o = {}) {
   c.stroke(); c.setLineDash([]);
 
   /* the path, lying on the ground (or, at the round table, the table: its turntable, path and steamers turn on a canvas of their own, unitTable) */
-  const objs = [], lights = [], occ = new Set();
+  const objs = [], lights = [], occ = new Set(), post = [];
+  const zOfSpot = s => IJ(s.x, s.y).map(Math.floor).reduce((a, b) => a + b) + 1.5;
+  const uwPeakZ = i => { const s = i < G.spots.length ? G.spots[i] : { x: G.boss.x, y: G.boss.y }, [a, b] = IJ(s.x, s.y - 6 + G.m.hs[i] * G.k); return a + b; };
+  const uwPebble = (c, x, y) => { c.fillStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(x, y + 2, 12, 6, 0, 0, 7); c.fill(); c.fillStyle = '#7E857C'; c.beginPath(); c.ellipse(x, y + 1, 9, 4.6, 0, 0, 7); c.fill(); c.fillStyle = '#C9CDC2'; c.beginPath(); c.ellipse(x, y - 1, 9, 4.6, 0, 0, 7); c.fill(); };   // post: drawn over the town (the path up the pagoda, the rope bridges)
   for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (plaza(i, j) || water(i, j)) occ.add(key(i, j));
   if (rivS != null) { c.save(); c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1.6; c.lineCap = 'round';   // ripples
     for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (water(i, j) && !plaza(i, j) && (i * 5 + j * 3) % 4 === 0) { c.beginPath(); c.moveTo(...P(i + .25, j + .7)); c.lineTo(...P(i + .7, j + .25)); c.stroke(); }
@@ -4530,10 +4578,12 @@ function unitWorld(un, o = {}) {
       if (dx * dx + dy * dy < 1 || (Math.abs(px - x) < TX + 20 * k && py > y && py < y + 260 * k)) occ.add(key(i, j)); }
     lights.push([x, y, TX * 1.1, .6]); }
   else {
-    if (rivS != null) G.trail.forEach(({ x, y }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) plank(ti + a, tj + b); });
-    G.trail.forEach(({ x, y, done }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b)); uwDot(c, x, y, done); });
-    G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
-      if (s.i !== o.skip) objs.push({ z: si + sj + 1.5, draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
+    if (rivS != null && !['raft', 'stones', 'peaks', 'pagoda'].includes(lay)) G.trail.forEach(({ x, y }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) plank(ti + a, tj + b); });
+    if (!high) G.trail.forEach(({ x, y, done }) => { const [ti, tj] = IJ(x, y).map(Math.floor); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) occ.add(key(ti + a, tj + b)); if (lay === 'stones') uwPebble(c, x, y); else uwDot(c, x, y, done); });
+    const zOf = s => lay === 'pagoda' ? 1e6 + s.i : lay === 'peaks' ? uwPeakZ(s.i) + .02 : IJ(s.x, s.y).map(Math.floor).reduce((a, b) => a + b) + 1.5;
+    G.spots.forEach(s => { const [si, sj] = IJ(s.x, s.y).map(Math.floor); if (!high) for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) occ.add(key(si + a, sj + b));
+      if (s.i !== o.skip) objs.push({ z: zOf(s), draw: () => uwSteamer(c, lights, s.x, s.y, s.ch, s.state) }); });
+    uwLayFill();
   }
 
   /* what stands in the town */
@@ -4576,6 +4626,93 @@ function unitWorld(un, o = {}) {
   const pole = (i, j, h = 46) => objs.push({ z: i + j + .5, sh: () => shade(i + .44, j + .44, .12, .12, h), draw: () => { const [x, y] = P(i + .5, j + .5);
     c.fillStyle = '#2A1C1C'; c.fillRect(x - 1.6, y - h, 3.2, h); c.fillRect(x - 6, y - h, 12, 2.4); lantern(x - 5, y - h + 8, 4.2); lantern(x + 5, y - h + 8, 4.2); lights.push([x, y, 34, .5]); } });
   const at = (p, w, d, f) => { if (p) objs.push({ z: p[0] + p[1] + w + d, ...f(p[0], p[1]) }); };
+  /* ---- v3.36: the pieces of the temple and river looks ---- */
+  function occR(x, y, r) { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) occ.add(key(i, j)); }
+  function occCol(x, w, y0, y1) { for (let y = y0; y <= y1; y += TH / 2) for (let xx = x - w; xx <= x + w; xx += TW / 2) { const [a, b] = IJ(xx, y).map(Math.floor); occ.add(key(a, b)); } }
+  function paifang(x, y) {   // a painted gate: two red pillars, a blue beam with a gold board, a tiled roof
+    const [a, b] = IJ(x, y), i = a - 1.8, j = b - .2, h = 66; occR(x, y, 1.6);
+    objs.push({ z: a + b - .4, sh: () => shade(i, j, 3.6, .4, h), draw: () => { const col = '#C6402F', rf = pal.glow ? '#2A2448' : '#2D3F5E';
+      block(i, j, .32, .32, h, col); block(i + 3.28, j, .32, .32, h, col); block(i - .1, j - .02, 3.8, .36, 9, '#3E6FA0', h - 18); block(i + 1.4, j + .02, .8, .3, 12, '#F4C14E', h - 30);
+      roof(i - .2, j - .1, 4, .56, h - 6, 12, rf, .3); lantern(...P(i + .16, j + .5, h - 30), 4.2); lantern(...P(i + 3.44, j + .5, h - 30), 4.2); } });
+  }
+  function tier(cx, cy, w, z, hw) {   // one floor of the pagoda, its middle at cx,cy on the ground, z up
+    const [a, b] = IJ(cx, cy), i = a - w / 2, j = b - w / 2;
+    block(i, j, w, w, hw, '#C6402F', z, (f, q) => { for (let k = 0; k < 2; k++) { const u = (k + .5) / 2, p = q(u - .14, u + .14, .2, .7); poly(p, pal.win); if (warm) lights.push([p[0][0] + 3, p[0][1] - 6, 26, .6]); } });
+    block(i - .35, j - .35, w + .7, w + .7, 4, '#8A2A20', z + hw); roof(i - .1, j - .1, w + .2, w + .2, z + hw + 4, 28, pal.glow ? '#2A2448' : '#2D3F5E', .6);
+  }
+  function balcony(x, y, z) { const [a, b] = IJ(x, y), i = a - 1.2, j = b - 1.2, L = 2.4;
+    block(i, j, L, L, 6, '#9A3A2C', z);
+    for (let t = 0; t <= 6; t++) { const u = t / 6; block(i + L * u - .04, j + L - .08, .08, .08, 12, '#E9B949', z + 6); block(i + L - .08, j + L * u - .04, .08, .08, 12, '#E9B949', z + 6); }
+    c.strokeStyle = '#E9B949'; c.lineWidth = 2; c.beginPath(); c.moveTo(...P(i, j + L, z + 18)); c.lineTo(...P(i + L, j + L, z + 18)); c.lineTo(...P(i + L, j, z + 18)); c.stroke(); }
+  function karst(x, yt, yb, wd) {   // a tall green Li River peak, its flat top at x,yt, its foot at yb
+    const h = yb - yt; c.save(); c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 14, yb, wd * 1.1, wd * .4, 0, 0, 7); c.fill(); c.restore();
+    const g = c.createLinearGradient(x - wd, 0, x + wd, 0); g.addColorStop(0, uwSh(pal.tree2, .25)); g.addColorStop(.45, pal.tree2); g.addColorStop(1, uwSh(pal.tree, -.3));
+    c.beginPath(); c.moveTo(x - wd, yb); c.bezierCurveTo(x - wd * .9, yb - h * .45, x - wd * .7, yt + 18, x - wd * .55, yt + 6); c.quadraticCurveTo(x, yt - 10, x + wd * .55, yt + 6);
+    c.bezierCurveTo(x + wd * .7, yt + 18, x + wd * .9, yb - h * .45, x + wd, yb); c.closePath(); c.fillStyle = g; c.fill();
+    c.save(); c.clip(); c.strokeStyle = 'rgba(30,70,50,.26)'; c.lineWidth = 2;
+    for (let k = 0; k < 9; k++) { const xx = x - wd + (k + .5) * wd * 2 / 9 + rnd() * 8 - 4; c.beginPath(); c.moveTo(xx, yt + 20 + rnd() * 30); c.quadraticCurveTo(xx + 4, yb - h * .4, xx - 2, yb); c.stroke(); }
+    c.fillStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.ellipse(x - wd * .45, yt + h * .35, wd * .18, h * .3, -.1, 0, 7); c.fill(); c.restore();
+    const tg = c.createLinearGradient(0, yt - 14, 0, yt + 14); tg.addColorStop(0, uwSh(pal.grass2, .2)); tg.addColorStop(1, pal.grass); c.beginPath(); c.ellipse(x, yt + 4, wd * .58, 15, 0, 0, 7); c.fillStyle = tg; c.fill(); }
+  function uwLayFill() {
+    if (lay === 'gates') G.spots.forEach(s => paifang(s.x, s.y - 30));
+    if (lay === 'stones') {
+      G.spots.forEach(s => { const z = zOfSpot(s) - .01; objs.push({ z, draw: () => { const x = s.x, y = s.y + 6, rx = 48, ry = 25;
+        c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(x, y + 6, rx + 8, ry + 5, 0, 0, 7); c.fill();
+        const g = c.createLinearGradient(x - rx, 0, x + rx, 0); g.addColorStop(0, '#B8BDB2'); g.addColorStop(1, '#6E7670'); c.fillStyle = g; c.beginPath(); c.ellipse(x, y + 2, rx, ry, 0, 0, Math.PI); c.lineTo(x - rx, y - 8); c.ellipse(x, y - 8, rx, ry, 0, Math.PI, 0, true); c.closePath(); c.fill();
+        const t = c.createLinearGradient(0, y - 8 - ry, 0, y - 8 + ry); t.addColorStop(0, '#E2E5DA'); t.addColorStop(1, '#B9BFB2'); c.fillStyle = t; c.beginPath(); c.ellipse(x, y - 8, rx, ry, 0, 0, 7); c.fill();
+        c.fillStyle = 'rgba(110,150,80,.45)'; c.beginPath(); c.ellipse(x - rx * .55, y - 10, rx * .25, ry * .3, .3, 0, 7); c.fill(); } }); });
+      for (let k = 0; k < 14; k++) { const x = 70 + rnd() * (W - 140), y = 40 + rnd() * (H - 80), r = 6 + rnd() * 4; if (G.spots.some(s => Math.hypot(s.x - x, (s.y - y) * 2) < 90) || G.trail.some(d => Math.hypot(d.x - x, (d.y - y) * 2) < 24)) continue;
+        c.fillStyle = uwSh(pal.tree, -.1); c.beginPath(); c.moveTo(x, y); c.ellipse(x, y, r, r * .5, 0, .4, Math.PI * 2 - .1); c.closePath(); c.fill(); c.fillStyle = uwSh(pal.tree2, .15); c.beginPath(); c.ellipse(x - 1, y - 1, r * .6, r * .28, 0, 0, 7); c.fill(); }
+    }
+    if (lay === 'raft') { const ry = PX([0, M.riv])[1];
+      G.spots.forEach(s => { const up = s.y < ry, y0 = up ? s.y - 4 : s.y + 4, y1 = up ? ry - 22 : ry + 22, a = Math.min(y0, y1), b = Math.max(y0, y1), wd = 21, x = s.x, z = zOfSpot(s) - .01, out = up ? b : a;
+        objs.push({ z, draw: () => { c.fillStyle = 'rgba(20,40,60,.3)'; c.fillRect(x - wd + 6, a + 6, wd * 2, b - a);
+          [[-wd + 3, out], [wd - 3, out], [-wd + 3, (a + b) / 2], [wd - 3, (a + b) / 2]].forEach(([dx, y]) => { c.fillStyle = '#5A3A1E'; c.fillRect(x + dx - 2, y, 4, 14); });
+          c.fillStyle = '#8A5E34'; c.fillRect(x - wd, b, wd * 2, 5); c.fillStyle = '#C69A62'; c.fillRect(x - wd, a, wd * 2, b - a);
+          c.strokeStyle = 'rgba(90,55,25,.55)'; c.lineWidth = 1; for (let y = a + 5; y < b; y += 6) { c.beginPath(); c.moveTo(x - wd, y); c.lineTo(x + wd, y); c.stroke(); } } }); });
+    }
+    if (lay === 'court') { const [mx, my] = PX(M.mid);
+      G.spots.forEach(s => { const [a, b] = IJ(s.x, s.y + 2), z = zOfSpot(s) - .01; objs.push({ z, draw: () => block(a - .65, b - .65, 1.3, 1.3, 6, '#B8B0A2') }); });
+      const [da, db] = IJ(mx, my); occR(mx, my, 2.5); objs.push({ z: da + db, draw: () => { const x = mx, y = my;
+        c.fillStyle = pal.shadow; c.beginPath(); c.ellipse(x + 8, y + 2, 40, 18, 0, 0, 7); c.fill();
+        c.fillStyle = '#5E4A2A'; [[-22, 0], [22, 0], [0, 10]].forEach(([dx, dy]) => c.fillRect(x + dx - 3, y + dy - 22, 6, 22));
+        const g = c.createLinearGradient(x - 34, 0, x + 34, 0); g.addColorStop(0, '#B08A4A'); g.addColorStop(.4, '#D9B46A'); g.addColorStop(1, '#6E5226');
+        c.fillStyle = g; c.beginPath(); c.ellipse(x, y - 22, 34, 14, 0, 0, Math.PI); c.bezierCurveTo(x - 36, y - 40, x - 34, y - 52, x - 30, y - 56); c.lineTo(x + 30, y - 56); c.bezierCurveTo(x + 34, y - 52, x + 36, y - 40, x + 34, y - 22); c.closePath(); c.fill();
+        c.fillStyle = '#4A3618'; c.beginPath(); c.ellipse(x, y - 56, 30, 11, 0, 0, 7); c.fill(); c.fillStyle = '#8A6A3A'; c.beginPath(); c.ellipse(x, y - 56, 26, 8.5, 0, 0, 7); c.fill();
+        c.strokeStyle = '#6E5226'; c.lineWidth = 4; [-30, 30].forEach(dx => { c.beginPath(); c.arc(x + dx, y - 62, 7, Math.PI, 0); c.stroke(); });
+        const lit = G.spots.filter(s => s.state === 'done').length;   // a stick of incense burns for every lesson done
+        for (let k = 0; k < Math.max(1, Math.min(5, lit)); k++) { const xx = x + (k - (Math.min(5, Math.max(1, lit)) - 1) / 2) * 8; c.fillStyle = '#C9302A'; c.fillRect(xx - 1, y - 72, 2, 16); c.fillStyle = '#FFB060'; c.beginPath(); c.arc(xx, y - 73, 2, 0, 7); c.fill(); }
+        c.save(); c.strokeStyle = 'rgba(240,240,250,.5)'; c.lineWidth = 3; c.lineCap = 'round'; [-8, 0, 8].forEach((dx, p) => { c.beginPath(); let xx = x + dx, yy = y - 76; c.moveTo(xx, yy);
+          for (let s = 1; s < 7; s++) { const nx = x + dx + Math.sin(s * 1.1 + p) * 8 + s * 2, ny = y - 76 - s * 13; c.quadraticCurveTo(xx + (nx - xx) * .5 + 6, (yy + ny) / 2, nx, ny); xx = nx; yy = ny; } c.stroke(); }); c.restore();
+        lights.push([x, y - 60, 80, .8]); } });
+      const hx = G.boss.x, hy = G.boss.y - 46 * G.k, [ha, hb] = IJ(hx, hy), hw = 4.2, hd = 2.4; occR(hx, hy, 3.5);   // the hall behind Hu Hu
+      objs.push({ z: ha + hb - 1, sh: () => shade(ha - hw / 2 - .5, hb - hd / 2 - .5, hw + 1, hd + 1, 70), draw: () => { const i = ha - hw / 2, j = hb - hd / 2;
+        block(i - .5, j - .5, hw + 1, hd + 1, 10, '#E2DCCD'); block(i, j, hw, hd, 44, '#C6402F', 10, (f, q) => { const n2 = f === 'L' ? 4 : 2; for (let k = 0; k < n2; k++) { const u = (k + .5) / n2; poly(q(u - .32 / n2, u + .32 / n2, .12, .8), '#7A1A12'); poly(q(u - .2 / n2, u + .2 / n2, .2, .72), 'rgba(255,220,140,.4)'); } });
+        roof(i, j, hw, hd, 54, 24, pal.glow ? '#2A2448' : '#2D3F5E', .55); lantern(...P(i + .3, j + hd + .1, 40), 5); lantern(...P(i + hw - .3, j + hd + .1, 40), 5); } });
+      const [ca, cb] = IJ(mx, my);   // a low wall along the two near sides of the courtyard
+      [[ca - 6.8, cb + 6.5, 13.6, .3], [ca + 6.5, cb - 6.8, .3, 13.6]].forEach(([i, j, w, d]) => objs.push({ z: i + j + w + d, sh: () => shade(i, j, w, d, 16), draw: () => { block(i, j, w, d, 16, '#C6402F'); roof(i, j, w, d, 16, 5, pal.glow ? '#2A2448' : '#2D3F5E', .12); } }));
+    }
+    if (lay === 'pagoda') { const [bx, by] = PX(M.base), n = G.spots.length, ws = G.spots.map(s => Math.max(1.8, Math.abs(s.x - bx) / (TW / 2) - 1.3)), hw = M.T * G.k - 42;
+      const w = t => t === 0 ? ws[0] + .3 : t <= n ? ws[t - 1] : Math.max(1.8, ws[n - 1] - .3);
+      const zt = t => t === 0 ? 0 : by - (t <= n ? G.spots[t - 1].y : G.boss.y);
+      const [pa, pb] = IJ(bx, by); occR(bx, by, w(0) / 2 + 1.6); occCol(bx, (w(0) / 2 + 1) * TW / 2, G.boss.y - 120, by);
+      objs.push({ z: pa + pb + w(0) / 2, sh: () => shade(pa - w(0) / 2 - .2, pb - w(0) / 2 - .2, w(0) + .4, w(0) + .4, n * 60), draw: () => {
+        for (let t = 0; t <= n + 1; t++) { tier(bx, by, w(t), zt(t), hw); if (t >= 1 && t <= n) { const s = G.spots[t - 1]; balcony(s.x, by + 6, zt(t) - 6); } }
+        block(pa - .08, pb - .08, .16, .16, 30, '#F4C14E', zt(n + 1) + hw + 30); } });
+      post.push(() => G.trail.forEach(d => uwDot(c, d.x, d.y, d.done)));
+    }
+    if (lay === 'peaks') { const all = [...G.spots, { i: G.spots.length, x: G.boss.x, y: G.boss.y, boss: 1 }];
+      all.forEach(s => { const h = M.hs[s.i] * G.k, yt = s.y - 6, yb = yt + h, wd = (s.boss ? 64 : 56) * Math.min(1.15, G.k), [a, b] = IJ(s.x, yb); occR(s.x, yb, 2.6);
+        objs.push({ z: uwPeakZ(s.i), draw: () => karst(s.x, yt, yb, wd) }); });
+      post.push(() => { c.save(); c.lineCap = 'round';   // the rope bridges, plank by plank
+        for (let i = 0; i < all.length - 1; i++) { const A = all[i], B = all[i + 1], sag = 34 * G.k, ax = A.x + (B.x > A.x ? 26 : -26), bx2 = B.x + (B.x > A.x ? -26 : 26), ay = A.y - 10, by2 = B.y - 10, mx = (ax + bx2) / 2, my = (ay + by2) / 2 + sag;
+          const q = t => { const u = 1 - t; return [u * u * ax + 2 * u * t * mx + t * t * bx2, u * u * ay + 2 * u * t * my + t * t * by2]; };
+          for (let t = .06; t < .96; t += .06) { const [x, y] = q(t); c.strokeStyle = i < G.spots.filter(s => s.state === 'done').length ? '#A8743E' : '#8A5A2E'; c.lineWidth = 4; c.beginPath(); c.moveTo(x - 1, y - 5); c.lineTo(x + 1, y + 5); c.stroke(); }
+          c.strokeStyle = '#5A3A1E'; c.lineWidth = 1.6; [-5, 5].forEach(o => { c.beginPath(); c.moveTo(ax, ay + o); c.quadraticCurveTo(mx, my + o, bx2, by2 + o); c.stroke(); }); }
+        c.restore();
+        for (let k = 0; k < 3; k++) { const y = H * (.35 + k * .25); c.save(); for (let m = 0; m < 6; m++) { const x = (m / 5) * W, g = c.createRadialGradient(x, y, 0, x, y, 120); g.addColorStop(0, 'rgba(255,255,255,.32)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.save(); c.translate(x, y); c.scale(1, .3); c.beginPath(); c.arc(0, 0, 120, 0, 7); c.fill(); c.restore(); } c.restore(); } });
+    }
+  }
   const R = [.56, .5, .64, .3, .72, .8, .12].flatMap(fy => [.84, .16, .74, .26].map(fx => [fx, fy]));   // where a landmark may go (parts of the width and height), best first: beside the boss
 
   /* each unit's landmark, from its comic */
@@ -4671,6 +4808,7 @@ function unitWorld(un, o = {}) {
   /* paint: shadows, then everything back to front, then light */
   objs.forEach(b => b.sh && b.sh());
   objs.sort((a, b) => a.z - b.z).forEach(b => b.draw());
+  post.forEach(f => f());
   if (pal.amb) { c.fillStyle = pal.amb; c.fillRect(0, 0, W, H); }
   if (pal.tint) { c.save(); c.globalCompositeOperation = 'soft-light'; const t = c.createLinearGradient(0, 0, W, H); t.addColorStop(0, pal.tint); t.addColorStop(1, 'rgba(120,60,160,.3)'); c.fillStyle = t; c.fillRect(0, 0, W, H); c.restore(); }
   c.save(); c.globalCompositeOperation = 'lighter';
@@ -4817,7 +4955,7 @@ function unitEat(un, i, then) {
   const stg = G.box.parentElement, cv = mk('uw-anim', G.box), top = mk('uw-bun', stg), c = cv.getContext('2d'), c2 = top.getContext('2d');
   const side = shi.getBoundingClientRect().left + 36 < s.x + G.box.getBoundingClientRect().left ? -1 : 1;   // the side Shi Shi is on
   const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 - (1 - t) ** 3, back = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 + 2.7 * (t - 1) ** 3 + 1.7 * (t - 1) ** 2, io = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-  const OUT = 760, IN = 1060, crumbs = [], t0 = performance.now(), mood = m => { shi.innerHTML = shiBody(m); };
+  const OUT = 760, IN = 1060, crumbs = [], t0 = performance.now(), mood = m => { shi.innerHTML = (shi.querySelector('.un-raft')?.outerHTML || '') + shiBody(m); };   // on the river he stays on his raft
   const mouth = () => { const r = shi.getBoundingClientRect(), b = stg.getBoundingClientRect(); return [r.left + r.width / 2 - b.left, r.top + r.height * .62 - b.top]; };
   let bites = 0, at = [s.x, s.y - 40];
   const bite = () => { bites++; haptic(12); uwChomp();
@@ -10667,7 +10805,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.35';
+const APP_VERSION = '3.36';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
