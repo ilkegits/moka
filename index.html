@@ -1862,6 +1862,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc .un-map{position:absolute;margin:0}
 .uc-pane.locked .uc-stage{filter:grayscale(.8) brightness(.9) contrast(.92)}
 .uc-pane.locked .un-map{pointer-events:none}
+.uc-pane.uc-join.locked .uc-stage{filter:none}   /* v3.44: its town greys out on the canvas, fading in from the seam */
+.uc-pane.uc-join.locked .un-map,.uc-pane.uc-join.locked canvas.uw-glow{filter:grayscale(.8) brightness(.9) contrast(.92)}
 .uc-pane.locked .un-shi{display:none}
 .uc-lock{position:absolute;top:44%;z-index:3;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:min(250px,80vw);padding:16px 18px 15px;border-radius:20px;text-align:center;
   background:color-mix(in srgb,var(--card) 92%,transparent);box-shadow:var(--ring),0 12px 26px -12px rgba(40,20,10,.6)}
@@ -4161,7 +4163,14 @@ function unitNodes(n) {
    v3.43: HSK 1 is all street (ilkem: "i dont want the alternating anymore, everything should be the swipeable mode"):
    no page and no round table, and its steamers stand a little closer together (SIDE_GAP) */
 const UNIT_LAYS = ['side', 'snake', 'side', 'round'];
-const SIDE_GAP = { 1: 128 };   // how far apart the steamers stand on a level's street (150 if not given)
+const SIDE_GAP = { 1: 128 };
+/* v3.44: on HSK 1's street the units run into each other (ilkem: "huhus challange station should be connected with the
+   first baozi station of the next unit", "the rapid transition to the next weather isnt cool... the pixels being in a
+   natural transition"): the path goes on from Hu Hu's shrine across the seam to the next unit's first steamer, and each
+   unit's ground, light and weather fade into its neighbour's over a wide band at every seam (uwJoin, SJ in unitWorld) */
+const SIDE_JOIN = { 1: 1 };
+const uwJoin = un => { if (!SIDE_JOIN[unitLv(un)] || unitLay(un) !== 'side') return null; const us = ucList(unitLv(un)), i = us.indexOf(un); if (i < 0) return null;
+  const ok = u => u != null && unitLay(u) === 'side' ? u : null; return { pv: ok(us[i - 1]), nx: ok(us[i + 1]) }; };   // how far apart the steamers stand on a level's street (150 if not given)
 const LV_LAYS = { 1: ['side', 'side', 'side', 'side'], 2: ['gates', 'pagoda', 'gates', 'court'], 3: ['tall', 'tall', 'tall', 'tall'] };
 const UN_FRAME = { gates: 'snake', pagoda: 'round', stones: 'snake', peaks: 'round', raft: 'side', court: 'round', tall: 'tall' };
 const UC_VERT = { 3: 1 };   // levels whose units stack down one page instead of a strip you swipe along
@@ -4226,7 +4235,7 @@ function ucPane(u) {
   const shi = me ? `<span class="un-shi" id="unShi" style="${pct(unitShiAt(m, eat >= 0 ? eat : seen))}" data-to="${pct(unitShiAt(m, st.at))}"${eat >= 0 ? ` data-eat="${eat}"` : ''}>${lay === 'raft' ? UN_RAFT : ''}${shiBody(st.won ? 'star' : chal ? 'fire' : st.nd ? 'happy' : 'cheer')}</span>` : '';
   const R = UN_RND, table = lay === 'round' ? `<span class="un-grip" style="left:${((R.cx - R.rx - 64) / W * 100).toFixed(2)}%;top:${((R.cy - R.ry - 70) / H * 100).toFixed(2)}%;width:${((R.rx + 64) * 2 / W * 100).toFixed(2)}%;height:${((R.ry + 70) * 2 / H * 100).toFixed(2)}%"></span>`
     + `<span class="un-spin" style="${pct([R.cx, R.cy + R.ry + 118])}"><button data-spin="-1"${off} aria-label="Turn the table back">‹</button><em>Swipe to turn the table</em><button data-spin="1"${off} aria-label="Turn the table on">›</button></span>` : '';
-  return `<section class="uc-pane uc-${unitFrame(lay)}${unitFrame(lay) !== lay ? ` uc-${lay}` : ''}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
+  return `<section class="uc-pane uc-${unitFrame(lay)}${unitFrame(lay) !== lay ? ` uc-${lay}` : ''}${uwJoin(u) ? ' uc-join' : ''}${st.open ? '' : ' locked'}" data-u="${u}" aria-label="Unit ${unK(u)}, ${esc(UNIT(u)[0])}${st.open ? '' : ', locked'}">
     <div class="uc-in"><div class="uc-stage"><div class="un-bg" aria-hidden="true"><canvas class="uw"></canvas></div>
       <div class="un-map" data-w="${W}" data-h="${H}">${table}${nodes}${shrine}${shi}</div></div></div>
     ${st.open ? '' : `<div class="uc-lock">${LOCK_I}<b>Unit ${unK(u)} · ${esc(UNIT(u)[0])}</b><small>Beat Hu Hu's challenge in Unit ${unK(u) - 1} to open it</small></div>`}</section>`;
@@ -4489,6 +4498,22 @@ function uwGeo(un) {
       if (run < 14) continue; run = 0;
       if (spots.some(o => Math.hypot(o.x - p[0], (o.y - p[1]) * 2) < 46) || Math.hypot(bx - p[0], (by - p[1]) * 2) < 64) continue;
       trail.push({ x: p[0], y: p[1], done: si < st.at }); } });
+  /* v3.44: HSK 1's street: the path runs on from the last unit's shrine to this unit's first steamer, and from this shrine
+     to the next unit's first steamer. Both panes draw the same dots (worked out from where the two maps really are), each
+     the part on its own side of the seam */
+  const J = out.join = uwJoin(un);
+  if (J) {
+    const mapAt = u => { const q = ucPane$(u)?.querySelector('.un-map'); if (!q) return null; const R = q.getBoundingClientRect(), mm = unitMap(u, unitLessons(u).length), kk = R.width / mm.W;
+      return p => [R.left - B.left + p[0] * kk, R.top - B.top + p[1] * kk + FOOT]; };
+    const link = (a, b, done, front) => { const got = [], mx = (a[0] + b[0]) / 2; let prev = a, run = 0;
+      for (let t = .004; t <= 1.0001; t += .004) { const u = 1 - t, p = [u * u * u * a[0] + 3 * u * t * (u + t) * mx + t * t * t * b[0], u * u * u * a[1] + 3 * u * u * t * a[1] + 3 * u * t * t * b[1] + t * t * t * b[1]];
+        run += Math.hypot(p[0] - prev[0], p[1] - prev[1]); prev = p; if (run < 14) continue; run = 0;
+        if (p[0] < -14 || p[0] > B.width + 14 || Math.hypot(a[0] - p[0], (a[1] - p[1]) * 2) < 64 || Math.hypot(b[0] - p[0], (b[1] - p[1]) * 2) < 46) continue;
+        got.push({ x: p[0], y: p[1], done }); }
+      if (front) trail.unshift(...got); else trail.push(...got); };
+    if (J.pv != null) { const f = mapAt(J.pv); if (f) link(f(unitMap(J.pv, unitLessons(J.pv).length).pts.at(-1)), px(pts[0]), utPassed(J.pv), true); }
+    if (J.nx != null) { const f = mapAt(J.nx); if (f) link(px(pts[n]), f(unitMap(J.nx, unitLessons(J.nx).length).pts[0]), utPassed(un), false); }
+  }
   return out;
 }
 
@@ -4561,7 +4586,8 @@ function unitWorld(un, o = {}) {
   const c = cv.getContext('2d'); c.setTransform(D, 0, 0, D, 0, 0);
   const pal = uwPal(un), marks = uwMarks(un), has = m => marks.includes(m), night = pal.glow === 'night', warm = !!pal.glow;
   let seed = un * 131 + 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const TW = 44, TH = 22, ox = W / 2, oy = G.lay === 'tall' ? H * .5 - (((box.closest('.uc-pane')?.offsetTop || 0) + H * .5) % TH) : H * .5;   // down the page the tiles line up across the seams
+  const offL = G.join ? box.closest('.uc-pane')?.offsetLeft || 0 : 0;
+  const TW = 44, TH = 22, ox = G.join ? W / 2 - ((offL + W / 2) % TW) : W / 2, oy = G.lay === 'tall' ? H * .5 - (((box.closest('.uc-pane')?.offsetTop || 0) + H * .5) % TH) : H * .5;   // down the page the tiles line up across the seams
   const P = (i, j, z = 0) => [ox + (i - j) * TW / 2, oy + (i + j) * TH / 2 - z];
   const IJ = (x, y) => { const a = (x - ox) / (TW / 2), b = (y - oy) / (TH / 2); return [(a + b) / 2, (b - a) / 2]; };
   const poly = (pts, fill) => { c.beginPath(); pts.forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = fill; c.fill(); };
@@ -4583,6 +4609,17 @@ function unitWorld(un, o = {}) {
     return { d: Math.round((top0 + oy) / TH), wt, rivX, wet: (x, y) => { const r = rivX(y); return r != null && Math.abs((x - G.ml) / k - r) < 40; },
       mix: (key, q, w) => q == null || !w ? pal[key] : uwMix(pal[key], uwPal(q)[key], w) };
   })() : null;
+  /* v3.44: HSK 1's street. Within 300 units of a seam a unit's look fades toward its neighbour's (half and half on the
+     seam): the ground's colours, the 田字格 lines, the light, the tint and the snow. wt(x): [the neighbour, its share] */
+  const SJ = G.join ? (() => { const { pv, nx } = G.join, k = G.k, Z = 300, sm = t => t * t * (3 - 2 * t);
+    const wt = x => { const a = x / k, b = (W - x) / k; return pv != null && a < Z ? [pv, .5 * (1 - sm(a / Z))] : nx != null && b < Z ? [nx, .5 * (1 - sm(b / Z))] : [null, 0]; };
+    const mix = (key, x) => { const [q, w] = wt(x); return q == null || !w ? pal[key] : uwMix(pal[key], uwPal(q)[key], w); };
+    const band = (f, n = 48) => { const g = c.createLinearGradient(0, 0, W, 0); for (let s = 0; s <= n; s++) g.addColorStop(s / n, f(W * s / n)); return g; };   // a colour that changes along the street
+    const share = (f, x) => { const [q, w] = wt(x); return f(pal) * (1 - w) + (q == null ? 0 : f(uwPal(q)) * w); };   // a number mixed the same way
+    const over = draw => { for (let x = 0; x < W;) { const [q, w] = wt(x + 3); let x1 = Math.min(W, x + 6); if (!w) while (x1 < W && !wt(x1 + 3)[1]) x1 = Math.min(W, x1 + 6);   // an overlay, in strips: its own, and the neighbour's by its share
+      c.save(); c.beginPath(); c.rect(x, 0, x1 - x, H); c.clip(); c.globalAlpha = 1 - w; draw(pal); if (w) { c.globalAlpha = w; draw(uwPal(q)); } c.restore(); x = x1; } };
+    return { wt, mix, band, share, over, m: Math.round((offL + ox) / TW), snow: [pv, nx].some(u => u != null && uwPal(u).snow) };
+  })() : null;
   /* v3.36: paving under the temple looks: along the road of the gates, the courtyard, round the pagoda's foot */
   const pave = new Set(), paveAt = (x, y, r) => { const [a, b] = IJ(x, y); for (let i = Math.floor(a - r); i <= a + r; i++) for (let j = Math.floor(b - r); j <= b + r; j++) if (Math.abs(i + .5 - a) + Math.abs(j + .5 - b) <= r) pave.add(key(i, j)); };
   if (lay === 'gates') { G.trail.forEach(d => paveAt(d.x, d.y, 1.4)); G.spots.forEach(s => paveAt(s.x, s.y, 2.2)); }
@@ -4602,17 +4639,20 @@ function unitWorld(un, o = {}) {
     const n = (rnd() - .5) * .07, pz = plaza(i, j);
     if (tall) { const gi = i + T3.d, gj = j + T3.d, hn = (uwHash(gi, gj) - .5) * .07, [q, w] = T3.wt(P(i + .5, j + .5)[1]);
       poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], water(i, j) ? uwSh(T3.mix('water', q, w), hn * 1.4 + (((gi - gj) % 3 + 3) % 3 ? 0 : .08)) : uwSh(T3.mix(((gi * 7 + gj * 3) % 5 + 5) % 5 ? 'grass' : 'grass2', q, w), hn)); continue; }
+    if (SJ && !(!pz && water(i, j))) { const gi = i + SJ.m, gj = j - SJ.m, x = P(i + .5, j + .5)[0];   // the same tile pattern across the seams, its colour fading to the neighbour's
+      poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], uwSh(SJ.mix(pz ? 'plaza' : ((gi * 7 + gj * 3) % 5 + 5) % 5 ? 'grass' : 'grass2', x), (uwHash(gi, gj) - .5) * .07 + (pz && (i + j) % 2 ? -.06 : 0))); continue; }
     poly([P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)], !pz && water(i, j) ? uwSh(pal.water || '#3FA2C6', n * 1.4 + ((i - j) % 3 ? 0 : .08))
       : uwSh(pz ? pal.plaza : (i * 7 + j * 3) % 5 ? pal.grass : pal.grass2, n + (pz && (i + j) % 2 ? -.06 : 0)));
   }
-  for (let k = 0; k < 26; k++) { const x = rnd() * W, y = tall ? 110 + rnd() * (H - 220) : rnd() * H, r = 40 + rnd() * 30;   // soft darker patches (away from the seams down the page)
-    c.save(); c.translate(x, y); c.scale(1, .5); const g = c.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, uwSh(pal.grass, -.2)); g.addColorStop(1, 'rgba(0,0,0,0)');
+  for (let k = 0; k < 26; k++) { const x = SJ ? 80 + rnd() * (W - 160) : rnd() * W, y = tall ? 110 + rnd() * (H - 220) : rnd() * H, r = 40 + rnd() * 30;   // soft darker patches (away from the seams down the page and along the street)
+    c.save(); c.translate(x, y); c.scale(1, .5); const g = c.createRadialGradient(0, 0, 0, 0, 0, r); g.addColorStop(0, uwSh(SJ ? SJ.mix('grass', x) : pal.grass, -.2)); g.addColorStop(1, 'rgba(0,0,0,0)');
     c.globalAlpha = .4; c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill(); c.restore(); }
   // 田字格 on every tile
-  c.lineWidth = .8; c.strokeStyle = `rgba(${pal.grid},.13)`; c.beginPath();
+  const gridA = a => SJ ? SJ.band(x => `rgba(${uwHex(SJ.mix('grid', x)).join(',')},${a})`) : `rgba(${pal.grid},${a})`;
+  c.lineWidth = .8; c.strokeStyle = gridA(.13); c.beginPath();
   for (let i = i0; i <= i1 + 1; i++) { c.moveTo(...P(i, j0)); c.lineTo(...P(i, j1 + 1)); }
   for (let j = j0; j <= j1 + 1; j++) { c.moveTo(...P(i0, j)); c.lineTo(...P(i1 + 1, j)); }
-  c.stroke(); c.strokeStyle = `rgba(${pal.grid},.09)`; c.setLineDash([3, 3]); c.beginPath();
+  c.stroke(); c.strokeStyle = gridA(.09); c.setLineDash([3, 3]); c.beginPath();
   for (let i = i0; i <= i1; i++) { c.moveTo(...P(i + .5, j0)); c.lineTo(...P(i + .5, j1 + 1)); }
   for (let j = j0; j <= j1; j++) { c.moveTo(...P(i0, j + .5)); c.lineTo(...P(i1 + 1, j + .5)); }
   c.stroke(); c.setLineDash([]);
@@ -4646,7 +4686,7 @@ function unitWorld(un, o = {}) {
   }
 
   /* what stands in the town */
-  const free = (i, j, w, d, pad = 0) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > (tall ? 80 : 50) && y < H - 30 && x > -20 && x < W + 20; };
+  const free = (i, j, w, d, pad = 0, edge = SJ ? [70, 150] : [-20, -20]) => { for (let a = i - pad; a < i + w + pad; a++) for (let b = j - pad; b < j + d + pad; b++) if (occ.has(key(a, b))) return false; const [x, y] = P(i + w / 2, j + d / 2); return y > (tall ? 80 : 50) && y < H - 30 && x > edge[0] && x < W - edge[1]; };   // v3.44: on the joined street nothing stands across a seam, nor casts its shadow over one (shadows fall to the right)
   const take = (i, j, w, d) => { for (let a = i; a < i + w; a++) for (let b = j; b < j + d; b++) occ.add(key(a, b)); };
   // a free place for a landmark w by d tiles and tall px high: its height covers the tiles behind it on screen too, so those must be free as well
   const spot = (w, d, cands, tall = 40) => { const up = Math.ceil(tall / TH); for (const [fx, fy] of cands) { const [ci, cj] = IJ(fx * W, fy * H), i = Math.round(ci - w / 2), j = Math.round(cj - d / 2);
@@ -4913,7 +4953,7 @@ function unitWorld(un, o = {}) {
   const spread = G.lay === 'side' ? W / G.k / 360 : 1;
   for (let t = 0, made = 0; t < 500 && made < Math.round((tall ? 0 : has(3) ? 4 : 7) * spread); t++) { const [i, j] = IJ(rnd() * W, rnd() * H).map(Math.floor), w = 2 + Math.floor(rnd() * 2);
     if (!free(i, j, w, 2, t < 300 ? 1 : 0)) continue; take(i, j, w, 2); house(i, j, w, 2, 26 + Math.floor(rnd() * 16), rnd() < .7 ? pal.wall : pal.wall2); made++; }
-  for (let t = 0, made = 0, most = Math.round((tall ? 34 : 26) * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1)) continue; take(fi, fj, 1, 1); made++;
+  for (let t = 0, made = 0, most = Math.round((tall ? 34 : 26) * spread); t < 400 * spread && made < most; t++) { const [fi, fj] = IJ(rnd() * W, 30 + rnd() * (H - 40)).map(Math.floor); if (!free(fi, fj, 1, 1, 1, SJ ? [26, 84] : undefined)) continue; take(fi, fj, 1, 1); made++;
     if (tall && rnd() < .22) bamboo(fi, fj, .9 + rnd() * .4); else if (rnd() < .78) tree(fi + (rnd() - .5) * .4, fj + (rnd() - .5) * .4, .8 + rnd() * .5); else rock(fi, fj, .7 + rnd() * .6); }
 
   if (tall) { const y = H * (.3 + .4 * rnd()), r = T3.rivX(y);   // v3.42: a fisherman on his bamboo raft, on the river
@@ -4927,10 +4967,12 @@ function unitWorld(un, o = {}) {
   objs.forEach(b => b.sh && b.sh());
   objs.sort((a, b) => a.z - b.z).forEach(b => b.draw());
   post.forEach(f => f());
-  if (pal.amb) { c.fillStyle = pal.amb; c.fillRect(0, 0, W, H); }
-  if (pal.tint) { c.save(); c.globalCompositeOperation = 'soft-light'; const t = c.createLinearGradient(0, 0, W, H); t.addColorStop(0, pal.tint); t.addColorStop(1, 'rgba(120,60,160,.3)'); c.fillStyle = t; c.fillRect(0, 0, W, H); c.restore(); }
+  const amb = q => { if (q.amb) { c.fillStyle = q.amb; c.fillRect(0, 0, W, H); } };
+  const tint = q => { if (q.tint) { c.save(); c.globalCompositeOperation = 'soft-light'; const t = c.createLinearGradient(0, 0, SJ ? 0 : W, H); t.addColorStop(0, q.tint); t.addColorStop(1, 'rgba(120,60,160,.3)'); c.fillStyle = t; c.fillRect(0, 0, W, H); c.restore(); } };
+  if (SJ) { SJ.over(amb); SJ.over(tint); } else { amb(pal); tint(pal); }
+  const glowK = q => q.glow === 'night' ? .32 : q.glow ? .2 : .12;
   c.save(); c.globalCompositeOperation = 'lighter';
-  lights.forEach(([x, y, r, a]) => { const g = c.createRadialGradient(x, y, 0, x, y, r), k = (night ? .32 : warm ? .2 : .12) * a; g.addColorStop(0, `rgba(255,190,90,${k})`); g.addColorStop(1, 'rgba(255,190,90,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, 2 * r, 2 * r); });
+  lights.forEach(([x, y, r, a]) => { const g = c.createRadialGradient(x, y, 0, x, y, r), k = (SJ ? SJ.share(glowK, x) : night ? .32 : warm ? .2 : .12) * a; g.addColorStop(0, `rgba(255,190,90,${k})`); g.addColorStop(1, 'rgba(255,190,90,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, 2 * r, 2 * r); });
   c.restore();
   if (has('fire')) for (let k = 0; k < 4; k++) {   // v3.31: fireworks over the roofs: rings of sparks, each its own colour
     const x = 50 + rnd() * (W - 100), y = 50 + rnd() * (H * .34), r = 26 + rnd() * 20, col = ['255,120,110', '255,210,110', '150,220,255', '255,150,220'][k];
@@ -4940,13 +4982,18 @@ function unitWorld(un, o = {}) {
       c.fillStyle = `rgba(${col},1)`; c.beginPath(); c.arc(x + r * 1.12 * Math.cos(t), y + r * 1.12 * Math.sin(t) + r * .12, 1.5, 0, 7); c.fill(); }
     c.restore(); }
   if (has(1) || has('sky')) for (let k = 0; k < 7; k++) {   // sky lanterns drifting over the town
-    const x = 30 + rnd() * (W - 60), y = 60 + rnd() * (H * .6), s = 3 + rnd() * 2.4;
+    const x = SJ ? 60 + rnd() * (W - 150) : 30 + rnd() * (W - 60), y = 60 + rnd() * (H * .6), s = 3 + rnd() * 2.4;
     c.fillStyle = 'rgba(8,6,30,.25)'; c.beginPath(); c.ellipse(x + 26, y + 70, s * 1.6, s * .7, 0, 0, 7); c.fill();
     c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(x, y, 0, x, y, s * 6); g.addColorStop(0, 'rgba(255,200,110,.45)'); g.addColorStop(1, 'rgba(255,200,110,0)'); c.fillStyle = g; c.fillRect(x - s * 6, y - s * 6, s * 12, s * 12); c.restore();
     c.fillStyle = '#FFD58A'; c.beginPath(); c.moveTo(x - s, y - s * 1.3); c.lineTo(x + s, y - s * 1.3); c.lineTo(x + s * .8, y + s); c.lineTo(x - s * .8, y + s); c.fill(); }
-  if (pal.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { c.beginPath(); c.arc(rnd() * W, rnd() * H, 1.2 + rnd() * 1.8, 0, 7); c.fill(); } }
+  if (pal.snow || SJ?.snow) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k = 0; k < 90; k++) { const x = rnd() * W, y = rnd() * H, r = 1.2 + rnd() * 1.8;   // v3.44: on the joined street the snow thins out toward a snowless neighbour, and drifts in from a snowy one
+    if (SJ && rnd() >= SJ.share(q => q.snow ? 1 : 0, x)) continue; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); } }
   if (tall) { const v = c.createLinearGradient(0, 0, W, 0); v.addColorStop(0, 'rgba(20,40,30,.16)'); v.addColorStop(.18, 'rgba(20,40,30,0)'); v.addColorStop(.82, 'rgba(20,40,30,0)'); v.addColorStop(1, 'rgba(20,40,30,.16)'); c.fillStyle = v; c.fillRect(0, 0, W, H); }   // down the page only the sides darken, so the seams don't show
+  else if (SJ) SJ.over(q => { const v = c.createLinearGradient(0, 0, 0, H); v.addColorStop(0, q.vig); v.addColorStop(.28, 'rgba(0,0,0,0)'); v.addColorStop(.72, 'rgba(0,0,0,0)'); v.addColorStop(1, q.vig); c.fillStyle = v; c.fillRect(0, 0, W, H); });   // along the street only the top and bottom darken, so the seams don't show
   else { const v = c.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, pal.vig); c.fillStyle = v; c.fillRect(0, 0, W, H); }
+  if (SJ) { const lk = u => u != null && !unitOpen(u) ? 1 : 0, gr = x => { const [q, w] = SJ.wt(x); return .8 * (lk(un) * (1 - w) + lk(q) * w); };   // a locked unit greys out, half grey on the seam with the open one before it
+    if (lk(un) || lk(G.join.nx)) { c.save(); c.globalCompositeOperation = 'saturation'; c.fillStyle = SJ.band(x => `rgba(128,128,128,${gr(x).toFixed(3)})`); c.fillRect(0, 0, W, H);
+      c.globalCompositeOperation = 'multiply'; c.fillStyle = SJ.band(x => `rgba(225,225,225,${(gr(x) / .8).toFixed(3)})`); c.fillRect(0, 0, W, H); c.restore(); } }
   cv.classList.add('on');
   if (round) unitTable(un, o.skip); else uwGlowSet(box.closest('.uc-pane'), G);
   return G;
@@ -10936,7 +10983,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.43';
+const APP_VERSION = '3.44';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
