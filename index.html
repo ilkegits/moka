@@ -4372,7 +4372,7 @@ const ucV = () => !!document.querySelector('.uc.uc-v');
 const UW3_KIND = ['karst', 'terrace', 'pillar', 'stilt'];   // what each unit's steamers stand on, in turn
 const UW3_RIV = [1, 1, 0, -1, -1, 0, 1, 1, 0, -1];   // where the river runs in each unit: right, none, left
 const PP_C = 72;   // the path's sheet: a 田字格 square is 72 map units (five across)
-const lxMidN = n => Math.ceil(n / 2);   // the halfway envelope opens after this many lessons
+const lxAt = (un, n) => { let a = Math.imul(un ^ 0x9E3779B9, 2654435761) >>> 0; a = Math.imul(a ^ a >>> 15, 2246822507) >>> 0; a ^= a >>> 13; return 1 + (a >>> 0) % n; };   // v3.57 (ilkem: "1 per unit but always at random place"): a unit's one red envelope opens after this many of its lessons, picked at random for each unit and the same every time
 const unitLay = un => (LV_LAYS[unitLv(un)] || UNIT_LAYS)[(unK(un) - 1) % 4];
 const unitFrame = lay => UN_FRAME[lay] || lay;
 const UN_RND = { cx: 180, cy: 300, rx: 104, ry: 62 };
@@ -4388,21 +4388,21 @@ function unitMap(un, n) {
   if (lay === 'path') {
     /* v3.56, Duolingo's own layout (ilkem: "i want the exact placements of duolingo lessons and the chest should be a lixi"),
        measured from their screenshot of the Duolingo path and scaled to 360 across: the stops go down 83 apart along a
-       smooth wave, 67 × sin(stop × 48°) either side of the middle (0, +50, +67, +40, −14, −58, −64 …). The red envelopes
-       are stops on the path like Duolingo's chest: one after half the lessons, one after the last. One stop on, the finish,
+       smooth wave, 67 × sin(stop × 48°) either side of the middle (0, +50, +67, +40, −14, −58, −64 …). The red envelope
+       is a stop on the path like Duolingo's chest, one per unit after a random number of its lessons (lxAt). Then the finish,
        where Shi Shi stands once the unit is done. At each far point of the wave a big friend stands on the other side, in
        the hollow (x 88 or 276, as Duolingo's characters); at the last one it is Hu Hu with his bonus. Shi Shi waits beside
        his lesson on the outside of the wave, so he never meets them */
-    const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, S = 83, y0 = C * r0 + 64, TH = 48 * Math.PI / 180, mN = lxMidN(n);
+    const C = PP_C, r0 = unK(un) > 1 ? 2 : 1, S = 83, y0 = C * r0 + 64, TH = 48 * Math.PI / 180, mN = lxAt(un, n);
     const stop = i => [180 + 67 * Math.sin(i * TH), y0 + i * S], side = i => Math.sin(i * TH) > .05 ? 1 : -1;
-    const sl = Array.from({ length: n }, (_, i) => i < mN ? i : i + 1); sl.push(n + 2);   // each lesson's stop (the envelopes take stops mN and n + 1), then the finish
+    const sl = Array.from({ length: n }, (_, i) => i < mN ? i : i + 1); sl.push(n + 1);   // each lesson's stop (the envelope takes stop mN), then the finish
     const pts = sl.map(stop), kinds = ['write', 'read', 'bao', 'ink'], peaks = [];
-    for (let k = 0; (90 + 180 * k) / 48 <= n + 2.5; k++) peaks.push([(90 + 180 * k) / 48, k % 2 ? 272 : 88]);
+    for (let k = 0; (90 + 180 * k) / 48 <= n + 1.5; k++) peaks.push([(90 + 180 * k) / 48, k % 2 ? 272 : 88]);
     const [hp, hx] = peaks.pop(), hu = [hx, y0 + hp * S];
     const pals = peaks.map(([p, x], j) => { const r = Math.round(p), li = Math.min(n - 1, Math.max(0, r > mN ? r - 1 : r));
       return { p: [x, y0 + p * S + 7], s: li, k: kinds[(unK(un) + j) % 4], f: x > 180 }; });   // on the right they face left, so their paper is towards the path
-    const H = Math.ceil(Math.max(y0 + (n + 2) * S + 40, hu[1] + 96) / C) * C;   // whole squares, so the paper runs on from unit to unit
-    return { lay, pts, W: 360, H, head: r0 > 1 ? 76 : 0, sl, side, mid: stop(mN), midN: mN, end: stop(n + 1), lxL: { m: side(mN) < 0, e: side(n + 1) < 0 }, hu, pals }; }
+    const H = Math.ceil(Math.max(y0 + (n + 1) * S + 40, hu[1] + 96) / C) * C;   // whole squares, so the paper runs on from unit to unit
+    return { lay, pts, W: 360, H, head: r0 > 1 ? 76 : 0, sl, side, end: stop(mN), lxN: mN, lxL: { e: side(mN) < 0 }, hu, pals }; }
   if (lay === 'round') { const rot = unRnd[un] ?? 0, a = Array.from({ length: n }, (_, i) => unRndAng(i, n, rot)), pts = a.map(t => [UN_RND.cx + UN_RND.rx * Math.cos(t), UN_RND.cy + UN_RND.ry * Math.sin(t)]);
     pts.push([UN_RND.cx, UN_RND.cy + 4]); return { lay, pts, W: 360, H: 560, sc: a.map(t => .74 + .18 * (Math.sin(t) + 1)) }; }
   if (lay === 'raft') { const pts = Array.from({ length: n }, (_, i) => [110 + i * 150, i % 2 ? 404 : 222]); pts.push([n * 150 + 250, 330]); return { lay, pts, W: pts[n][0] + 140, H: 580, riv: 312 }; }
@@ -4453,7 +4453,7 @@ function ucPane(u) {
   const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
   const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
   const huS = r?.pass ? 'won' : chal && st.open ? 'ready' : 'locked';
-  const extras = !path ? '' : lx('m', m.mid, lxS('m', m.midN)) + lx('e', m.end, lxS('e', n))
+  const extras = !path ? '' : lx('e', m.end, lxS('e', m.lxN))
     + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i])).join('')
     + `<button class="pp-hu" data-s="${huS}" style="${pct(m.hu)}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's bonus challenge${huS === 'won' ? ', won' : huS === 'ready' ? ', for extra coins' : ', locked'}">${huHu(huS === 'won' ? 'dizzy' : huS === 'ready' ? 'fire' : 'cocky')}<i>${huS === 'won' ? `${TROPHY_I}${r.best}%` : 'Bonus'}</i></button>`;
   const shrine = path ? extras : `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
@@ -5884,7 +5884,7 @@ const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
   : '<rect x="5" y="5" width="38" height="51" rx="6" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><path d="M5.5 12.5Q24 34 42.5 12.5V11a6 6 0 0 0-6-6H11.5a6 6 0 0 0-6 6Z" fill="#F4574A" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="25" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><rect x="20.6" y="21.6" width="6.8" height="6.8" rx="1" fill="#E3352B" stroke="#A8721A" stroke-width="1.6"/><path d="M14 47h20" stroke="#F8CF5F" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>') + '</svg>';
 /* open one (k: '<unit>m' or '<unit>e'): its coins come out right there and count at once. Locked: it says what is left */
 function lixiOpen(k) {
-  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? st.ls.length : lxMidN(st.ls.length);
+  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? (LV_DUO[unitLv(un)] ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
   if (!UNIT(un) || !LX_PAY[w] || lxGot(un, w)) return;
   if (!st.open || st.nd < need) { toast(st.open ? `${plural(need - st.nd, 'more lesson')} to open it` : `Finish Unit ${unK(un) - 1} first`); return; }
   const n = LX_PAY[w]; (db.lixi ||= {})[k] = { t: Date.now(), n };
@@ -11824,7 +11824,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.56';
+const APP_VERSION = '3.57';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12730,7 +12730,9 @@ const A = {
   'read-done-ok': () => closeLayer(() => { riffleBook(S.readFrom); S.readFrom = null; moments(); }),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
-  'tab': t => { haptic(8); if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true; nav(t.dataset.h); },
+  'tab': t => { haptic(8); if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true;
+    if (t.dataset.h === '#/learn') { const lv = playLv(); if (lv && LV_DUO[lv]) { history.replaceState({ d: 0 }, '', '#/learn'); nav(unitUrl(ucMe(lv))); return; } }   // v3.57 (ilkem: "clicking the hsk screen will directly make u go to the scrolling screen")
+    nav(t.dataset.h); },
   'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
   'learn-write': t => { S.write = null; nav(`#/deck/${t.dataset.id}/write`); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
