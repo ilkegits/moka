@@ -11443,7 +11443,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.46';
+const APP_VERSION = '3.47';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -11454,7 +11454,7 @@ async function fetchLatest() { const r = await fetch('version.json?t=' + Date.no
 async function applyUpdate() {
   toast('Updating…');
   try { const reg = await navigator.serviceWorker?.getRegistration(); await reg?.update(); } catch (_) {}
-  try { for (const k of await caches.keys()) { const c = await caches.open(k); for (const q of await c.keys()) if (new URL(q.url).origin === location.origin) await c.delete(q); } } catch (_) {}
+  try { for (const k of await caches.keys()) { if (!k.startsWith('moka-v')) continue; const c = await caches.open(k); for (const q of await c.keys()) if (new URL(q.url).origin === location.origin) await c.delete(q); } } catch (_) {}
   try { await Promise.all(['./', 'index.html', 'manifest.webmanifest'].map(u => fetch(u, { cache: 'reload' }))); } catch (_) {}
   location.reload();
 }
