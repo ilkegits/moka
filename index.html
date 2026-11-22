@@ -2654,6 +2654,13 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 /* inside a lesson */
 .les-top{display:flex;align-items:center;gap:12px;height:80px;padding-top:20px}   /* v3.74: room above the bar for "3 in a row" */
 .les-bar{position:relative;flex:1;height:18px;border-radius:10px;background:var(--fill)}
+/* v4.13 (ilkem: "a coin count with a +x coin"): the coins this lesson has earned so far, right of the bar (which got shorter for it): +2 a right answer, paid when it ends */
+.les-coins{display:flex;align-items:center;gap:4px;flex:none;min-width:58px;font:800 18px/1 var(--ui);font-variant-numeric:tabular-nums;color:#B86A00}
+.les-coins .coin{width:26px;height:26px;flex:none}
+.les-coins.up b{animation:lcUp .5s cubic-bezier(.2,.9,.3,1.5)}
+.les-coins.up .coin{animation:lcSpin .5s cubic-bezier(.3,.7,.4,1)}
+@keyframes lcUp{0%{transform:translateY(5px) scale(.7);opacity:.3}55%{transform:translateY(-3px) scale(1.25);opacity:1}100%{transform:none}}
+@keyframes lcSpin{0%{transform:scaleX(1)}40%{transform:scaleX(.15) translateY(-3px)}100%{transform:none}}
 .les-bar i{position:relative;display:block;height:100%;border-radius:10px;background:var(--c1);transition:width .35s}
 .les-bar i::after{content:"";position:absolute;left:9px;right:9px;top:4px;height:4px;border-radius:4px;background:rgba(255,255,255,.32)}   /* a soft shine along the top */
 /* v3.74 the bar catches fire: 2 right in a row warms it to amber, from 3 it burns orange with a flame at its tip, from 5 it is a moving blaze */
@@ -2709,6 +2716,14 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 .lq-bar{display:block;flex:none;margin:0 26px 26px 4px}
 .lq-end{position:absolute;right:-26px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:9px;display:grid;place-items:center;background:var(--seal);color:#fff;font:700 17px/1 var(--hanzi);box-shadow:0 2px 0 rgba(126,29,25,.35)}
 .lq-quit{display:block;width:100%;height:50px;margin-top:6px;font-size:16px;font-weight:500;color:var(--seal)}
+/* v4.13: above Shi Shi, the coins this lesson has earned, about to be lost: they wobble and a red line runs through them */
+.lq-lose{display:flex;flex-direction:column;align-items:center;gap:3px;margin:0 auto 4px}
+.lq-lose-n{position:relative;display:inline-flex;align-items:center;gap:5px;padding:5px 12px 5px 7px;border-radius:12px;background:color-mix(in srgb,#FFC21F 22%,var(--paper));font:800 22px/1 var(--ui);font-variant-numeric:tabular-nums;color:#9A5200;animation:lqWob 1.6s ease-in-out infinite}
+.lq-lose-n .coin{width:28px;height:28px}
+.lq-lose-n::after{content:"";position:absolute;left:4px;right:4px;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:var(--seal);transform:rotate(-8deg) scaleX(0);transform-origin:0 50%;animation:lqStrike .45s .35s ease-out forwards}
+@keyframes lqStrike{to{transform:rotate(-8deg) scaleX(1)}}
+@keyframes lqWob{0%,100%{rotate:0deg}20%{rotate:-4deg}40%{rotate:3deg}60%{rotate:0deg}}
+.lq-lose small{font-size:13.5px;font-weight:700;color:var(--seal)}
 .lq-quit:active{opacity:.5}
 /* v3.89 (ilkem, after Duolingo's "Let's fix some mistakes" card): the practice part opens on Shi Shi twirling a big brush under a
    speech bubble, and the cards you missed come back after the same card saying so. Continue goes on */
@@ -2905,7 +2920,7 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 .les-end-shi{position:relative;isolation:isolate}
 .les-end-shi .shi-face{position:relative;z-index:1}
 .les-bit{position:absolute;left:50%;top:46%;z-index:0;width:10px;height:14px;margin:-7px 0 0 -5px;border-radius:2px;opacity:0;pointer-events:none}
-@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop,.les-bar i,.lb-tip,.lb-tip .flame,.lb-tag,.les-bar.up::before,.les-bar.ms::before,.lb-sparks,.lb-tag.big,.lq-shi .shi-body,.lq-shi .shi-tear{animation:none}}
+@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop,.les-bar i,.lb-tip,.lb-tip .flame,.lb-tag,.les-bar.up::before,.les-bar.ms::before,.lb-sparks,.lb-tag.big,.lq-shi .shi-body,.lq-shi .shi-tear,.les-coins b,.les-coins .coin,.lq-lose-n{animation:none}.lq-lose-n::after{animation:none;transform:rotate(-8deg)}}
 @media (prefers-reduced-motion:reduce){.lb-sparks{display:none}}
 @media (prefers-reduced-motion:reduce){.lf-in,.les-end-shi,.les-opt.no,.les-opt.no::after,.les-opt.ok.reveal,.lo-stamp,.lfb-seal,.lw-stamp,.lfb-dock,.lfb-gain,.lfb-time i,.les-pts.bump,.les-seal.got i{animation:none}}
 
@@ -3498,7 +3513,7 @@ function route() {
   // what you used last, for the slot under the word bank on the Decks page
   if (d && S.deckId !== 'bank' && S.deckId !== 'today' && ['deck', 'study', 'write'].includes(S.view)) { db.last = { t: 'deck', id: S.deckId }; save(); }
   if (S.view === 'read' && !S.readId && db.readCur?.opened) { db.last = { t: 'read' }; save(); }
-  render();
+  render(); here = { st: history.state, h: location.hash };
   LOG.add('page', S.deckId ? { deck: d?.name } : undefined);
   if (S.toTop) { S.toTop = false; const top = () => { window.scrollTo(0, 0); $('#app').scrollTop = 0; }; top(); requestAnimationFrame(top); }
 }
@@ -3533,7 +3548,22 @@ const goBackDrawn = fallback => {
   const p = (history.state?.d || 0) > 0 ? new Promise(r => { addEventListener('popstate', () => setTimeout(r), { once: true }); setTimeout(r, 400); }) : null;
   goBack(fallback); return p;
 };
-addEventListener('popstate', route);
+/* v4.13 (ilkem: "when swipe motion on samsung maybe also apple, u can evade the sad shishi"): the phone's back swipe (and
+   Android's back button) is a step back in the history, which used to leave a lesson at once, past Shi Shi's "Only 3 to go".
+   Part way through a lesson, test or jump the step is taken forward again (history.go(1), so no new entry is made, which
+   Chrome would mark to be skipped) and the same pop-up comes up. Quit is the way out. With nothing answered yet it still just leaves */
+let here = null, lesHoldT = 0, lesFwd = false;   // here: the page's own history entry, for when the step forward does not come
+function lesHold() {
+  if (lesFwd) { lesFwd = false; clearTimeout(lesHoldT); return true; }   // the step forward landed: back on the lesson
+  const E = S.les;
+  if (S.view !== 'lesson' || !E || E.step !== 'quiz' || !E.qi && E.ans == null) return false;
+  lesFwd = true; history.go(1);
+  lesHoldT = setTimeout(() => { if (lesFwd) { lesFwd = false; if (here) history.pushState(here.st, '', here.h); } }, 450);
+  LOG.add('lesson-back-swipe', { n: E.n, test: E.test || null });
+  if (!$('#sheet-root .lq')) lesAct('quit');
+  return true;
+}
+addEventListener('popstate', () => { if (!lesHold()) route(); });
 
 /* ---------- activity log ----------
    Off unless switched on in the side menu (tap the menu button on Decks). While on, it notes what you do (pages, taps, swipes, flips,
@@ -6965,7 +6995,7 @@ function finishJump() {   // lives left at the end: every lesson before the unit
   if (pass) { const ls = jumpLessons(un); ls.forEach(L => { const r = db.lessons[L.n] ||= {}; r.done = now; r.last = now; r.jump = now; delete r.half; delete r.traced; }); E.skipped = ls.length; rec.pass ||= now; }
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('j' + un);   // counts for the streak
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }
-  E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
+  E.pass = pass; E.step = 'done'; lesBank(E); save(); E.pay = takePay();
   LOG.add('jump-done', { unit: un, pass, lives: E.lives, pct: E.pct, skipped: E.skipped || 0, missed: [...E.missed].join(' ') });
 }
 function jumpEndHtml() {   // the jump's result: in (the unit is open, its first lesson one tap away) or out of lives (the words you missed, and Try again)
@@ -6997,7 +7027,9 @@ const LES_HAPPY = ['happy', 'wink', 'cheer', 'proud', 'love'], LES_SAD = ['miss'
 const lesEmo = E => E.combo >= 5 ? 'star' : E.combo >= 3 ? 'fire' : LES_HAPPY[Math.random() * LES_HAPPY.length | 0];   // Shi Shi's face for a right answer
 const LES_INK = 38;   // the tracing pen: about half the word bank's guided brush (INK_W), a pen line inside the grey outline
 const LES_AUTO = 1500;   // a right answer moves on by itself after this long (tap to go sooner)
-function lesGain(g) { const E = S.les; E.pts += g; E.gain = g; E.flash = 1; }
+function lesGain(g) { const E = S.les; E.pts += g; E.gain = g; E.flash = 1; E.coins = (E.coins || 0) + PAY.ans; E.nRight = (E.nRight || 0) + 1; }   // v4.13: each right answer adds PAY.ans coins, paid when the lesson ends (lesBank)
+function lesBank(E) { if (E.coins && !E.demo) (db.runCoins ||= []).push({ t: Date.now(), n: E.coins }); }   // v4.13: the end of a lesson, part, test or jump pays its right-answer coins (counted in coinEarned); quit before and they are lost
+const lesCoinsHtml = E => `<span class="les-coins${E.flash && E.gain ? ' up' : ''}" role="status" aria-label="${E.coins || 0} coins earned in this lesson">${coinSvg()}<b>+${E.coins || 0}</b></span>`;
 function lesAutoNext() {
   const E = S.les, qi = E.qi; clearTimeout(E.timer);
   E.timer = setTimeout(() => { if (S.les === E && S.view === 'lesson' && E.qi === qi && E.ans != null) lesAct('next'); }, LES_AUTO + 150);
@@ -7016,7 +7048,7 @@ function lesTop() {
   if (ms) haptic(25);
   const ph = t >= 3 ? `;animation-delay:-${Math.round(performance.now() % 1600)}ms` : '';   // the blaze carries on where it was when the bar is drawn again
   const tag = t ? `<span class="lb-tag${ms ? ' big' : E.flash ? ' bump' : ''}${t >= 2 ? ' on' : ''}" style="left:clamp(60px,${w / 2}%,calc(100% - 60px))">${t >= 2 ? FLAME : ''}${E.combo} in a row${ms ? '!' : ''}</span>` : '';
-  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar lb-t${t}${fx}"${t ? ` aria-label="${E.combo} in a row"` : ''}><i style="width:${w}%${ph}">${t >= 2 ? `<b class="lb-tip on">${FLAME}</b>` : ''}</i>${sparks}${tag}</span>${E.jump ? livesHtml(E) : ''}</div>`;
+  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar lb-t${t}${fx}"${t ? ` aria-label="${E.combo} in a row"` : ''}><i style="width:${w}%${ph}">${t >= 2 ? `<b class="lb-tip on">${FLAME}</b>` : ''}</i>${sparks}${tag}</span>${lesCoinsHtml(E)}${E.jump ? livesHtml(E) : ''}</div>`;
 }
 /* v3.74 leaving part way (ilkem, after Duolingo's "Wait, you only have 1 minute to go"): Shi Shi, paws together and teary, asks
    you to stay. It says how little is left the goal-gradient way ("3 to go", about how long that is at your pace) over a bar that
@@ -7025,13 +7057,14 @@ function lesQuitSheet(leave) {
   const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.slice(E.qi + (E.ans != null ? 1 : 0)).filter(x => x.t !== 'say').length);
   const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
   const what = E.jump ? 'the jump' : E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
-  openSheet(`<div class="lq"><span class="lq-shi">${shiBody('plead')}</span>
+  const c = E.coins || 0;   // v4.13 (ilkem): the coins this lesson has earned, lost if you leave
+  openSheet(`<div class="lq">${c ? `<div class="lq-lose"><span class="lq-lose-n">${coinSvg()}<b>+${c}</b></span><small>You lose these if you leave</small></div>` : ''}<span class="lq-shi">${shiBody('plead')}</span>
       <h3>${left === 1 ? 'Just one to go!' : `Only ${left} to go!`}</h3>
-      <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
+      <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${c ? ` Leave now and you lose the ${c} coins you earned, and ${E.test || E.jump ? 'you start it again' : 'it starts over'}.` : E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
       <span class="les-bar lq-bar lb-t${t}"><i style="width:${gBar(lesProg(E))}%"></i><span class="lq-end">完</span></span>
       <button class="btn btn-seal wide" data-act="close-sheet">Keep going</button>
-      <button class="lq-quit" id="lqQuit">${E.jump ? 'Quit the jump' : E.test ? 'Quit the challenge' : 'Quit lesson'}</button></div>`,
-    sh => sh.querySelector('#lqQuit').onclick = () => { LOG.add('lesson-quit', { n: E.n, test: E.test || null, left }); closeSheet(); leave(); });
+      <button class="lq-quit" id="lqQuit">${c ? `Quit and lose ${c} coins` : 'Quit and lose progress'}</button></div>`,
+    sh => sh.querySelector('#lqQuit').onclick = () => { LOG.add('lesson-quit', { n: E.n, test: E.test || null, left, coins: c }); closeSheet(); leave(); });
 }
 /* v3.89, Duolingo's interstitial: Shi Shi with one paw on his hip twirls a big calligraphy brush in the other (two turns,
    a hop, a fleck or two of ink), drawn so the paw is the brush's pivot */
@@ -7244,8 +7277,8 @@ function lesEndHtml() {
 const lesNodeArt = (ch, cls = '') => `<span class="pp-node${cls}" aria-hidden="true"><svg class="pp-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg><span class="pp-face" lang="zh">${esc(ch)}</span></span>`;
 function lesHalfHtml() {
   const E = S.les, L = LES(E.n), chars = [...new Set(E.wroteCh)], nt = lesTrN(L);
-  return `<div class="les-end lh"><span class="les-end-shi">${shiFace('cheer')}</span>
-      <h1>Half way there!</h1><p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
+  return `<div class="les-end lh"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi('cheer') : shiFace('cheer')}</span>
+      <h1>Half way there!</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
       ${lesNodeArt(LES_LEAD[L.i], ' lh-node')}
       <ol class="ls-parts lh-parts"><li class="got"><b>${I.check}</b><span><em>Learn</em><small>${chars.length ? `You met ${plural(E.words.length, 'card')} and traced ${plural(chars.length, 'character')}` : `You met ${plural(E.words.length, 'card')}`}</small></span></li>
         <li class="now"><b>2</b><span><em>Recall</em><small>Turn the hanzi cards, then write ${nt === 1 ? 'it' : `the ${nt}`} from memory, free hand</small></span></li></ol>
@@ -7265,12 +7298,12 @@ function finishHalf() {   // part 1 done: the station fills half way; it counts 
   if (!rec.traced.length) delete rec.traced;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('h' + E.n);   // counts for the streak
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }
-  E.pay = null; E.step = 'done'; save();
+  lesBank(E); E.step = 'done'; save(); E.pay = takePay();   // v4.13: part 1's right answers pay now; its words and the lesson's 25 wait for part 2
   LOG.add('lesson-half', { n: E.n, pts: E.pts, run: E.best, wrote: E.wroteCh.join(''), redo: done || undefined });
 }
 function lesRecallNow() {   // Recall now, under part 1's end: part 2 of the same lesson, in place
   const E = S.les; clearTimeout(E.timer); startLesson(E.n, E.demo, 2);
-  if (E.demo) S.les.demo = 'recall'; else history.replaceState(history.state, '', lesUrl(E.n, 2));
+  if (E.demo) S.les.demo = 'recall'; else { history.replaceState(history.state, '', lesUrl(E.n, 2)); here = { st: history.state, h: location.hash }; }
   lesPaint(true); window.scrollTo(0, 0);
 }
 /* v3.70, the peak-end rule: a lesson or unit ends on its high point. The end screen lists what you just earned (coins and
@@ -7278,10 +7311,11 @@ function lesRecallNow() {   // Recall now, under part 1's end: part 2 of the sam
    to what comes next (the next lesson, or the next unit after its finale), never back to the roadmap. The X on the next
    lesson's first card still leaves at once, without asking */
 function lesEarnHtml(E) {
-  const P = E.pay?.n || 0, les = E.first ? PAY.les : 0, pv = Math.min(Math.max(0, P - les), (E.proven || 0) * (PAY.word + PAY.mast));
+  const P = E.pay?.n || 0, ans = E.demo ? 0 : E.coins || 0, les = E.first && E.part !== 1 ? PAY.les : 0, pv = Math.min(Math.max(0, P - les - ans), (E.proven || 0) * (PAY.word + PAY.mast));
   const row = (ic, t, v, cls = '') => `<li class="${cls}"><span class="le-ic${cls.includes('on') ? ' on' : ''}">${ic}</span><span class="le-t">${t}</span>${v ? `<b>${v}</b>` : ''}</li>`;
   const rows = [
     les && row(coinSvg(), 'Lesson finished', `+${les}`),
+    ans && row(coinSvg(), plural(E.nRight, 'right answer'), `+${coinFmt(ans)}`),
     pv && row(coinSvg(), `${plural(E.proven, 'word')} proven`, `+${coinFmt(pv)}`),
     E.lxNew && row(lxFlat(lxLook(E.test || LES(E.n).un)), 'A red envelope to open', '', 'le-lx'),   // v3.82: it waits on the path, where it opens
     E.added?.length && row('<span class="le-new" lang="zh">新</span>', `${plural(E.added.length, 'new word')} in your word bank`, ''),
@@ -7495,7 +7529,7 @@ function finishLesson() {
   E.unitNew = fresh && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
   E.lxNew = lxWaiting(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }   // shown here, so the streak page does not come up again today
-  E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
+  E.added = add; E.pct = pct; E.step = 'done'; lesBank(E); save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
 function finishTest() {   // passing a level's last unit test finishes the level and opens the next one
@@ -7504,7 +7538,7 @@ function finishTest() {   // passing a level's last unit test finishes the level
   rec.last = now; rec.best = Math.max(rec.best || 0, pct); E.unitNew = pass && !rec.pass && !LV_DUO[unitLv(un)]; if (pass) rec.pass ||= now;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('u' + un);   // counts for the streak
   if (pass && unitLast(un)) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, unitLv(un) + 1));
-  E.pct = pct; E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
+  E.pct = pct; E.pass = pass; E.step = 'done'; lesBank(E); save(); E.pay = takePay();
   LOG.add('unit-test-done', { unit: un, pct, pass, pts: E.pts, run: E.best, missed: [...E.missed].join(' ') });
 }
 /* Basics: a slim row on Learn, above HSK 1. The four topics (tones, pinyin chart, radicals, stroke order). Routes: #/basics, #/basics/tones … */
@@ -9669,14 +9703,15 @@ function wordMileMoment(then, demo) {   // shows the newest milestone not yet ce
    is ever paid twice; db.monOwn = { monument: when you bought it } is what you spent it on, at the prices in TRAIL.
    db.coinAdj covers the monuments unlocked before coins came (v2.56), so nobody starts in debt. db.coinShown = the
    earnings last poured into the bag on screen, so each payoff shows only what is new (takePay). */
-const PAY = { word: 10, mast: 20, les: 25, story: 25, unit: 100 };
+const PAY = { word: 10, mast: 20, les: 25, story: 25, unit: 100, ans: 2 };   // v4.13 ans: each right answer in a lesson, test or jump you finish (db.runCoins)
 function coinEarned() {
   const from = db.mapFrom || 0, pv = db.bank.filter(w => w.pf?.at > from);   // Developer levels reset: only what came after it
   const les = Object.values(db.lessons || {}).filter(r => r?.done > from && !r.jump).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
   const story = new Set((db.readDone || []).filter(x => x.done > from).map(x => x.zh)).size;
   const chest = (db.chests || []).reduce((a, c) => a + (c.t > from ? c.n : 0), 0);   // the daily chest (chestTap)
   const lixi = Object.values(db.lixi || {}).reduce((a, x) => a + (x.t > from ? x.n : 0), 0);   // v3.49: the red envelopes on the path (lixiOpen)
-  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest + lixi;
+  const run = (db.runCoins || []).reduce((a, x) => a + (x.t > from ? x.n : 0), 0);   // v4.13: right answers in lessons you finished (lesBank)
+  return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest + lixi + run;
 }
 const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0) + Object.keys(db.foodOwn || {}).reduce((a, id) => a + (foodOf(id)?.price || 0), 0);
 /* v3.45: the food map's foods. One famous dish for a food city, bought with coins like a monument (db.foodOwn = { food: when you
@@ -13415,7 +13450,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.12';
+const APP_VERSION = '4.13';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
