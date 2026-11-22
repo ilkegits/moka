@@ -1,1 +1,1 @@
-{"version": "3.83", "notes": "The lesson pop-up is simpler and cleaner. The words sit in even tiles (character, pinyin, a short meaning), the two parts are a small Learn → Recall tracker that fills in gold as you go, and the long explanations are gone: one button to go on, and Learn again under it"}
+{"version": "3.84", "notes": "Tap a lesson on the path and it starts right away, no pop-up first: part 1 (Learn) if you haven't begun it, part 2 (Recall) if part 1 is done. Tap a lesson you've finished and it asks which part to do again: Learn or Recall"}
