@@ -2466,6 +2466,62 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
 .pp-jump.up svg{transform:rotate(-90deg)}
 .pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
+/* v3.90 jumping ahead: a locked unit's first station is a purple fast-forward button with "Jump here?" over it (Duolingo's
+   purple, the one colour on the path that means skipping). It stays bright and tappable while the rest of its unit is pale */
+:root{--jump:#9A5CF0;--jump-top:#B488FF;--jump-ink:#7A3FD6}
+.btn-jump{--edge:rgba(50,15,110,.32);--drop:rgba(90,40,170,.65);--halo:0 0 #0000;padding-bottom:4px;background:linear-gradient(var(--jump-top),var(--jump) 55%);color:#fff;text-shadow:0 1.5px 0 rgba(50,15,110,.4);
+  box-shadow:var(--halo),inset 0 -4px 0 var(--edge),inset 0 2px 0 rgba(255,255,255,.22),0 12px 22px -12px var(--drop);transition:transform .08s,box-shadow .08s}
+.btn-jump:active{opacity:1;transform:translateY(3px);box-shadow:var(--halo),inset 0 -2px 0 var(--edge),inset 0 2px 0 rgba(255,255,255,.22),0 6px 12px -10px var(--drop)}
+.uc-pane.locked .un-node.pp-skip{pointer-events:auto}
+.uc-path .un-node[data-s="skip"]{--f:linear-gradient(var(--jump-top),var(--jump) 55%);--l:rgba(50,15,110,.3);--e:rgba(255,255,255,.35);--t:#fff;--d:rgba(90,40,170,.7);z-index:3}
+.uc-path .un-node[data-s="skip"]::before{content:"";position:absolute;inset:calc(var(--k,1)*-9px);border-radius:50%;border:calc(var(--k,1)*4px) solid color-mix(in srgb,var(--jump) 28%,transparent);animation:ppRing 1.8s ease-in-out infinite}
+.pp-skip .un-spot svg.ff{width:46%;height:46%;margin-left:4%;fill:#fff;filter:drop-shadow(0 1.5px 0 rgba(50,15,110,.45))}
+.pp-skip-tip{position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);translate:-50% 0;padding:8px 12px 9px;border-radius:12px;background:var(--card);color:var(--jump-ink);white-space:nowrap;
+  font:800 13px/1 var(--ui);font-style:normal;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
+.pp-skip-tip::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
+.un-hud .btn-jump{flex:none;height:46px;padding:0 20px 4px}
+/* the sheet: Shi Shi with the fast-forward badge, the five lives, Start the recap, Not now */
+.js{text-align:center;padding:2px 2px 0}
+.js-art{position:relative;display:block;width:132px;height:124px;margin:0 auto 8px}
+.js-shi{display:block;width:100%;height:100%}
+.js-shi .shi-body{width:100%;height:100%;transform-origin:50% 96%;animation:lqSway 2.6s ease-in-out infinite}
+.js-ff{position:absolute;right:-14px;bottom:4px;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(var(--jump-top),var(--jump) 55%);box-shadow:0 0 0 3px var(--card),inset 0 -3px 0 rgba(50,15,110,.3)}
+.js-ff svg{width:24px;height:24px;margin-left:2px;fill:#fff}
+.js small{font:800 11.5px/1.3 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--jump-ink)}
+.sheet .js h3{margin:4px 0 8px;font-size:25px;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.js p{margin:0 0 14px;font-size:16px;line-height:1.4;color:var(--ink-2);text-wrap:pretty}
+.js-lives{display:flex;justify-content:center;gap:6px;margin:4px 0 10px}
+.js-lives svg.hrt{width:30px;height:30px}
+.js .js-rule{font-size:15px}
+.js .js-rule b{color:var(--ink)}
+.js .js-note{font-size:14px;margin-top:-6px}
+.js-not{display:block;width:100%;height:50px;margin-top:6px;font:700 15px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--jump-ink)}
+.js-not:active{opacity:.5}
+/* a life: a red heart with a shine. In the lesson's top bar, the heart and how many are left; losing one cracks and shakes it */
+svg.hrt{fill:#FF4B5C;stroke:#C42335;stroke-width:1.4;stroke-linejoin:round}
+svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-linecap:round}
+.les-lives{position:relative;display:flex;align-items:center;gap:4px;flex:none;font:800 19px/1 var(--ui);color:#E8293C}
+.les-lives svg.hrt{width:28px;height:28px}
+.les-lives.none{color:var(--muted)}
+.les-lives.none svg.hrt{fill:var(--fill);stroke:var(--line-2)}
+.les-lives.none svg.hrt .hrt-sh{display:none}
+.les-lives.hurt svg.hrt{animation:lifeHit .6s cubic-bezier(.3,.7,.4,1)}
+.les-lives.hurt b{animation:lifeNum .6s ease-out}
+.les-lives.hurt::after{content:"";position:absolute;left:2px;top:-2px;width:26px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,75,92,.55),transparent);animation:lifeGlow .7s ease-out forwards;pointer-events:none}
+@keyframes lifeHit{0%{transform:scale(1)}20%{transform:scale(1.35) rotate(-10deg)}40%{transform:scale(.85) rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(3deg)}100%{transform:none}}
+@keyframes lifeNum{0%{transform:translateY(-8px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes lifeGlow{from{transform:scale(.6);opacity:1}to{transform:scale(2.2);opacity:0}}
+.wh-cost{display:inline-flex;align-items:center;gap:1px;margin-left:4px;padding:2px 6px 2px 5px;border-radius:8px;background:color-mix(in srgb,#FF4B5C 14%,transparent);font:700 12.5px/1 var(--ui);font-style:normal;color:#D61F33}
+.wh-cost svg.hrt{width:13px;height:13px}
+/* the end of a jump: the five lives, the ones kept full, popping in one by one */
+.je-lives{display:flex;justify-content:center;gap:8px;margin:2px 0 18px}
+.je-lives i{display:block;width:34px;height:34px;animation:lifePop .45s var(--d) cubic-bezier(.3,1.6,.5,1) both}
+.je-lives i svg.hrt{width:100%;height:100%;fill:var(--fill);stroke:var(--line-2)}
+.je-lives i svg.hrt .hrt-sh{display:none}
+.je-lives i.on svg.hrt{fill:#FF4B5C;stroke:#C42335}
+.je-lives i.on svg.hrt .hrt-sh{display:inline}
+@keyframes lifePop{from{transform:scale(0);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pp-skip-tip,.uc-path .un-node[data-s="skip"]::before,.les-lives.hurt svg.hrt,.les-lives.hurt b,.les-lives.hurt::after,.je-lives i,.js-shi .shi-body{animation:none!important}}
 @media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop,.pp-lx .lx3,.pp-lx::before,.pp-pal *{animation:none!important}}
 /* ---------- the comic: one page, a panel per tap. v3.49: on 田字格 paper, not a dark page (ilkem: "it shouldn't be like a dark
    background of the comic. It should ideally be a light background, like in the Tianzige") ---------- */
@@ -3329,6 +3385,7 @@ function parse() {
   if (p[0] === 'course' && lvHas(+p[1])) { const lv = +p[1];   // v3.31: every level with lessons has a course: #/course/<level>, /unit/<unit>, /lesson/<lesson>, /test/<unit>
     if (lv > openLevel()) { history.replaceState(history.state, '', '#/learn'); return { view: 'learn', deckId: null }; }   // a level still locked: back to Lessons
     if (p[2] === 'test') return { view: 'lesson', deckId: null, test: +p[3] || 0 };
+    if (p[2] === 'jump') return { view: 'lesson', deckId: null, jump: +p[3] || 0 };   // v3.90: a recap test that jumps ahead to this unit
     if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0, lpart: +p[4] || 0 };
     if (p[2] === 'unit') return { view: 'course', deckId: null, clv: lv, unit: UNIT(+p[3])?.lv === lv ? +p[3] : lvUnits(lv)[0].un };   // a unit's campaign
     return { view: 'course', deckId: null, clv: lv, part: lv === 1 ? p[2] || null : null }; }   // HSK 1's old /tones etc. links still open the Basics pages
@@ -3353,7 +3410,7 @@ function route() {
   }
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
-  if (S.view === 'lesson') r.test ? utRoute(r.test) : lesRoute(r.les, r.lpart);
+  if (S.view === 'lesson') r.jump ? jumpRoute(r.jump) : r.test ? utRoute(r.test) : lesRoute(r.les, r.lpart);
   if (S.view === 'build') { if (!S.fb || S.fb.lv !== r.city || S.fb.done) fbStart(r.city); }   // Fast build: a round of known words to prove
   else if (S.fb) { clearTimeout(S.fb.timer); S.fb = null; }
   // what you used last, for the slot under the word bank on the Decks page
@@ -4358,6 +4415,8 @@ function utDue(lv = playLv()) {
   const L = LES(n); if (UNIT(L.un).k === 1 || LESSONS.some(x => x.un === L.un && lesDone(x.n))) return 0;
   return utPassed(L.un - 1) ? 0 : L.un - 1;   // the unit before, in the same level
 }
+const HEART = `<svg viewBox="0 0 24 24" class="hrt" aria-hidden="true"><path d="M12 20.6C7.6 17.6 2.6 13.9 2.6 8.9 2.6 6 4.8 3.8 7.5 3.8c1.9 0 3.4 1 4.5 2.6 1.1-1.6 2.6-2.6 4.5-2.6 2.7 0 4.9 2.2 4.9 5.1 0 5-5 8.7-9.4 11.7Z"/><path class="hrt-sh" d="M6.4 7.2c.5-.9 1.3-1.4 2.2-1.5"/></svg>`;   // v3.90: a life in a jump
+const FF_I = `<svg viewBox="0 0 24 24" class="ff" aria-hidden="true"><path d="M3.5 6.2c0-1 1.1-1.6 1.9-1L12 10.2V6.2c0-1 1.1-1.6 1.9-1l7 5.3c.7.5.7 1.5 0 2l-7 5.3c-.8.6-1.9 0-1.9-1v-4l-6.6 5c-.8.6-1.9 0-1.9-1Z"/></svg>`;   // the jump's fast-forward
 const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3.2 4M16.5 6h3a3 3 0 0 1-3.2 4M12 14v3.5M8.5 20.5h7M9.5 17.5h5"/></svg>`;
 /* each lesson's card face: the first character it brings in that no lesson before it had */
 const LES_LEAD = (() => { const seen = new Set(); return LESSONS.map(L => { const cs = L.words.flatMap(hanChars), c = cs.find(x => !seen.has(x)) || cs[0]; cs.forEach(x => seen.add(x)); return c; }); })();
@@ -4989,7 +5048,9 @@ function ucPane(u) {
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
   const fill = ppHalfNew; if (fill) setTimeout(() => { if (ppHalfNew === fill) ppHalfNew = 0; }, 2600);   // v3.79: the station that just got half full fills in front of you, once
+  const skip = path && !st.open && canJump(u);   // v3.90: a locked unit's first station is the purple Jump here? button
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open, half = path && cur && lesHalf(L.n);
+    if (skip && !i) return `<button class="un-node pp-skip" data-i="0" data-s="skip" style="${pct(pts[0])}" data-act="jump-node" data-u="${u}" aria-label="Jump here: a recap test that opens Unit ${unK(u)}"><span class="un-spot" aria-hidden="true">${FF_I}</span><i class="pp-skip-tip" aria-hidden="true">Jump here?</i></button>`;
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${half && L.n === fill && !stillMotion() ? ' pp-fill' : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''}${half ? ' data-h="1"' : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : half ? ', half done, recall next' : cur ? ', up next' : ', locked'}">
       ${half ? '<svg class="pp-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg>' : ''}<span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? `<i class="pp-go" aria-hidden="true">${half ? 'Recall' : 'Start'}</i>` : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
@@ -5012,7 +5073,8 @@ function ucPane(u) {
 function ucHud(u) {
   const lv = unitLv(u), st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(lv), due = utDue(lv), L = st.ls[st.nd], last = unitLast(u), up = lv < 7 && lvHas(lv + 1);
   if (LV_DUO[lv]) {   // v3.49: no challenge in the way. A unit just finished: its red envelope first, then on to the next unit
-    if (!st.open) return `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
+    if (!st.open) return canJump(u) ? `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>or jump here with a recap test</i></span><button class="btn btn-jump" data-act="jump-node" data-u="${u}">Jump</button>`
+      : `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
     if (st.won && !lxGot(u, 'e')) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>A red envelope for you</b><i>${LX_PAY.e} coins inside</i></span><button class="btn btn-seal" data-act="lx-open" data-k="${u}e">Open</button>`;
     if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
   }
@@ -6672,7 +6734,7 @@ function utRoute(un) {   // opening #/course/<level>/test/un
   if (S.les?.demo && S.les.test === un) return;   // a Developer demo (lesDemo) stays as it is
   if (!UNIT(un) || !unitDone(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
   comicLoad(unitLv(un));   // the ending plays when he is beaten
-  if (S.les && S.les.test === un && S.les.step !== 'done') return;
+  if (S.les && S.les.test === un && !S.les.jump && S.les.step !== 'done') return;
   S.les = null;
   if (S.H) startUnitTest(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startUnitTest(un); render(); } }, () => toast('Lessons need the internet the first time'));
@@ -6691,6 +6753,86 @@ function startUnitTest(un, demo) {
   S.les = { test: un, n: ls.at(-1).n, words, pool: words, step: 'quiz', i: words.length, q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq,
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
   if (!demo) LOG.add('unit-test-start', { unit: un, questions: q.length });
+}
+/* v3.90, jumping ahead (ilkem, after Duolingo's "Jump here?": "u should be able to skip lections like this. Only this is to
+   start a recap challenge. For which u have 5 lives. 1 mistake u lose. Only a hint counts as a life"). The first station of
+   every locked unit is a purple fast-forward button. It opens a recap of the lessons before that unit you have not done yet:
+   words from each of them in the four question kinds, and two characters from memory, free hand. You have 5 lives: a wrong
+   answer costs one, a character you miss costs one, and so does every Hint. Lose them all and the jump ends; reach the end
+   with any left and every lesson before the unit is done. db.lessons[n].jump: when it was jumped over (no lesson coins for
+   it; doing the lesson properly later pays them). db.jumps = { unit: { last, pass } } */
+const JUMP_LIVES = 5;
+const jumpLessons = un => lvLes(unitLv(un)).filter(L => L.un < un && !lesDone(L.n));
+const canJump = un => { const U = UNIT(un); return !!U && !!LV_DUO[U.lv] && U.lv <= openLevel() && !unitOpen(un) && jumpLessons(un).length > 0; };
+const jumpUrl = un => `#/course/${unitLv(un)}/jump/${un}`;
+const livesHtml = E => `<span class="les-lives${E.hurt ? ' hurt' : ''}${E.lives ? '' : ' none'}" role="img" aria-label="${E.lives} ${E.lives === 1 ? 'life' : 'lives'} left">${HEART}<b>${E.lives}</b></span>`;
+function jumpSheet(un) {
+  if (!canJump(un)) { toast(unitOpen(un) ? `Unit ${unK(un)} is open already` : `Finish Unit ${unK(un) - 1} first`); return; }
+  const ls = jumpLessons(un), nu = new Set(ls.map(L => L.un)).size, r = db.jumps?.[un];
+  openSheet(`<div class="js"><span class="js-art" aria-hidden="true"><span class="js-shi">${shiBody('cheer')}</span><span class="js-ff">${FF_I}</span></span>
+      <small>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</small>
+      <h3>Jump ahead to Unit ${unK(un)}</h3>
+      <p>A recap of the ${plural(ls.length, 'lesson')} before it${nu > 1 ? `, from ${nu} units` : ''}. Pass it and they all count as done.</p>
+      <div class="js-lives" aria-hidden="true">${HEART.repeat(JUMP_LIVES)}</div>
+      <p class="js-rule"><b>${JUMP_LIVES} lives.</b> Each wrong answer costs one, and so does each hint.</p>
+      ${r && !r.pass ? '<p class="muted js-note">You ran out of lives last time. Have another go.</p>' : ''}
+      <button class="btn btn-jump wide" data-act="jump-go" data-u="${un}">Start the recap</button>
+      <button class="js-not" data-act="close-sheet">Not now</button></div>`);
+}
+function jumpRoute(un) {   // opening #/course/<level>/jump/<unit>
+  if (S.les?.jump === un && S.les.step !== 'done') return;   // back to a jump you left: carry on
+  if (!canJump(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
+  S.les = null;
+  if (S.H) startJump(un);
+  else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startJump(un); render(); } }, () => toast('Lessons need the internet the first time'));
+}
+function startJump(un) {   // a word from each lesson to skip in turn (more lessons than questions: a random few of them), 10 questions and 2 more for each extra unit, up to 20
+  const ls = jumpLessons(un), T = ['hz2en', 'en2hz', 'ear', 'py'], nu = new Set(ls.map(L => L.un)).size;
+  const want = Math.min(20, 10 + 2 * (nu - 1)), seen = new Set(), pick = [], per = shuffle(ls.map(L => shuffle(L.words.slice())));
+  while (pick.length < want && per.some(a => a.length)) for (const a of per) { if (pick.length >= want) break; let h; while ((h = a.pop()) && seen.has(h)); if (h) { seen.add(h); pick.push(h); } }
+  const words = pick.map(lesRow), q = shuffle(words.map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
+  if (wt[1]) q.splice(Math.round(nq * .66), 0, { t: 'write', mode: 'recall', ...wt[1] });
+  if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
+  S.les = { test: un, jump: un, n: ls.at(-1).n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq, t0: Date.now(),
+    pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set(), lives: JUMP_LIVES };
+  LOG.add('jump-start', { unit: un, lessons: ls.length, questions: q.length });
+}
+function jumpHurt(now) {   // a life gone: the heart breaks. now: show it at once, in place (a hint, while you write)
+  const E = S.les; if (!E?.jump || E.lives <= 0) return;
+  E.lives--; E.hurt = 1; haptic(30);
+  LOG.add('jump-life', { unit: E.jump, left: E.lives });
+  if (!now) return;
+  const el = $('#lesScr .les-lives'); if (el) { const t = document.createElement('template'); t.innerHTML = livesHtml(E); el.replaceWith(t.content); }
+  E.hurt = 0;
+}
+function jumpHint() {   // a hint in a jump costs a life; the last one ends it once the hint has shown
+  const E = S.les, Q = E.q[E.qi]; jumpHurt(true); buzz();
+  if (E.lives > 0) return;
+  setTimeout(() => { if (S.les !== E || E.step !== 'quiz' || E.q[E.qi] !== Q) return;
+    $('.shi-side')?.remove(); S.write = null; S.deckId = null; E.settled++; E.wrong++; E.missed.add(Q.w.h); lesLast(); lesPaint(true); window.scrollTo(0, 0); }, 1400);
+}
+function finishJump() {   // lives left at the end: every lesson before the unit is done, and the unit opens
+  const E = S.les, now = Date.now(), un = E.jump, pass = E.lives > 0, of = Math.max(1, E.total - E.dropW), rec = (db.jumps ||= {})[un] ||= {}, was = practiceStreak().today;
+  E.pct = Math.round((Math.max(0, E.settled - E.dropW) - E.wrong) / of * 100); rec.last = now;
+  if (pass) { const ls = jumpLessons(un); ls.forEach(L => { const r = db.lessons[L.n] ||= {}; r.done = now; r.last = now; r.jump = now; delete r.half; delete r.traced; }); E.skipped = ls.length; rec.pass ||= now; }
+  const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('j' + un);   // counts for the streak
+  { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }
+  E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
+  LOG.add('jump-done', { unit: un, pass, lives: E.lives, pct: E.pct, skipped: E.skipped || 0, missed: [...E.missed].join(' ') });
+}
+function jumpEndHtml() {   // the jump's result: in (the unit is open, its first lesson one tap away) or out of lives (the words you missed, and Try again)
+  const E = S.les, un = E.jump, missed = E.words.filter(w => E.missed.has(w.h)), right = Math.max(0, E.settled - E.dropW - E.wrong);
+  const hearts = Array.from({ length: JUMP_LIVES }, (_, i) => `<i class="${i < E.lives ? 'on' : ''}" style="--d:${(.45 + i * .12).toFixed(2)}s">${HEART}</i>`).join('');
+  return `<div class="les-end je"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(E.pass ? 'star' : 'oops') : shiFace(E.pass ? E.lives === JUMP_LIVES ? 'star' : 'cheer' : 'oops')}</span>
+      <h1>${E.pass ? `Welcome to Unit ${unK(un)}!` : 'Out of lives'}</h1>${E.pay ? payLine(E.pay) : ''}
+      <p class="muted">${E.pass ? `You jumped over ${plural(E.skipped, 'lesson')}. Unit ${unK(un)} · ${esc(UNIT(un)[0])} is open.` : `Keep going lesson by lesson, or have another go at the jump.`}</p>
+      <div class="je-lives" aria-label="${E.lives} of ${JUMP_LIVES} lives left">${hearts}</div>
+      ${lesEarnHtml(E)}
+      <div class="les-tally"><span><b>${E.lives}</b><small>${E.lives === 1 ? 'life' : 'lives'} left</small></span><span><b>${right}</b><small>right</small></span><span><b>${E.best}</b><small>best run</small></span></div>
+      ${missed.length ? `<div class="les-end-box"><b class="no">Look at ${missed.length === 1 ? 'this one' : 'these'} again</b>
+        <div class="les-words">${missed.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div></div>` : ''}</div>
+    <div class="les-dock">${E.pass ? `<button class="btn btn-seal wide" data-les="end">Start Unit ${unK(un)}</button>`
+      : '<div class="row-btns"><button class="btn btn-ghost" data-les="end">Later</button><button class="btn btn-jump" data-les="retry">Try again</button></div>'}</div>`;
 }
 function lesWriteTasks(n, words, max = 2) {   // characters to write, each from a different word, the ones this lesson brings in first
   const before = new Set(LESSONS.slice(0, LES(n).i).flatMap(L => L.words.flatMap(hanChars)));
@@ -6726,7 +6868,7 @@ function lesTop() {
   if (ms) haptic(25);
   const ph = t >= 3 ? `;animation-delay:-${Math.round(performance.now() % 1600)}ms` : '';   // the blaze carries on where it was when the bar is drawn again
   const tag = t ? `<span class="lb-tag${ms ? ' big' : E.flash ? ' bump' : ''}${t >= 2 ? ' on' : ''}" style="left:clamp(60px,${w / 2}%,calc(100% - 60px))">${t >= 2 ? FLAME : ''}${E.combo} in a row${ms ? '!' : ''}</span>` : '';
-  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar lb-t${t}${fx}"${t ? ` aria-label="${E.combo} in a row"` : ''}><i style="width:${w}%${ph}">${t >= 2 ? `<b class="lb-tip on">${FLAME}</b>` : ''}</i>${sparks}${tag}</span></div>`;
+  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar lb-t${t}${fx}"${t ? ` aria-label="${E.combo} in a row"` : ''}><i style="width:${w}%${ph}">${t >= 2 ? `<b class="lb-tip on">${FLAME}</b>` : ''}</i>${sparks}${tag}</span>${E.jump ? livesHtml(E) : ''}</div>`;
 }
 /* v3.74 leaving part way (ilkem, after Duolingo's "Wait, you only have 1 minute to go"): Shi Shi, paws together and teary, asks
    you to stay. It says how little is left the goal-gradient way ("3 to go", about how long that is at your pace) over a bar that
@@ -6734,13 +6876,13 @@ function lesTop() {
 function lesQuitSheet(leave) {
   const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.slice(E.qi + (E.ans != null ? 1 : 0)).filter(x => x.t !== 'say').length);
   const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
-  const what = E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
+  const what = E.jump ? 'the jump' : E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
   openSheet(`<div class="lq"><span class="lq-shi">${shiBody('plead')}</span>
       <h3>${left === 1 ? 'Just one to go!' : `Only ${left} to go!`}</h3>
       <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
       <span class="les-bar lq-bar lb-t${t}"><i style="width:${gBar(lesProg(E))}%"></i><span class="lq-end">完</span></span>
       <button class="btn btn-seal wide" data-act="close-sheet">Keep going</button>
-      <button class="lq-quit" id="lqQuit">${E.test ? 'Quit the challenge' : 'Quit lesson'}</button></div>`,
+      <button class="lq-quit" id="lqQuit">${E.jump ? 'Quit the jump' : E.test ? 'Quit the challenge' : 'Quit lesson'}</button></div>`,
     sh => sh.querySelector('#lqQuit').onclick = () => { LOG.add('lesson-quit', { n: E.n, test: E.test || null, left }); closeSheet(); leave(); });
 }
 /* v3.89, Duolingo's interstitial: Shi Shi with one paw on his hip twirls a big calligraphy brush in the other (two turns,
@@ -6771,7 +6913,7 @@ const lesAgain = (E, x) => { if (!E.q.some(y => y.t === 'say' && y.k === 'fix'))
 function lesFb() {
   const E = S.les, Q = E.q[E.qi], a = Q.w, word = `<span><span class="lfb-hz">${esc(a.h)}</span> ${esc(a.p)} · ${esc(a.en)}</span>`;
   if (!E.ok) return `<div class="les-dock lfb-dock no" role="status"><div class="lfb"><span class="lfb-shi">${shiFace(E.emo || 'miss')}</span>
-      <span class="lfb-txt"><b>This one was it</b>${word}<small>${E.test ? 'Have another look at it after the test.' : Q.again ? 'Keep it in mind for your review.' : 'It comes back before the end.'}</small></span></div>
+      <span class="lfb-txt"><b>This one was it</b>${word}<small>${E.jump ? E.lives ? `${E.lives} ${E.lives === 1 ? 'life' : 'lives'} left` : 'That was your last life' : E.test ? 'Have another look at it after the test.' : Q.again ? 'Keep it in mind for your review.' : 'It comes back before the end.'}</small></span></div>
     <button class="btn btn-seal wide" data-les="next">Got it</button></div>`;
   return `<div class="les-dock lfb-dock ok" data-les="next" role="status"><span class="lfb-pop">${shiFace(E.emo || 'happy')}</span><div class="lfb"><span class="lfb-seal">${E.seal}</span>
       <span class="lfb-txt"><b>${esc(E.praise)}</b>${word}</span><span class="lfb-gain">+${E.gain}</span></div>
@@ -6804,7 +6946,7 @@ function lesRecallSetup(Q) {
 function lesRecallHtml(Q, top) {
   lesRecallSetup(Q);
   const W = S.write, open = W.revealed || W.guidedDone || W.checking;
-  return `${top}<div class="lw-mode">${writeSeg()}</div>${writeBody(S.les.wd.cards[0])}
+  return `${top}${S.les.jump ? '' : `<div class="lw-mode">${writeSeg()}</div>`}${writeBody(S.les.wd.cards[0])}
     <div class="dock" id="wdock">${writeDock()}${open ? '' : '<button class="link-btn lw-skip" data-les="wskip">Can’t write now</button>'}</div>`;
 }
 function lesWriteGraded(ok) {   // Next under the checked writing (or Got it / Missed it): the lesson takes the answer and goes on
@@ -6816,11 +6958,12 @@ function lesWriteGraded(ok) {   // Next under the checked writing (or Got it / M
   $('.shi-side')?.remove(); S.write = null; S.deckId = null;
   E.settled++;
   if (ok) { E.combo++; E.best = Math.max(E.best, E.combo); E.wroteCh.push(Q.ch); lesGain(25 + (clean ? 10 : 0)); }
-  else { E.combo = 0; E.wrong++; E.wFail = true; E.missed.add(Q.w.h); }
-  if (++E.qi >= E.q.length) lesLast();
+  else { E.combo = 0; E.wrong++; E.wFail = true; E.missed.add(Q.w.h); jumpHurt(); }
+  E.qi++; if (lesOver(E)) lesLast();
   lesGoOn();
 }
-const lesLast = () => S.les.demo ? lesDemoEnd(S.les) : S.les.test ? finishTest() : S.les.part === 1 ? finishHalf() : finishLesson();   // after the last step: the lesson's end, or a test's result
+const lesOver = E => E.qi >= E.q.length || E.jump && E.lives <= 0;   // the last step done, or (v3.90) a jump out of lives
+const lesLast = () => S.les.demo ? lesDemoEnd(S.les) : S.les.jump ? finishJump() : S.les.test ? finishTest() : S.les.part === 1 ? finishHalf() : finishLesson();   // after the last step: the lesson's end, or a test's result
 function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWriter checks each stroke)
   const E = S.les, Q = E?.step === 'quiz' ? E.q[E.qi] : null;
   if (!Q || Q.t !== 'write' || E.ans != null) return;
@@ -6938,7 +7081,7 @@ function lesInner() {
 }
 /* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
-  const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.test) return utEndHtml(); if (E.part === 1) return lesHalfHtml();
+  const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.jump) return jumpEndHtml(); if (E.test) return utEndHtml(); if (E.part === 1) return lesHalfHtml();
   const L = LES(E.n), add = E.added || [], chars = [...new Set(E.wroteCh)];
   const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
   const mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer';
@@ -7023,6 +7166,7 @@ function lesOnward() {
   if (wordMileMoment(lesOnward)) return;   // v3.75 a words milestone reached in this lesson shows first, then the lesson carries on
   const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un);
   const back = () => { S.les = null; goBack('#/course/' + lv); };
+  if (E.jump) { const n = E.pass && lesUpNext(lv); if (n) lesOn(n); else back(); return; }   // v3.90: jumped: straight into the unit's first lesson (its comic first)
   if (E.test && !E.pass) { back(); return; }   // Later, after a test not passed
   const go = () => { if (!E.test && lxWaiting(un)) { lxWake = un + 'e'; back(); return; } const n = lesUpNext(lv); if (n) lesOn(n); else back(); };   // v3.82: a red envelope waiting: back to the path, where it jumps awake
   if (E.step === 'unit') { go(); return; }
@@ -7107,7 +7251,7 @@ function mountLesson() {
   };
   lesAuto(); lesWriteMount(); lesEndShow();
 }
-function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (S.les) S.les.flash = 0; if (auto) lesAuto(); lesWriteMount(); lesEndShow(); }
+function lesPaint(auto) { const scr = $('#lesScr'); if (!scr) return; scr.innerHTML = lesInner(); if (S.les) S.les.flash = S.les.hurt = 0; if (auto) lesAuto(); lesWriteMount(); lesEndShow(); }
 const lesGoOn = () => { const E = S.les; if (E?.step === 'quiz') qSlide($('#lesScr'), '.les-body, .les-dock', () => lesPaint(true)); else lesPaint(true); };   // on to the next question, sliding
 /* Next question: the top bar and the buttons stay where they are and the progress bar glides on, while the old question
    slides out to the left and the new one slides in from the right, so there is never a blank flash between two questions.
@@ -7151,6 +7295,7 @@ function lesAct(k, b) {
   }
   if (k === 'end') { if (E.part === 1 && E.step === 'done') lesRecallNow(); else lesOnward(); return; }
   if (k === 'later') { leave(); return; }   // v3.79: part 1 done, the recall left for later   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
+  if (k === 'retry' && E.jump && E.step === 'done') { if (!canJump(E.jump)) { leave(); return; } startJump(E.jump); lesPaint(true); window.scrollTo(0, 0); return; }
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test, E.demo); if (E.demo) S.les.demo = 'retry'; lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
@@ -7165,6 +7310,7 @@ function lesAct(k, b) {
       } else {
         E.combo = 0; E.emo = LES_SAD[Math.random() * LES_SAD.length | 0]; buzz();
         if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); if (!E.test) lesAgain(E, { t: Q.t, w: Q.w, again: true }); }
+        jumpHurt();
       }
       if (E.ok || Q.again || E.test) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 350);
@@ -7196,12 +7342,12 @@ function lesAct(k, b) {
       W.animateCharacter({ onComplete: () => { if (E.writer !== W || E.ans != null) return; W.hideCharacter(); E.wq(); b.disabled = false; } });
       return;
     }
-    if (k === 'next' && E.ans != null) { clearTimeout(E.timer); E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesGoOn(); }
+    if (k === 'next' && E.ans != null) { clearTimeout(E.timer); E.ans = null; E.qi++; if (lesOver(E)) lesLast(); lesGoOn(); }
     return;
   }
 }
 function lesStep() {   // on to the next card or task
-  const E = S.les; E.turned = false; E.ans = null; if (++E.qi >= E.q.length) lesLast(); lesGoOn(); window.scrollTo(0, 0);
+  const E = S.les; E.turned = false; E.ans = null; E.qi++; if (lesOver(E)) lesLast(); lesGoOn(); window.scrollTo(0, 0);
 }
 /* the end of a lesson: its words go into the word bank by themselves (each one seen today, back for review tomorrow) */
 function finishLesson() {
@@ -7210,12 +7356,12 @@ function finishLesson() {
     src: 'lesson', les: E.n, pf: { d: dayKey(now) }, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));   // right once today: right again on another day proves it
   const again = E.q.filter(x => x.again).length, pct = Math.round((E.nq - again) / E.nq * 100);   // cards you knew the first time; the writing doesn't count here
   const seals = 1 + (pct >= 80) + (E.nWrite > 0 && !E.skipW);
-  const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts; E.first = !rec.done;
+  const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts; E.first = !rec.done || !!rec.jump; const fresh = !rec.done; delete rec.jump;   // v3.90: a lesson you jumped over pays when you do it
   const was = practiceStreak().today, un = LES(E.n).un;   // v3.70: for the end screen's "You earned"
   rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct); rec.pts = Math.max(rec.pts || 0, E.pts); rec.seals = Math.max(rec.seals || 0, seals);
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
   { const lv = LES(E.n)?.lv; if (LV_DUO[lv] && lvLes(lv).every(L => lesDone(L.n))) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, lv + 1)); }   // v3.49: where the challenge is a bonus, a level's last lesson opens the next level
-  E.unitNew = E.first && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
+  E.unitNew = fresh && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
   E.lxNew = lxWaiting(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }   // shown here, so the streak page does not come up again today
   E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
@@ -9383,7 +9529,7 @@ function wordMileMoment(then, demo) {   // shows the newest milestone not yet ce
 const PAY = { word: 10, mast: 20, les: 25, story: 25, unit: 100 };
 function coinEarned() {
   const from = db.mapFrom || 0, pv = db.bank.filter(w => w.pf?.at > from);   // Developer levels reset: only what came after it
-  const les = Object.values(db.lessons || {}).filter(r => r?.done > from).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
+  const les = Object.values(db.lessons || {}).filter(r => r?.done > from && !r.jump).length, unit = Object.values(db.utests || {}).filter(r => r?.pass > from).length;
   const story = new Set((db.readDone || []).filter(x => x.done > from).map(x => x.zh)).size;
   const chest = (db.chests || []).reduce((a, c) => a + (c.t > from ? c.n : 0), 0);   // the daily chest (chestTap)
   const lixi = Object.values(db.lixi || {}).reduce((a, x) => a + (x.t > from ? x.n : 0), 0);   // v3.49: the red envelopes on the path (lixiOpen)
@@ -11248,6 +11394,8 @@ function writePick(d) {   // word bank: N words, the ones you missed last time a
   const rank = c => { const h = c.hist || []; return !h.length ? 1 : h[h.length - 1] ? 2 : 0; };
   return shuffle(ids.map(id => cardById(d, id)).sort((a, b) => rank(a) - rank(b)).slice(0, n).map(c => c.id));
 }
+const wGuided = () => db.prefs.writeMode === 'guided' && !(S.write?.les && S.les?.jump);   // v3.90: a jump's characters are written free hand
+const hintCost = () => S.write?.les && S.les?.jump ? `<i class="wh-cost">−1${HEART}</i>` : '';   // in a jump each hint costs a life
 function resetCardState() { Object.assign(S.write, { revealed: false, pyShown: false, history: [], mistakes: 0, guidedDone: false, active: 0, writers: [], judge: null, checking: false, hints: 0, gNext: [], hg: [], miss: null, sounded: false, shownAt: Date.now() }); }
 function promptHtml(c) {
   const W = S.write, chars = hanChars(c.hanzi), ask = writeAsk(c), clue = writeClue(c), open = W.revealed || W.guidedDone;
@@ -11269,16 +11417,16 @@ function WriteView(d) {
     ${writeBody(c)}
     <div class="dock" id="wdock">${writeDock()}</div></div>`;
 }
-const writeSeg = () => { const guided = db.prefs.writeMode === 'guided';
+const writeSeg = () => { const guided = wGuided();
   return `<div class="seg"><button data-act="wmode" data-m="free" class="${guided ? '' : 'on'}">Free</button><button data-act="wmode" data-m="guided" class="${guided ? 'on' : ''}">Guided</button></div>`; };
 function writeBody(c) {   // the prompt, the writing boxes, the note and the tools: the word bank's writing screen, also used inside lessons
-  const chars = hanChars(c.hanzi), guided = db.prefs.writeMode === 'guided';
+  const chars = hanChars(c.hanzi), guided = wGuided();
   return `<section class="prompt" id="wprompt">${promptHtml(c)}</section>
     <div class="grid" id="grid">${chars.map((ch, i) => `<div class="tzg" data-i="${i}" data-n="${i + 1}">${TZG}<canvas></canvas><div class="ans"></div><div class="quiz"></div></div>`).join('')}</div>
     <div class="note" id="note">${guided ? 'Draw each stroke in order — wrong strokes bounce back.' : 'Write with your finger, then check.'}</div>
     <div class="tools" id="tools">${guided
       ? `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint</button><button class="pill ${db.prefs.outline ? 'on' : ''}" data-act="outline">${I.eye}Outline</button><button class="pill" data-act="giveup">Show me</button>`
-      : `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint</button><button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>`;
+      : `<button class="pill" data-act="whint" id="whint">${I.bulb}Hint${hintCost()}</button><button class="pill" data-act="undo">${I.undo}Undo</button><button class="pill" data-act="clear">${I.trash}Clear</button>`}</div>`;
 }
 const revealLine = c => `<span class="hz" style="font-size:22px">${esc(c.hanzi)}</span><span class="py">${esc(writeAsk(c).py)}</span>`;
 /* Hint: each tap draws the next part of the character faintly in red (晴: 日, then 龶, then 月), its strokes one after
@@ -11291,7 +11439,7 @@ async function writeHint() {
   let refs; try { [refs] = await Promise.all([Promise.all(chars.map(loadRef)), loadParts().catch(() => null)]); } catch (_) { toast('Hints need the internet the first time'); return; }
   if (S.write !== W || W.revealed || W.guidedDone) return;
   chars.forEach((ch, i) => { W.hg[i] ||= { groups: hintGroups(ch, refs[i]), shown: new Set(), done: new Set() }; boxes[i]._hintRef = refs[i]; });
-  const guided = db.prefs.writeMode === 'guided';
+  const guided = wGuided();
   let i, k;
   if (guided) {   // the first part not shown yet that still has strokes left to write
     i = W.active; const H = W.hg[i], next = W.gNext[i] || 0;
@@ -11301,13 +11449,13 @@ async function writeHint() {
     k = i < 0 ? -1 : W.hg[i].groups.findIndex((_, q) => !W.hg[i].shown.has(q));
   }
   if (i < 0 || k < 0) { toast('That’s the whole character'); return; }
-  const H = W.hg[i], g = H.groups[k]; H.shown.add(k); W.hints++;
+  const H = W.hg[i], g = H.groups[k]; H.shown.add(k); W.hints++; if (W.les && S.les?.jump) jumpHint();
   hintPart(boxes[i], refs[i], g.ix, k);
   const where = chars.length > 1 ? ` (box ${i + 1})` : '';
   $('#note').innerHTML = g.stroke ? `Hint: stroke ${g.ix[0] + 1} of ${refs[i].strokes.length}${where}`
     : g.n ? `Hint: ${partLabel(g.n)}${g.bit ? ', a few strokes' : ''}${where}` : `Hint: the next part${where}`;
   const left = W.hg.some(x => x && x.shown.size < x.groups.length);
-  const btn = $('#whint'); if (btn) btn.innerHTML = `${I.bulb}${left ? (g.stroke ? 'Next stroke' : 'Next part') : 'All shown'}`;
+  const btn = $('#whint'); if (btn) btn.innerHTML = `${I.bulb}${left ? (g.stroke ? 'Next stroke' : 'Next part') : 'All shown'}${left ? hintCost() : ''}`;
   LOG.add('write-hint', { hz: c.hanzi, box: i + 1, part: g.n || undefined, strokes: g.ix.length, mode: guided ? 'guided' : undefined });
 }
 function hintPart(box, ref, ix, k) {   // the strokes of one part, drawn in one after another, each along its own direction
@@ -11340,7 +11488,7 @@ function hintCheck(box) {   // Free: after each stroke, has your ink covered a h
   }
 }
 function writeDock() {
-  const W = S.write, guided = db.prefs.writeMode === 'guided';
+  const W = S.write, guided = wGuided();
   if (W.revealed && W.checking) return `<button class="btn btn-seal wide" disabled><span class="spin"></span>Checking…</button>`;
   if (W.revealed && W.judge && W.judge.ok !== null)
     return W.judge.ok
@@ -11417,7 +11565,7 @@ function mountWrite() {
   grid.style.maxWidth = cols * s + (cols - 1) * gap + 'px';
   grid.classList.toggle('rows', rows > 1);
   const boxes = $$('.tzg', grid);
-  if (db.prefs.writeMode === 'guided') initGuided(boxes, chars, s);
+  if (wGuided()) initGuided(boxes, chars, s);
   else boxes.forEach(b => initFreeBox(b, s));
 }
 function initFreeBox(box, s) {
@@ -13121,7 +13269,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.89';
+const APP_VERSION = '3.90';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -13169,7 +13317,7 @@ function nameSheet() {
    proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
    bag at nothing; neither pours a payoff for what it changed (db.coinShown). Set my coins (devCoinSet) puts any number in the
    bag by moving db.coinAdj, also kept first so Restore gives your own coins back. */
-const DEV_LV = ['lessons', 'utests', 'comic', 'lixi', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
+const DEV_LV = ['lessons', 'utests', 'jumps', 'comic', 'lixi', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
   devLvKeep(); const now = Date.now();
@@ -13181,7 +13329,7 @@ function devLvMax() {
 }
 function devLvZero() {
   devLvKeep();
-  db.lessons = {}; db.utests = {}; db.comic = {}; db.lixi = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
+  db.lessons = {}; db.utests = {}; db.jumps = {}; db.comic = {}; db.lixi = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
   db.monOwn = {}; db.foodOwn = {}; db.foodSeen = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
 }
 function devLvRestore() {
@@ -14068,6 +14216,8 @@ const A = {
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
   'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')),
   'les-go': t => { closeSheet(true); lesStart(+t.dataset.n, +t.dataset.p || 0); },
+  'jump-node': t => loadHsk().then(() => jumpSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
+  'jump-go': t => { closeSheet(true); if (S.les?.jump) S.les = null; nav(jumpUrl(+t.dataset.u)); },
   'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
