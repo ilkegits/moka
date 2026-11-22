@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons banner screens</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=chillax@600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4EEE3;--card:#FCF9F3;--ink:#1E1A15;--ink-2:#4A433A;--muted:#8A7F70;--seal:#B23A2C;--jade:#3F7A5F}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{margin:0;color:var(--ink);font-family:"Satoshi",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1240px;margin:0 auto;padding:40px 16px 80px}
+h1{font-family:"Chillax","Satoshi",sans-serif;font-weight:600;font-size:clamp(30px,6vw,46px);letter-spacing:-.02em;line-height:1.05;margin:0 0 12px}
+h1 span{color:var(--seal)}
+.intro{max-width:720px;color:var(--ink-2);font-size:16.5px;line-height:1.5}
+.intro a{color:var(--seal);font-weight:700}
+h2{font-family:"Chillax","Satoshi",sans-serif;font-weight:600;font-size:24px;margin:40px 0 4px}
+h2 small{font-family:"Satoshi",sans-serif;font-size:14px;font-weight:700;color:var(--muted);margin-left:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:26px 18px;margin-top:16px}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+figure img{display:block;width:100%;height:auto;border-radius:26px;box-shadow:0 0 0 6px #1E1A15,0 22px 36px -20px rgba(40,25,10,.6);margin:6px 0}
+figcaption{font-size:14px;line-height:1.4;color:var(--ink-2)}
+figcaption b{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--ink);margin-bottom:2px}
+figcaption b i{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--ink);color:var(--paper);font-style:normal;font-size:13px}
+figcaption .new{padding:1px 7px;border-radius:999px;background:var(--jade);color:#fff;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+figcaption .pick{padding:1px 7px;border-radius:999px;background:var(--seal);color:#fff;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+@media (max-width:520px){.grid{grid-template-columns:1fr 1fr;gap:20px 12px}figure img{border-radius:18px;box-shadow:0 0 0 4px #1E1A15,0 16px 26px -16px rgba(40,25,10,.6)}}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>The unit banner, <span>full screen</span></h1>
+  <p class="intro">Each banner placed in the real app: the actual lesson path, lesson card and tab bar, on a 390 × 844 phone. Unit 1 “Hello”, 2 of 6 lessons done, lesson 3 up next. Tap a screen to open it full size. <a href="lessons-header-round3.html">Round 3 details</a> · <a href="lessons-header-round2.html">Round 2</a> · <a href="lessons-header-samples.html">Round 1</a></p>
+
+  <h2>From round 3 <small>M to R</small></h2>
+  <div class="grid">
+    <figure><a href="samples/lessons-header/M.jpg"><img src="samples/lessons-header/M.jpg" alt="Option M on the lesson path" loading="lazy"></a><figcaption><b><i>M</i>Stroke by stroke <span class="pick">My pick</span></b>你 inks itself in, a stroke at a time, as lessons get done.</figcaption></figure>
+    <figure><a href="samples/lessons-header/N.jpg"><img src="samples/lessons-header/N.jpg" alt="Option N on the lesson path" loading="lazy"></a><figcaption><b><i>N</i>Red envelope</b>A 利是 on its side. Its gold seal is the read button.</figcaption></figure>
+    <figure><a href="samples/lessons-header/O.jpg"><img src="samples/lessons-header/O.jpg" alt="Option O on the lesson path" loading="lazy"></a><figcaption><b><i>O</i>Ticket</b>A hole punched per lesson. The tear-off stub is the read button.</figcaption></figure>
+    <figure><a href="samples/lessons-header/P.jpg"><img src="samples/lessons-header/P.jpg" alt="Option P on the lesson path" loading="lazy"></a><figcaption><b><i>P</i>Lacquer box</b>Gold inlay and clouds. Progress as square-hole coins.</figcaption></figure>
+    <figure><a href="samples/lessons-header/Q.jpg"><img src="samples/lessons-header/Q.jpg" alt="Option Q on the lesson path" loading="lazy"></a><figcaption><b><i>Q</i>Hand scroll</b>Paper between wooden rods. A red seal is the read button.</figcaption></figure>
+    <figure><a href="samples/lessons-header/R.jpg"><img src="samples/lessons-header/R.jpg" alt="Option R on the lesson path" loading="lazy"></a><figcaption><b><i>R</i>Chop break-out</b>The red banner with a 你好 chop over its edge and gold waves.</figcaption></figure>
+  </div>
+
+  <h2>5 new ones <small>S to W</small></h2>
+  <div class="grid">
+    <figure><a href="samples/lessons-header/S.jpg"><img src="samples/lessons-header/S.jpg" alt="Option S on the lesson path" loading="lazy"></a><figcaption><b><i>S</i>Abacus <span class="new">New</span></b>A wooden frame. Each lesson slides a red bead across the rod.</figcaption></figure>
+    <figure><a href="samples/lessons-header/T.jpg"><img src="samples/lessons-header/T.jpg" alt="Option T on the lesson path" loading="lazy"></a><figcaption><b><i>T</i>Bamboo <span class="new">New</span></b>Calm jade green. The stalk grows a segment per lesson, and 读 hangs on a bamboo tag.</figcaption></figure>
+    <figure><a href="samples/lessons-header/U.jpg"><img src="samples/lessons-header/U.jpg" alt="Option U on the lesson path" loading="lazy"></a><figcaption><b><i>U</i>Jade disc <span class="new">New</span></b>A carved jade 璧 disc fills round as you go. A gold 读 coin is the read button.</figcaption></figure>
+    <figure><a href="samples/lessons-header/V.jpg"><img src="samples/lessons-header/V.jpg" alt="Option V on the lesson path" loading="lazy"></a><figcaption><b><i>V</i>Paper-cut <span class="new">New</span></b>A red 窗花 flower around 你. Each lesson cuts one more petal.</figcaption></figure>
+    <figure><a href="samples/lessons-header/W.jpg"><img src="samples/lessons-header/W.jpg" alt="Option W on the lesson path" loading="lazy"></a><figcaption><b><i>W</i>Lantern <span class="new">New</span></b>The banner is a lantern on its side, with gold caps and a tassel. Its light bar glows brighter per lesson.</figcaption></figure>
+  </div>
+</div>
+</body>
+</html>
