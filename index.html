@@ -2319,8 +2319,9 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2px));box-shadow:inset 0 calc(var(--k,1)*-2px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*4px) calc(var(--k,1)*8px) calc(var(--k,1)*-8px) var(--d)}
 .uc-path .un-node[data-s="cur"]::before{content:"";position:absolute;inset:calc(var(--k,1)*-9px);border-radius:50%;border:calc(var(--k,1)*4px) solid color-mix(in srgb,var(--seal-btn) 30%,transparent);animation:ppRing 1.8s ease-in-out infinite}
 .uc-path .un-node.pp-pop{animation:ppPop .55s ease-out}
-.pp-go{display:none;position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);width:70px;margin-left:-35px;padding:8px 0 9px;border-radius:12px;background:var(--card);color:var(--seal-btn);
-  font:700 15px/1 var(--display);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
+.pp-go{display:none;position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);width:max-content;min-width:70px;translate:-50% 0;padding:7px 14px 9px;border-radius:12px;background:var(--card);color:var(--seal-btn);
+  font:700 16px/1 var(--display);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
+.pp-go-t{display:block;max-width:150px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 11.5px/1.25 var(--ui);color:var(--seal)}   /* v3.98: the flag names the lesson, since the card at the bottom is gone */
 .pp-go::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
 .un-node[data-s="cur"] .pp-go{display:block}
 @keyframes ppBob{50%{transform:translateY(-5px)}}
@@ -2513,6 +2514,17 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
 .pp-jump.up svg{transform:rotate(-90deg)}
 .pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
+/* v3.98: with no lesson card, the way back is a wide "Back to lesson N" button in the card's place, so only one thing ever asks to be tapped */
+.uc:has(.un-hud:empty) .un-hud{visibility:hidden;pointer-events:none}   /* kept, unseen, so the path still measures its room above it */
+.uc:has(.un-hud:empty) .pp-jump{left:50%;right:auto;bottom:calc(16px + env(safe-area-inset-bottom));translate:-50% 0;width:auto;height:54px;display:flex;gap:12px;padding:0 9px 0 20px;border-radius:27px;
+  color:var(--ink);font:600 16px/1 var(--display);white-space:nowrap;box-shadow:0 0 0 2px var(--line-2),0 4px 0 1px var(--line-2),0 14px 24px -12px rgba(50,25,8,.5)}
+.uc:has(.un-hud:empty) .pp-jump[hidden]{display:none}
+#frame.tabs .uc:has(.un-hud:empty) .pp-jump{bottom:calc(var(--tabh) + 26px + env(safe-area-inset-bottom))}
+.pp-jump b{display:none;font:inherit}
+.uc:has(.un-hud:empty) .pp-jump b{display:block}
+.uc:has(.un-hud:empty) .pp-jump i{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(#ff5a66,var(--seal-btn) 45%);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--seal-btn) 65%,#000)}
+.uc:has(.un-hud:empty) .pp-jump svg{width:20px;height:20px}
+.pp-jump i{display:contents;font-style:normal}
 /* v3.90 jumping ahead: a locked unit's first station is a turquoise fast-forward button with "Jump here?" over it (v3.92, ilkem:
    "use another color than purple or green", then "Do it in turquoise": turquoise, the one colour on the path that means skipping). It stays bright and tappable while the rest of its unit is pale */
 :root{--jump:#0E9DA3;--jump-top:#3CC8C8;--jump-ink:#0A7479}
@@ -5099,7 +5111,7 @@ function ucPane(u) {
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open, half = path && cur && lesHalf(L.n);
     if (skip && !i) return `<button class="un-node pp-skip" data-i="0" data-s="skip" style="${pct(pts[0])}" data-act="jump-node" data-u="${u}" aria-label="Jump here: a recap test that opens Unit ${unK(u)}"><span class="un-spot" aria-hidden="true">${FF_I}</span><i class="pp-skip-tip" aria-hidden="true">Jump here?</i></button>`;
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${half && L.n === fill && !stillMotion() ? ' pp-fill' : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''}${half ? ' data-h="1"' : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : half ? ', half done, recall next' : cur ? ', up next' : ', locked'}">
-      ${half ? '<svg class="pp-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg>' : ''}<span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? `<i class="pp-go" aria-hidden="true">${half ? 'Recall' : 'Start'}</i>` : ''}<small>${esc(L.title)}</small></button>`; }).join('');
+      ${half ? '<svg class="pp-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg>' : ''}<span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? `<i class="pp-go" aria-hidden="true">${LV_DUO[unitLv(u)] ? `<span class="pp-go-t">${esc(L.title)}</span>` : ''}${half ? 'Recall' : 'Start'}</i>` : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   /* v3.49, the path: no shrine. The red envelope (ready once the lessons before it are done); since v3.58 no Hu Hu bonus */
   const lxS = (w, need) => lxDemo === u + w ? 'ready' : lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';   // v3.82: a Developer one is ready whatever
@@ -5124,6 +5136,7 @@ function ucHud(u) {
       : `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
     if (st.won && !lxGot(u, 'e')) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>A red envelope for you</b><i>${LX_PAY.e} coins inside</i></span><button class="btn btn-seal" data-act="lx-open" data-k="${u}e">Open</button>`;
     if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
+    return '';   // v3.98 (ilkem: "i want 1 obvious choice"): a lesson to do has no card; its station on the path, with its Start flag, is the one button
   }
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${unK(u) - 1}</b><i>His challenge opens Unit ${unK(u)}</i></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
@@ -5153,11 +5166,11 @@ function scrUnroll() {
 }
 function UnitView(un) {
   const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1), pp = unitLay(u) === 'path';
-  const bal = coinBal();
+  const bal = coinBal(), mu = ucMe(unitLv(u)), back = unitWon(mu) ? 'Back to Shi Shi' : `Back to lesson ${unitState(mu).nd + 1}`;
   return `<div class="screen fade-in c1 un uc${UC_VERT[unitLv(u)] ? ' uc-v' : ''}${pp ? ' uc-pp' : ''}"><header class="bar"><button class="uc-lv" data-act="lv-pick" aria-haspopup="true" aria-expanded="false" aria-label="${HSK_NAME(unitLv(u))}, change level"><span class="uc-lv-sq" lang="zh" aria-hidden="true">汉</span><b>${HSK_NAME(unitLv(u))}</b>${I.chev}</button>
     <span class="uc-stats">${StreakBtn()}<button class="uc-coins" data-act="shop" aria-label="${coinFmt(bal)} coins. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span>
     <div class="scr${unitOpen(u) ? '' : ' locked'}" data-u="${u}">${scrHead(u)}</div></header>
-    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>${pp ? `<button class="pp-jump" hidden aria-label="Back to your lesson">${I.chev}</button>` : ''}
+    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>${pp ? `<button class="pp-jump" hidden aria-label="${back}"><b>${back}</b><i>${I.chev}</i></button>` : ''}
     <div class="un-hud">${ucHud(u)}</div></div>`;
 }
 /* v3.87 (ilkem: "there shouldnt be a back button, instead just a button with ur hskx level on it, and when u click it, it
@@ -13339,7 +13352,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.97';
+const APP_VERSION = '3.98';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
