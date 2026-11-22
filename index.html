@@ -6845,11 +6845,11 @@ function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: t
   if (S.les?.demo && !S.les.test && S.les.n === n) return;   // a Developer demo (lesDemo) stays as it is
   const lv = LES(n)?.lv;
   if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { history.replaceState(history.state, '', '#/course/' + (lv || 1)); S.view = 'course'; S.cLv = lv || 1; S.cPart = null; S.cBasics = false; return; }
-  if (S.les && !S.les.test && S.les.n === n && S.les.step !== 'done' && (!part || S.les.part === part)) return;   // back to a lesson you left: carry on
-  S.les = null;
+  lesDrop();   // v4.10: back to a lesson you left, it starts again from the beginning
   if (S.H) startLesson(n, 0, part);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n, 0, part); render(); } }, () => toast('Lessons need the internet the first time'));
 }
+function lesDrop() { const E = S.les; if (E) clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; } S.les = null; }   // forget a lesson left half done
 function startLesson(n, demo, part) {   // v3.79: part 1 learns and traces, part 2 recalls (lesHalf)
   const L = LES(n), words = L.words.map(lesRow), q = [];
   part = demo ? part || 2 : lesPartOf(n, part);
@@ -6881,8 +6881,7 @@ function utRoute(un) {   // opening #/course/<level>/test/un
   if (S.les?.demo && S.les.test === un) return;   // a Developer demo (lesDemo) stays as it is
   if (!UNIT(un) || !unitDone(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
   comicLoad(unitLv(un));   // the ending plays when he is beaten
-  if (S.les && S.les.test === un && !S.les.jump && S.les.step !== 'done') return;
-  S.les = null;
+  lesDrop();   // a challenge you left starts again from the first question
   if (S.H) startUnitTest(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startUnitTest(un); render(); } }, () => toast('Lessons need the internet the first time'));
 }
@@ -6927,9 +6926,8 @@ function jumpSheet(un) {
       <button class="js-not" data-act="close-sheet">Not now</button></div>`);
 }
 function jumpRoute(un) {   // opening #/course/<level>/jump/<unit>
-  if (S.les?.jump === un && S.les.step !== 'done') return;   // back to a jump you left: carry on
   if (!canJump(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
-  S.les = null;
+  lesDrop();   // a recap you left starts again too
   if (S.H) startJump(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startJump(un); render(); } }, () => toast('Lessons need the internet the first time'));
 }
@@ -11376,8 +11374,8 @@ function dueBy(t) {   // how many different words are waiting by time t
 function startStudy() {
   const d = curDeck();
   const ids = d.cards.map(c => c.id), base = ids.join();
-  if (!S.study || S.study.deckId !== d.id || S.study.base !== base || S.study.done)
-    S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false };
+  // v4.10: opening the cards always starts from the first one, never where you left off
+  S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false };
 }
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
 function hzSize(n) { return [0, 96, 92, 84, 68][n] || Math.max(34, Math.min(60, Math.floor(280 / n))); }   // close to one size; shrinks only where a long word wouldn't fit
@@ -11545,8 +11543,8 @@ function stepCard(dir) {
    last new word, and once more if you miss it again. The score counts first tries. */
 function startWrite(ids) {
   const d = curDeck();
-  if (ids || !S.write || S.write.deckId !== d.id || !S.write.order.every(id => cardById(d, id)))
-    S.write = { deckId: d.id, order: ids || writePick(d), i: 0, results: {}, tries: {}, last: {}, done: false };
+  // v4.10: opening Write always starts a new round
+  S.write = { deckId: d.id, order: ids || writePick(d), i: 0, results: {}, tries: {}, last: {}, done: false };
   S.write.main ??= S.write.order.length;
   resetCardState();
   if (!S.H) loadHsk().then(() => { const W = S.write; if (S.view === 'write' && W && !W.done && $('#wprompt')) $('#wprompt').innerHTML = promptHtml(cardById(curDeck(), W.order[W.i])); }, () => {});
@@ -13432,7 +13430,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.09';
+const APP_VERSION = '4.10';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
