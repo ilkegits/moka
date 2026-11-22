@@ -1199,16 +1199,8 @@ html.kb-up .sheet{max-height:calc(100% - var(--kb) - 8px)}
 .tm-buy.can .tm-tagt{fill:#3A2508}
 .tm-buy.p1 .tm-tagt{fill:#1F9D3A}.tm-buy.p2 .tm-tagt{fill:#D9A300}.tm-buy.p3 .tm-tagt{fill:#E5322B}.tm-buy.p4 .tm-tagt{fill:#7E0E0E}   /* the price by how dear it is: green cheap, yellow middling, red dear, dark red dearest */
 .tm-buy.can.p2 .tm-tagt{fill:#3A2508}   /* yellow would vanish on the gold tag of one you can buy */
-/* v4.07 (ilkem): the coin of one you can buy is bigger and spins now and then, so it is easy to find. v4.14: half as big
-   again, brighter with a glow behind it, thick like a real coin (a darker side under it, its edge showing as it turns),
-   and turning on its own middle: canCoin draws it around 0 0, so the turn needs no reference box */
-.tm-cg,.tm-cedge,.tm-cglow{transform-box:view-box;transform-origin:0 0}
-.tm-cg{animation:tmCoinSpin 2.8s linear infinite}
-.tm-cedge{fill:#C47A08;stroke:#8A4A06;stroke-width:.5;animation:tmCoinEdge 2.8s linear infinite}
-.tm-cglow{fill:#FFE27A;animation:tmCoinGlow 2.8s ease-in-out infinite}
-@keyframes tmCoinSpin{0%{transform:scale(1.5,1.5)}0.917%{transform:scale(1.5,1.5)}1.833%{transform:scale(1.497,1.5)}2.75%{transform:scale(1.485,1.5)}3.667%{transform:scale(1.454,1.5)}4.583%{transform:scale(1.393,1.5)}5.5%{transform:scale(1.287,1.5)}6.417%{transform:scale(1.124,1.5)}7.333%{transform:scale(0.896,1.5)}8.25%{transform:scale(0.599,1.5)}9.167%{transform:scale(0.242,1.5)}10.083%{transform:scale(-0.16,1.5)}11%{transform:scale(-0.574,1.5)}11.917%{transform:scale(-0.961,1.5)}12.833%{transform:scale(-1.272,1.5)}13.75%{transform:scale(-1.462,1.5)}14.667%{transform:scale(-1.49,1.5)}15.583%{transform:scale(-1.337,1.5)}16.5%{transform:scale(-1.007,1.5)}17.417%{transform:scale(-0.534,1.5)}18.333%{transform:scale(0.04,1.5)}19.25%{transform:scale(0.583,1.5)}20.167%{transform:scale(1.063,1.5)}21.083%{transform:scale(1.386,1.5)}22%{transform:scale(1.5,1.5)}22.917%{transform:scale(1.386,1.5)}23.833%{transform:scale(1.063,1.5)}24.75%{transform:scale(0.583,1.5)}25.667%{transform:scale(0.04,1.5)}26.583%{transform:scale(-0.534,1.5)}27.5%{transform:scale(-1.007,1.5)}28.417%{transform:scale(-1.337,1.5)}29.333%{transform:scale(-1.49,1.5)}30.25%{transform:scale(-1.462,1.5)}31.167%{transform:scale(-1.272,1.5)}32.083%{transform:scale(-0.961,1.5)}33%{transform:scale(-0.574,1.5)}33.917%{transform:scale(-0.16,1.5)}34.833%{transform:scale(0.242,1.5)}35.75%{transform:scale(0.599,1.5)}36.667%{transform:scale(0.896,1.5)}37.583%{transform:scale(1.124,1.5)}38.5%{transform:scale(1.287,1.5)}39.417%{transform:scale(1.393,1.5)}40.333%{transform:scale(1.454,1.5)}41.25%{transform:scale(1.485,1.5)}42.167%{transform:scale(1.497,1.5)}43.083%{transform:scale(1.5,1.5)}44%{transform:scale(1.5,1.5)}72%{transform:scale(1.41)}100%{transform:scale(1.5)}}
-@keyframes tmCoinEdge{0%{transform:scale(0,1.5)}0.917%{transform:scale(0.024,1.5)}1.833%{transform:scale(0.095,1.5)}2.75%{transform:scale(0.211,1.5)}3.667%{transform:scale(0.367,1.5)}4.583%{transform:scale(0.557,1.5)}5.5%{transform:scale(0.771,1.5)}6.417%{transform:scale(0.993,1.5)}7.333%{transform:scale(1.203,1.5)}8.25%{transform:scale(1.375,1.5)}9.167%{transform:scale(1.48,1.5)}10.083%{transform:scale(1.491,1.5)}11%{transform:scale(1.386,1.5)}11.917%{transform:scale(1.152,1.5)}12.833%{transform:scale(0.794,1.5)}13.75%{transform:scale(0.338,1.5)}14.667%{transform:scale(0.174,1.5)}15.583%{transform:scale(0.68,1.5)}16.5%{transform:scale(1.111,1.5)}17.417%{transform:scale(1.402,1.5)}18.333%{transform:scale(1.5,1.5)}19.25%{transform:scale(1.382,1.5)}20.167%{transform:scale(1.059,1.5)}21.083%{transform:scale(0.574,1.5)}22%{transform:scale(0,1.5)}22.917%{transform:scale(0.574,1.5)}23.833%{transform:scale(1.059,1.5)}24.75%{transform:scale(1.382,1.5)}25.667%{transform:scale(1.5,1.5)}26.583%{transform:scale(1.402,1.5)}27.5%{transform:scale(1.111,1.5)}28.417%{transform:scale(0.68,1.5)}29.333%{transform:scale(0.174,1.5)}30.25%{transform:scale(0.338,1.5)}31.167%{transform:scale(0.794,1.5)}32.083%{transform:scale(1.152,1.5)}33%{transform:scale(1.386,1.5)}33.917%{transform:scale(1.491,1.5)}34.833%{transform:scale(1.48,1.5)}35.75%{transform:scale(1.375,1.5)}36.667%{transform:scale(1.203,1.5)}37.583%{transform:scale(0.993,1.5)}38.5%{transform:scale(0.771,1.5)}39.417%{transform:scale(0.557,1.5)}40.333%{transform:scale(0.367,1.5)}41.25%{transform:scale(0.211,1.5)}42.167%{transform:scale(0.095,1.5)}43.083%{transform:scale(0.024,1.5)}44%{transform:scale(0,1.5)}100%{transform:scale(0,1.5)}}
-@keyframes tmCoinGlow{0%,100%{opacity:.5;transform:scale(1.85)}22%{opacity:.75;transform:scale(2.2)}50%{opacity:.5;transform:scale(1.85)}}
+/* v4.07 (ilkem): the coin of one you can buy is bigger and spins now and then, so it is easy to find. v4.28: it is a
+   real thick coin, redrawn from its angle every frame by c3Tick (no fake shadow or glow); its rim takes #c3Rim */
 .tm-pin.sel .tm-buy{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:50% 100%}
 .tm-price span{color:var(--muted);font-weight:600}
 .tm-card p.tm-price em{margin:0 0 0 6px}
@@ -1426,7 +1418,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-cg{animation:none;transform:scale(1.4)}.tm-cedge{animation:none;transform:scale(0)}.tm-cglow{animation:none;opacity:.5;transform:scale(1.8)}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -3411,6 +3403,7 @@ button.scene-tile:active svg{opacity:.92}
 <body>
 <!-- colours for the streak flame (see .flame in the styles); kept out of view but not display:none, which would break the gradients -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="c3Rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE58A"/><stop offset=".22" stop-color="#FFCB3D"/><stop offset=".55" stop-color="#E89B0C"/><stop offset=".85" stop-color="#B46C08"/><stop offset="1" stop-color="#8F5206"/></linearGradient>
   <linearGradient id="flOut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2442B"/><stop offset=".55" stop-color="#FF6A1F"/><stop offset="1" stop-color="#FF8A1A"/></linearGradient>
   <linearGradient id="flMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A1F"/><stop offset="1" stop-color="#FFC233"/></linearGradient>
   <linearGradient id="flCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6C4"/><stop offset="1" stop-color="#FFE066"/></linearGradient>
@@ -10596,11 +10589,43 @@ const Trail = (() => {
   /* the monuments, small: the cut-out of its 3D picture standing on its spot (base at 0 0) */
   const cutout = c => { const k = c.h / (c.ic[1] - c.ic[2]); return `<image href="mon/${c.id}-i.webp" x="${f(-c.ic[0] * k)}" y="${f(-c.ic[1] * k)}" width="${f(k)}" height="${f(k)}"/>`; };
   const coin = (x, y, d) => coinSvg().replace('<svg class="coin"', `<svg x="${f(x)}" y="${f(y)}" width="${d}" height="${d}"`);
-  /* v4.14: the coin of one you can buy, centred on cx cy: a glow, its edge (seen as it turns), a darker side under it so it
-     looks thick, and a brighter face. tmCoinSpin turns it about its own middle. */
-  const canCoin = (cx, cy, d) => { const r = d / 2;
-    return `<g transform="translate(${f(cx)} ${f(cy)})"><circle class="tm-cglow" r="${f(r * 1.05)}"/><rect class="tm-cedge" x="${f(-d * .12)}" y="${f(-r + .4)}" width="${f(d * .24)}" height="${f(d - .8)}" rx="${f(d * .1)}"/>`
-      + `<g class="tm-cg"><circle cx="${f(d * .03)}" cy="${f(d * .1)}" r="${f(r * .9)}" fill="#B06A06" stroke="#8A4A06" stroke-width=".5"/>${coin(-r, -r, d).replace(/#FFC21F/g, '#FFD53A').replace(/#E89B0C/g, '#F4AE1A')}</g></g>`; };
+  /* v4.28 (ilkem: "it still looks flat ... 3D is that it has some depth from the side"): the coin of one you can buy is a
+     real thick coin, centred on cx cy and half as big again as the others. Every frame c3Tick redraws it from the angle it
+     has turned to, back to front: the far face, the rim between the two faces (#c3Rim, lit from above), the inside wall
+     of the square hole (where the hole is not see-through), then the near face, lit by how it faces the light, with its
+     art squashed by the turn. The shapes are redrawn rather than squashed, so the ink outline keeps one width and the
+     rim shows as a solid band when the coin is edge-on. It spins two whole turns every 2.8 s, then rests. */
+  const C3 = { run: 0, els: [], idle: 0, n: 0 }, C3K = '#8A4A06';
+  const c3Geo = (D, th) => {
+    const g = n => n.toFixed(2), c = Math.cos(th), s = Math.sin(th), ac = Math.abs(c), sg = c < 0 ? -1 : 1;
+    const rf = 10.3 / 24 * D, rx = Math.max(rf * ac, .01), ha = 2.5 / 24 * D * ac, hb = 2.5 / 24 * D, h = .09 * D * s, fx = sg * h, bx = -fx, L = -Math.abs(h), R = -L;
+    const ell = x => `M${g(x - rx)} 0a${g(rx)} ${g(rf)} 0 1 0 ${g(2 * rx)} 0a${g(rx)} ${g(rf)} 0 1 0 ${g(-2 * rx)} 0Z`;
+    const box = (x0, y0, x1, y1) => x1 - x0 > .005 ? `M${g(x0)} ${g(y0)}H${g(x1)}V${g(y1)}H${g(x0)}Z` : '';
+    const hole = x => box(x - ha, -hb, x + ha, hb);
+    const band = box(L, -rf, R, -hb) + box(L, hb, R, rf) + box(L, -hb, Math.min(R, fx - ha), hb) + box(Math.max(L, fx + ha), -hb, R, hb);   // the rim between the faces, less the hole in the near face
+    const wall = fx >= 0 ? box(Math.max(fx - ha, bx + ha), -hb, fx + ha, hb) : box(fx - ha, -hb, Math.min(fx + ha, bx - ha), hb);   // the part of the near hole the far hole does not line up with
+    const lit = Math.max(-1, sg * (-.45 * s + .7 * c) / .832), mix = (p, q, t) => '#' + [0, 2, 4].map(i => Math.round(parseInt(p.substr(i, 2), 16) * (1 - t) + parseInt(q.substr(i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
+    const fill = lit < .841 ? mix('B97C0C', 'FFC21F', Math.max(0, lit) / .841) : mix('FFC21F', 'FFE680', (lit - .841) / .159);   // facing the light at rest it is the coin's own gold; turned towards it, it flashes
+    return { back: ell(bx) + hole(bx), band, lines: R > .005 ? `M${g(L)} ${g(-rf)}H${g(R)}M${g(L)} ${g(rf)}H${g(R)}` : '', wall, face: ell(fx) + hole(fx), fill, fx: g(fx), ac: g(ac), sw: g(1.7 / 24 * D) };
+  };
+  const canCoin = (cx, cy, d) => { const D = d * 1.5, q = c3Geo(D, 0);
+    if (!C3.run && !stillMotion()) { C3.idle = 0; C3.run = requestAnimationFrame(c3Tick); }
+    return `<g transform="translate(${f(cx)} ${f(cy)})"><g class="tm-c3" data-d="${D}">`
+      + `<path d="${q.back}" fill="url(#c3Rim)" fill-rule="evenodd" stroke="${C3K}" stroke-width="${q.sw}"/><path d="${q.band}" fill="url(#c3Rim)"/>`
+      + `<path d="${q.lines}" fill="none" stroke="${C3K}" stroke-width="${q.sw}"/><path d="${q.wall}" fill="#9A5606"/>`
+      + `<path d="${q.face}" fill="${q.fill}" fill-rule="evenodd" stroke="${C3K}" stroke-width="${q.sw}" stroke-linejoin="round"/>`
+      + `<g transform="translate(${q.fx} 0) scale(${q.ac} 1)"><svg x="${f(-D / 2)}" y="${f(-D / 2)}" width="${f(D)}" height="${f(D)}" viewBox="0 0 24 24" overflow="visible" style="${coinClock()}">`
+      + `<circle cx="12" cy="12" r="7.4" fill="none" stroke="#E89B0C" stroke-width="1.2"/><path d="M5.2 8.6a7.6 7.6 0 0 1 3.6-3.5" fill="none" stroke="#FFF3B0" stroke-width="1.5" stroke-linecap="round"/>${coinShine(1)}</svg></g></g></g>`; };
+  function c3Tick(now) {   // one clock for every buyable coin on the screen; it stops by itself once none is left
+    if (!C3.els[0]?.isConnected || ++C3.n % 60 === 0) C3.els = [...document.querySelectorAll('.tm-c3')];
+    if (!C3.els.length) { if (++C3.idle > 30) { C3.run = 0; return; } } else C3.idle = 0;
+    const p = now % 2800 / 2800, th = p < .44 ? 2 * Math.PI * (1 - Math.cos(Math.PI * p / .44)) : 0, k = p < .44 ? 1 : 1 - .06 * Math.sin(Math.PI * (p - .44) / .56);   // two turns, slow-fast-slow, then a small breath
+    for (const e of C3.els) { if (!e.isConnected) continue; const q = c3Geo(+e.dataset.d * k, th), [b, n, l, w, fc, art] = e.children;
+      b.setAttribute('d', q.back); n.setAttribute('d', q.band); l.setAttribute('d', q.lines); w.setAttribute('d', q.wall);
+      fc.setAttribute('d', q.face); fc.setAttribute('fill', q.fill); for (const x of [b, l, fc]) x.setAttribute('stroke-width', q.sw);
+      art.setAttribute('transform', `translate(${q.fx} 0) scale(${(q.ac * k).toFixed(3)} ${k.toFixed(3)})`); }
+    C3.run = requestAnimationFrame(c3Tick);
+  }
   /* What stands on a monument's spot. Yours: the monument. One you do not own: a coin from far away, a price tag from
      closer (gold once you can pay for it), so the map is the shop window too. */
   function monument(c, st) {
@@ -10675,6 +10700,7 @@ const Trail = (() => {
   }
   function mount(from) {   // the map answers your fingers; back from a monument's page, it pulls out of that city
     const svg = $('#tmSvg'), stage = svg?.closest('.tm-stage'); if (!svg || !stage) return;
+    if (!C3.run && !stillMotion() && svg.querySelector('.tm-c3')) { C3.idle = 0; C3.run = requestAnimationFrame(c3Tick); }   // the buyable coins spin
     if (!PROPS.cv) { PROPS.cv = document.createElement('canvas'); PROPS.cv.id = 'tmProps'; PROPS.c = PROPS.cv.getContext('2d'); }
     const cams = [...stage.querySelectorAll('.tm-cam')], pins = [...svg.querySelectorAll('.tm-pin')], pts = new Map(), chest = svg.querySelector('#tmChest');
     let raf = 0, anim = 0, g = null, tap = null;
@@ -13649,7 +13675,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.27';
+const APP_VERSION = '4.28';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
