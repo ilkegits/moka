@@ -2431,26 +2431,26 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-lx-e{width:calc(var(--k,1)*66px);height:calc(var(--k,1)*82px)}
 /* v3.82: the 3D envelope (lx3), on the path and in its moment. --W is its width; its height is 10/7 of that */
 .lx3p{display:grid;place-items:center;perspective:calc(var(--W)*6);pointer-events:none}
-.lx3{--H:calc(var(--W)*10/7);--T:calc(var(--W)*.13);--R:calc(var(--W)*.072);position:relative;width:var(--W);height:var(--H);transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-28deg)}
+.lx3{--H:calc(var(--W)*10/7);--T:calc(var(--W)*.2);--B:calc(var(--W)*.05);--R:calc(var(--W)*.072);position:relative;width:var(--W);height:var(--H);transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-28deg)}
 .lx3>span{position:absolute}
 .lx3 svg{display:block;width:100%;height:100%;overflow:visible}
 .lx3-f{inset:0;transform:translateZ(calc(var(--T)/2))}
 .lx3-f::after{content:"";position:absolute;inset:0;border-radius:var(--R);background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 38%,transparent 62%,rgba(0,0,0,.18))}
 .lx3-b{inset:0;border-radius:var(--R);background:var(--in);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25);transform:translateZ(calc(var(--T)/-2)) rotateY(180deg)}
-.lx3-s{left:calc((var(--W) - var(--T))/2);top:var(--R);width:var(--T);height:calc(var(--H) - 2*var(--R));background:linear-gradient(90deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(90deg,var(--e1),var(--e2),var(--e1))}
+/* v4.31: its body is 13 thin slices of paper between the front and the back, the middle ones a little bigger, so it bulges like an envelope full of money and shows a round edge as it turns (ilkem: "the lixi is too 2d") */
+.lx3-l{inset:calc(var(--B)*var(--i)*-1);border-radius:calc(var(--R) + var(--B)*var(--i));transform:translateZ(calc(var(--T)*var(--u)/2))}
+.lx3-s{left:calc((var(--W) - var(--T)*.8)/2);top:var(--R);width:calc(var(--T)*.8);height:calc(var(--H) - 2*var(--R));background:linear-gradient(90deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(90deg,var(--e1),var(--e2),var(--e1))}
 .lx3-s::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)}
-.lx3-s.r{transform:rotateY(90deg) translateZ(calc(var(--W)/2))}
-.lx3-s.l{transform:rotateY(-90deg) translateZ(calc(var(--W)/2))}
-.lx3-t{left:var(--R);top:calc((var(--H) - var(--T))/2);width:calc(var(--W) - 2*var(--R));height:var(--T);background:linear-gradient(0deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(0deg,var(--e1),var(--e2),var(--e1))}
-.lx3-t.t{transform:rotateX(90deg) translateZ(calc(var(--H)/2));filter:brightness(1.25)}
-.lx3-t.b{transform:rotateX(-90deg) translateZ(calc(var(--H)/2))}
+.lx3-s.r{transform:rotateY(90deg) translateZ(calc(var(--W)/2 + var(--B)*.9))}
+.lx3-s.l{transform:rotateY(-90deg) translateZ(calc(var(--W)/2 + var(--B)*.9))}
+.lx3-t{left:var(--R);top:calc((var(--H) - var(--T)*.8)/2);width:calc(var(--W) - 2*var(--R));height:calc(var(--T)*.8);background:linear-gradient(0deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(0deg,var(--e1),var(--e2),var(--e1))}
+.lx3-t.t{transform:rotateX(90deg) translateZ(calc(var(--H)/2 + var(--B)*.9));filter:brightness(1.25)}
+.lx3-t.b{transform:rotateX(-90deg) translateZ(calc(var(--H)/2 + var(--B)*.9))}
 .lx3-glow{left:-22%;right:-22%;top:-20%;height:40%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,225,.95),rgba(255,214,90,.7) 40%,rgba(255,176,32,0));opacity:0;transform:scale(.2)}
 .lx3-flap{left:0;top:0;width:var(--W);height:calc(var(--W)*var(--fh));transform-origin:50% 0;transform-style:preserve-3d;transform:translateZ(calc(var(--T)/2 + 1px))}
 .lx3-flap>span{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .lx3-flap>.in{transform:rotateY(180deg)}
 .lx3.open .lx3-flap,.pp-lx[data-s="open"] .lx3-flap{transform:translateZ(calc(var(--T)/-2)) rotateX(196deg)}   /* swung up and back, standing behind what comes out */
-.lx3-c{left:calc(50% - var(--W)*.16);top:4%;width:calc(var(--W)*.32);height:calc(var(--W)*.32)}
-.lx3-c .coin{display:block;width:100%;height:100%}
 @keyframes lxSway{0%,60%,100%{transform:rotateX(10deg) rotateY(-28deg)}15%{transform:translateY(-6%) rotateX(10deg) rotateY(-14deg) rotateZ(-5deg)}30%{transform:translateY(-10%) rotateX(12deg) rotateY(-38deg) rotateZ(5deg)}45%{transform:translateY(-4%) rotateX(10deg) rotateY(-22deg) rotateZ(-2deg)}}
 @keyframes lxWake{0%{transform:rotateX(10deg) rotateY(-28deg)}10%{transform:translateY(6%) rotateX(10deg) rotateY(-28deg) scale(1.12,.84)}30%{transform:translateY(-55%) rotateX(10deg) rotateY(-208deg) scale(1.1)}46%{transform:translateY(0) rotateX(10deg) rotateY(-388deg) scale(1.14,.86)}54%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-13deg)}62%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(12deg)}70%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-10deg)}78%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(8deg)}88%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-4deg)}100%{transform:rotateX(10deg) rotateY(-388deg)}}
 @keyframes lxRing{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.4);opacity:0}}
@@ -2469,40 +2469,37 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-lx-n{display:none;position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);padding:3px 7px 4px;border-radius:9px;background:#F8CF5F;color:#5A3200;font:800 11.5px/1 var(--ui);font-style:normal;white-space:nowrap;box-shadow:inset 0 -2px 0 rgba(140,85,0,.25)}
 .pp-lx[data-s="ready"] .pp-lx-n{display:block}
 .pp-lx-r .pp-lx-n,.pp-lx-l .pp-lx-n{bottom:auto;top:50%;transform:translateY(-50%)}.pp-lx-r .pp-lx-n{left:calc(100% + 4px)}.pp-lx-l .pp-lx-n{left:auto;right:calc(100% + 4px)}   /* v3.55: in the bend the coins tag sits on the open side, clear of the lessons above and below */
-/* v3.82: the red envelope's moment, over the whole screen (lxShow) */
+/* v4.31: the red envelope's moment, calm (lxShow). ilkem picked idea 5 of lixi-opening-ideas.html "but without the shining bg,
+   pls make it less epic": a soft dark veil, the path tips back a little, the envelope floats up, opens, its coins circle it
+   in a ring and fly one by one into your coin count */
 .lxo{position:fixed;inset:0;z-index:62;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
 .lxo.out{opacity:0;transition:opacity .3s}
-.lxo-bg{position:absolute;inset:0;background:radial-gradient(120% 75% at 50% var(--cy),#A8301E,#6A140D 50%,#2A0605);opacity:0;transition:opacity .4s}
+.lxo-bg{position:absolute;inset:0;background:rgba(36,14,8,.58);opacity:0;transition:opacity .45s}
 .lxo.on .lxo-bg{opacity:1}
-.lxo.on .lxo-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(40% 25% at 50% var(--cy),rgba(255,200,90,.25),transparent);animation:ppRing 1.6s ease-in-out infinite}
-.lxo-rays{position:absolute;left:50%;top:var(--top);width:0;height:0;opacity:0;transform:scale(.15)}
-.lxo-rays svg{position:absolute;left:-90vmax;top:-90vmax;width:180vmax;height:180vmax;animation:spin 20s linear infinite}
-.lxo.boom .lxo-rays{opacity:1;transform:scale(1);transition:opacity .35s .1s,transform 1s cubic-bezier(.2,1.1,.3,1) .1s}
-.lxo-shake{position:absolute;inset:0}
 .lxo-fly{position:absolute;left:50%;top:var(--cy);width:0;height:0}
-.lxo-fly>.lx3p{position:absolute;left:calc(var(--W)/-2);top:calc(var(--W)*-5/7);width:var(--W);height:calc(var(--W)*10/7);perspective:1100px}
-.lxo .lx3-flap{transition:transform .5s cubic-bezier(.5,0,.3,1.3)}
-.lxo .lx3.peek .lx3-glow{opacity:.55;transform:scale(.45);transition:opacity 1s,transform 1s}
-.lxo.boom .lx3-glow{opacity:1;transform:scale(1);transition:opacity .25s .15s,transform .5s cubic-bezier(.2,1.4,.4,1) .15s}
-.lxo-burst{position:absolute;left:50%;top:var(--top);width:0;height:0}
-.lxo-ring{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;border:4px solid #FFE08A;box-shadow:0 0 24px #FFD25A,inset 0 0 24px #FFD25A}
-.lxo-spark{position:absolute;left:0;top:0;fill:#FFE9A3;filter:drop-shadow(0 0 4px #FFC21F)}
-.lxo-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% var(--top),#fff,rgba(255,244,200,.75) 35%,rgba(255,220,140,0) 75%);opacity:0;pointer-events:none}
-.lxo-h{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 7%);display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transform:translateY(-14px) scale(.8)}
-.lxo-h i{font:normal 700 20px/1 var(--hanzi);color:#FFD25A;letter-spacing:.2em;padding-left:.2em}
-.lxo-h b{font:800 30px/1.1 var(--ui);color:#FFF4D6;text-shadow:0 3px 0 rgba(80,10,5,.5)}
-.lxo.boom .lxo-h{opacity:1;transform:none;transition:opacity .4s .35s,transform .6s cubic-bezier(.2,1.5,.4,1) .35s}
-.lxo-sum{position:absolute;left:0;right:0;top:calc(var(--cy) + var(--W)*.95);margin:0;display:flex;justify-content:center;align-items:center;gap:8px;opacity:0;transform:scale(.4)}
-.lxo-sum b{font:800 52px/1 var(--ui);color:#FFE07A;text-shadow:0 4px 0 #8A3A06,0 0 24px rgba(255,190,60,.6);font-variant-numeric:tabular-nums}
-.lxo-sum small{align-self:flex-end;margin-bottom:6px;font:700 18px/1 var(--ui);color:#F7C977}
-.lxo-coin{width:46px;height:46px}.lxo-coin .coin{display:block;width:100%;height:100%}
-.lxo.paid .lxo-sum{opacity:1;transform:none;transition:opacity .3s,transform .5s cubic-bezier(.2,1.6,.4,1)}
-.lxo-sum.land{animation:lxLand .5s cubic-bezier(.2,1.6,.4,1)}
-@keyframes lxLand{40%{transform:scale(1.22)}}
-.lxo-dock{position:absolute;left:20px;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));opacity:0;transform:translateY(24px);pointer-events:none}
-.lxo.done .lxo-dock{opacity:1;transform:none;pointer-events:auto;transition:opacity .35s,transform .45s cubic-bezier(.2,1.4,.4,1)}
+.lxo-fly>.lx3p{position:absolute;left:calc(var(--W)/-2);top:calc(var(--W)*-5/7);width:var(--W);height:calc(var(--W)*10/7);perspective:1000px}
+.lxo-sc{position:relative;width:var(--W);height:calc(var(--W)*10/7);transform-style:preserve-3d}
+.lxo-sc>.lx3{position:absolute;left:0;top:0}
+.lxo .lx3-flap{transition:transform .55s cubic-bezier(.4,0,.3,1.15)}
+.lxo .lx3.open .lx3-glow{opacity:.5;transform:scale(.6);transition:opacity .6s,transform .6s}
+.lxo-c{position:absolute;left:50%;top:50%;width:var(--cz);height:var(--cz);margin:calc(var(--cz)/-2) 0 0 calc(var(--cz)/-2);transform-style:preserve-3d;opacity:0}
+.lxo-c>i{position:absolute;inset:0}
+.lxo-c svg{display:block;width:100%;height:100%}
+.lxo-pill{position:absolute;display:flex;align-items:center;gap:4px;padding:0 10px 0 6px;border-radius:20px;background:#FFF8E8;box-shadow:0 2px 0 rgba(0,0,0,.18);opacity:0;transition:opacity .3s}
+.lxo.on .lxo-pill{opacity:1}
+.lxo-pill .coin{width:22px;height:22px;flex:none}
+.lxo-pill b{font:900 16px/1 var(--ui);color:#A86A0C;font-variant-numeric:tabular-nums}
+.lxo-h{position:absolute;left:0;right:0;top:calc(var(--cy) + var(--W)*5/7 + 22px);display:flex;align-items:baseline;justify-content:center;gap:8px;opacity:0;transform:translateY(8px)}
+.lxo-h i{font:normal 700 15px/1 var(--hanzi);color:#F6C445;letter-spacing:.25em;padding-left:.25em}
+.lxo-h b{font:800 20px/1.1 var(--ui);color:#FFF4E2}
+.lxo.lit .lxo-h{opacity:1;transform:none;transition:opacity .5s,transform .5s ease-out}
+.lxo-sum{position:absolute;left:0;right:0;top:calc(var(--cy) + var(--W)*5/7 + 58px);margin:0;display:flex;justify-content:center;align-items:baseline;gap:6px;opacity:0}
+.lxo-sum b{font:800 34px/1 var(--ui);color:#FFE07A;font-variant-numeric:tabular-nums}
+.lxo-sum small{font:700 16px/1 var(--ui);color:#F2D3A8}
+.lxo.lit .lxo-sum{opacity:1;transition:opacity .4s .3s}
+.lxo-dock{position:absolute;left:20px;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));opacity:0;transform:translateY(16px);pointer-events:none}
+.lxo.done .lxo-dock{opacity:1;transform:none;pointer-events:auto;transition:opacity .35s,transform .4s ease-out}
 .lxo-dock .btn{width:100%;height:54px;font-size:17px;background:linear-gradient(#FFE79A,#FFD15C 55%);color:#7E1D19;text-shadow:none;--edge:rgba(150,90,10,.55);--drop:rgba(60,8,4,.7)}
-@media (prefers-reduced-motion:reduce){.lxo-rays svg,.lxo-bg::after{animation:none!important}}
 /* v3.51: friends at work beside the path */
 .pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*170px);height:calc(var(--k,1)*142px);transform:translate(-50%,-58%);pointer-events:none}
 .pp-pal>svg{display:block;width:100%;height:100%;overflow:visible}
@@ -6817,10 +6814,14 @@ function lxArt(look) {   // { defs, body, flap, inner (the flap's inside, as a p
 }
 /* the envelope in 3D: a front and a back, its four paper edges, and the flap on a hinge at the top (its inside on its back).
    The light and the coins go between the front and the back. Sized by --W on its .lx3p */
+const LX_SLICES = gold => Array.from({ length: 13 }, (_, i) => {   // v4.31: the puffed body, back to front; with a gold line round its middle on the looks that have one
+  const u = -.94 + 1.88 * i / 12, r = Math.sqrt(1 - u * u);
+  return `<span class="lx3-l" style="--u:${u.toFixed(3)};--i:${r.toFixed(3)};background:${gold && i === 6 ? 'var(--g)' : `color-mix(in srgb,var(--e2) ${Math.round(r * 100)}%,var(--e1))`}"></span>`;
+}).join('');
 function lx3(look) {
   const a = lxArt(look), [e1, e2, g, ins, fh] = LX_EDGE[look];
   return `<span class="lx3p" aria-hidden="true"><span class="lx3 lx3-${look}" style="--e1:${e1};--e2:${e2};--g:${g ? '#F6C445' : 'transparent'};--in:${ins};--fh:${fh}">`
-    + '<span class="lx3-b"></span><span class="lx3-s r"></span><span class="lx3-s l"></span><span class="lx3-t t"></span><span class="lx3-t b"></span><span class="lx3-glow"></span>'
+    + '<span class="lx3-b"></span>' + LX_SLICES(g) + '<span class="lx3-s r"></span><span class="lx3-s l"></span><span class="lx3-t t"></span><span class="lx3-t b"></span><span class="lx3-glow"></span>'
     + `<span class="lx3-f"><svg viewBox="50 70 140 200"><defs>${a.defs}</defs>${a.body}</svg></span>`
     + `<span class="lx3-flap"><span class="out"><svg viewBox="50 70 140 ${(140 * fh).toFixed(1)}"><defs>${a.defs}</defs>${a.flap}</svg></span>`
     + `<span class="in"><svg viewBox="50 70 140 ${(140 * fh).toFixed(1)}"><path d="${a.inner}" fill="${ins}" stroke="rgba(0,0,0,.35)" stroke-width="3" stroke-linejoin="round"/></svg></span></span></span></span>`;
@@ -6845,89 +6846,100 @@ function lixiOpen(k) {
     if (demo) lxDemo = '';
     if (el?.isConnected) { el.classList.remove('pp-lx-wake'); el.dataset.s = demo ? (lxGot(un, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked') : 'open'; if (!demo) el.setAttribute('aria-label', `Red envelope, ${n} coins, opened`); }
     if (hud && ucU) hud.innerHTML = ucHud(ucU);
+    const cb = $('.uc-coins');   // v4.31: the coins flew into it
+    if (cb && !demo) { cb.querySelector('b').textContent = coinFmt(coinBal()); cb.setAttribute('aria-label', `${coinFmt(coinBal())} coins. Open the shop`); }
   };
-  const go = () => lxShow(lxLook(un), n, el?.isConnected ? el : null, after);
+  const go = () => lxShow(lxLook(un), n, el?.isConnected ? el : null, after, demo ? coinBal() : coinBal() - n);
   if (!el || !sc) { go(); return; }
   const r = el.getBoundingClientRect(), s = sc.getBoundingClientRect();
   if (r.top < s.top + 150 || r.bottom > s.bottom - 110) { ucFocus(un, parseFloat(el.style.left) / 100, parseFloat(el.style.top) / 100, true); setTimeout(go, stillMotion() ? 0 : 480); } else go();
 }
-/* the moment (ilkem: "an epic lixi animation... when you click on it, the lid opens and light comes out and the coins you earn
-   come out. Make it epic and center animation full screen"). The screen goes deep red, the envelope flies from the path to the
-   middle with a spin and shakes harder and harder, light leaking from under its flap; then (or sooner, at a tap) the flap
-   bursts open: a white flash, the screen shakes, spinning rays and a ring of sparks, and the coins jump out of it, spinning
-   toward you and tumbling past, while the count climbs. Collect closes it */
-function lxShow(look, n, from, done) {
-  const fr = $('#frame') || document.body, still = stillMotion(), fh = fr.clientHeight || innerHeight, fw = fr.clientWidth || innerWidth;
-  const W = Math.round(Math.min(200, fh * .29, fw * .5)), H = W * 10 / 7, cy = Math.round(fh * .45), top = Math.round(cy - H / 2);
-  const star = 'M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z';
-  const rays = `<svg viewBox="-100 -100 200 200"><defs><linearGradient id="lxoRay" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFE7A0" stop-opacity=".8"/><stop offset="1" stop-color="#FFE7A0" stop-opacity="0"/></linearGradient></defs>${Array.from({ length: 18 }, (_, i) => `<path d="M0 0L-${i % 2 ? 4 : 7} -100H${i % 2 ? 4 : 7}Z" transform="rotate(${i * 20})" fill="url(#lxoRay)"/>`).join('')}</svg>`;
+/* the moment, v4.31 (ilkem: idea 5 "but without the shining bg, pls make it less epic"). A soft dark veil comes over the
+   path, which tips back a little like a table. The envelope floats up from where it stood, turning, and hovers; its flap
+   opens and its coins rise out, circle it in a tilted ring (passing in front of it and behind it), then fly one by one into
+   your coin count, each with a clink. No rays, no flash, no shaking. A tap skips to the end; Collect closes it */
+function lxShow(look, n, from, done, bal0 = coinBal() - n) {
+  const fr = $('#frame') || document.body, still = stillMotion(), fh = fr.clientHeight || innerHeight, fw = fr.clientWidth || innerWidth, f0 = fr.getBoundingClientRect();
+  const W = Math.round(Math.min(140, fh * .19, fw * .34)), H = W * 10 / 7, cy = Math.round(fh * .44), top = Math.round(cy - H / 2), cz = Math.round(W * .21), th = cz * .2;
   const o = document.createElement('div'); o.className = 'lxo'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', `Red envelope, ${n} coins`);
-  o.style.cssText = `--W:${W}px;--cy:${cy}px;--top:${top}px`;
-  o.innerHTML = `<div class="lxo-bg"></div><div class="lxo-rays">${rays}</div><div class="lxo-shake"><div class="lxo-fly">${lx3(look)}</div></div><div class="lxo-burst"></div><div class="lxo-flash"></div>
-    <div class="lxo-h"><i lang="zh">利是</i><b>Lucky money!</b></div>
-    <p class="lxo-sum" role="status"><span class="lxo-coin">${coinSvg(1)}</span><b>+0</b><small>coins</small></p>
+  o.style.cssText = `--W:${W}px;--cy:${cy}px;--top:${top}px;--cz:${cz}px`;
+  o.innerHTML = `<div class="lxo-bg"></div><div class="lxo-fly">${lx3(look)}</div>
+    <div class="lxo-h"><i lang="zh">利是</i><b>Lucky money</b></div>
+    <p class="lxo-sum" role="status"><b>+0</b><small>coins</small></p>
+    <div class="lxo-pill" aria-hidden="true">${coinSvg()}<b>${coinFmt(bal0)}</b></div>
     <div class="lxo-dock"><button class="btn btn-seal" data-lxo="go">Collect</button></div>`;
   fr.append(o);
-  const env = o.querySelector('.lx3'), fly = o.querySelector('.lxo-fly'), num = o.querySelector('.lxo-sum b'), T = [];
-  const at = (ms, f) => T.push(setTimeout(f, ms));
-  let opened = false, shake = null, closed = false;
-  const close = () => { if (closed) return; closed = true; T.forEach(clearTimeout); o.classList.add('out'); if (from) from.style.visibility = ''; done?.(); setTimeout(() => o.remove(), still ? 0 : 320); };
+  // the envelope and its coins share one 3D space, so the ring passes in front of it and behind it
+  const p3 = o.querySelector('.lx3p'), env = o.querySelector('.lx3'), fly = o.querySelector('.lxo-fly'), sc = document.createElement('div');
+  sc.className = 'lxo-sc'; p3.append(sc); sc.append(env); env.style.animation = 'none';
+  const rim = '<svg viewBox="0 0 24 24"><path d="M1.7 12a10.3 10.3 0 1 0 20.6 0a10.3 10.3 0 1 0-20.6 0ZM9.5 9.5h5v5h-5Z" fill-rule="evenodd" fill="#C98A0A" stroke="#8A4A06" stroke-width="1"/></svg>';
+  const k = Math.max(8, Math.min(14, Math.round(n / 4)));
+  const coins = Array.from({ length: k }, () => {   // thick coins: a face on each side and four rim discs between
+    const c = document.createElement('span'); c.className = 'lxo-c';
+    c.innerHTML = Array.from({ length: 6 }, (_, j) => `<i style="transform:translateZ(${(-th / 2 + th * j / 5).toFixed(2)}px)${j === 0 ? ' rotateY(180deg)' : ''}">${j === 0 || j === 5 ? coinSvg(1) : rim}</i>`).join('');
+    sc.append(c); return c;
+  });
+  // your coin count: drawn over the veil where the real one sits (top right if there is none)
+  const pill = o.querySelector('.lxo-pill'), pillN = pill.querySelector('b'), sumN = o.querySelector('.lxo-sum b'), real = $('.uc-coins');
+  const pr = real && real.offsetParent ? real.getBoundingClientRect() : null;
+  if (pr) pill.style.cssText = `left:${pr.left - f0.left - 4}px;top:${pr.top - f0.top + pr.height / 2 - 17}px;height:34px`;
+  else pill.style.cssText = 'right:16px;top:calc(env(safe-area-inset-top) + 12px);height:34px';
+  const path = from ? $('.uc-scroll') : null;
+  const tip = path && !still ? path.animate([{ transform: 'none' }, { transform: 'perspective(900px) rotateX(14deg) scale(.96)' }], { duration: 700, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }) : null;
+  let closed = false, raf = 0, skip = false, got = 0;
+  const close = () => {
+    if (closed) return; closed = true; cancelAnimationFrame(raf); o.classList.add('out');
+    if (tip) { tip.reverse(); tip.onfinish = () => tip.cancel(); }
+    if (from) from.style.visibility = ''; done?.(); setTimeout(() => o.remove(), still ? 0 : 320);
+  };
   o.querySelector('[data-lxo="go"]').onclick = e => { e.stopPropagation(); haptic(10); close(); };
   o.addEventListener('keydown', e => { if (e.key === 'Escape' && o.classList.contains('done')) close(); });
-  const open = () => {
-    if (opened || closed) return; opened = true; T.forEach(clearTimeout); T.length = 0; shake?.cancel(); env.classList.remove('peek');
-    o.classList.add('boom'); env.classList.add('open'); fanfare();
-    try { if (navigator.vibrate) navigator.vibrate([18, 40, 26, 40, 60]); else haptic(20); } catch (_) {}
-    const end = () => { num.textContent = '+' + coinFmt(n); o.classList.add('paid', 'done'); o.querySelector('[data-lxo="go"]').focus({ preventScroll: true }); };
-    if (still) { end(); return; }
-    o.querySelector('.lxo-flash').animate([{ opacity: 0 }, { opacity: .95, offset: .2 }, { opacity: 0 }], { duration: 650, delay: 140, easing: 'ease-out' });
-    o.querySelector('.lxo-shake').animate([{ transform: 'none' }, { transform: 'translate(-7px,4px)' }, { transform: 'translate(6px,-5px)' }, { transform: 'translate(-4px,-3px)' }, { transform: 'translate(3px,4px)' }, { transform: 'none' }], { duration: 380, delay: 150 });
-    env.animate([{ transform: 'rotateX(10deg) rotateY(-28deg)' }, { transform: 'translateY(5%) rotateX(10deg) rotateY(-28deg) scale(1.08,.9)', offset: .3 }, { transform: 'translateY(-3%) rotateX(10deg) rotateY(-26deg) scale(.97,1.04)', offset: .65 }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: 520, delay: 120, easing: 'ease-out' });
-    at(900, () => env.animate([{ transform: 'rotateX(10deg) rotateY(-28deg)' }, { transform: 'translateY(-3%) rotateX(12deg) rotateY(-20deg)' }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: 2600, iterations: Infinity, easing: 'ease-in-out' }));
-    const burst = o.querySelector('.lxo-burst');   // a ring, and sparks flung out from the opening
-    at(200, () => {
-      const ring = document.createElement('i'); ring.className = 'lxo-ring'; burst.append(ring);
-      ring.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(5)', opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = () => ring.remove();
-      for (let i = 0; i < 22; i++) {
-        const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), a = (i / 22) * Math.PI * 2 + Math.random() * .3, d = 90 + Math.random() * 130, z = 8 + Math.random() * 14;
-        s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'lxo-spark'); s.innerHTML = `<path d="${star}"/>`; s.style.width = s.style.height = z + 'px'; burst.append(s);
-        s.animate([{ transform: 'translate(-50%,-50%) scale(0)', opacity: 1 }, { transform: `translate(calc(-50% + ${(Math.cos(a) * d * .7).toFixed(1)}px),calc(-50% + ${(Math.sin(a) * d * .7).toFixed(1)}px)) scale(1.2) rotate(90deg)`, opacity: 1, offset: .5 },
-          { transform: `translate(calc(-50% + ${(Math.cos(a) * d).toFixed(1)}px),calc(-50% + ${(Math.sin(a) * d + 30).toFixed(1)}px)) scale(0) rotate(180deg)`, opacity: 0 }], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.2,.8,.4,1)', fill: 'both' }).onfinish = () => s.remove();
-      }
-    });
-    const k = Math.max(10, Math.min(22, Math.round(n / 2.5))), y0 = top + H * .12;   // the coins, in 3D between the front and the back: up out of the opening, then toward you and down past
-    at(260, () => o.classList.add('paid'));
-    for (let i = 0; i < k; i++) at(240 + i * 60, () => {
-      const c = document.createElement('span'); c.className = 'lx3-c'; c.innerHTML = coinSvg(1); env.append(c);
-      const x = (Math.random() - .5) * fw * .95, z = 80 + Math.random() * 300, py = -(H * .55 + Math.random() * fh * .28), ey = fh - y0 + 120, r = (Math.random() - .5) * 720, dur = 1500 + Math.random() * 600;
-      c.firstChild.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(.12)' }, { transform: 'scaleX(1)' }], { duration: 300 + Math.random() * 200, iterations: Infinity, direction: 'alternate' });
-      c.animate([{ transform: `translate3d(0,${H * .3}px,0)` }, { transform: `translate3d(${(x * .06).toFixed(1)}px,${(-H * .34).toFixed(1)}px,0)`, offset: .1, easing: 'cubic-bezier(.2,.75,.4,1)' },   // straight up out of the opening first, still inside its edges
-        { transform: `translate3d(${(x * .5).toFixed(1)}px,${py.toFixed(1)}px,${(z * .5).toFixed(1)}px) rotate(${r / 2}deg)`, offset: .38, easing: 'cubic-bezier(.55,0,.85,.45)' },
-        { transform: `translate3d(${x.toFixed(1)}px,${ey.toFixed(1)}px,${z.toFixed(1)}px) rotate(${r}deg)` }], { duration: dur, fill: 'both' }).onfinish = () => c.remove();
-      setTimeout(() => { if (closed) return; num.textContent = '+' + coinFmt(Math.round(n * (i + 1) / k)); clink(i); if (i === k - 1) num.parentNode.classList.add('land'); }, dur * .36);
-    });
-    at(240 + k * 60 + 900, end);
+  const show = m => { pillN.textContent = coinFmt(bal0 + Math.round(n * m / k)); sumN.textContent = '+' + coinFmt(Math.round(n * m / k)); };
+  const finish = () => {
+    coins.forEach(c => c.style.opacity = 0); env.classList.add('open'); o.classList.add('lit', 'done'); show(k);
+    env.style.transform = 'rotateX(8deg) rotateY(-24deg)'; o.querySelector('[data-lxo="go"]').focus({ preventScroll: true });
   };
-  o.addEventListener('click', () => { if (!opened) open(); });
   requestAnimationFrame(() => o.classList.add('on'));
   if (from) from.style.visibility = 'hidden';
-  if (still) { open(); return; }
-  haptic(12);
-  let fl = 0;
-  if (from) {   // from where it stood, with a turn and a lift on the way
-    const r = from.getBoundingClientRect(), f0 = fr.getBoundingClientRect(), dx = r.left + r.width / 2 - f0.left - fw / 2, dy = r.top + r.height / 2 - f0.top - cy, s = Math.max(.12, Math.min(1, r.height / H * .9));
-    fl = 820;
-    fly.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s})` }, { transform: `translate(${(dx * .3).toFixed(1)}px,${(dy * .3 - fh * .1).toFixed(1)}px) scale(${((s + 1.2) / 2).toFixed(2)})`, offset: .55 },
-      { transform: 'translate(0,0) scale(1.1,.92)', offset: .86 }, { transform: 'none' }], { duration: fl, easing: 'cubic-bezier(.45,0,.3,1)' });
-    env.animate([{ transform: 'rotateX(10deg) rotateY(-388deg)' }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: fl * .9, easing: 'cubic-bezier(.3,0,.2,1)' });
-  } else { fl = 500; fly.animate([{ transform: `translateY(${fh * .6}px) scale(.4)` }, { transform: 'translateY(-4%) scale(1.06)', offset: .8 }, { transform: 'none' }], { duration: fl, easing: 'cubic-bezier(.3,.8,.4,1)' }); }
-  at(fl, () => {   // the build-up: harder and harder, light leaking out
-    env.classList.add('peek'); haptic(10);
-    const kf = []; for (let i = 0; i <= 14; i++) { const a = (i % 2 ? 1 : -1) * (2 + i * .75) * (i < 14 ? 1 : 0); kf.push({ transform: `translateY(${i % 2 ? -1.5 * (1 + i / 5) : 0}%) rotateX(10deg) rotateY(-28deg) rotateZ(${a.toFixed(1)}deg)` }); }
-    shake = env.animate(kf, { duration: 1050, easing: 'ease-in-out', fill: 'both' });
-    at(520, () => haptic(14));
-  });
-  at(fl + 1100, open);
+  if (still) { finish(); return; }
+  haptic(10);
+  o.addEventListener('click', () => { if (!o.classList.contains('done')) { skip = true; cancelAnimationFrame(raf); finish(); } });
+  // the float up, from where it stood on the path
+  let fl = 600;
+  if (from) {
+    const r = from.getBoundingClientRect(), dx = r.left + r.width / 2 - f0.left - fw / 2, dy = r.top + r.height / 2 - f0.top - cy, s0 = Math.max(.12, Math.min(1, r.height / H * .9));
+    fl = 900;
+    fly.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s0})` }, { transform: `translate(${(dx * .35).toFixed(1)}px,${(dy * .35 - fh * .04).toFixed(1)}px) scale(${((s0 + 1) / 2).toFixed(2)})`, offset: .5 }, { transform: 'none' }], { duration: fl, easing: 'cubic-bezier(.45,0,.25,1)' });
+  } else fly.animate([{ transform: `translateY(${fh * .4}px) scale(.5)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: fl, easing: 'cubic-bezier(.3,.7,.3,1)' });
+  const cl = x => Math.min(1, Math.max(0, x)), seg = (t, a, b) => cl((t - a) / (b - a)), lerp = (a, b, x) => a + (b - a) * x;
+  const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2, eo = x => 1 - Math.pow(1 - x, 3);
+  const tOpen = fl + 250, tOut = tOpen + 350, R = W * .92, ringY = -H * .02, tGo = tOut + k * 45 + 1500, step = 90, tEnd = tGo + k * step + 650;
+  const pc = pr ? { x: pr.left - f0.left + 14 - fw / 2, y: pr.top - f0.top + pr.height / 2 - cy } : { x: fw / 2 - 40, y: 30 - cy };   // where the coins land, from the middle of the envelope
+  const t0 = performance.now();
+  const frame = () => {
+    if (closed || skip) return;
+    const t = performance.now() - t0;
+    // the envelope: half a turn on the way up, then a slow sway and bob while it hovers
+    const ry = t < fl ? lerp(-208, -26, eio(seg(t, 0, fl))) : -26 + Math.sin((t - fl) / 900) * 12, bob = Math.sin((t - fl) / 700) * 3 * seg(t, fl, fl + 400);
+    env.style.transform = `translateY(${bob.toFixed(2)}px) rotateX(8deg) rotateY(${ry.toFixed(2)}deg)`;
+    if (t >= tOpen && !env.classList.contains('open')) { env.classList.add('open'); o.classList.add('lit'); haptic(8); }
+    // the coins: up out of the opening, out into a tilted ring that turns, then one by one into the coin count
+    const spin = (t - tOut) / 1000 * Math.PI * .9;
+    coins.forEach((c, i) => {
+      const s = tOut + i * 45, go = tGo + i * step;
+      if (t >= go + 600 && !c.dataset.in) { c.dataset.in = 1; got++; show(got); clink(i); pill.animate([{ transform: 'scale(1.12)' }, { transform: 'none' }], { duration: 220, easing: 'ease-out' }); }
+      if (t < s || t >= go + 600) { c.style.opacity = 0; return; }
+      c.style.opacity = 1;
+      const up = eo(seg(t, s, s + 380)), out = eio(seg(t, s + 250, s + 900)), a = i / k * Math.PI * 2 + spin;
+      let x = Math.cos(a) * R * out, z = Math.sin(a) * R * out, y = lerp(lerp(-H * .25, -H * .66, up), ringY + Math.sin(a) * R * .3, out), sc1 = 1;
+      const g = eio(seg(t, go, go + 600));
+      if (g > 0) { x = lerp(x, pc.x, g); y = lerp(y, pc.y, g) - Math.sin(g * Math.PI) * 40; z = lerp(z, 0, g); sc1 = lerp(1, 22 / cz, g); }
+      c.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.toFixed(1)}px) rotateY(${(-a * 57.3 + 90).toFixed(1)}deg) scale(${sc1.toFixed(3)})`;
+    });
+    if (t >= tEnd) { finish(); return; }
+    raf = requestAnimationFrame(frame);
+  };
+  raf = requestAnimationFrame(frame);
 }
 /* v4.01 (ilkem: "i also want the tap to open pls, maybe make it just a bit slimmer"): on the path, tapping the lesson that is
    next opens a slim card under it with its words and the one Start. Tapping the lesson again, or anywhere else, closes it.
@@ -13700,7 +13712,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.30';
+const APP_VERSION = '4.31';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
