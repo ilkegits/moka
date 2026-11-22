@@ -5168,7 +5168,7 @@ function scrHead(u) {
   return `<span class="scr-rod"></span><div class="scr-pap"><div class="scr-main">
     <div class="scr-txt"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b>${esc(UNIT(u)[0])}</b>
       <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(n ? nd / n * 100 : 0).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
-    ${readOpen() ? `<button class="scr-read" data-act="tab" data-h="#/read" aria-label="Read a story"><i>${SCR_BOOK}</i></button>`
+    ${readOpen() ? `<button class="scr-read" data-act="tab" data-h="#/read" data-riffle="1" aria-label="Read a story"><i>${SCR_BOOK}</i></button>`
       : `<button class="scr-read off" data-act="read-locked" aria-disabled="true" aria-label="Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}"><i>${SCR_BOOK}</i></button>`}</div><span class="scr-rod"></span>`;
 }
 /* v3.99 (ilkem: "for hsk1 u shouldnt have the reading option just yet ... bc u need a few words to make a story"): the scroll's
@@ -8550,13 +8550,20 @@ function StoryCover(s, st, readToday) {
         <button class="link-btn rd-other" data-act="read-new">Different story</button></div>
     </article>`;
 }
+/* v4.04 (ilkem: "when u click the red book on the lessons page ... the books pages should be automatically flipping to the
+   next story"): the scroll's book (S.riffle) opens Read with the cover's pages riffling over from the last story you
+   read (or blank 读书 pages) to this one. It waits for the HSK lists, as their re-draw would cut it off */
 function mountRead() {
-  if (S.H) return;
+  const rf = S.riffle; S.riffle = false;
+  const riffle = () => { if (!rf || S.view !== 'read' || S.readId) return; const cur = coverChars(db.readCur).join(''), last = db.readDone.map(coverChars).find(c => c.length && c.join('') !== cur);
+    riffleBook(last || (cur === '读书' ? ['故', '事'] : ['读', '书'])); };
+  if (S.H) { riffle(); return; }
   loadHsk().then(() => {   // levels for stories finished before the HSK lists had loaded, and for the cover
     let ch = false; for (const s of db.readDone) if (!s.hsk) { const l = storyLevel(s); if (l) { s.hsk = l; ch = true; } }
     if (ch) save();
     if (S.view === 'read' && (ch || $('.rd-hero') || $('.story'))) { S.instant = true; render(); }   // the new words of a story are only all known once the HSK lists are in
-  }, () => {});
+    riffle();
+  }, riffle);
 }
 /* the quick check: every new word of the story (the ones not in your word bank yet, the same ones the next step
    offers for it), each with three meanings to pick from, in the order they come in the story. A story with no new word
@@ -13406,7 +13413,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.03';
+const APP_VERSION = '4.04';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14407,7 +14414,7 @@ const A = {
   'read-done-ok': () => closeLayer(() => { riffleBook(S.readFrom); S.readFrom = null; moments(); }),
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
-  'tab': t => { haptic(8); if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true;
+  'tab': t => { haptic(8); if (t.dataset.riffle) S.riffle = true; if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true;
     if (t.dataset.h === '#/learn') { const lv = playLv(); if (lv && LV_DUO[lv]) { history.replaceState({ d: 0 }, '', '#/learn'); nav(unitUrl(ucMe(lv))); return; } }   // v3.57 (ilkem: "clicking the hsk screen will directly make u go to the scrolling screen")
     nav(t.dataset.h); },
   'learn-study': t => nav(`#/deck/${t.dataset.id}/study`),
