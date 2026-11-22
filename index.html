@@ -2573,6 +2573,24 @@ button.st-d:active{transform:scale(.9);transition:none}
 .lq-end{position:absolute;right:-26px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:9px;display:grid;place-items:center;background:var(--seal);color:#fff;font:700 17px/1 var(--hanzi);box-shadow:0 2px 0 rgba(126,29,25,.35)}
 .lq-quit{display:block;width:100%;height:50px;margin-top:6px;font-size:16px;font-weight:500;color:var(--seal)}
 .lq-quit:active{opacity:.5}
+/* v3.89 (ilkem, after Duolingo's "Let's fix some mistakes" card): the practice part opens on Shi Shi twirling a big brush under a
+   speech bubble, and the cards you missed come back after the same card saying so. Continue goes on */
+.lsay{flex:1;justify-content:center;align-items:center;padding:10px 0 24px}
+.lsay-bub{position:relative;max-width:300px;margin:0 0 6px;padding:14px 18px;border-radius:18px;background:var(--card);border:2px solid var(--line-2);
+  font-size:18px;font-weight:700;line-height:1.35;color:var(--ink);text-align:center;text-wrap:balance;transform-origin:50% 100%;animation:lsayBub .45s .12s cubic-bezier(.2,.9,.3,1.35) both}
+.lsay-bub::after{content:"";position:absolute;left:calc(50% - 30px);bottom:-10px;width:16px;height:16px;background:var(--card);border:solid var(--line-2);border-width:0 2px 2px 0;transform:rotate(45deg);border-bottom-right-radius:4px}
+@keyframes lsayBub{0%{opacity:0;transform:scale(.7) translateY(10px)}100%{opacity:1;transform:none}}
+.lsay-shi{display:block;width:min(300px,82vw);aspect-ratio:300/240;animation:lsayUp .5s cubic-bezier(.2,.9,.3,1.2) both}
+.lsay-shi svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes lsayUp{0%{opacity:0;transform:translateY(24px)}100%{opacity:1;transform:none}}
+.sb-body{animation:sbHop 3.4s .5s ease-in-out infinite}
+.sb-spin{animation:sbSpin 3.4s .5s cubic-bezier(.45,0,.25,1) infinite;transform:rotate(-90deg)}
+.sb-ink{opacity:0;animation:sbInk 3.4s .5s ease-out infinite}
+.sb-ink:nth-child(2){animation-delay:.58s}.sb-ink:nth-child(3){animation-delay:.66s}
+@keyframes sbSpin{0%{transform:rotate(-90deg)}16%{transform:rotate(-115deg)}50%{transform:rotate(640deg)}58%{transform:rotate(625deg)}66%,100%{transform:rotate(630deg)}}
+@keyframes sbHop{0%,40%,68%,100%{transform:none}50%{transform:translateY(-12px)}60%{transform:translateY(2px)}}
+@keyframes sbInk{0%,38%{opacity:0;transform:none}44%{opacity:1}62%{opacity:0;transform:translate(var(--x),var(--y))}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.lsay-bub,.lsay-shi,.sb-body,.sb-spin,.sb-ink{animation:none}}
 .les-body{display:flex;flex-direction:column;padding:6px 0 20px}
 .les-ask{margin:6px 0 16px;font-size:21px;font-weight:800;letter-spacing:-.01em}
 .les-ask span{margin-left:8px;font-size:14px;font-weight:700;color:var(--muted)}
@@ -6635,6 +6653,7 @@ function startLesson(n, demo, part) {   // v3.79: part 1 learns and traces, part
     // a card, then a character from memory, in turn; a word's own card comes a step after you wrote it, never just before
     const rw = new Set(rc.map(x => x.w)), deck = shuffle(words.filter(w => !rw.has(w))), wait = shuffle(rc);
     while (wait.length || deck.length) { if (deck.length) q.push({ t: 'flip', w: deck.shift() }); const r = wait.shift(); if (r) { q.push(r); deck.push(r.w); } }
+    q.unshift({ t: 'say', k: 'go' });   // v3.89: Practice time!
   }
   S.les = { n, part, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length, t0: Date.now(),
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
@@ -6713,7 +6732,7 @@ function lesTop() {
    you to stay. It says how little is left the goal-gradient way ("3 to go", about how long that is at your pace) over a bar that
    ends in a 完 seal. Keep going is the big red button (it just closes the sheet); Quit is a quiet line under it */
 function lesQuitSheet(leave) {
-  const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.length - E.qi - (E.ans != null ? 1 : 0));
+  const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.slice(E.qi + (E.ans != null ? 1 : 0)).filter(x => x.t !== 'say').length);
   const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
   const what = E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
   openSheet(`<div class="lq"><span class="lq-shi">${shiBody('plead')}</span>
@@ -6724,6 +6743,29 @@ function lesQuitSheet(leave) {
       <button class="lq-quit" id="lqQuit">${E.test ? 'Quit the challenge' : 'Quit lesson'}</button></div>`,
     sh => sh.querySelector('#lqQuit').onclick = () => { LOG.add('lesson-quit', { n: E.n, test: E.test || null, left }); closeSheet(); leave(); });
 }
+/* v3.89, Duolingo's interstitial: Shi Shi with one paw on his hip twirls a big calligraphy brush in the other (two turns,
+   a hop, a fleck or two of ink), drawn so the paw is the brush's pivot */
+function shiBrush(mood) {
+  const { arm, paw, lion, ln, red, gold } = CRS.kit, P = [96, -40];
+  const brush = `<path d="M-52 -4.5H38V4.5H-52A4.5 4.5 0 0 1 -52 -4.5Z" fill="#D9A55B" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+    + `<path d="M-22 -4.5V4.5M8 -4.5V4.5" stroke="#9A6A2E" stroke-width="2.4"/><path d="M-48 -1.5H34" stroke="#F3D49A" stroke-width="2" stroke-linecap="round"/>`
+    + `<circle cx="-60" cy="0" r="5" fill="none" stroke="${red}" stroke-width="2.6"/>`
+    + `<rect x="36" y="-7" width="13" height="14" rx="2.5" fill="${red}" stroke="${ln}" stroke-width="3"/><path d="M42.5 -6V6" stroke="${gold}" stroke-width="2.4"/>`
+    + `<path d="M49 -8C62 -9 74 -5 86 0C74 5 62 9 49 8Z" fill="#F2E6CF" stroke="${ln}" stroke-width="3" stroke-linejoin="round"/>`
+    + `<path d="M60 -7.6C70 -6.6 78 -3.6 86 0C78 3.6 70 6.6 60 7.6Q57 0 60 -7.6Z" fill="#231915"/>`;
+  const ink = [[160, -118, '14px', '-12px', 4.5], [182, -78, '16px', '4px', 3.5], [128, -132, '2px', '-16px', 3]]
+    .map(([x, y, dx, dy, r]) => `<circle class="sb-ink" cx="${x}" cy="${y}" r="${r}" fill="#231915" style="--x:${dx};--y:${dy}"/>`).join('');
+  return `<svg class="shi-brush" viewBox="-110 -136 300 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="50" ry="8" fill="#000" opacity=".16"/>
+    <g>${ink}</g><g class="sb-body">${arm(-44, 44, -72, 70, 12) + paw(-74, 74, 200, .85) + arm(42, 34, P[0] - 4, P[1] + 8, 12)}${lion(0, 0, 1, mood)}
+    <g transform="translate(${P[0]} ${P[1]})"><g class="sb-spin">${brush}</g></g>${paw(P[0], P[1] + 2, 24, .9)}</g></svg>`;
+}
+function lesSayHtml(Q) {
+  const E = S.les, n = E.q.filter(x => x.again).length;
+  const say = Q.k === 'fix' ? `Let’s fix the ${n === 1 ? 'one' : n} you missed. You’ve got this!` : 'Practice time! Let’s see what you remember.';
+  return `<div class="les-body lsay"><p class="lsay-bub" role="status">${say}</p><span class="lsay-shi">${shiBrush(Q.k === 'fix' ? 'focus' : 'happy')}</span></div>
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="next">Continue</button></div>`;
+}
+const lesAgain = (E, x) => { if (!E.q.some(y => y.t === 'say' && y.k === 'fix')) E.q.push({ t: 'say', k: 'fix' }); E.q.push(x); };   // a missed card comes back at the end, after "Let's fix the ones you missed"
 /* the answer strip: a right answer gets a red seal stamp, the points and a timer line, and moves on by itself;
    a wrong one shows a quiet note with the right word (no red flood) and waits for "Got it" */
 function lesFb() {
@@ -6857,6 +6899,7 @@ function lesInner() {
   if (E.step === 'done' || E.step === 'unit') return lesEndHtml();
   const top = lesTop();
   const Q = E.q[E.qi], a = Q.w, done = E.ans != null;
+  if (Q.t === 'say') return top + lesSayHtml(Q);
   if (Q.t === 'meet') {   // a new hanzi card: the word in tianzige, its sound, pinyin and meaning
     const k = E.words.indexOf(a), nx = E.q[E.qi + 1]?.t;
     return `${top}<div class="les-body"><p class="les-ask">New card<span>${k + 1} of ${E.words.length}</span></p>
@@ -7121,7 +7164,7 @@ function lesAct(k, b) {
         E.emo = lesEmo(E); chime();
       } else {
         E.combo = 0; E.emo = LES_SAD[Math.random() * LES_SAD.length | 0]; buzz();
-        if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); if (!E.test) E.q.push({ t: Q.t, w: Q.w, again: true }); }
+        if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); if (!E.test) lesAgain(E, { t: Q.t, w: Q.w, again: true }); }
       }
       if (E.ok || Q.again || E.test) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 350);
@@ -7129,7 +7172,7 @@ function lesAct(k, b) {
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
       lesPaint(); if (E.ok) lesAutoNext(); return;
     }
-    if (Q.t === 'meet') { if (k === 'next') lesStep(); return; }
+    if (Q.t === 'meet' || Q.t === 'say') { if (k === 'next') lesStep(); return; }
     if (Q.t === 'flip') {
       if (k === 'turn' && !E.turned) {   // the card turns over, then the grades come up and the word is said
         E.turned = true; const f = $('.lf'); if (f) { f.classList.add('on'); f.dataset.les = 'noop'; } $('#lesScr .les-dock')?.replaceChildren();
@@ -7139,7 +7182,7 @@ function lesAct(k, b) {
       if ((k === 'fyes' || k === 'fno') && E.turned) {
         const ok = k === 'fyes';
         if (ok) { E.combo++; E.best = Math.max(E.best, E.combo); lesGain(Q.again ? 5 : 10 + 5 * Math.min(E.combo - 1, 3)); chime(); }
-        else { E.combo = 0; if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); E.q.push({ t: 'flip', w: Q.w, again: true }); } }
+        else { E.combo = 0; if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); lesAgain(E, { t: 'flip', w: Q.w, again: true }); } }
         if (!Q.again && !E.demo) proveWord(Q.w.h, ok);
         LOG.add('lesson-card', { n: E.n, hz: Q.w.h, knew: ok, again: !!Q.again });
         lesStep();
@@ -13078,7 +13121,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.88';
+const APP_VERSION = '3.89';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -13186,6 +13229,7 @@ function lesDemo(kind) {
     if (test) startUnitTest(L.un, 1); else startLesson(n, 1, kind === 'half' ? 1 : 2);
     const E = S.les; E.demo = kind;
     if (kind === 'fire') E.qi = Math.max(0, E.q.findIndex(x => x.t === 'flip'));
+    if (kind === 'fix') { E.words.slice(0, 2).forEach(w => lesAgain(E, { t: 'flip', w, again: true })); E.qi = E.settled = E.q.findIndex(x => x.k === 'fix'); E.combo = 0; }
     if (kind === 'quit') { E.qi = Math.max(1, E.q.length - 3); E.combo = E.best = 3; E.barT = 2; E.t0 = Date.now() - E.qi * 12e3; }
     if (kind === 'answers') { E.qi = Math.max(0, E.q.findIndex(x => x.t !== 'write' && x.t !== 'ear')); E.settled = E.qi; E.combo = E.best = 2; E.barT = 1; }
     if (['end', 'unit', 'finale', 'pass', 'fail', 'half'].includes(kind)) {
@@ -13269,6 +13313,8 @@ function devSheet() {
       ${p('devLesFire', 'Play: the lesson bar catches fire', '2 in a row turns it amber, 3 lights a flame at its tip, 5 is a moving blaze, then a wrong answer puts it out')}
       ${p('devLesAns', 'Play: a right answer, then a wrong one', 'In Hu Hu’s challenge: the seal stamp, Shi Shi pops up and it moves on; then the quiet “This one was it” strip')}
       ${p('devLesQuit', 'Show: leaving part way', 'Tap X with 3 to go: Shi Shi, teary with his paws together, asks you to stay')}
+      ${p('devLesSay', 'Play: practice time', 'Recall opens on Shi Shi twirling his big brush: Practice time! Let’s see what you remember')}
+      ${p('devLesFix', 'Play: fix the ones you missed', 'Before the missed cards come back: Let’s fix the 2 you missed, then those two cards')}
       ${p('devLesHalf', 'Play: part 1 done', 'Half way there!: the station half filled with half a ring, what you traced, then Recall now plays part 2 (hanzi cards and writing from memory)')}
       ${p('devLesEnd', 'Play: lesson done', 'The seals stamp, You earned (coins, a red envelope to open, new words, streak), the unit bar fills, coins pour into the bag')}
       ${p('devLesLixi', 'Play: red envelope', 'Back on the path the unit’s red envelope jumps awake. Tap it: it flies to the middle, bursts open and pours out its coins. Nothing is saved')}
@@ -13317,7 +13363,7 @@ function devSheet() {
       const un = ucMe(S.view === 'course' && lvHas(S.cLv) ? S.cLv : playLv() || 1);
       if (!LV_DUO[unitLv(un)]) { lixiOpen((lxDemo = un + 'e')); return; }
       lxDemo = lxWake = un + 'e'; S.instant = true; if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
-    [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesHalf', 'half'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
+    [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesSay', 'say'], ['devLesFix', 'fix'], ['devLesHalf', 'half'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
       .forEach(([id, k]) => { sh.querySelector('#' + id).onclick = () => { LOG.add('dev', 'lesson ' + k); closeSheet(); setTimeout(() => lesDemo(k), 320); }; });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/' + (playLv() || 1)); toast(msg); }, 300); };
