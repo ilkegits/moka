@@ -2339,9 +2339,44 @@ button.st-d:active{transform:scale(.9);transition:none}
 .les-chip.have{opacity:.55}
 .w-src{margin-top:6px;font-size:13px}
 /* inside a lesson */
-.les-top{display:flex;align-items:center;gap:12px;height:60px}
-.les-bar{flex:1;height:12px;border-radius:7px;background:var(--fill);overflow:hidden}
-.les-bar i{display:block;height:100%;border-radius:7px;background:var(--c1);transition:width .35s}
+.les-top{display:flex;align-items:center;gap:12px;height:72px;padding-top:12px}   /* v3.74: room above the bar for "3 in a row" */
+.les-bar{position:relative;flex:1;height:18px;border-radius:10px;background:var(--fill)}
+.les-bar i{position:relative;display:block;height:100%;border-radius:10px;background:var(--c1);transition:width .35s}
+.les-bar i::after{content:"";position:absolute;left:9px;right:9px;top:4px;height:4px;border-radius:4px;background:rgba(255,255,255,.32)}   /* a soft shine along the top */
+/* v3.74 the bar catches fire: 2 right in a row warms it to amber, from 3 it burns orange with a flame at its tip, from 5 it is a moving blaze */
+.les-bar.lb-t1 i{background:linear-gradient(90deg,#FFC23A,#FF9F1C)}
+.les-bar.lb-t2{background:color-mix(in srgb,#FF7A1A 12%,var(--fill))}
+.les-bar.lb-t2 i{background:linear-gradient(90deg,#FFB020,#FF5A1F);box-shadow:0 0 12px rgba(255,106,31,.5)}
+.les-bar.lb-t3{background:color-mix(in srgb,#FF3040 13%,var(--fill))}
+.les-bar.lb-t3 i{background:linear-gradient(90deg,#FFD15C,#FF7A1A 25%,#FF3040 50%,#FF7A1A 75%,#FFD15C) 0 0/200% 100%;box-shadow:0 0 16px rgba(255,64,48,.6),0 0 4px rgba(255,190,60,.8);animation:lbBlaze 1.6s linear infinite}
+@keyframes lbBlaze{to{background-position:-200% 0}}
+.lb-tip{position:absolute;right:-11px;top:50%;width:26px;height:26px;margin-top:-17px;z-index:1;pointer-events:none}
+.lb-tip .flame{width:100%;height:100%;transform-origin:50% 92%;animation:fireFlick 1.2s ease-in-out infinite;filter:drop-shadow(0 1px 1px rgba(126,29,25,.35))}
+.lb-t3 .lb-tip{width:32px;height:32px;margin-top:-21px;right:-14px}
+.lb-tag{position:absolute;bottom:calc(100% + 12px);translate:-50% 0;display:inline-flex;align-items:center;gap:2px;white-space:nowrap;font-size:13px;font-weight:800;letter-spacing:.01em;font-variant-numeric:tabular-nums;color:#D98200;transition:left .35s}
+.lb-tag .flame{width:16px;height:16px}
+.lb-t2 .lb-tag{color:#E8590C}
+.lb-t3 .lb-tag{color:#E03131}
+.lb-tag.bump{animation:lbTag .45s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes lbTag{0%{transform:translateY(5px) scale(.7);opacity:0}60%{transform:translateY(-2px) scale(1.12);opacity:1}100%{transform:none}}
+.les-bar.up::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;animation:lbIgnite .7s ease-out forwards}
+@keyframes lbIgnite{0%{box-shadow:0 0 0 0 rgba(255,140,30,.75)}100%{box-shadow:0 0 0 9px rgba(255,140,30,0)}}
+.les-bar.up .lb-tip{animation:firePop .55s cubic-bezier(.2,.9,.3,1.45)}
+.les-bar.out i{animation:lbOut .7s ease-out}
+@keyframes lbOut{0%{filter:grayscale(1) brightness(.85)}100%{filter:none}}
+/* v3.74 leaving a lesson part way: Shi Shi asks you to stay and says how little is left */
+.lq{text-align:center;padding:2px 2px 0}
+.lq-shi{display:block;width:150px;height:141px;margin:0 auto 6px}
+.lq-shi .shi-body{width:100%;height:100%;transform-origin:50% 96%;animation:lqSway 2.6s ease-in-out infinite}
+@keyframes lqSway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.lq-shi .shi-tear{animation:lqTear 2.6s ease-in infinite}
+@keyframes lqTear{0%,25%{transform:none;opacity:0}35%{opacity:1}85%{transform:translateY(16px);opacity:1}100%{transform:translateY(20px);opacity:0}}
+.sheet .lq h3{font-size:25px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;text-wrap:balance}
+.lq p{margin:0 0 20px;font-size:16px;line-height:1.4;color:var(--ink-2);text-wrap:pretty}
+.lq-bar{display:block;flex:none;margin:0 26px 26px 4px}
+.lq-end{position:absolute;right:-26px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:9px;display:grid;place-items:center;background:var(--seal);color:#fff;font:700 17px/1 var(--hanzi);box-shadow:0 2px 0 rgba(126,29,25,.35)}
+.lq-quit{display:block;width:100%;height:50px;margin-top:6px;font-size:16px;font-weight:800;color:var(--seal)}
+.lq-quit:active{opacity:.5}
 .les-body{display:flex;flex-direction:column;padding:6px 0 20px}
 .les-ask{margin:6px 0 16px;font-size:21px;font-weight:800;letter-spacing:-.01em}
 .les-ask span{margin-left:8px;font-size:14px;font-weight:700;color:var(--muted)}
@@ -2520,7 +2555,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .les-end-shi{position:relative;isolation:isolate}
 .les-end-shi .shi-face{position:relative;z-index:1}
 .les-bit{position:absolute;left:50%;top:46%;z-index:0;width:10px;height:14px;margin:-7px 0 0 -5px;border-radius:2px;opacity:0;pointer-events:none}
-@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop{animation:none}}
+@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop,.les-bar i,.lb-tip,.lb-tip .flame,.lb-tag,.les-bar.up::before,.lq-shi .shi-body,.lq-shi .shi-tear{animation:none}}
 @media (prefers-reduced-motion:reduce){.lf-in,.les-end-shi,.les-opt.no,.les-opt.no::after,.les-opt.ok.reveal,.lo-stamp,.lfb-seal,.lw-stamp,.lfb-dock,.lfb-gain,.lfb-time i,.les-pts.bump,.les-seal.got i{animation:none}}
 
 /* tones: the pitch staff (5 = high, 1 = low) with each tone's line on it */
@@ -3496,6 +3531,8 @@ function shiFace(mood, fill = 1) {
     fire: [brow('M60 73L90 84') + brow('M140 73L110 84'), eye(76) + eye(124), '<path d="M78 116Q100 144 122 116Z" fill="#fff" stroke="#7E1D19" stroke-width="4" stroke-linejoin="round"/><path d="M82 119.5H118" stroke="#7E1D19" stroke-width="2.5"/>'],   // fired up: frown of focus and a toothy grin
     broke: [brow('M64 80Q76 70 89 70') + brow('M136 80Q124 70 111 70'), arc(76, 1) + arc(124, 1), '<path d="M86 120Q100 134 114 120Q100 124 86 120Z" fill="#7E1D19" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/><path d="M148 52Q139 67 148 74Q157 67 148 52Z" fill="#D8F2FF" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/>'],   // broke but cheerful: a sheepish grin and a sweat drop
     oops: [brow('M63 80Q77 74 90 70') + brow('M137 80Q123 74 110 70'), eye(76) + eye(124), '<path d="M84 124Q92 117 100 124T116 124" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/><path d="M146 56Q138 70 146 76Q154 70 146 56Z" fill="#D8F2FF" stroke="#7E1D19" stroke-width="3" stroke-linejoin="round"/>'],   // oops: wobbly mouth and a sweat drop
+    plead: [brow('M63 82Q77 77 90 69') + brow('M137 82Q123 77 110 69'), [76, 124].map(x => `<ellipse cx="${x}" cy="95" rx="11" ry="12.5" fill="#2A0E0C"/><path d="M${x - 10.4} 99Q${x} 114 ${x + 10.4} 99Q${x} 104.5 ${x - 10.4} 99Z" fill="#8ED8FF"/><circle cx="${x - 3.6}" cy="89.5" r="5" fill="#fff"/><circle cx="${x + 4}" cy="95" r="2.2" fill="#fff"/>`).join('')
+      + '<path class="shi-tear" d="M133 106Q138 115 136 118A3.6 3.6 0 0 1 129.4 118Q128.4 115 133 106Z" fill="#8ED8FF" stroke="#2F6E9A" stroke-width="1.6"/>', '<path d="M87 129Q93 121.5 100 124Q107 121.5 113 129" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'],   // v3.74: please don't go
     up: [brow('M62 76Q76 62 90 74') + brow('M138 76Q124 62 110 74'), [76, 124].map(x => `<ellipse cx="${x}" cy="93" rx="7.5" ry="9" fill="#2A0E0C"/><circle cx="${x + 1}" cy="87.5" r="3.4" fill="#fff"/><circle cx="${x - 2.5}" cy="96" r="1.4" fill="#fff"/>`).join(''), '<path d="M89 123Q100 131 111 123" fill="none" stroke="#7E1D19" stroke-width="4.5" stroke-linecap="round"/>'],   // dreamy, looking up
   }[mood] || [];
   return `<svg class="shi-face" viewBox="21 21 158 158" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`
@@ -6126,11 +6163,11 @@ function bossTiger(beaten) {
 }
 /* Shi Shi from head to feet for the path: arms down as he walks, up when he cheers or has won, fists up for the boss */
 function shiBody(mood) {
-  const { arm, paw, lion } = CRS.kit, up = mood === 'cheer' || mood === 'star', fist = mood === 'fire';
-  const arms = up ? arm(-46, 30, -84, -18, 12) + arm(46, 30, 84, -18, 12) + paw(-88, -24, -24, .9) + paw(88, -24, 24, .9)
+  const { arm, paw, lion } = CRS.kit, up = mood === 'cheer' || mood === 'star', fist = mood === 'fire', plead = mood === 'plead';
+  const arms = plead ? arm(-44, 44, -18, 62, 12) + arm(44, 44, 18, 62, 12) : up ? arm(-46, 30, -84, -18, 12) + arm(46, 30, 84, -18, 12) + paw(-88, -24, -24, .9) + paw(88, -24, 24, .9)
     : fist ? arm(-48, 40, -80, 22, 12) + arm(48, 40, 80, 22, 12) + paw(-84, 16, -40, .9) + paw(84, 16, 40, .9)
     : arm(-44, 44, -72, 70, 12) + arm(44, 44, 72, 70, 12) + paw(-74, 74, 200, .85) + paw(74, 74, 160, .85);
-  return `<svg class="shi-body" viewBox="-104 -92 208 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="48" ry="8" fill="#000" opacity=".2"/>${arms}${lion(0, 0, 1, mood)}</svg>`;
+  return `<svg class="shi-body" viewBox="-104 -92 208 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><ellipse cx="0" cy="94" rx="48" ry="8" fill="#000" opacity=".2"/>${arms}${lion(0, 0, 1, mood)}${plead ? paw(-10, 60, -22, .8) + paw(10, 60, 22, .8) : ''}</svg>`;
 }
 /* v3.49, the Duolingo flow: a unit's comic plays when you start its first lesson (from its button, the card's Start or
    Play on the map), and its Start button goes on into the lesson */
@@ -6293,11 +6330,32 @@ function lesAutoNext() {
   E.timer = setTimeout(() => { if (S.les === E && S.view === 'lesson' && E.qi === qi && E.ans != null) lesAct('next'); }, LES_AUTO + 150);
 }
 const lesBoxSize = () => Math.max(170, Math.min(250, (document.documentElement.clientWidth || 360) - 130));
+/* v3.74 (ilkem: "my bar's colour changes and gets ignited as we go"): no points chip any more; the run of right answers lives
+   on the bar. 2 in a row warms it to amber with "2 in a row" riding above its tip, from 3 it burns orange with a flame at the tip,
+   from 5 it is a moving blaze. Each step up flares; a wrong answer puts it out (a grey flicker, back to the level's colour) */
+const lesTier = c => c >= 5 ? 3 : c >= 3 ? 2 : c >= 2 ? 1 : 0;
+const lesProg = E => E.test ? E.settled / E.total : (E.qi + (E.ans != null ? 1 : 0)) / E.q.length;
 function lesTop() {
-  const E = S.les, prog = E.test ? E.settled / E.total : (E.qi + (E.ans != null ? 1 : 0)) / E.q.length;
-  const fire = E.combo >= 3 ? `<span class="les-fire on${E.flash ? E.combo === 3 ? ' new' : ' bump' : ''}" aria-label="${E.combo} in a row">${FLAME}<b>${E.combo}</b></span>` : '';
-  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar"><i style="width:${gBar(prog)}%"></i></span>
-    ${fire}<span class="les-pts${E.flash ? ' bump' : ''}" aria-label="${E.pts} points"><i>分</i><b>${E.pts}</b></span></div>`;
+  const E = S.les, w = gBar(lesProg(E)), t = lesTier(E.combo), was = E.barT || 0; E.barT = t;
+  const fx = t > was ? ' up' : t < was ? ' out' : '';
+  const ph = t === 3 ? `;animation-delay:-${Math.round(performance.now() % 1600)}ms` : '';   // the blaze carries on where it was when the bar is drawn again
+  const tag = t ? `<span class="lb-tag${E.flash ? ' bump' : ''}${t >= 2 ? ' on' : ''}" style="left:clamp(52px,${w / 2}%,calc(100% - 52px))">${t >= 2 ? FLAME : ''}${E.combo} in a row</span>` : '';
+  return `<div class="les-top"><button class="icon-btn" data-les="quit" aria-label="Quit the ${E.test ? 'test' : 'lesson'}">${I.close}</button><span class="les-bar lb-t${t}${fx}"${t ? ` aria-label="${E.combo} in a row"` : ''}><i style="width:${w}%${ph}">${t >= 2 ? `<b class="lb-tip on">${FLAME}</b>` : ''}</i>${tag}</span></div>`;
+}
+/* v3.74 leaving part way (ilkem, after Duolingo's "Wait, you only have 1 minute to go"): Shi Shi, paws together and teary, asks
+   you to stay. It says how little is left the goal-gradient way ("3 to go", about how long that is at your pace) over a bar that
+   ends in a 完 seal. Keep going is the big red button (it just closes the sheet); Quit is a quiet line under it */
+function lesQuitSheet(leave) {
+  const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.length - E.qi - (E.ans != null ? 1 : 0));
+  const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
+  const what = E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
+  openSheet(`<div class="lq"><span class="lq-shi">${shiBody('plead')}</span>
+      <h3>${left === 1 ? 'Just one to go!' : `Only ${left} to go!`}</h3>
+      <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
+      <span class="les-bar lq-bar lb-t${t}"><i style="width:${gBar(lesProg(E))}%"></i><span class="lq-end">完</span></span>
+      <button class="btn btn-seal wide" data-act="close-sheet">Keep going</button>
+      <button class="lq-quit" id="lqQuit">${E.test ? 'Quit the challenge' : 'Quit lesson'}</button></div>`,
+    sh => sh.querySelector('#lqQuit').onclick = () => { LOG.add('lesson-quit', { n: E.n, test: E.test || null, left }); closeSheet(); leave(); });
 }
 /* the answer strip: a right answer gets a red seal stamp, the points and a timer line, and moves on by itself;
    a wrong one shows a quiet note with the right word (no red flood) and waits for "Got it" */
@@ -6644,7 +6702,7 @@ function lesAct(k, b) {
   const leave = () => { clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; } S.les = null; goBack('#/course/' + (LES(E.n)?.lv || 1)); };
   if (k === 'quit') {
     if (!E.qi && E.ans == null) leave();
-    else confirmSheet(E.test ? 'Quit the test?' : 'Quit this lesson?', E.test ? 'You can take it again any time.' : 'You will start it again from the beginning next time.', 'Quit', leave);
+    else lesQuitSheet(leave);
     return;
   }
   if (k === 'end') { lesOnward(); return; }   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
@@ -12555,7 +12613,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.75';
+const APP_VERSION = '3.76';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
