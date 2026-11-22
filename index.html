@@ -2737,13 +2737,24 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 .lq-bar{display:block;flex:none;margin:0 26px 26px 4px}
 .lq-end{position:absolute;right:-26px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:9px;display:grid;place-items:center;background:var(--seal);color:#fff;font:700 17px/1 var(--hanzi);box-shadow:0 2px 0 rgba(126,29,25,.35)}
 .lq-quit{display:block;width:100%;height:50px;margin-top:6px;font-size:16px;font-weight:500;color:var(--seal)}
-/* v4.14 (ilkem: "just put a minus with the coin sign in red, and x amount of coins, and next to shishi"): the coins you would
-   lose stand beside Shi Shi, in red, sinking a little as if slipping out of his paws */
-.lq-pic{position:relative;display:block;width:150px;margin:0 auto 6px}
-.lq-pic .lq-shi{margin:0}
-.lq-lose{position:absolute;left:calc(100% + 4px);top:38%;display:flex;align-items:center;gap:4px;white-space:nowrap;font:800 26px/1 var(--ui);font-variant-numeric:tabular-nums;color:#E8293C;animation:lqSink 2.2s ease-in-out infinite}
-.lq-lose .coin{width:28px;height:28px}
-@keyframes lqSink{0%,100%{transform:none}50%{transform:translateY(6px)}}
+/* v4.19 (ilkem: "make the shishi and the loss of the coins harmonize", v4.14 looked "just put there"): one drawing. The coins
+   slip out of Shi Shi's pleading paws one by one, hop, land and roll away off the paper, and the loss is drawn beside his
+   head in his own cartoon line: a red "-8" and a coin, outlined in his dark brown (lqScene) */
+.lq-scene{display:block;width:216px;height:141px;margin:0 auto 6px}
+.lq-scene svg{display:block;width:100%;height:100%;overflow:visible}
+.lq-sb{transform-box:fill-box;transform-origin:50% 96%;animation:lqSway 2.6s ease-in-out infinite}
+.lq-c,.lq-cs{transform-box:fill-box;transform-origin:center;opacity:0;animation:lqRoll 2.4s linear infinite}
+.lq-cs{animation-name:lqRollSh}
+@keyframes lqRoll{0%{transform:translate(0,-4px) scale(.3);opacity:0;animation-timing-function:ease-out}8%{transform:translate(2px,0) scale(1);opacity:1;animation-timing-function:ease-out}
+  22%{transform:translate(14px,-13px) rotate(60deg);animation-timing-function:ease-in}36%{transform:translate(27px,10px) rotate(130deg);animation-timing-function:ease-out}
+  46%{transform:translate(37px,1px) rotate(190deg);animation-timing-function:ease-in}56%{transform:translate(47px,10px) rotate(250deg);animation-timing-function:linear}
+  88%{transform:translate(150px,10px) rotate(560deg);opacity:1}100%{transform:translate(172px,10px) rotate(620deg);opacity:0}}
+@keyframes lqRollSh{0%{transform:translateX(0) scale(.3);opacity:0;animation-timing-function:ease-out}8%{transform:translateX(2px) scale(.5);opacity:.5;animation-timing-function:ease-out}
+  22%{transform:translateX(14px) scale(.4);opacity:.35;animation-timing-function:ease-in}36%{transform:translateX(27px) scale(1);opacity:1;animation-timing-function:ease-out}
+  46%{transform:translateX(37px) scale(.75);animation-timing-function:ease-in}56%{transform:translateX(47px) scale(1);animation-timing-function:linear}
+  88%{transform:translateX(150px) scale(1);opacity:1}100%{transform:translateX(172px) scale(1);opacity:0}}
+.lq-n{transform-box:fill-box;transform-origin:50% 60%;animation:lqPop .5s .15s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes lqPop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
 .lq-quit:active{opacity:.5}
 /* v3.89 (ilkem, after Duolingo's "Let's fix some mistakes" card): the practice part opens on Shi Shi twirling a big brush under a
    speech bubble, and the cards you missed come back after the same card saying so. Continue goes on */
@@ -2969,7 +2980,7 @@ body:has(.le2),.les-scr:has(.le2),.les-scr:has(.le2) .les-dock{background:#FFF1D
 .les-end-shi{position:relative;isolation:isolate}
 .les-end-shi .shi-face{position:relative;z-index:1}
 .les-bit{position:absolute;left:50%;top:46%;z-index:0;width:10px;height:14px;margin:-7px 0 0 -5px;border-radius:2px;opacity:0;pointer-events:none}
-@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop,.les-bar i,.lb-tip,.lb-tip .flame,.lb-tag,.les-bar.up::before,.les-bar.ms::before,.lb-sparks,.lb-tag.big,.lq-shi .shi-body,.lq-shi .shi-tear,.les-coins b,.les-coins .coin,.lq-lose{animation:none}}
+@media (prefers-reduced-motion:reduce){.les-fire,.les-fire .flame,.les-fire .f-mid,.les-fire .f-core,.lfb-pop,.les-bar i,.lb-tip,.lb-tip .flame,.lb-tag,.les-bar.up::before,.les-bar.ms::before,.lb-sparks,.lb-tag.big,.lq-shi .shi-body,.lq-shi .shi-tear,.les-coins b,.les-coins .coin,.lq-sb,.lq-n{animation:none}.lq-c,.lq-cs{animation:none;opacity:0}.lq-c.lq-rest,.lq-cs.lq-rest{opacity:1;transform:translate(40px,10px) rotate(30deg)}.lq-cs.lq-rest{transform:translateX(40px)}}
 @media (prefers-reduced-motion:reduce){.lb-sparks{display:none}}
 @media (prefers-reduced-motion:reduce){.lf-in,.les-end-shi,.les-opt.no,.les-opt.no::after,.les-opt.ok.reveal,.lo-stamp,.lfb-seal,.lw-stamp,.lfb-dock,.lfb-gain,.lfb-time i,.les-pts.bump,.les-seal.got i{animation:none}}
 
@@ -7102,12 +7113,21 @@ function lesTop() {
 /* v3.74 leaving part way (ilkem, after Duolingo's "Wait, you only have 1 minute to go"): Shi Shi, paws together and teary, asks
    you to stay. It says how little is left the goal-gradient way ("3 to go", about how long that is at your pace) over a bar that
    ends in a 完 seal. Keep going is the big red button (it just closes the sheet); Quit is a quiet line under it */
+function lqScene(c) {   // v4.19: Shi Shi pleading, the coins slipping out of his paws and rolling away, and "-c" beside his head
+  const ln = CRS.kit.ln || '#3B1A12', body = shiBody('plead').replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  const coin = `<path d="M-10.3 0a10.3 10.3 0 1 0 20.6 0a10.3 10.3 0 1 0-20.6 0ZM-2.5-2.5h5v5h-5Z" fill-rule="evenodd" fill="#FFC21F" stroke="${ln}" stroke-width="2.4" stroke-linejoin="round"/><circle r="7" fill="none" stroke="#E89B0C" stroke-width="1.3"/><path d="M-6.6-3.4a7.2 7.2 0 0 1 3.4-3.3" fill="none" stroke="#FFF3B0" stroke-width="1.7" stroke-linecap="round"/>`;
+  const drops = [0, 1, 2].map(i => `<g transform="translate(-30 70)"><ellipse class="lq-cs${i ? '' : ' lq-rest'}" cy="24" rx="12" ry="3.2" fill="rgba(0,0,0,.2)" style="animation-delay:${i * .8}s"/><g class="lq-c${i ? '' : ' lq-rest'}" style="animation-delay:${i * .8}s"><g transform="scale(1.35)">${coin}</g></g></g>`).join('');
+  return `<span class="lq-scene lq-shi" role="img" aria-label="Shi Shi is sad. You lose ${c} coins if you leave"><svg viewBox="-150 -92 300 196" aria-hidden="true" focusable="false">
+    <g transform="translate(-30 0)"><g class="lq-sb">${body}</g></g>${drops}
+    <g transform="translate(106 -6) rotate(-8)"><g class="lq-n"><text x="2" y="0" text-anchor="end" dominant-baseline="central" font-size="42" font-weight="800" fill="#E8293C" stroke="${ln}" stroke-width="5" stroke-linejoin="round" paint-order="stroke" style="font-family:var(--ui);font-variant-numeric:tabular-nums"><tspan dy="-3">-</tspan><tspan dx="0" dy="3">${c}</tspan></text><g transform="translate(22 1) scale(1.3)">${coin}</g></g></g>
+  </svg></span>`;
+}
 function lesQuitSheet(leave) {
   const E = S.les, done = E.test ? E.settled : E.qi, left = Math.max(1, E.test ? E.total - E.settled : E.q.slice(E.qi + (E.ans != null ? 1 : 0)).filter(x => x.t !== 'say').length);
   const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
   const what = E.jump ? 'the jump' : E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
   const c = E.coins || 0;   // v4.13 (ilkem): the coins this lesson has earned, lost if you leave
-  openSheet(`<div class="lq"><div class="lq-pic"><span class="lq-shi">${shiBody('plead')}</span>${c ? `<span class="lq-lose" aria-label="You lose ${c} coins"><b>−${c}</b>${coinSvg()}</span>` : ''}</div>
+  openSheet(`<div class="lq">${c ? lqScene(c) : `<span class="lq-shi">${shiBody('plead')}</span>`}
       <h3>${left === 1 ? 'Just one to go!' : `Only ${left} to go!`}</h3>
       <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${c ? ` Leave now and you lose the ${c} coins you earned, and ${E.test || E.jump ? 'you start it again' : 'it starts over'}.` : E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
       <span class="les-bar lq-bar lb-t${t}"><i style="width:${gBar(lesProg(E))}%"></i><span class="lq-end">完</span></span>
@@ -13518,7 +13538,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.18';
+const APP_VERSION = '4.19';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
