@@ -2911,16 +2911,17 @@ body:has(.le2),.les-scr:has(.le2),.les-scr:has(.le2) .les-dock{background:#FFF1D
 .lt{position:relative;width:96px;height:128px;--rx:20deg}
 .lt0{transform:rotate(-4deg);--ry:-30deg} .lt1{transform:translateY(-10px);--ry:0deg} .lt2{transform:rotate(4deg);--ry:30deg}
 .lt-sh{position:absolute;left:6px;right:6px;bottom:-26px;height:22px;border-radius:50%;background:rgba(110,60,0,.26);filter:blur(7px)}
-.lt-deal{position:relative;width:100%;height:100%;perspective:520px;animation:ltDeal .5s cubic-bezier(.3,.7,.3,1) calc(.25s + var(--i) * .12s) both}
-.lt-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));animation:ltFlip .75s cubic-bezier(.3,.7,.3,1) calc(1.05s + var(--i) * .32s) both}
+.lt-deal{position:relative;width:100%;height:100%;perspective:520px;animation:ltDeal .5s cubic-bezier(.3,.7,.3,1) calc(.25s + var(--i) * .12s) backwards}
+.lt-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));animation:ltFlip .75s cubic-bezier(.3,.7,.3,1) calc(1.05s + var(--i) * .32s) backwards}   /* v4.30 backwards, not both: a held last frame kept the low-detail picture Chrome drew while the tile was edge-on, so tiles came out pixely; once the animation lets go Chrome redraws them sharp */
 .lt-in > i{position:absolute;inset:0;border-radius:13px;background:#DCCBA6}
 .lt-in > i.g{background:#075E48}
-.lt-f{position:absolute;inset:0;border-radius:13px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.lt-front{transform:translateZ(19px);background:linear-gradient(#FFFDF6,#F3EAD5);box-shadow:inset 0 0 0 1.5px #fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.lt-front b{font:900 42px/48px var(--hanzi)}
-.lt-front strong{font-size:25px;line-height:27px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
-.lt-front small{font-size:10px;line-height:12px;font-weight:800;letter-spacing:.1em;color:#6B5A45}
-.lt-back{transform:rotateY(180deg) translateZ(19px);background:#0B7F62;box-shadow:inset 0 0 0 6px #0B7F62,inset 0 0 0 8px #5FBF9C}
+/* v4.30 the faces are drawn three times as big and shrunk back down, so their text and edges stay sharp: with 3D depth on, Chrome can draw a turned tile at low detail and the face came out pixely */
+.lt-f{position:absolute;left:-96px;top:-128px;width:288px;height:384px;scale:calc(1/3) calc(1/3);border-radius:39px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.lt-front{transform:translateZ(19px);background:linear-gradient(#FFFDF6,#F3EAD5);box-shadow:inset 0 0 0 4.5px #fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.lt-front b{font:900 126px/144px var(--hanzi)}
+.lt-front strong{font-size:75px;line-height:81px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.lt-front small{font-size:30px;line-height:36px;font-weight:800;letter-spacing:.1em;color:#6B5A45}
+.lt-back{transform:rotateY(180deg) translateZ(19px);background:#0B7F62;box-shadow:inset 0 0 0 18px #0B7F62,inset 0 0 0 24px #5FBF9C}
 .lt-caps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:340px;margin:30px auto 0;font-size:12.5px;line-height:16px;font-weight:600;color:#6B5A45}
 .lt-caps span{animation:ltCap .4s ease-out calc(1.6s + var(--i) * .32s) both}
 .le2-notes{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:26px}
@@ -13699,7 +13700,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.29';
+const APP_VERSION = '4.30';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
