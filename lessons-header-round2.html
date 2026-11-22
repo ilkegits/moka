@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons header round 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4EEE3; --card:#FCF9F3; --ink:#1E1A15; --ink-2:#4A433A; --muted:#8A7F70; --line:#E3D8C6; --line-2:#D2C4AD;
+  --seal:#B23A2C; --seal-ink:#FFF8F2; --seal-soft:rgba(178,58,44,.09);
+  --jade:#3F7A5F; --gold:#F4C14E; --gold-dk:#A86A0C;
+  --fill:rgba(120,95,60,.11); --ring:0 0 0 1px rgba(120,95,60,.08),0 1px 2px rgba(70,45,20,.05);
+  --hanzi:"Noto Serif SC","Songti SC",serif; --ui:"Satoshi",system-ui,-apple-system,sans-serif; --display:"Chillax",var(--ui);
+  --fo:#FF8A1F; --fm:#FFC233; --fc:#FFF1B8; --fnum:#E0701A;
+}
+body.risk{--fo:#D9CFC0; --fm:#E8E0D3; --fc:#F6F1E8; --fnum:#A89C8A}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{margin:0;color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+a{color:var(--seal);font-weight:700}
+.page{max-width:1180px;margin:0 auto;padding:44px 16px 80px}
+.intro{max-width:740px}
+h1{font-family:var(--display);font-size:clamp(32px,6vw,50px);font-weight:600;letter-spacing:-.02em;line-height:1.04;margin:0 0 14px}
+h1 span{color:var(--seal)}
+.intro p{margin:0 0 10px;color:var(--ink-2);font-size:17px}
+.intro ul{margin:6px 0 0;padding-left:20px;color:var(--ink-2);font-size:15.5px}
+.intro li{margin:3px 0}
+.toggle{display:inline-flex;margin:22px 0 4px;padding:3px;border-radius:12px;background:var(--fill)}
+.toggle button{padding:8px 14px;border-radius:9px;font-weight:700;font-size:14.5px;color:var(--ink-2)}
+.toggle button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--ring),0 2px 6px -3px rgba(70,45,20,.3)}
+.toggle-note{display:block;font-size:13.5px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px 22px;margin-top:30px}
+.opt{display:flex;flex-direction:column;gap:14px;min-width:0}
+.opt-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.opt-head .k{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:900;font-size:15px;transform:translateY(4px)}
+.opt-head h2{margin:0;font-family:var(--display);font-size:23px;font-weight:600;letter-spacing:-.01em}
+.opt-head .pick{padding:3px 9px;border-radius:999px;background:var(--seal);color:var(--seal-ink);font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.opt .tag{margin:-8px 0 0;color:var(--ink-2);font-size:15px}
+.notes{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:14.5px;color:var(--ink-2)}
+.notes li{display:grid;grid-template-columns:62px 1fr;gap:8px}
+.notes b{font-size:11.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.notes li.win b{color:var(--jade)} .notes li.cost b{color:var(--seal)}
+
+/* the phone and the start of the path */
+.ph{position:relative;width:100%;max-width:360px;height:470px;margin:9px auto;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(178,58,44,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(178,58,44,.16) 1px,transparent 1px),
+    linear-gradient(rgba(178,58,44,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(178,58,44,.07) 1px,transparent 1px);
+  background-size:78px 78px,78px 78px,39px 39px,39px 39px;background-position:-1px 24px,2px 0,-1px 24px,2px 0;
+  box-shadow:0 0 0 8px #1E1A15,0 0 0 9px #3a332b,0 30px 50px -24px rgba(40,25,10,.55)}
+.ph .path{position:relative;flex:1;min-height:0;margin-top:22px}
+.node{position:absolute;left:50%;top:62px;width:76px;height:76px;margin-left:-38px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 35%,#FF5C69,#F2343F 70%);color:#fff;font:900 34px/1 var(--hanzi);
+  box-shadow:0 6px 0 #B21E28,0 0 0 9px rgba(242,52,63,.14),0 0 0 11px rgba(242,52,63,.18)}
+.bubble{position:absolute;left:50%;top:0;transform:translateX(-50%);padding:9px 18px;border-radius:14px;background:#FFFBF4;color:#E8343E;font-weight:900;font-size:16px;box-shadow:0 3px 0 #E4D9C5,var(--ring)}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-7px;width:14px;height:14px;margin-left:-7px;background:#FFFBF4;transform:rotate(45deg);border-radius:0 0 3px 0;box-shadow:2px 2px 0 #E4D9C5}
+.shi{position:absolute;left:calc(50% - 128px);top:52px;width:84px}
+.node.l2{left:calc(50% + 62px);top:190px;width:68px;height:68px;margin-left:-34px;background:#EDE5D6;color:#C9BBA5;font-size:30px;box-shadow:0 6px 0 #D6CAB4}
+
+/* shared bits */
+.ic{width:22px;height:22px;flex:none;display:block}
+.flame{width:24px;height:24px;flex:none}
+.fo{fill:var(--fo)} .fm{fill:var(--fm)} .fc{fill:var(--fc)}
+.num{font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}
+.num.f{color:var(--fnum)} .num.c{color:var(--gold-dk)}
+.if-risk{display:none} body.risk .if-risk{display:inline} body.risk .if-done{display:none}
+.chev{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.zh{font-family:var(--hanzi);font-weight:600;letter-spacing:.04em}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 0;position:relative;z-index:3}
+.lv{display:flex;align-items:center;gap:5px;height:34px;padding:0 4px;font-weight:900;font-size:16px}
+.lv .zh{font-size:14px;color:var(--seal)}
+.lv .chev{color:var(--muted)}
+/* streak and coins share one small purse, instead of a row of separate stats */
+.wal{display:flex;align-items:center;height:34px;padding:0 11px 0 7px;border-radius:999px;background:var(--card);box-shadow:var(--ring),0 2px 0 rgba(120,95,60,.08)}
+.wal .s{display:flex;align-items:center;gap:2px}
+.wal .sep{width:1px;height:16px;margin:0 8px 0 9px;background:var(--line)}
+.wal .ic{width:20px;height:20px}
+/* the hop to the unit's story */
+.read{flex:none;display:flex;align-items:center;gap:7px;height:38px;padding:0 13px 0 5px;border-radius:999px;background:var(--seal-soft);color:var(--seal);font-weight:900;font-size:14px}
+.read i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--seal);color:var(--seal-ink);font:900 15px/1 var(--hanzi);font-style:normal}
+.cap{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+.cap b{color:var(--ink-2);font-weight:900}
+.cap .lxi{width:13px;height:16px;flex:none}
+
+/* ---------- G: Brush and ink ---------- */
+.oG .nums{display:flex;justify-content:space-between;align-items:center;margin:16px 22px 0;position:relative;z-index:2}
+.oG .nums span{position:relative;display:grid;place-items:center;width:30px;height:30px;font:900 17px/1 var(--hanzi)}
+.oG .nums .d{color:var(--ink)}
+.oG .nums .d::after{content:"";position:absolute;bottom:-7px;width:5px;height:5px;border-radius:50%;background:var(--seal)}
+.oG .nums .l{color:#CFC3AF}
+.oG .nums .c{color:var(--seal)}
+.oG .nums .c svg{position:absolute;inset:-9px;width:48px;height:48px}
+.oG .ttl{position:relative;padding:18px 20px 0;overflow:hidden}
+.oG .wm{position:absolute;right:6px;top:-2px;font:900 92px/1 var(--hanzi);color:rgba(178,58,44,.075);letter-spacing:-.02em;pointer-events:none}
+.oG .ttl small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.oG .row{position:relative;display:flex;align-items:center;gap:10px}
+.oG .row b{flex:1;min-width:0;font:600 25px/1.12 var(--display);letter-spacing:-.01em}
+.oG .stroke{display:block;width:calc(100% - 40px);height:18px;margin:12px 20px 0}
+.oG .cap{margin:6px 20px 0}
+
+/* ---------- H: Chop collection ---------- */
+.oH .chops{display:flex;align-items:center;justify-content:space-between;margin:18px 16px 0;padding:12px 12px;border-radius:18px;background:var(--card);box-shadow:var(--ring)}
+.oH .ch{display:grid;place-items:center;width:32px;height:32px;border-radius:6px;font:900 11px/1.05 var(--hanzi)}
+.oH .ch span{writing-mode:vertical-rl;letter-spacing:.02em}
+.oH .ch.d{background:var(--seal);color:var(--seal-ink);box-shadow:inset 0 0 0 2.5px var(--seal),inset 0 0 0 3.5px rgba(255,248,242,.5)}
+.oH .ch.d:nth-child(1){transform:rotate(-6deg)} .oH .ch.d:nth-child(2){transform:rotate(4deg)}
+.oH .ch.c{width:44px;height:44px;border:2px dashed var(--seal);color:var(--seal);font-size:14px;background:linear-gradient(to top,rgba(178,58,44,.2) 33.3%,rgba(178,58,44,.04) 33.3%)}
+.oH .ch.l{border:1.5px dashed var(--line-2);color:#C6B9A3;font:800 13px/1 var(--ui)}
+.oH .ttl{padding:14px 20px 0}
+.oH .row{display:flex;align-items:center;gap:10px}
+.oH .row b{flex:1;min-width:0;font:600 25px/1.12 var(--display);letter-spacing:-.01em}
+.oH .ttl small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.oH .cap{margin-top:7px}
+.oH .cap .mini{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:4px;background:var(--seal);color:#fff;font:900 8px/1 var(--hanzi);writing-mode:vertical-rl}
+
+/* ---------- I: Lantern night ---------- */
+.oI .panel{position:relative;z-index:2;padding-bottom:16px;border-radius:0 0 28px 28px;background:radial-gradient(120% 90% at 30% 0%,#4A1E14,#2A110C 60%,#1F0D09);color:#F7E7C6;box-shadow:0 16px 26px -14px rgba(42,18,12,.8)}
+.oI .lv{color:var(--gold)} .oI .lv .zh{color:#F7B9A8} .oI .lv .chev{color:rgba(244,193,78,.7)}
+.oI .wal{background:rgba(255,240,210,.08);box-shadow:inset 0 0 0 1px rgba(244,193,78,.25)}
+.oI .wal .sep{background:rgba(244,193,78,.25)} .oI .num.c{color:var(--gold)} .oI .num.f{color:#FFC233} body.risk .oI .num.f{color:#9C8A76}
+.oI .string{position:relative;height:96px;margin-top:4px}
+.oI .string > svg.rope{position:absolute;left:0;top:0;width:100%;height:40px}
+.oI .lan{position:absolute;width:26px;height:42px;margin-left:-13px}
+.oI .lan svg{width:100%;height:100%;overflow:visible}
+.oI .lan.d{--lb:#E5483F;--lr:#B2281F;--lc:#F4C14E;--lt:#F4C14E;filter:drop-shadow(0 0 8px rgba(255,120,60,.55))}
+.oI .lan.c{width:38px;height:60px;margin-left:-19px;--lb:#FF5A47;--lr:#C02A1E;--lc:#FFD15C;--lt:#FFD15C;filter:drop-shadow(0 0 14px rgba(255,150,70,.8));animation:sway 3.2s ease-in-out infinite;transform-origin:50% 0}
+.oI .lan.l{--lb:rgba(247,231,198,.07);--lr:rgba(247,231,198,.22);--lc:rgba(247,231,198,.25);--lt:rgba(247,231,198,.25)}
+.oI .lan b{position:absolute;left:0;right:0;top:18px;text-align:center;font:900 15px/1 var(--hanzi);color:#FFF4D6}
+.oI .lan.d b{top:12px;font-size:11px}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.oI .ttl{padding:0 18px}
+.oI .ttl small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,193,78,.85)}
+.oI .row{display:flex;align-items:center;gap:10px}
+.oI .row b{flex:1;min-width:0;font:600 25px/1.12 var(--display)}
+.oI .read{background:rgba(244,193,78,.14);color:var(--gold)} .oI .read i{background:var(--gold);color:#3B1A12}
+.oI .seg{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:12px}
+.oI .seg i{height:5px;border-radius:3px;background:rgba(247,231,198,.14)} .oI .seg i.on{background:var(--gold);box-shadow:0 0 8px rgba(244,193,78,.6)}
+.oI .path{margin-top:24px}
+
+/* ---------- J: Mahjong draw ---------- */
+.oJ .tiles{display:flex;align-items:flex-end;justify-content:space-between;margin:20px 18px 0;height:62px}
+.oJ .t{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:31px;height:41px;border-radius:6px;
+  background:linear-gradient(#FFFDF7,#F3ECDD);box-shadow:inset 0 0 0 1px #DDD2BE,0 4px 0 #4E8E6F,0 5px 0 #2F5F48,0 7px 8px -4px rgba(30,40,20,.45)}
+.oJ .t .n{font:900 14px/1 var(--hanzi);color:var(--ink)}
+.oJ .t .w{font:900 12px/1 var(--hanzi);color:var(--seal)}
+.oJ .t.d::after{content:"";position:absolute;top:-6px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--jade) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4L18 8' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat;box-shadow:0 0 0 2px var(--paper)}
+.oJ .t.c{width:40px;height:53px;transform:translateY(-8px);box-shadow:inset 0 0 0 1px #DDD2BE,0 0 0 3px rgba(178,58,44,.55),0 5px 0 #4E8E6F,0 6px 0 #2F5F48,0 16px 16px -8px rgba(30,40,20,.5)}
+.oJ .t.c .n{font-size:18px} .oJ .t.c .w{font-size:15px}
+.oJ .t.l{background:linear-gradient(#5E9D7E,#4A8669);box-shadow:inset 0 0 0 1px #3C7458,inset 0 0 0 4px #5E9D7E,inset 0 0 0 5px rgba(255,255,255,.18),0 4px 0 #F3ECDD,0 5px 0 #D6CBB6,0 7px 8px -4px rgba(30,40,20,.35)}
+.oJ .ttl{padding:16px 20px 0}
+.oJ .ttl small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.oJ .row{display:flex;align-items:center;gap:10px}
+.oJ .row b{flex:1;min-width:0;font:600 25px/1.12 var(--display);letter-spacing:-.01em}
+.oJ .dots{display:flex;gap:5px;margin-top:10px}
+.oJ .dots i{width:18px;height:6px;border-radius:3px;background:var(--line)} .oJ .dots i.on{background:var(--seal)}
+.oJ .cap{margin-top:7px}
+
+/* ---------- K: Steamer stack ---------- */
+.oK .card{display:grid;grid-template-columns:38px 1fr 66px;gap:14px;align-items:center;margin:16px 14px 0;padding:14px 14px 14px 12px;border-radius:22px;background:var(--card);box-shadow:var(--ring),0 1px 0 rgba(255,255,255,.7) inset,0 6px 16px -10px rgba(70,45,20,.35)}
+.oK .couplet{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:38px;height:104px;border-radius:3px;background:linear-gradient(90deg,#B8301F,#D8432F 50%,#B8301F);color:#F8D57A;font:900 21px/1 var(--hanzi);box-shadow:inset 0 0 0 3px #B8301F,inset 0 0 0 4px rgba(248,213,122,.6)}
+.oK .couplet::before,.oK .couplet::after{content:"";position:absolute;left:-4px;right:-4px;height:5px;border-radius:3px;background:#5A3520}
+.oK .couplet::before{top:-3px} .oK .couplet::after{bottom:-3px}
+.oK .mid{min-width:0}
+.oK .mid small{display:block;font-weight:900;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.oK .mid b{display:block;font:600 21px/1.12 var(--display);margin-top:1px}
+.oK .story{display:flex;align-items:center;gap:7px;margin-top:9px;padding:5px 10px 5px 5px;border-radius:12px;background:var(--seal-soft);color:var(--ink-2);text-align:left;max-width:100%}
+.oK .story i{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--seal);color:#fff;font:900 14px/1 var(--hanzi);font-style:normal}
+.oK .story span{min-width:0;font-size:12.5px;line-height:1.2;font-weight:700}
+.oK .story span em{display:block;font-style:normal;font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--seal)}
+.oK .stack{display:flex;flex-direction:column;align-items:center;gap:2px}
+.oK .steam{width:40px;height:16px;margin-bottom:-1px}
+.oK .lid{width:48px;height:11px;border-radius:14px 14px 3px 3px;background:linear-gradient(#EBD29A,#D9B66E);box-shadow:inset 0 0 0 1px #A87C3A}
+.oK .tier{width:58px;height:10px;border-radius:4px}
+.oK .tier.on{background:repeating-linear-gradient(90deg,#E3C27E 0 6px,#D6B169 6px 7px);box-shadow:inset 0 0 0 1px #A87C3A,inset 0 -2px 0 rgba(120,80,20,.25)}
+.oK .tier.off{border:1.5px dashed var(--line-2);background:rgba(255,255,255,.4)}
+.oK .stack b{margin-top:5px;font-size:12.5px;font-weight:900;color:var(--ink-2)}
+.oK .units{display:flex;align-items:center;gap:6px;margin:12px 20px 0;font-size:12.5px;font-weight:900;color:var(--muted);letter-spacing:.04em}
+.oK .units i{width:7px;height:7px;border-radius:50%;background:var(--line-2)} .oK .units i.on{background:var(--seal)} .oK .units i.c{width:18px;border-radius:4px;background:var(--seal)}
+
+/* ---------- L: Ink-wash map ---------- */
+.oL .scape{position:relative;height:150px;background:linear-gradient(#F4EEE3,#EEE8DC)}
+.oL .scape > svg{position:absolute;left:0;bottom:0;width:100%;height:112px}
+.oL .scape .top{position:absolute;left:0;right:0;top:0}
+.oL .mk{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900}
+.oL .mk.d{background:var(--seal);color:#fff;box-shadow:0 0 0 2.5px #F7F2E8}
+.oL .mk.l{background:#F7F2E8;color:#A9A08F;box-shadow:inset 0 0 0 1.5px #B8B2A2}
+.oL .mk.c{width:44px;height:44px;margin:-34px 0 0 -22px;background:#fff;box-shadow:0 0 0 3px var(--seal),0 6px 12px -4px rgba(120,30,20,.5)}
+.oL .mk.c img{width:38px;height:38px}
+.oL .mk.c::after{content:"";position:absolute;bottom:-9px;left:50%;margin-left:-5px;border:5px solid transparent;border-top:6px solid var(--seal)}
+.oL .ttl{padding:12px 20px 0}
+.oL .ttl small{display:block;font-weight:900;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.oL .row{display:flex;align-items:center;gap:10px}
+.oL .row b{flex:1;min-width:0;font:600 25px/1.12 var(--display);letter-spacing:-.01em}
+.oL .bar{height:6px;margin-top:10px;border-radius:3px;background:var(--line)} .oL .bar i{display:block;width:33.3%;height:100%;border-radius:3px;background:var(--seal)}
+.oL .cap{margin-top:7px}
+.oL .path{margin-top:18px}
+
+@media (max-width:400px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.oI .lan.c{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="flame" viewBox="0 0 48 48"><path class="fo" d="M26 3C27.5 8.5 31.5 12 34.5 16.5 35.5 14.5 36.5 12.5 37.5 10 41 14.5 42 20 42 26 42 36.5 34 45 24 45 14 45 6.5 37 6.5 28 6.5 23 8.5 18.5 11.5 15 12 18 13.5 20.5 16 21.5 16 14 20 8 26 3Z"/><path class="fm" d="M24 15C27 20 33 23 33 32 33 38 29 42 24 42 19 42 15 38 15 32.5 15 28.5 17.5 26 19.5 24.5 19.8 27 21 28.5 22.5 29 21.5 24 22 19 24 15Z"/><path class="fc" d="M24.5 27C26.5 30 29 32 29 35.5 29 38.8 26.8 41 24 41 21.2 41 19 38.8 19 35.8 19 33.5 20.5 32 21.8 31 22 32.5 22.8 33.3 23.6 33.6 23.2 31 23.5 29 24.5 27Z"/></symbol>
+  <symbol id="coin" viewBox="0 0 48 48"><circle cx="24" cy="25.5" r="18" fill="#C48A12"/><circle cx="24" cy="23" r="18" fill="#FFD15C"/><circle cx="24" cy="23" r="13.5" fill="none" stroke="#E9AE2C" stroke-width="2.5"/><rect x="19" y="18" width="10" height="10" rx="1.5" fill="#C48A12"/><path d="M13 15a13 13 0 0 1 6-5" stroke="#FFF3C4" stroke-width="3" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="lixi" viewBox="0 0 28 34"><rect x="1" y="1" width="26" height="32" rx="4" fill="#E5483F" stroke="#7E1D19" stroke-width="2"/><path d="M1.5 9Q14 17 26.5 9" fill="none" stroke="#7E1D19" stroke-width="2"/><circle cx="14" cy="13" r="4.5" fill="#FFD15C" stroke="#A86A0C" stroke-width="1.6"/></symbol>
+  <symbol id="lantern" viewBox="0 0 40 64"><path d="M20 0v9" stroke="var(--lc)" stroke-width="2"/><rect x="12" y="8" width="16" height="6" rx="2" fill="var(--lc)"/><ellipse cx="20" cy="29" rx="18" ry="16" fill="var(--lb)"/><ellipse cx="20" cy="29" rx="10" ry="16" fill="none" stroke="var(--lr)" stroke-width="1.6"/><path d="M20 13v32" stroke="var(--lr)" stroke-width="1.6"/><rect x="13" y="43" width="14" height="5" rx="2" fill="var(--lc)"/><path d="M20 48v14M17 50l-1 10M23 50l1 10" stroke="var(--lt)" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="page">
+  <div class="intro">
+    <h1>Lessons header, <span>round 2</span></h1>
+    <p>Each option keeps what you liked: <b>B’s calm paper</b> with a big clear title, the <b>button to the unit’s story</b> (now a red 读 Read button), and from <b>F</b>, the whole level shown at a glance. What changes is the look: no Duolingo patterns, only things that belong to ShiCards.</p>
+    <ul>
+      <li><b>No Duolingo stats row.</b> Streak and coins share one small purse in the corner.</li>
+      <li><b>The level is a set of things you collect</b> (numerals, chops, lanterns, tiles, steamers, a map), not a plain list of units.</li>
+      <li>Same moment as round 1: Unit 3 “Family and people”, 2 of 6 lessons done, a 6-day streak and 240 coins. <a href="lessons-header-samples.html">Round 1 is here.</a></li>
+    </ul>
+    <div class="toggle" role="group" aria-label="Today">
+      <button aria-pressed="true" data-st="done">Practised today</button><button aria-pressed="false" data-st="risk">Not yet today</button>
+    </div>
+    <span class="toggle-note">The flame goes grey while today’s streak is still at stake.</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- G -->
+    <section class="opt oG">
+      <div class="opt-head"><span class="k">G</span><h2>Brush and ink</h2><span class="pick">My pick</span></div>
+      <p class="tag">B, written with a brush. The units are Chinese numerals, the current one circled in red ink, and the unit’s name sits faintly behind the title.</p>
+      <div class="ph" role="img" aria-label="Option G">
+        <div class="top">
+          <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+          <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+        </div>
+        <div class="nums" aria-label="Units 1 to 8">
+          <span class="d">一</span><span class="d">二</span><span class="c"><svg viewBox="0 0 48 48"><path d="M27 6C39 6.5 44 16 43 26 42 37 33 43 23 42.5 13 42 5.5 34 6 24 6.5 14 14 7.5 23 7.2" fill="none" stroke="#B23A2C" stroke-width="3" stroke-linecap="round"/></svg>三</span><span class="l">四</span><span class="l">五</span><span class="l">六</span><span class="l">七</span><span class="l">八</span>
+        </div>
+        <div class="ttl"><span class="wm" aria-hidden="true">家人</span><small>Unit 3 · <span class="zh" style="color:var(--seal)">家人</span></small>
+          <div class="row"><b>Family and people</b><button class="read" aria-label="Read the unit's story"><i>读</i>Read</button></div></div>
+        <svg class="stroke" viewBox="0 0 320 18" preserveAspectRatio="none" aria-hidden="true"><defs><clipPath id="gclip"><rect width="107" height="18"/></clipPath></defs>
+          <path d="M3 9.5C8 4.5 22 5 40 5.6L290 6.8C306 7.2 316 7.6 318 9.4 316 11.4 306 11.8 290 12L40 13C22 13.6 8 14 3 9.5Z" fill="#E6DCCB"/>
+          <path clip-path="url(#gclip)" d="M3 9.5C8 4.5 22 5 40 5.6L290 6.8C306 7.2 316 7.6 318 9.4 316 11.4 306 11.8 290 12L40 13C22 13.6 8 14 3 9.5Z" fill="#B23A2C"/>
+          <path d="M104 5.5Q109 9 104 13" fill="none" stroke="#B23A2C" stroke-width="2" stroke-linecap="round" opacity=".6"/></svg>
+        <div class="cap"><b>2 of 6</b> lessons · <svg class="lxi"><use href="#lixi"/></svg> red envelope after lesson 3</div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Tap a numeral to jump to that unit. The ink stroke grows after each lesson, with a little brush flick at its end.</span></li>
+        <li class="win"><b>Why</b><span>The closest to B and the calmest, but it reads as Chinese calligraphy, not as an app copy. You also learn 一 to 八 just by looking.</span></li>
+        <li class="cost"><b>Cost</b><span>The quietest look. Less showy than the lanterns or tiles.</span></li>
+      </ul>
+    </section>
+
+    <!-- H -->
+    <section class="opt oH">
+      <div class="opt-head"><span class="k">H</span><h2>Chop collection</h2></div>
+      <p class="tag">Every unit you finish stamps its red chop (你好, 时间, 家人 …) into a strip, like stamps in a passport.</p>
+      <div class="ph" role="img" aria-label="Option H">
+        <div class="top">
+          <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+          <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+        </div>
+        <div class="chops" aria-label="Chops: 2 of 8 collected">
+          <span class="ch d"><span>你好</span></span><span class="ch d"><span>时间</span></span><span class="ch c"><span>家人</span></span>
+          <span class="ch l">4</span><span class="ch l">5</span><span class="ch l">6</span><span class="ch l">7</span><span class="ch l">8</span>
+        </div>
+        <div class="ttl"><small>Unit 3 of 8</small>
+          <div class="row"><b>Family and people</b><button class="read" aria-label="Read the unit's story"><i>读</i>Read</button></div>
+          <div class="cap"><b>4 more lessons</b> to stamp the <span class="mini">家人</span> chop</div></div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>The current chop fills with red from the bottom as lessons get done. Finishing the unit plays a stamp-down thud. Tap a chop to jump there.</span></li>
+        <li class="win"><b>Why</b><span>Collecting is a strong reason to come back, and each chop teaches the unit’s Chinese name.</span></li>
+        <li class="cost"><b>Cost</b><span>A stamp has to be designed for every unit, and three-character names (怎么样) need a smaller font.</span></li>
+      </ul>
+    </section>
+
+    <!-- I -->
+    <section class="opt oI">
+      <div class="opt-head"><span class="k">I</span><h2>Lantern night</h2></div>
+      <p class="tag">F, made into a festival. A string of 8 lanterns, one per unit: finished ones glow, yours sways, the rest wait dark.</p>
+      <div class="ph" role="img" aria-label="Option I">
+        <div class="panel">
+          <div class="top">
+            <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+            <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+          </div>
+          <div class="string" aria-label="Lanterns: units 1 and 2 lit, unit 3 current">
+            <svg class="rope" viewBox="0 0 360 40" preserveAspectRatio="none"><path d="M-4 8Q180 46 364 8" fill="none" stroke="rgba(244,193,78,.55)" stroke-width="1.5"/></svg>
+            <span class="lan d" style="left:8.3%;top:13px"><svg><use href="#lantern"/></svg><b>一</b></span>
+            <span class="lan d" style="left:19.4%;top:18px"><svg><use href="#lantern"/></svg><b>二</b></span>
+            <span class="lan c" style="left:31.1%;top:22px"><svg><use href="#lantern"/></svg><b>三</b></span>
+            <span class="lan l" style="left:44.4%;top:25px"><svg><use href="#lantern"/></svg></span>
+            <span class="lan l" style="left:56.9%;top:25px"><svg><use href="#lantern"/></svg></span>
+            <span class="lan l" style="left:68.9%;top:23px"><svg><use href="#lantern"/></svg></span>
+            <span class="lan l" style="left:80.6%;top:18px"><svg><use href="#lantern"/></svg></span>
+            <span class="lan l" style="left:91.7%;top:13px"><svg><use href="#lantern"/></svg></span>
+          </div>
+          <div class="ttl"><small>Unit 3 · <span class="zh">家人</span></small>
+            <div class="row"><b>Family and people</b><button class="read" aria-label="Read the unit's story"><i>读</i>Read</button></div>
+            <div class="seg"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Finishing a unit lights its lantern with a warm flare. Tap a lantern to jump to it. On a long streak a firework can go off behind the string.</span></li>
+        <li class="win"><b>Why</b><span>The richest mood and very ShiCards: Lantern Festival, red and gold, alive at night. The finished part of the level visibly glows.</span></li>
+        <li class="cost"><b>Cost</b><span>Dark at the top of a light app. Glow and sway need care on old phones (they stop with reduced motion).</span></li>
+      </ul>
+    </section>
+
+    <!-- J -->
+    <section class="opt oJ">
+      <div class="opt-head"><span class="k">J</span><h2>Mahjong draw</h2></div>
+      <p class="tag">The units as a row of mahjong tiles: finished face up, yours lifted and ready to play, the rest face down.</p>
+      <div class="ph" role="img" aria-label="Option J">
+        <div class="top">
+          <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+          <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+        </div>
+        <div class="tiles" aria-label="Units as tiles">
+          <span class="t d"><span class="n">一</span><span class="w">萬</span></span><span class="t d"><span class="n">二</span><span class="w">萬</span></span><span class="t c"><span class="n">三</span><span class="w">萬</span></span>
+          <span class="t l"></span><span class="t l"></span><span class="t l"></span><span class="t l"></span><span class="t l"></span>
+        </div>
+        <div class="ttl"><small>Unit 3 · <span class="zh" style="color:var(--seal)">家人</span></small>
+          <div class="row"><b>Family and people</b><button class="read" aria-label="Read the unit's story"><i>读</i>Read</button></div>
+          <div class="dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          <div class="cap"><b>2 of 6</b> lessons · <svg class="lxi"><use href="#lixi"/></svg> red envelope after lesson 3</div></div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Finishing a unit flips the next tile face up with a clack. Collect all 8 and the level is a winning hand (胡了!).</span></li>
+        <li class="win"><b>Why</b><span>Playful, unusual, and the tiles feel nice to tap. Face-down tiles make you curious about what’s next.</span></li>
+        <li class="cost"><b>Cost</b><span>Mahjong may mean little to some learners. 萬 is not an HSK 1 character.</span></li>
+      </ul>
+    </section>
+
+    <!-- K -->
+    <section class="opt oK">
+      <div class="opt-head"><span class="k">K</span><h2>Steamer stack</h2></div>
+      <p class="tag">A door couplet with the unit’s name, the story as a clear Read line, and the lessons as a stack of bamboo steamers.</p>
+      <div class="ph" role="img" aria-label="Option K">
+        <div class="top">
+          <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+          <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+        </div>
+        <div class="card">
+          <span class="couplet" aria-hidden="true"><span>家</span><span>人</span></span>
+          <div class="mid"><small>Unit 3 of 8</small><b>Family and people</b>
+            <button class="story" aria-label="Read the unit's story"><i>读</i><span><em>Read the story</em>The lost little panda</span></button></div>
+          <div class="stack" aria-label="2 of 6 lessons">
+            <svg class="steam" viewBox="0 0 40 16" aria-hidden="true"><path d="M12 15c-4-4 4-6 0-11M20 15c-4-4 4-6 0-13M28 15c-4-4 4-6 0-11" fill="none" stroke="#CFC5B5" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="lid"></span><span class="tier off"></span><span class="tier off"></span><span class="tier off"></span><span class="tier off"></span><span class="tier on"></span><span class="tier on"></span><b>2/6</b>
+          </div>
+        </div>
+        <div class="units">UNIT <i class="on"></i><i class="on"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Each lesson adds a steamer to the stack. When all 6 are in, the lid lifts, the steam rises and the red envelope pops out.</span></li>
+        <li class="win"><b>Why</b><span>The lessons on the path are already baozi in steamers, so the header tells the same story. The Read line is the clearest way to the story.</span></li>
+        <li class="cost"><b>Cost</b><span>The busiest card, and the level overview is just small dots.</span></li>
+      </ul>
+    </section>
+
+    <!-- L -->
+    <section class="opt oL">
+      <div class="opt-head"><span class="k">L</span><h2>Ink-wash map</h2></div>
+      <p class="tag">A small ink painting of mountains with the whole level as a trail across it, and Shi Shi standing where you are.</p>
+      <div class="ph" role="img" aria-label="Option L">
+        <div class="scape">
+          <svg viewBox="0 0 360 112" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 52C30 30 58 40 88 22 116 6 140 34 172 26 204 18 230 2 262 18 294 34 322 20 360 26V112H0Z" fill="#E1E1D6"/>
+            <path d="M0 72C34 56 62 50 96 62 128 74 152 46 190 52 222 58 250 70 284 54 314 40 336 58 360 52V112H0Z" fill="#CDD3C6"/>
+            <path d="M0 96C50 84 94 92 140 88 190 84 232 98 282 90 320 85 342 92 360 90V112H0Z" fill="#B5C0AE"/>
+            <path d="M18 92C48 84 56 70 86 68 118 66 126 80 156 76 190 72 196 56 226 54 258 52 266 72 296 70 322 68 330 54 344 46" fill="none" stroke="#B23A2C" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>
+          </svg>
+          <div class="top">
+            <button class="lv">HSK 1 <span class="zh">一级</span><svg class="chev"><use href="#chev"/></svg></button>
+            <span class="wal"><span class="s"><svg class="flame"><use href="#flame"/></svg><span class="num f"><span class="if-done">7</span><span class="if-risk">6</span></span></span><span class="sep"></span><span class="s"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></span>
+          </div>
+          <span class="mk d" style="left:5%;top:130px">1</span>
+          <span class="mk d" style="left:16.7%;top:113px">2</span>
+          <span class="mk c" style="left:30.5%;top:107px"><img src="mascots/shi-shi.png" alt=""></span>
+          <span class="mk l" style="left:43%;top:114px">4</span>
+          <span class="mk l" style="left:55.5%;top:98px">5</span>
+          <span class="mk l" style="left:68%;top:92px">6</span>
+          <span class="mk l" style="left:82.2%;top:108px">7</span>
+          <span class="mk l" style="left:95.5%;top:84px">8</span>
+        </div>
+        <div class="ttl"><small>Unit 3 · <span class="zh" style="color:var(--seal)">家人</span></small>
+          <div class="row"><b>Family and people</b><button class="read" aria-label="Read the unit's story"><i>读</i>Read</button></div>
+          <div class="bar"><i></i></div>
+          <div class="cap"><b>2 of 6</b> lessons · <svg class="lxi"><use href="#lixi"/></svg> red envelope after lesson 3</div></div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><span class="node l2">男</span></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Shi Shi walks to the next marker when a unit is done. Each HSK level gets its own painting (river, city, snow). Tap a marker to jump.</span></li>
+        <li class="win"><b>Why</b><span>A real map of where you’re going, so the level feels like a trip. Calm colours keep it light, and Shi Shi moves into the header, so the path is less crowded.</span></li>
+        <li class="cost"><b>Cost</b><span>The tallest top, and each level needs its own landscape painted.</span></li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+<script>
+document.querySelectorAll('.toggle button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.toggle button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  document.body.classList.toggle('risk', b.dataset.st === 'risk');
+});
+</script>
+</body>
+</html>
