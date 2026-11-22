@@ -630,7 +630,8 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .ac-sides .lbl{align-items:center;min-height:20px}
 .ac-cands{min-height:50px;padding-top:6px}
 .ac-cands:empty{min-height:0;padding:0}
-.ac-reads{margin:4px 0 0}
+/* v4.27: the meanings and readings under a box sit below it; the general .means rule (later on, -6px) pulled them up over its edge */
+.ac-sides .means{margin-top:8px}
 .field.ac-fz{margin-bottom:0}
 .field.ac-en{margin-bottom:0}
 .ac-sides{margin-bottom:12px}
@@ -13648,7 +13649,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.26';
+const APP_VERSION = '4.27';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
