@@ -2928,6 +2928,21 @@ body:has(.le2),.les-scr:has(.le2),.les-scr:has(.le2) .les-dock{background:#FFF1D
 .le2-note .le-new{width:26px;height:26px;border-radius:7px;font-size:14px}
 .le2-fl{display:flex;width:20px;height:20px}
 .le2-fl .flame{width:100%;height:100%}
+/* v4.28 the end of a flip round wears the same sunburst and tiles */
+body:has(.fe2){background:#FFF1D0}
+.fe2{position:relative;isolation:isolate;overflow-x:clip;margin:0 -20px;padding-left:20px;padding-right:20px}
+.fe2 .done-hero{isolation:isolate}
+.fe2 .le2-burst{top:-90px}
+.fe2 .done-shi{margin-top:6px}
+.fe2-deck{margin:6px 0 0;font-size:14px;font-weight:600;color:#6B5A45}
+.fe2 .lt-row{margin-top:34px}
+.fe2 .lt-caps{max-width:350px;gap:8px;text-align:center}
+.fe2 > .bar{background:transparent;box-shadow:none}
+.fe2 .le2-notes{margin-bottom:8px}
+.fe2-ok{display:flex;width:20px;height:20px;border-radius:50%;background:var(--jade);color:#fff;align-items:center;justify-content:center}
+.fe2-ok svg{width:13px;height:13px}
+.fe2-tmr{color:#6B5A45!important;font-weight:500!important}
+.fe2 .dock{background:linear-gradient(transparent,#FFF1D0 32%)}
 @keyframes ltDeal{from{opacity:0;transform:translateY(-40px) scale(.9)}}
 @keyframes ltFlip{0%{transform:rotateX(var(--rx)) rotateY(calc(180deg + var(--ry)))}70%{transform:rotateX(var(--rx)) rotateY(calc(var(--ry) - 14deg)) translateZ(16px)}100%{transform:rotateX(var(--rx)) rotateY(var(--ry))}}
 @keyframes ltCap{from{opacity:0;transform:translateY(6px)}}
@@ -11582,7 +11597,7 @@ function startStudy() {
   const d = curDeck();
   const ids = d.cards.map(c => c.id), base = ids.join();
   // v4.10: opening the cards always starts from the first one, never where you left off
-  S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false };
+  S.study = { deckId: d.id, base, order: ids, i: 0, shuffled: false, angle: 0, hinted: false, flipped: false, graded: {}, fresh: [], done: false, t0: Date.now() };
 }
 const startAngle = () => db.prefs.englishFirst ? 180 : 0;
 function hzSize(n) { return [0, 96, 92, 84, 68][n] || Math.max(34, Math.min(60, Math.floor(280 / n))); }   // close to one size; shrinks only where a long word wouldn't fit
@@ -11645,31 +11660,40 @@ function gradeFlip(g) {
 function finishFlip() {
   const st = S.study, ids = Object.keys(st.graded);
   st.done = true;
+  { // v4.28: how long this round took, kept per deck: the total, the rounds, and time per card for the last 20 rounds
+    const steps = Math.max(1, st.order.length), ms = Math.min(Date.now() - (st.t0 || Date.now()), steps * 6e4), pace = ms / steps;
+    const T = (db.deckTime ||= {})[st.deckId] ||= { ms: 0, n: 0, pace: [] }, past = T.pace;
+    st.tm = { ms, avg: past.length ? past.reduce((a, b) => a + b, 0) / past.length * steps : 0, best: past.length >= 3 && pace < Math.min(...past), all: T.ms + ms };
+    T.ms += Math.round(ms); T.n++; T.pace = [...past, Math.round(pace)].slice(-20); save(); }
   LOG.add('flip-round', { remembered: ids.filter(id => st.graded[id] > 0).length, of: ids.length, new: st.fresh.length });
   render(); window.scrollTo(0, 0); $('#app').scrollTop = 0;
   try { navigator.vibrate?.([10, 70, 16]); } catch (_) {}
 }
-/* the end of a flip round: Shi Shi cheers, what you remembered, the new words and what is waiting tomorrow */
+/* v4.28 the end of a flip round, like the end of a lesson: on a warm sunburst three mahjong tiles land face down and turn
+   over: the new words, your score (完 Perfect, 好 Great, 行 Nice, 加 Keep going) and the time against your average for this deck.
+   Under them the streak, the daily goal and what is waiting tomorrow. Coins show only if words were proven in the round */
 function StudySummary(d) {
   const st = S.study, ids = Object.keys(st.graded), n = ids.length, ok = ids.filter(id => st.graded[id] > 0).length;
   const fresh = st.fresh.map(id => cardById(d, id)).filter(c => c && st.graded[c.id] > 0);
-  const pct = n ? ok / n : 0, { n: streak } = practiceStreak(), tmr = dueBy(dayStart(Date.now(), 2));
+  const pct = n ? Math.round(ok / n * 100) : 0, { n: streak } = practiceStreak(), tmr = dueBy(dayStart(Date.now(), 2));
   if (!('pay' in st)) st.pay = takePay(); const P = st.pay;   // words proven in this round: their coins, once
-  const [hz, py, en] = pct === 1 ? ['太棒了！', 'tài bàng le', 'Great job!'] : pct >= .7 ? ['很好！', 'hěn hǎo', 'Well done!'] : ['加油！', 'jiā yóu', 'Keep going!'];
-  const tm = new Date(dayStart(Date.now(), 1));
-  const bits = Array.from({ length: 22 }, (_, i) => `<i style="--x:${(i % 2 ? 1 : -1) * (40 + (i * 37) % 120)}px;--y:${-(60 + (i * 53) % 110)}px;--r:${(i * 97) % 360}deg;--d:${(i % 7) * 40}ms;background:${['#E5483F', '#FFD15C', '#3F7A5F', '#E8742C', '#B23A2C'][i % 5]}"></i>`).join('');
-  return `<div class="screen fade-in" style="--accent:${d.accent}">
+  const [hz, py, en] = pct === 100 ? ['太棒了！', 'tài bàng le', 'Great job!'] : pct >= 70 ? ['很好！', 'hěn hǎo', 'Well done!'] : ['加油！', 'jiā yóu', 'Keep going!'];
+  const g = pct >= 100 ? ['完', 'PERFECT'] : pct >= 90 ? ['好', 'GREAT'] : pct >= 75 ? ['行', 'NICE'] : ['加', 'KEEP GOING'];
+  const T = st.tm || { ms: Date.now() - (st.t0 || Date.now()) }, r = T.avg ? T.ms / T.avg : 0;
+  const t = !T.avg ? ['时', 'TIME'] : r <= .75 ? ['飞', 'BLAZING'] : r <= 1 ? ['快', 'QUICK'] : ['稳', 'STEADY'];
+  const nf = fresh.length, tiles = lesTile(0, '新', '#C8241E', nf, nf === 1 ? 'NEW WORD' : 'NEW WORDS') + lesTile(1, g[0], '#0B7F62', `${pct}%`, g[1]) + lesTile(2, t[0], '#6A33CC', lesClock(T.ms), t[1]);
+  const caps = [nf ? 'First time seen' : 'All reviews', `${ok} of ${n} remembered`, !T.avg ? 'Your first timed round' : T.best ? 'New best!' : `Your avg ${lesClock(T.avg)}`]
+    .map((c, i) => `<span style="--i:${i}">${c}</span>`).join('');
+  const { min, goal } = goalToday(), tm = new Date(dayStart(Date.now(), 1)), day = tm.toLocaleDateString('en-GB', { weekday: 'long' });
+  const notes = [streak && `<p class="le2-note"><span class="le2-fl on">${FLAME}</span>${streak}-day streak</p>`,
+    goal && min >= goal && `<p class="le2-note"><span class="fe2-ok">${I.check}</span>Daily goal reached</p>`,
+    `<p class="le2-note fe2-tmr">${tmr ? `${day}: ${plural(tmr, 'card')} waiting` : 'Nothing due tomorrow'}</p>`].filter(Boolean).join('');
+  return `<div class="screen fade-in fe2" style="--accent:${d.accent}">
     <header class="bar"><button class="icon-btn" data-act="study-done" aria-label="Close">${I.close}</button><div class="bar-title"></div><span style="width:42px"></span></header>
-    <section class="done-hero"><div class="done-burst" aria-hidden="true">${bits}</div><div class="done-shi${P ? ' bag' : ''}">${P ? bagShi('cheer') : shiFace('cheer')}</div>
-      <h2>${hz}</h2><div class="done-py">${py} · ${en}</div>${P ? payLine(P) : ''}</section>
-    <div class="done-stats">
-      <div><b>${ok}/${n}</b><span>remembered</span></div>
-      <div><b>${fresh.length}</b><span>${fresh.length === 1 ? 'new word' : 'new words'}</span></div>
-      <div class="fl"><b>${streak}</b><span>day streak</span></div></div>
-    ${db.prefs.goalMin ? `<div class="done-goal">${GoalRow()}</div>` : ''}
-    ${fresh.length ? `<div class="done-words">${fresh.slice(0, 8).map(c => `<span>${esc(c.hanzi)}</span>`).join('')}</div>` : ''}
-    <div class="done-next"><span class="done-cal"><small>${tm.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()}</small>${tm.getDate()}</span>
-      <span><b>${tmr ? `Tomorrow: ${plural(tmr, 'card')}` : 'Nothing due tomorrow'}</b><small>${tmr ? 'Shi Shi will be waiting' : 'Add new words to keep growing'}</small></span></div>
+    <section class="done-hero"><span class="le2-burst" aria-hidden="true"></span><div class="done-shi${P ? ' bag' : ''}">${P ? bagShi('cheer') : shiFace('cheer')}</div>
+      <h2>${hz}</h2><div class="done-py">${py} · ${en}</div>${P ? payLine(P) : ''}<p class="fe2-deck">${esc(d.name)}</p></section>
+    <div class="lt-row" role="img" aria-label="${plural(nf, 'new word')}, ${ok} of ${n} remembered, time ${lesClock(T.ms)}">${tiles}</div><div class="lt-caps">${caps}</div>
+    <div class="le2-notes">${notes}</div>
     <div class="dock row-btns"><button class="btn btn-ghost" data-act="study-again">Again</button><button class="btn btn-primary" data-act="study-done">Done</button></div>
   </div>`;
 }
@@ -13675,7 +13699,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.28';
+const APP_VERSION = '4.29';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
