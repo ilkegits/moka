@@ -1212,6 +1212,9 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
   box-shadow:inset 0 -6px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 16px 22px -10px rgba(60,10,5,.7)}
 .tm-play.tm-go:active{transform:translateY(3px);box-shadow:inset 0 -3px 0 rgba(90,10,5,.32),inset 0 3px 0 rgba(255,255,255,.28),0 8px 12px -8px rgba(60,10,5,.7)}
 .tm-play.tm-go:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
+.tm-play.tm-go{padding:0 12px 4px;flex-direction:column;gap:0}
+.tm-go-t{display:block;max-width:100%;white-space:nowrap}
+.tm-play.tm-go small{display:block;margin-top:3px;font:700 13px/1 var(--display);letter-spacing:.04em;opacity:.88}
 /* v3.28: the big pinkish red buttons (Learn on the map, Play on the current unit in Lessons; v3.29 Start in a unit) shine every 6 s: a slanted
    band of light sweeps across them in 0.8 s, then they rest */
 .tm-play.tm-go,.lv em,.un-start{position:relative;overflow:hidden;isolation:isolate}
@@ -10470,7 +10473,13 @@ function mapPickKind(k) {   // a map chosen in Maps: the sheet goes, and the map
 }
 function goBtn() {   // Play, as in a game, bottom right: always there and always in the same place, whatever card is up or the camera does
   const sts = trailStates();
-  return `<button class="tm-play tm-go tm-ui" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}" aria-label="Play: ${playSub()}">${playSub()}</button>`;
+  const t = playSub(), [a, b] = t.split(' · ');   // v3.86: "Lesson 5 · recall" did not fit: the part goes on a small second line under the lesson
+  return `<button class="tm-play tm-go tm-ui${b ? ' two' : ''}" data-act="map-build" data-lv="${(sts.find(x => !x.done) || sts[0]).lv}" aria-label="Play: ${t}"><span class="tm-go-t">${a}</span>${b ? `<small>${b[0].toUpperCase() + b.slice(1)}</small>` : ''}</button>`;
+}
+function goFit(go) {   // and anything still too wide for the fixed button (Lesson 12 in a wide fallback font) shrinks until it fits
+  const t = go && go.querySelector('.tm-go-t'); if (!t) return;
+  const room = go.clientWidth - 24; let f = 23;
+  while (t.scrollWidth > room && f > 15) t.style.fontSize = --f + 'px';
 }
 function mapCard(lv) {   // what a tap on a monument shows: its name and what it is worth (one you do not own yet: its price, and the shop)
   const c = TRAIL[lv - 1], st = trailState(lv), x = `<button class="tm-x" data-act="map-close" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>`;
@@ -10766,6 +10775,7 @@ function mountMap() {   // the map answers your fingers; back from a monument's 
   if (S.mapLv) return;
   const lv = S.mapFrom, buy = S.mapShow, fbuy = S.foodShow; S.mapFrom = 0; S.mapShow = 0; S.foodShow = 0; Trail.mount(buy ? 0 : lv);
   if (S.mapFresh) S.mapShi = !buy && !fbuy && !lv && db.coinIntro && !Trail.CAM.sel && !$('#ob') ? 1 : 0;   // he comes when you open the Map, and stays through redraws until sent off
+  goFit($('#mpMap .tm-go')); if (document.fonts) document.fonts.ready.then(() => goFit($('#mpMap .tm-go')));
   if (S.mapShi) mapShi(S.mapShi++ > 1);
   if (buy) Trail.CAM.api?.show(buy, () => mapShowEnd(buy));   // just bought: it lands on the map
   if (fbuy) Trail.CAM.api?.showFood(fbuy, () => foodShowEnd(fbuy));
@@ -13068,7 +13078,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.87';
+const APP_VERSION = '3.88';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
