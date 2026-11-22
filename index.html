@@ -5140,7 +5140,8 @@ function scrHead(u) {
     <button class="scr-read" data-act="comic-replay" data-u="${u}" aria-label="Read the story of Unit ${unK(u)}"><i>${SCR_BOOK}</i></button></div><span class="scr-rod"></span>`;
 }
 /* v3.95 (ilkem: "when u open the lessons page for the first time, the scroll is rolled up from both sides in the middle and unfolds"):
-   once a session, the two rods start side by side in the middle and roll out to the edges, the paper opening between them */
+   once a session, and again each time you pick another level (v3.96), the two rods start side by side in the middle and roll out to
+   the edges, the paper opening between them */
 let scrT0 = 0;   // when this session's unroll began; a scroll drawn again while it runs (the page drawn twice as it loads, a unit change) picks it up where it is
 function scrUnroll() {
   const e = $('.scr'); if (!e || stillMotion()) return;
@@ -5180,6 +5181,7 @@ function lvPick(btn) {
     if (!lvHas(l)) { toast(`${HSK_NAME(l)} is coming soon`); return; }
     if (l > top) { toast(`Finish ${HSK_NAME(l - 1)} to unlock ${HSK_NAME(l)}`); return; }
     lvPickClose(); if (l === cur) return;
+    scrT0 = 0;   // v3.96 (ilkem: "it should also animate it when u switch from hsk to hsk"): the new level's scroll unrolls too
     history.replaceState(history.state, '', unitUrl(ucMe(l))); route();   // in place of this level, so Back does not step through levels
   });
   o.querySelector('.lvp-row.cur')?.focus({ preventScroll: true });
@@ -13337,7 +13339,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.95';
+const APP_VERSION = '3.96';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
