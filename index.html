@@ -2391,6 +2391,41 @@ button.st-d:active{transform:scale(.9);transition:none}
 .ut-sh-goal b{font-size:26px;font-weight:800;color:var(--seal);font-variant-numeric:tabular-nums}
 .ut-sh-goal span{font-size:14.5px;line-height:1.35;color:var(--ink-2)}
 .les-end-box > b.no{color:var(--seal)}
+/* v3.70 peak-end: what you earned, row by row after the seals, and how close the unit is */
+.les-earn{width:100%;margin-top:20px;padding:14px 16px 6px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.les-earn h2{margin:0 0 4px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.les-earn ul{margin:0;padding:0;list-style:none}
+.les-earn li{display:flex;align-items:center;gap:12px;min-height:46px;animation:leIn .45s cubic-bezier(.2,.9,.3,1.25) both}
+.les-earn li+li{border-top:1px solid var(--line)}
+.les-earn li:nth-child(1){animation-delay:1.35s}.les-earn li:nth-child(2){animation-delay:1.6s}.les-earn li:nth-child(3){animation-delay:1.85s}.les-earn li:nth-child(4){animation-delay:2.1s}.les-earn li:nth-child(5){animation-delay:2.35s}
+.le-ic{flex:none;display:grid;place-items:center;width:30px;height:30px}
+.le-ic>svg{width:28px;height:28px;display:block}
+.le-lx .le-ic>svg{width:24px;height:30px}
+.le-new{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--jade);color:#fff;font-size:16px;font-weight:700}
+.le-t{flex:1;font-size:15.5px;font-weight:600;color:var(--ink)}
+.les-earn li>b{font-size:17px;font-weight:800;color:#9A5200;font-variant-numeric:tabular-nums}
+.les-earn li.le-fire>b{color:#D9480F}
+@keyframes leIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+.les-unit{width:100%;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
+.les-unit-t{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.les-unit-t b{min-width:0;overflow:hidden;font-size:14.5px;font-weight:700;white-space:nowrap;text-overflow:ellipsis}
+.les-unit-t span{flex:none;font-size:14px;font-weight:800;color:var(--jade)}
+.les-unit-bar{display:block;height:12px;border-radius:6px;background:var(--fill);overflow:hidden}
+.les-unit-bar i{display:block;height:100%;width:var(--w);border-radius:inherit;background:var(--jade);animation:luFill .9s 1s cubic-bezier(.3,.8,.3,1) both}
+.les-unit.full .les-unit-bar i{background:linear-gradient(90deg,#E8B44A,#F6D682)}
+@keyframes luFill{from{width:var(--w0)}}
+/* a unit's finale */
+.ue-medal{position:relative;display:grid;place-items:center;width:112px;height:112px;margin:18px auto 2px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FF5A66,#C8241E 70%);box-shadow:0 0 0 6px #F6D682,0 0 0 9px #B8801E,0 10px 24px rgba(160,30,20,.3);animation:ueMedal .8s .4s cubic-bezier(.2,.9,.3,1.35) both}
+.ue-medal i{font-style:normal;font-size:38px;font-weight:700;color:#FFF3D6;letter-spacing:-.02em;text-shadow:0 2px 0 rgba(120,10,10,.35)}
+@keyframes ueMedal{from{opacity:0;transform:scale(.3) rotate(-30deg)}}
+.ue .les-end-shi{width:110px;height:110px;margin-top:30px}
+.ue-coins{display:inline-flex;align-items:center;gap:4px}
+.ue-coins .coin{width:20px;height:20px}
+.ue-next{width:100%;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--fill);text-align:left;display:flex;flex-direction:column;gap:2px}
+.ue-next small{font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ue-next b{font-size:17px;font-weight:800}
+.ue-next span{font-size:14px;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.les-earn li,.les-unit-bar i,.ue-medal{animation:none}}
 /* the end: confetti bursts from behind Shi Shi's mane */
 .les-end-shi{position:relative;isolation:isolate}
 .les-end-shi .shi-face{position:relative;z-index:1}
@@ -6033,6 +6068,18 @@ function ppWake() { if (!ppSeen) { document.querySelectorAll('.pp-pal').forEach(
 const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
   ? '<path d="M6 21Q24-6 42 21Z" fill="#F7786B" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><rect x="5" y="19" width="38" height="37" rx="5" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><circle cx="24" cy="37.5" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><path d="M19.8 37.6l3 3 5.6-6.2" fill="none" stroke="#7A4A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
   : '<rect x="5" y="5" width="38" height="51" rx="6" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><path d="M5.5 12.5Q24 34 42.5 12.5V11a6 6 0 0 0-6-6H11.5a6 6 0 0 0-6 6Z" fill="#F4574A" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="25" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><rect x="20.6" y="21.6" width="6.8" height="6.8" rx="1" fill="#E3352B" stroke="#A8721A" stroke-width="1.6"/><path d="M14 47h20" stroke="#F8CF5F" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>') + '</svg>';
+/* v3.70: an envelope that a finished lesson has just made ready opens on the lesson's end screen (its coins pour into the bag
+   with the rest); returns the coins */
+function lxClaim(un) {
+  const st = unitState(un), duo = LV_DUO[unitLv(un)]; let got = 0;
+  for (const w of duo ? ['e'] : ['m', 'e']) {
+    const need = w === 'e' ? (duo ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
+    if (!st.open || st.nd < need || lxGot(un, w)) continue;
+    (db.lixi ||= {})[un + w] = { t: Date.now(), n: LX_PAY[w] }; got += LX_PAY[w];
+    LOG.add('lixi', { unit: un, which: w, n: LX_PAY[w], at: 'lesson-end' });
+  }
+  return got;
+}
 /* open one (k: '<unit>m' or '<unit>e'): its coins come out right there and count at once. Locked: it says what is left */
 function lixiOpen(k) {
   const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? (LV_DUO[unitLv(un)] ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
@@ -6077,7 +6124,7 @@ function startLesson(n) {
   if (rc[0]) fl.splice(Math.ceil(fl.length / 2), 0, rc[0]);
   if (rc[1]) fl.push(rc[1]);
   q.push(...fl);
-  S.les = { n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length,
+  S.les = { n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length, t0: Date.now(),
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
   LOG.add('lesson-start', { n, title: L.title });
 }
@@ -6270,7 +6317,7 @@ function LessonView() {
 }
 function lesInner() {
   const E = S.les;
-  if (E.step === 'done') return lesEndHtml();
+  if (E.step === 'done' || E.step === 'unit') return lesEndHtml();
   const top = lesTop();
   const Q = E.q[E.qi], a = Q.w, done = E.ans != null;
   if (Q.t === 'meet') {   // a new hanzi card: the word in tianzige, its sound, pinyin and meaning
@@ -6311,19 +6358,83 @@ function lesInner() {
 }
 /* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
-  const E = S.les; if (E.test) return utEndHtml();
+  const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.test) return utEndHtml();
   const L = LES(E.n), add = E.added || [], chars = [...new Set(E.wroteCh)];
   const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
-  const mood = E.pct === 100 ? 'star' : 'cheer';
+  const mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer';
   return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
-      <h1>Lesson done!</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
+      <h1>${E.unitNew ? `Unit ${unK(L.un)} complete!` : 'Lesson done!'}</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
       <div class="les-seals">${seals.map(([zh, en, got], i) => `<span class="les-seal${got ? ' got' : ''}" style="--d:${(.45 + i * .3).toFixed(2)}s"><i>${zh}</i><small>${en}</small></span>`).join('')}</div>
+      ${lesEarnHtml(E)}${lesUnitBar(L.un, E.first)}
       <div class="les-tally"><span><b>${E.pts}</b><small>${E.newBest ? 'points · new best' : 'points'}</small></span><span><b>${E.pct}%</b><small>cards known</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${chars.length ? `<div class="les-wrote"><small>You wrote</small>${chars.map(miniTZG).join('')}</div>` : ''}
-      <div class="les-end-box"><b>${add.length ? `+${plural(add.length, 'word')} in your word bank` : 'These words were already in your word bank'}</b>
+      <div class="les-end-box"><b>${add.length ? 'Your new words' : 'These words were already in your word bank'}</b>
         <div class="les-words">${E.words.map(w => `<span class="les-chip${add.includes(w) ? '' : ' have'}"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
         ${add.length ? '<small>They come back in your daily review tomorrow.</small>' : ''}</div></div>
-    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">Continue</button></div>`;
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${lesOnLabel(E)}</button></div>`;
+}
+/* v3.70, the peak-end rule: a lesson or unit ends on its high point. The end screen lists what you just earned (coins and
+   where they came from, the red envelope, new words, the streak), shows how close the unit is, and its one button goes on
+   to what comes next (the next lesson, or the next unit after its finale), never back to the roadmap. The X on the next
+   lesson's first card still leaves at once, without asking */
+function lesEarnHtml(E) {
+  const P = E.pay?.n || 0, les = E.first ? PAY.les : 0, lx = E.lixi || 0, pv = Math.min(Math.max(0, P - les - lx), (E.proven || 0) * (PAY.word + PAY.mast));
+  const row = (ic, t, v, cls = '') => `<li class="${cls}"><span class="le-ic${cls.includes('on') ? ' on' : ''}">${ic}</span><span class="le-t">${t}</span>${v ? `<b>${v}</b>` : ''}</li>`;
+  const rows = [
+    les && row(coinSvg(), 'Lesson finished', `+${les}`),
+    pv && row(coinSvg(), `${plural(E.proven, 'word')} proven`, `+${coinFmt(pv)}`),
+    lx && row(lixiSvg(true), 'Red envelope opened', `+${lx}`, 'le-lx'),
+    E.added?.length && row('<span class="le-new" lang="zh">新</span>', `${plural(E.added.length, 'new word')} in your word bank`, ''),
+    E.streak?.up && row(FLAME, `${E.streak.n}-day streak`, E.streak.n > 1 ? '+1 day' : 'Day 1', 'on le-fire'),
+  ].filter(Boolean);
+  return rows.length ? `<div class="les-earn"><h2>You earned</h2><ul>${rows.join('')}</ul></div>` : '';
+}
+function lesUnitBar(un, jump) {   // how close the unit is: never empty, the end in sight, counted as what is left
+  const st = unitState(un), n = st.ls.length, left = n - st.nd, w = Math.round(st.nd / n * 100), w0 = jump ? Math.max(4, Math.round(Math.max(0, st.nd - 1) / n * 100)) : w;
+  return `<div class="les-unit${left ? '' : ' full'}"><div class="les-unit-t"><b>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</b><span>${left ? `${plural(left, 'lesson')} to go` : 'All lessons done'}</span></div>
+    <span class="les-unit-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${st.nd}"><i style="--w0:${w0}%;--w:${w}%"></i></span></div>`;
+}
+function lesUpNext(lv) {   // the lesson that comes after: the level's next one, or the next level's first once it is open
+  const n = lesNext(lv); if (n) return utDue(lv) ? 0 : n;
+  return lv < 7 && lvHas(lv + 1) && openLevel() >= lv + 1 && !utDue(lv + 1) ? lesNext(lv + 1) : 0;
+}
+function lesOnLabel(E) {
+  const lv = unitLv(E.test || LES(E.n).un), n = lesUpNext(lv), N = n && LES(n);
+  if (E.step === 'done' && E.unitNew) return 'Continue';   // the ending comic, then the unit's finale
+  if (!N) return 'Continue';
+  if (N.lv !== lv) return `Start ${HSK_NAME(N.lv)}`;
+  return N.un !== (E.test || LES(E.n).un) ? `Start Unit ${unK(N.un)}` : 'Next lesson';
+}
+function lesOnward() {
+  const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un);
+  const back = () => { S.les = null; goBack('#/course/' + lv); };
+  if (E.test && !E.pass) { back(); return; }   // Later, after a test not passed
+  const go = () => { const n = lesUpNext(lv); if (n) lesOn(n); else back(); };
+  if (E.step === 'unit') { go(); return; }
+  const ending = !COMIC[un] ? -1 : E.test ? (comicSeen(un).p1 ? 1 : -1) : LV_DUO[lv] && unitWon(un) && unitLessons(un).at(-1)?.n === E.n ? COMIC[un].pages.length - 1 : -1;
+  const finale = () => { if (S.les !== E) return; E.step = 'unit'; E.cheered = false; lesPaint(); window.scrollTo(0, 0); };
+  if (E.unitNew) { if (ending >= 0) comicPlay(un, ending, finale); else finale(); return; }
+  if (ending >= 0) comicPlay(un, ending, go); else go();
+}
+function lesOn(n) {   // straight into the next lesson, in place of this one (Back still leads to the roadmap); a unit's first lesson brings its comic
+  const L = LES(n), open = () => { const E = S.les; if (E) clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; }
+    S.les = null; history.replaceState(history.state, '', lesUrl(n)); route(); window.scrollTo(0, 0); };
+  comicLoad(L.lv).then(() => { if (lesComicDue(n)) comicPlay(L.un, 0, open); else open(); }, open);
+}
+/* a unit's finale, after its ending comic: what the whole unit gave you, and the next unit one tap away */
+function unitEndHtml() {
+  const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un), ls = unitLessons(un), words = [...new Set(ls.flatMap(L => L.words))];
+  const have = words.filter(h => bankHas(h)).length, proven = words.filter(h => bankHas(h)?.pf?.at).length;
+  const coins = ls.filter(L => lesDone(L.n)).length * PAY.les + proven * PAY.word + (lxGot(un, 'm')?.n || 0) + (lxGot(un, 'e')?.n || 0) + (utPassed(un) ? PAY.unit : 0);
+  const n = lesUpNext(lv), N = n && LES(n), last = unitLast(un);
+  const next = !N ? '' : N.lv !== lv ? `<div class="ue-next"><small>Up next</small><b>${HSK_NAME(N.lv)}</b><span>Unit 1 · ${esc(UNIT(N.un)[0])}</span></div>`
+    : `<div class="ue-next"><small>Up next</small><b>Unit ${unK(N.un)} · ${esc(UNIT(N.un)[0])}</b><span lang="zh">${esc(UNIT(N.un)[1] || '')}</span></div>`;
+  return `<div class="les-end ue"><span class="les-end-shi">${shiFace('star')}</span>
+      <h1>${last ? `${HSK_NAME(lv)} complete!` : `Unit ${unK(un)} complete!`}</h1><p class="muted">Unit ${unK(un)} · ${esc(UNIT(un)[0])}</p>
+      <div class="ue-medal" aria-hidden="true"><i lang="zh">${esc((UNIT(un)[1] || '完').slice(0, 2))}</i></div>
+      <div class="les-tally"><span><b>${have}</b><small>${have === 1 ? 'word' : 'words'} learned</small></span><span><b>${ls.length}</b><small>lessons</small></span><span><b class="ue-coins">${coinSvg()}${coinFmt(coins)}</b><small>coins earned</small></span></div>
+      ${next}</div>
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${!N ? 'Continue' : N.lv !== lv ? `Start ${HSK_NAME(N.lv)}` : `Start Unit ${unK(N.un)}`}</button></div>`;
 }
 function utEndHtml() {   // a unit test's result: passed (the next unit opens) or not yet (the words you missed, and Try again)
   const E = S.les, un = E.test, last = unitLast(un), lv = unitLv(un), missed = E.words.filter(w => E.missed.has(w.h));
@@ -6342,9 +6453,9 @@ function utEndHtml() {   // a unit test's result: passed (the next unit opens) o
 }
 /* the end of a lesson (or a passed test): a little fanfare, Shi Shi hops for joy, and paper confetti bursts from behind his mane */
 function lesEndShow() {
-  const E = S.les, shi = $('.les-end-shi'); if (!E || E.step !== 'done' || !shi || E.cheered) return;
+  const E = S.les, shi = $('.les-end-shi'); if (!E || E.step !== 'done' && E.step !== 'unit' || !shi || E.cheered) return;
   E.cheered = true;
-  coinRain($('.les-end'), E.pay, stillMotion() ? 0 : 1500);   // after the hop, the coins pour into Shi Shi's bag
+  if (E.step === 'done') coinRain($('.les-end'), E.pay, stillMotion() ? 0 : 1500);   // after the hop, the coins pour into Shi Shi's bag
   if (E.test && !E.pass) return;
   fanfare(); try { navigator.vibrate?.([12, 60, 12, 60, 28]); } catch (_) {}
   if (stillMotion()) return;
@@ -6423,10 +6534,7 @@ function lesAct(k, b) {
     else confirmSheet(E.test ? 'Quit the test?' : 'Quit this lesson?', E.test ? 'You can take it again any time.' : 'You will start it again from the beginning next time.', 'Quit', leave);
     return;
   }
-  if (k === 'end') { const un = E.test, back = () => goBack('#/course/' + (LES(E.n)?.lv || 1));   // a boss beaten, the first time or again: the comic's ending plays before you go back
-    const L = !un && LES(E.n), fin = L && LV_DUO[L.lv] && lesDone(E.n) && unitLessons(L.un).at(-1)?.n === E.n && COMIC[L.un];   // v3.58: on the path (no Hu Hu), the unit's last lesson brings the ending
-    if (fin) { comicPlay(L.un, COMIC[L.un].pages.length - 1, back); return; }
-    if (un && E.pass && COMIC[un] && comicSeen(un).p1) comicPlay(un, 1, back); else back(); return; }
+  if (k === 'end') { lesOnward(); return; }   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test); lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
@@ -6486,17 +6594,21 @@ function finishLesson() {
     src: 'lesson', les: E.n, pf: { d: dayKey(now) }, srs: { first: now, seen: now, iv: 1, n: 1, miss: 0, due: dayStart(now, 1) } }));   // right once today: right again on another day proves it
   const again = E.q.filter(x => x.again).length, pct = Math.round((E.nq - again) / E.nq * 100);   // cards you knew the first time; the writing doesn't count here
   const seals = 1 + (pct >= 80) + (E.nWrite > 0 && !E.skipW);
-  const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts;
+  const rec = db.lessons[E.n] ||= {}; E.newBest = rec.pts != null && E.pts > rec.pts; E.first = !rec.done;
+  const was = practiceStreak().today, un = LES(E.n).un;   // v3.70: for the end screen's "You earned"
   rec.done ||= now; rec.last = now; rec.best = Math.max(rec.best || 0, pct); rec.pts = Math.max(rec.pts || 0, E.pts); rec.seals = Math.max(rec.seals || 0, seals);
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
   { const lv = LES(E.n)?.lv; if (LV_DUO[lv] && lvLes(lv).every(L => lesDone(L.n))) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, lv + 1)); }   // v3.49: where the challenge is a bonus, a level's last lesson opens the next level
+  E.unitNew = E.first && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
+  E.lixi = lxClaim(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
+  { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }   // shown here, so the streak page does not come up again today
   E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
 function finishTest() {   // passing a level's last unit test finishes the level and opens the next one
   const E = S.les, now = Date.now(), un = E.test, of = Math.max(1, E.total - E.dropW), pct = Math.round((of - E.wrong) / of * 100), pass = pct >= UT_PASS;
   const rec = db.utests[un] ||= {};
-  rec.last = now; rec.best = Math.max(rec.best || 0, pct); if (pass) rec.pass ||= now;
+  rec.last = now; rec.best = Math.max(rec.best || 0, pct); E.unitNew = pass && !rec.pass && !LV_DUO[unitLv(un)]; if (pass) rec.pass ||= now;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('u' + un);   // counts for the streak
   if (pass && unitLast(un)) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, unitLv(un) + 1));
   E.pct = pct; E.pass = pass; E.step = 'done'; save(); E.pay = takePay();
@@ -12183,7 +12295,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.70';
+const APP_VERSION = '3.71';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
