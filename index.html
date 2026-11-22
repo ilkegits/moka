@@ -4461,8 +4461,17 @@ const lesDone = n => !!db.lessons[n]?.done;
    same characters from memory. db.lessons[n].half: when part 1 was done, .traced: the characters it traced. The lesson
    is done (lesDone) once part 2 is */
 const lesHalf = n => !lesDone(n) && !!db.lessons[n]?.half;
-const LES_TR = 4;   // characters traced in part 1, and written from memory in part 2
+const LES_TR = 4;   // characters written from memory in part 2 (v4.09: part 1 traces every card, LES_TR of them are picked to recall)
 const lesTrN = L => db.lessons[L.n]?.traced?.length || Math.min(LES_TR, new Set(L.words.flatMap(hanChars)).size, L.words.length);
+const lesTraceN = L => L.words.filter(h => hanChars(h).length).length;   // v4.09: part 1 traces one character of every card
+/* v4.09 (ilkem: "after showing the card, u should always trace it"): a trace for every word, its own character to write
+   (new ones first), or its first character when another card took all of its characters. pick: one of the LES_TR that
+   part 2 writes from memory */
+function lesTraceTasks(n, words) {
+  const wt = lesWriteTasks(n, words, words.length), pick = new Set(wt.slice(0, LES_TR));
+  return words.map(w => { const x = wt.find(t => t.w === w), c = hanChars(w.h)[0];
+    return x ? { ...x, pick: pick.has(x) } : c ? { ch: c, w, pick: false } : null; }).filter(Boolean);
+}
 const lesPartOf = (n, part) => part === 1 || part === 2 && (lesDone(n) || lesHalf(n)) ? part : lesDone(n) || lesHalf(n) ? 2 : 1;   // part 2 only once part 1 is done
 let ppHalfNew = 0;   // the lesson whose part 1 was just done: its station fills half way when the path shows again
 const lvWon = lv => lvUnits(lv).every(U => unitWon(U.un));
@@ -6830,7 +6839,7 @@ function lesSheet(n) {   // tap a lesson on the path. v3.84 (ilkem: "when u clic
   openSheet(`<div class="lsh-top"><small>Lesson ${L.k} · Unit ${unK(L.un)} · done</small><h3>${esc(L.title)}</h3>
       <p class="lsh-hz" lang="zh">${L.words.map(esc).join('<i>·</i>')}</p></div>
     <p class="lsh-ask">Which part do you want to do again?</p>
-    <div class="lsh-opts">${opt(1, I.learn, 'Learn', `${plural(L.words.length, 'card')} · trace ${nt}`)}${opt(2, I.flip, 'Recall', `Write ${nt} from memory`)}</div>`);
+    <div class="lsh-opts">${opt(1, I.learn, 'Learn', `${plural(L.words.length, 'card')} · trace ${lesTraceN(L)}`)}${opt(2, I.flip, 'Recall', `Write ${nt} from memory`)}</div>`);
 }
 function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: that part)
   if (S.les?.demo && !S.les.test && S.les.n === n) return;   // a Developer demo (lesDemo) stays as it is
@@ -6844,8 +6853,8 @@ function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: t
 function startLesson(n, demo, part) {   // v3.79: part 1 learns and traces, part 2 recalls (lesHalf)
   const L = LES(n), words = L.words.map(lesRow), q = [];
   part = demo ? part || 2 : lesPartOf(n, part);
-  if (part === 1) {   // meet each word on its card; a word that brings one of the characters to write is traced right after it
-    const wt = lesWriteTasks(n, words, LES_TR);
+  if (part === 1) {   // meet each word on its card, and always trace it right after
+    const wt = lesTraceTasks(n, words);
     q.push(...words.flatMap(w => [{ t: 'meet', w }, ...wt.filter(x => x.w === w).map(x => ({ t: 'write', mode: 'trace', ...x }))]));
   } else {   // the hanzi cards, character first, and the characters part 1 traced, now written from memory on blank paper
     const had = (db.lessons[n]?.traced || []).map(ch => { const w = words.find(x => hanChars(x.h).includes(ch)); return w && { ch, w }; }).filter(Boolean);
@@ -7115,6 +7124,7 @@ function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWri
   const W = HanziWriter.create(q, Q.ch, writerOpts(s, { showCharacter: false, showOutline: trace, strokeColor: css('--ink'), outlineColor: css('--line'),
     drawingColor: css('--ink'), highlightColor: css('--seal'), drawingWidth: LES_INK, showHintAfterMisses: 2,
     highlightOnComplete: true, highlightCompleteColor: css('--jade'), strokeAnimationSpeed: 2.2, delayBetweenStrokes: 70,   // "Show me how" plays quickly
+    strokeHighlightSpeed: .5,   // v4.09: the red hint stroke after 2 slips draws slowly enough to follow (the library's 2 flashed past)
     charDataLoader: (ch, ok, err) => loadRef(ch).then(ok, err) }));
   E.writer = W;
   E.wq = () => W.quiz({ onMistake: () => { miss++; },
@@ -7254,7 +7264,9 @@ function lesHalfHtml() {
 function finishHalf() {   // part 1 done: the station fills half way; it counts for the streak, the coins and words wait for part 2
   const E = S.les, now = Date.now(), rec = db.lessons[E.n] ||= {}, was = practiceStreak().today, done = !!rec.done;
   if (!done && !rec.half) ppHalfNew = E.n;
-  rec.half ||= now; rec.traced = E.q.filter(x => x.t === 'write').map(x => x.ch);   // a part dropped by Can't write now leaves only the ones written
+  // the characters part 2 writes from memory: the picked ones first, at most LES_TR; a part dropped by Can't write now leaves only the ones written
+  const wr = E.q.filter(x => x.t === 'write');
+  rec.half ||= now; rec.traced = [...wr.filter(x => x.pick), ...wr.filter(x => !x.pick)].slice(0, LES_TR).map(x => x.ch);
   if (!rec.traced.length) delete rec.traced;
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('h' + E.n);   // counts for the streak
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }
@@ -13420,7 +13432,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.08';
+const APP_VERSION = '4.09';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
