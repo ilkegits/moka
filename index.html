@@ -2151,8 +2151,9 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*170px);height:calc(var(--k,1)*142px);transform:translate(-50%,-58%);pointer-events:none}
 .pp-pal>svg{display:block;width:100%;height:100%;overflow:visible}
 .pw-cover,.pw-brush,.pw-panda,.pr-body,.pr-page,.pr-up,.pb-body,.pb-card,.pb-steam path,.pi-body,.pi-cover,.pi-dot{transform-box:fill-box}
-.uc-pane.locked .pp-pal{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.5}
-.uc-pane.locked .pp-pal *{animation:none!important}
+.uc-pane.locked .pp-pal,.pp-pal.dim{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.5}
+.uc-pane.locked .pp-pal *,.pp-pal.dim *{animation:none!important}
+.pp-pal{transition:filter .7s ease,opacity .7s ease}   /* v3.69: a friend you have not reached yet stands pale and still, as on Duolingo, and wakes up when your lesson gets level with them */
 .pp-pal .pw-cover,.pp-pal .pi-cover{opacity:0}
 .pp-pal.on .pw-cover{transform-origin:50% 100%;animation:pwWrite 5s ease-in-out infinite}
 .pp-pal.on .pw-brush{transform-origin:0% 100%;animation:pwBrush 1.25s ease-in-out infinite}
@@ -4604,7 +4605,7 @@ function ucPane(u) {
   const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
   const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
   const extras = !path ? '' : lx('e', m.end, lxS('e', m.lxN))
-    + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i])).join('');
+    + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i], P.s, st.open && (eat >= 0 ? eat : st.at) >= P.s)).join('');   // v3.69: pale until the lesson level with them is reached
 
   const shrine = path ? extras : `<button class="un-node un-boss${st.won ? ' won' : chal && st.open ? ' cur' : ' locked'}" style="${pct(pts[n])}" data-act="ut-node" data-u="${u}"${off} aria-label="Hu Hu's challenge, the unit test${st.won ? ', won' : chal && st.open ? '' : ', locked'}">
       <span class="un-boss-aura"></span><span class="un-boss-fig">${huShrine(st.won ? 'dizzy' : chal && st.open ? 'fire' : 'cocky')}</span><i class="uc-chal">${st.won ? `${TROPHY_I}${r.best}%` : chal && st.open ? 'Challenge' : `${LOCK_I}Challenge`}</i></button>`;
@@ -5841,7 +5842,7 @@ function uwBunDraw(c, x, by, s, bites, sd) {
 function ppEat(un, i, then) {
   const p = ucPane$(un), a = p?.querySelector(`.un-node[data-i="${i}"]`), b = p?.querySelector(`.un-node[data-i="${i + 1}"]`), shi = $('#unShi'); if (!a) { then(); return; }
   haptic(12); a.dataset.s = 'done'; a.classList.add('pp-pop'); if (shi) shi.innerHTML = shiBody('love');
-  setTimeout(() => { a.classList.remove('pp-pop'); if (b) b.dataset.s = 'cur'; then(); }, 600);
+  setTimeout(() => { a.classList.remove('pp-pop'); if (b) b.dataset.s = 'cur'; p.querySelectorAll('.pp-pal.dim').forEach(f => { if (+f.dataset.s <= i + 1) f.classList.remove('dim'); }); then(); }, 600);   // v3.69: a friend level with the next lesson wakes up
 }
 /* the baozi of a lesson you just finished: the lid lifts and a little baozi pops up; it hops out in an arc into Shi
    Shi's open mouth, and he eats it right there in three bites (crumbs fly), then the lid drops back and the steamer
@@ -5996,7 +5997,7 @@ function lesStart(n) {
    it with his brush, Long Long reads it out of a book, Bao Bao bounces by a flash card that turns over to the next one, Mo Mo
    the ink drop hops and it paints itself in ink. Plain cartoon, the friends of the Learn tab's scenes. They move only while
    on screen (ppWake) and stand still in a locked unit */
-function ppPal(k, at, flip, a, b) {
+function ppPal(k, at, flip, a, b, s = 0, lit = true) {
   const { red, ln } = CRS.kit, ch = (x, y, c, size, col = ln, cls = '') => `<text${cls ? ` class="${cls}"` : ''} x="${x}" y="${y}"${flip ? ` transform="matrix(-1 0 0 1 ${2 * x} 0)"` : ''} font-size="${size}" fill="${col}" font-family="'Noto Serif SC',serif" font-weight="700" text-anchor="middle" dominant-baseline="central">${esc(c)}</text>`;
   const paper = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="${w}" rx="2.5" fill="#FFFDF6" stroke="#D9655A" stroke-width="1.6"/><path d="M${x + w / 2} ${y + 2}V${y + w - 2}M${x + 2} ${y + w / 2}H${x + w - 2}" stroke="#E9A59E" stroke-width="1" stroke-dasharray="3 2.4"/>`;
   const art = k === 'write' ? `<ellipse cx="60" cy="95" rx="50" ry="4.5" fill="rgba(59,26,18,.1)"/>${paper(66, 50, 44)}${ch(88, 72, a, 32)}<rect class="pw-cover" x="68" y="52" width="40" height="40" fill="#FFFDF6"/>
@@ -6013,7 +6014,7 @@ function ppPal(k, at, flip, a, b) {
       <g fill="#2D3250"><circle class="pi-dot" cx="56" cy="90" r="2.6"/><circle class="pi-dot pi-d2" cx="62" cy="80" r="1.8"/></g>
       <g class="pi-body"><use href="#ppf-ink"/></g>`;
   ppSprite();
-  return `<span class="pp-pal pp-pal-${k}" style="${at}" aria-hidden="true"><svg viewBox="0 0 120 100">${flip ? `<g transform="matrix(-1 0 0 1 120 0)">${art}</g>` : art}</svg></span>`;
+  return `<span class="pp-pal pp-pal-${k}${lit ? '' : ' dim'}" data-s="${s}" style="${at}" aria-hidden="true"><svg viewBox="0 0 120 100">${flip ? `<g transform="matrix(-1 0 0 1 120 0)">${art}</g>` : art}</svg></span>`;
 }
 /* the friends themselves are drawn once, in a hidden sheet every friend on the page points to (a long level has twenty of them) */
 function ppSprite() {
@@ -12182,7 +12183,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.69';
+const APP_VERSION = '3.70';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
