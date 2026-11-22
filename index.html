@@ -2214,6 +2214,45 @@ button.st-d:active{transform:scale(.9);transition:none}
 @keyframes ppBob{50%{transform:translateY(-5px)}}
 @keyframes ppRing{50%{transform:scale(1.09);opacity:.45}}
 @keyframes ppPop{35%{transform:translate(-50%,-50%) scale(1.24)}70%{transform:translate(-50%,-50%) scale(.95)}}
+/* v3.79: a station half way (part 1 of its lesson done): gold fills its lower half, and half a gold ring runs round it from
+   the top, clockwise. v3.80 (ilkem: "i dont like that half of the circle is straightly golden"): the gold is a liquid, a
+   soft wavy surface over a paler wave behind it, the two swaying gently past each other (ppSlosh). Each wave is a tile
+   twice the button wide and tall, its surface across the middle; background-position-y 50% sets it at half height.
+   pp-fill: just got there, the gold rises from the bottom (ppRise) */
+:root{--hw1:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'%3E%3ClinearGradient id='g' x1='0' y1='95' x2='0' y2='170' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23FFE08C'/%3E%3Cstop offset='1' stop-color='%23F2B93B'/%3E%3C/linearGradient%3E%3Cpath d='M0 100Q25 86 50 100T100 100T150 100T200 100V200H0Z' fill='url(%23g)'/%3E%3Cpath d='M0 100Q25 86 50 100T100 100T150 100T200 100' fill='none' stroke='%23FFF3C2' stroke-width='2.4'/%3E%3C/svg%3E");--hw2:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' preserveAspectRatio='none'%3E%3Cpath d='M0 96Q25 110 50 96T100 96T150 96T200 96V200H0Z' fill='%23F9CF63' fill-opacity='.75'/%3E%3C/svg%3E")}
+.uc-path .un-node[data-s="cur"][data-h] .un-spot,.uc-path .un-node[data-s="cur"][data-h]:active .un-spot,.pp-face{background-color:var(--seal-btn);
+  background-image:var(--hw1),var(--hw2),linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);background-size:200% 200%,200% 200%,100% 100%;background-repeat:repeat-x,repeat-x,no-repeat;
+  background-position-x:0%,100%,0;background-position-y:50%,50%,0;animation:ppSlosh 3.4s linear infinite}
+@keyframes ppSlosh{to{background-position-x:100%,0%,0}}
+@keyframes ppRise{from{background-position-y:-8%,-8%,0}}
+.uc-path .un-node[data-s="cur"][data-h]{--l:rgba(140,85,0,.35);--d:rgba(150,90,10,.6)}
+.uc-path .un-node[data-s="cur"][data-h]::before{display:none}
+.uc-path .un-node[data-s="cur"][data-h] .un-spot{text-shadow:0 1.5px 0 rgba(90,10,5,.55),0 0 7px rgba(110,40,0,.4)}
+.uc-path .un-node:not([data-s="cur"]) .pp-ring{display:none}
+.pp-ring{position:absolute;left:50%;top:50%;width:calc(100% + var(--k,1)*24px);height:calc(100% + var(--k,1)*24px);transform:translate(-50%,-50%) rotate(-90deg);overflow:visible;pointer-events:none}
+.pp-ring circle{fill:none;stroke:color-mix(in srgb,var(--seal-btn) 17%,transparent);stroke-width:7}
+.pp-ring .pp-ring-on{stroke:#F2B93B;stroke-linecap:round;stroke-dasharray:47.5 100;stroke-dashoffset:-1.25;filter:drop-shadow(0 0 3px rgba(242,185,59,.6))}
+.uc-path .un-node.pp-fill .un-spot{animation:ppSlosh 3.4s linear infinite,ppRise 1.3s .5s cubic-bezier(.3,.7,.3,1) both}
+.uc-path .un-node.pp-fill .pp-ring-on{animation:ppArc 1.1s .5s cubic-bezier(.3,.7,.3,1) both}
+.uc-path .un-node.pp-fill{animation:ppPop .55s 1.5s ease-out}
+@keyframes ppArc{from{stroke-dasharray:0 100}}
+.pp-node{position:relative;display:grid;place-items:center;width:92px;height:92px;margin:22px auto 6px}
+.pp-face{display:grid;place-items:center;width:100%;height:100%;padding-bottom:5px;border-radius:50%;font:900 44px/1 "Noto Serif SC",var(--hanzi);color:var(--seal-ink);
+  box-shadow:inset 0 -5px 0 rgba(140,85,0,.35),inset 0 2px 0 rgba(255,255,255,.3),0 12px 16px -12px rgba(150,90,10,.6);text-shadow:0 2px 0 rgba(90,10,5,.55),0 0 8px rgba(110,40,0,.4)}
+.lh-node .pp-face{animation:ppSlosh 3.4s linear infinite,ppRise 1.4s .8s cubic-bezier(.3,.7,.3,1) both}
+.lh-node .pp-ring-on{animation:ppArc 1.2s .8s cubic-bezier(.3,.7,.3,1) both}
+/* the two parts of a lesson, in its pop-up and at the end of part 1 */
+.ls-parts{display:grid;gap:8px;margin:16px 0 0;padding:0;list-style:none;text-align:left}
+.ls-parts li{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--fill)}
+.ls-parts li>b{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--card);color:var(--muted);font:800 15px/1 var(--display);box-shadow:var(--ring)}
+.ls-parts li.got>b{background:linear-gradient(#FFE08C,#F4C14E 58%);color:#3B1A12;box-shadow:none}
+.ls-parts li.now>b{background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);box-shadow:none}
+.ls-parts li>b svg.i{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ls-parts em{display:block;font-style:normal;font-size:15.5px;font-weight:800}
+.ls-parts small{display:block;font-size:13.5px;line-height:1.3;color:var(--muted)}
+.ls-again,.lh-later{display:block;margin:4px auto -6px}
+.lh-parts{width:100%;margin-top:18px}
+@media (prefers-reduced-motion:reduce){.lh-node *,.uc-path .un-node.pp-fill,.uc-path .un-node.pp-fill *,.uc-path .un-node[data-h] .un-spot{animation:none!important}}
 .uc-path .un-node.un-boss{width:150px;height:auto;border-radius:0;transform:translate(-50%,-142px) scale(calc(var(--k,1)*.8));transform-origin:50% 142px}
 .uc-path .uc-chal{top:164px;height:34px;padding:0 15px;border-radius:17px;font-size:16.5px}
 .uc-path .uc-chal svg.i{width:19px;height:19px}
@@ -3149,7 +3188,7 @@ function parse() {
   if (p[0] === 'course' && lvHas(+p[1])) { const lv = +p[1];   // v3.31: every level with lessons has a course: #/course/<level>, /unit/<unit>, /lesson/<lesson>, /test/<unit>
     if (lv > openLevel()) { history.replaceState(history.state, '', '#/learn'); return { view: 'learn', deckId: null }; }   // a level still locked: back to Lessons
     if (p[2] === 'test') return { view: 'lesson', deckId: null, test: +p[3] || 0 };
-    if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0 };
+    if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0, lpart: +p[4] || 0 };
     if (p[2] === 'unit') return { view: 'course', deckId: null, clv: lv, unit: UNIT(+p[3])?.lv === lv ? +p[3] : lvUnits(lv)[0].un };   // a unit's campaign
     return { view: 'course', deckId: null, clv: lv, part: lv === 1 ? p[2] || null : null }; }   // HSK 1's old /tones etc. links still open the Basics pages
   if (p[0] === 'group' && groupById(p[1])) return { view: 'group', deckId: null, groupId: p[1] };
@@ -3173,7 +3212,7 @@ function route() {
   }
   if (S.view === 'study') startStudy();
   if (S.view === 'write') startWrite();
-  if (S.view === 'lesson') r.test ? utRoute(r.test) : lesRoute(r.les);
+  if (S.view === 'lesson') r.test ? utRoute(r.test) : lesRoute(r.les, r.lpart);
   if (S.view === 'build') { if (!S.fb || S.fb.lv !== r.city || S.fb.done) fbStart(r.city); }   // Fast build: a round of known words to prove
   else if (S.fb) { clearTimeout(S.fb.timer); S.fb = null; }
   // what you used last, for the slot under the word bank on the Decks page
@@ -4127,7 +4166,7 @@ const LES_BY = new Map(LESSONS.map(L => [L.n, L])), LES = n => LES_BY.get(+n);
 const LV_LES = {}; LESSONS.forEach(L => (LV_LES[L.lv] ||= []).push(L));
 const lvLes = lv => LV_LES[lv] || [];
 const unitLv = un => UNIT(un)?.lv || 1, unK = un => UNIT(un)?.k ?? un, unitLast = un => { const U = UNIT(un); return !!U && U.k === lvUnits(U.lv).length; };
-const unitUrl = un => `#/course/${unitLv(un)}/unit/${un}`, utUrl = un => `#/course/${unitLv(un)}/test/${un}`, lesUrl = n => `#/course/${LES(n)?.lv || 1}/lesson/${n}`;
+const unitUrl = un => `#/course/${unitLv(un)}/unit/${un}`, utUrl = un => `#/course/${unitLv(un)}/test/${un}`, lesUrl = (n, part) => `#/course/${LES(n)?.lv || 1}/lesson/${n}${part ? '/' + part : ''}`;
 const lvDoneSay = lv => lv < 7 ? `finishes ${HSK_NAME(lv)} and opens ${HSK_NAME(lv + 1)}` : `finishes ${HSK_NAME(lv)}`;
 /* plain meanings for lessons where the dictionary's first one is odd or too long ("年: grain; harvest") */
 const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome`.split('|').map(s => s.split('=')));
@@ -4137,6 +4176,16 @@ function lesRow(h) {   // { h, p, en } for a lesson word
   return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
 }
 const lesDone = n => !!db.lessons[n]?.done;
+/* v3.79, a lesson in two parts (ilkem: "u learn the character, sketch it in the first lesson, and the 2nd lesson recall it
+   with hanzi cards and free drawing. So when u do the first lesson, the button fills to the half kinda with a half circle
+   around"). Part 1, Learn: meet each card and trace its new character. Part 2, Recall: turn the hanzi cards and write the
+   same characters from memory. db.lessons[n].half: when part 1 was done, .traced: the characters it traced. The lesson
+   is done (lesDone) once part 2 is */
+const lesHalf = n => !lesDone(n) && !!db.lessons[n]?.half;
+const LES_TR = 4;   // characters traced in part 1, and written from memory in part 2
+const lesTrN = L => db.lessons[L.n]?.traced?.length || Math.min(LES_TR, new Set(L.words.flatMap(hanChars)).size, L.words.length);
+const lesPartOf = (n, part) => part === 1 || part === 2 && (lesDone(n) || lesHalf(n)) ? part : lesDone(n) || lesHalf(n) ? 2 : 1;   // part 2 only once part 1 is done
+let ppHalfNew = 0;   // the lesson whose part 1 was just done: its station fills half way when the path shows again
 const lvWon = lv => lvUnits(lv).every(U => unitWon(U.un));
 /* the level your lessons go on in (Play on the map): from where you started up to the highest level you have open, the
    first one with a boss still standing; your highest level if all are beaten; 0 if it has no lessons */
@@ -4171,10 +4220,6 @@ function utDue(lv = playLv()) {
 const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d="M7.5 4h9v5.5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3.2 4M16.5 6h3a3 3 0 0 1-3.2 4M12 14v3.5M8.5 20.5h7M9.5 17.5h5"/></svg>`;
 /* each lesson's card face: the first character it brings in that no lesson before it had */
 const LES_LEAD = (() => { const seen = new Set(); return LESSONS.map(L => { const cs = L.words.flatMap(hanChars), c = cs.find(x => !seen.has(x)) || cs[0]; cs.forEach(x => seen.add(x)); return c; }); })();
-const lesPlan = L => {   // what a lesson holds, for Up next: its cards, the characters to trace, the ones to write from memory
-  const nc = new Set(L.words.flatMap(hanChars)).size, tr = Math.min(4, nc, L.words.length), rc = Math.min(2, tr);
-  return `${plural(L.words.length, 'card')} · trace ${tr} · write ${rc} from memory`;
-};
 /* ---------- Units as levels: comic, campaign, final boss ----------
    The lessons page lists the units as levels (UnitLevels). A tap on a unit opens its campaign (#/course/1/unit/n): a
    glowing dotted path through its lessons that ends at the final boss, which is the unit test, over a pale picture of
@@ -4802,9 +4847,10 @@ function ucPane(u) {
   const m = unitMap(u, n), { pts, W, H, lay } = m, off = st.open ? '' : ' tabindex="-1"';
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
-  const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open;
-    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : cur ? ', up next' : ', locked'}">
-      <span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? '<i class="pp-go" aria-hidden="true">Start</i>' : ''}<small>${esc(L.title)}</small></button>`; }).join('');
+  const fill = ppHalfNew; if (fill) setTimeout(() => { if (ppHalfNew === fill) ppHalfNew = 0; }, 2600);   // v3.79: the station that just got half full fills in front of you, once
+  const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open, half = path && cur && lesHalf(L.n);
+    return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${half && L.n === fill && !stillMotion() ? ' pp-fill' : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''}${half ? ' data-h="1"' : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : half ? ', half done, recall next' : cur ? ', up next' : ', locked'}">
+      ${half ? '<svg class="pp-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg>' : ''}<span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? `<i class="pp-go" aria-hidden="true">${half ? 'Recall' : 'Start'}</i>` : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   /* v3.49, the path: no shrine. The red envelope (ready once the lessons before it are done); since v3.58 no Hu Hu bonus */
   const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
@@ -4832,7 +4878,7 @@ function ucHud(u) {
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${unK(u) - 1}</b><i>His challenge opens Unit ${unK(u)}</i></span>`
     : st.won ? `<span class="un-hud-t"><small>Unit won · best ${r.best}%</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`
     : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
-    : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">Start</button>`;
+    : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}${lesHalf(L.n) ? ' · part 2' : ''}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">${lesHalf(L.n) ? 'Recall' : 'Start'}</button>`;
 }
 function UnitView(un) {
   const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1), pp = unitLay(u) === 'path';
@@ -6192,10 +6238,10 @@ function shiBody(mood) {
 }
 /* v3.49, the Duolingo flow: a unit's comic plays when you start its first lesson (from its button, the card's Start or
    Play on the map), and its Start button goes on into the lesson */
-const lesComicDue = n => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && (lesDone(n) || n === lesNext(L.lv)) && unitLessons(L.un)[0]?.n === n && !!COMIC[L.un]; };   // v3.55 (ilkem: "when i click the first lesson of the unit, i wanna see the comic"): every time, also when you have seen it or redo the lesson   // ask once the level's comics are in (comicLoad)
-function lesStart(n) {
-  const go = () => nav(lesUrl(n)), L = LES(n); if (!L) { go(); return; }
-  comicLoad(L.lv).then(() => { if (lesComicDue(n)) comicPlay(L.un, 0, go); else go(); });
+const lesComicDue = (n, part) => { const L = LES(n); return !!L && !!LV_DUO[L.lv] && lesPartOf(n, part) === 1 && (lesDone(n) || n === lesNext(L.lv)) && unitLessons(L.un)[0]?.n === n && !!COMIC[L.un]; };   // v3.55 (ilkem: "when i click the first lesson of the unit, i wanna see the comic"): every time, also when you have seen it or redo the lesson   // ask once the level's comics are in (comicLoad)
+function lesStart(n, part) {   // part: 1 or 2 to choose (a done lesson can do either); else the one that is due
+  const go = () => nav(lesUrl(n, part)), L = LES(n); if (!L) { go(); return; }
+  comicLoad(L.lv).then(() => { if (lesComicDue(n, part)) comicPlay(L.un, 0, go); else go(); });
 }
 /* a red envelope (利是) on the path: red paper, a gold cash coin for a seal; opened, its flap stands up */
 /* v3.51: a friend at work in an empty square beside the path, with a character of the lesson next to them: Gun Gun writes
@@ -6268,36 +6314,44 @@ function lixiOpen(k) {
   const r = el.getBoundingClientRect(), s = sc.getBoundingClientRect();
   if (r.top < s.top + 150 || r.bottom > s.bottom - 110) { ucFocus(un, parseFloat(el.style.left) / 100, parseFloat(el.style.top) / 100, true); setTimeout(show, stillMotion() ? 0 : 480); } else show();
 }
-function lesSheet(n) {   // tap a lesson on the path: its words, and Start
-  const L = LES(n), done = lesDone(n), next = lesNext(L.lv), due = utDue(L.lv);
+function lesSheet(n) {   // tap a lesson on the path: its words, its two parts, and Start
+  const L = LES(n), done = lesDone(n), half = lesHalf(n), next = lesNext(L.lv), due = utDue(L.lv), nt = lesTrN(L);
   if (!done && due) { toast(`Pass the Unit ${unK(due)} test first`); return; }
   if (!done && n !== next) { toast(`Finish lesson ${LES(next)?.k ?? next} first`); return; }
   openSheet(`<div class="les-sh-top"><small>Unit ${unK(L.un)} · Lesson ${L.k}</small><h3>${esc(L.title)}</h3></div>
     <div class="les-words">${L.words.map(h => { const w = lesRow(h); return `<span class="les-chip"><b>${esc(h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`; }).join('')}</div>
-    <p class="muted les-sh-note">${lesPlan(L)}. ${done ? 'Done. Do it again any time.' : `Finish it and ${L.words.length === 1 ? 'this word goes' : 'these words go'} into your word bank.`}</p>
-    <button class="btn btn-seal wide" data-act="les-go" data-n="${n}">${done ? 'Practise again' : 'Start lesson'}</button>`);
+    <ol class="ls-parts">${[[1, half || done, 'Learn', `Meet ${plural(L.words.length, 'card')} and trace ${nt} ${nt === 1 ? 'character' : 'characters'}`],
+      [2, done, 'Recall', `Turn the hanzi cards, then write ${nt === 1 ? 'it' : `the ${nt}`} from memory`]].map(([k, got, t, sub]) =>
+      `<li class="${got ? 'got' : ''}${!got && (k === 1 || half) ? ' now' : ''}"><b>${got ? I.check : k}</b><span><em>${t}</em><small>${sub}</small></span></li>`).join('')}</ol>
+    <p class="muted les-sh-note">${done ? 'Done. Do either part again any time.' : half ? 'Part 1 is done. Now get them back from memory.' : `Finish both parts and ${L.words.length === 1 ? 'this word goes' : 'these words go'} into your word bank.`}</p>
+    <button class="btn btn-seal wide" data-act="les-go" data-n="${n}" data-p="${done || half ? 2 : 1}">${done ? 'Recall again' : half ? 'Start the recall' : 'Start lesson'}</button>
+    ${done || half ? `<button class="link-btn ls-again" data-act="les-go" data-n="${n}" data-p="1">${done ? 'Learn and trace again' : 'Learn and trace them once more first'}</button>` : ''}`);
 }
-function lesRoute(n) {   // opening #/course/<level>/lesson/n
+function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: that part)
   if (S.les?.demo && !S.les.test && S.les.n === n) return;   // a Developer demo (lesDemo) stays as it is
   const lv = LES(n)?.lv;
   if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { history.replaceState(history.state, '', '#/course/' + (lv || 1)); S.view = 'course'; S.cLv = lv || 1; S.cPart = null; S.cBasics = false; return; }
-  if (S.les && !S.les.test && S.les.n === n && S.les.step !== 'done') return;   // back to a lesson you left: carry on
+  if (S.les && !S.les.test && S.les.n === n && S.les.step !== 'done' && (!part || S.les.part === part)) return;   // back to a lesson you left: carry on
   S.les = null;
-  if (S.H) startLesson(n);
-  else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n); render(); } }, () => toast('Lessons need the internet the first time'));
+  if (S.H) startLesson(n, 0, part);
+  else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n, 0, part); render(); } }, () => toast('Lessons need the internet the first time'));
 }
-function startLesson(n, demo) {
-  const L = LES(n), words = L.words.map(lesRow), wt = lesWriteTasks(n, words, 4);
-  // meet each word on its card; a word that brings one of the characters to write is traced right after it
-  const q = words.flatMap(w => [{ t: 'meet', w }, ...wt.filter(x => x.w === w).map(x => ({ t: 'write', mode: 'trace', ...x }))]);
-  // then the cards, character first, with one character from memory halfway through and one at the end
-  const fl = shuffle(words).map(w => ({ t: 'flip', w })), rc = wt.slice(0, 2).map(x => ({ t: 'write', mode: 'recall', ...x }));
-  if (rc[0]) fl.splice(Math.ceil(fl.length / 2), 0, rc[0]);
-  if (rc[1]) fl.push(rc[1]);
-  q.push(...fl);
-  S.les = { n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length, t0: Date.now(),
+function startLesson(n, demo, part) {   // v3.79: part 1 learns and traces, part 2 recalls (lesHalf)
+  const L = LES(n), words = L.words.map(lesRow), q = [];
+  part = demo ? part || 2 : lesPartOf(n, part);
+  if (part === 1) {   // meet each word on its card; a word that brings one of the characters to write is traced right after it
+    const wt = lesWriteTasks(n, words, LES_TR);
+    q.push(...words.flatMap(w => [{ t: 'meet', w }, ...wt.filter(x => x.w === w).map(x => ({ t: 'write', mode: 'trace', ...x }))]));
+  } else {   // the hanzi cards, character first, and the characters part 1 traced, now written from memory on blank paper
+    const had = (db.lessons[n]?.traced || []).map(ch => { const w = words.find(x => hanChars(x.h).includes(ch)); return w && { ch, w }; }).filter(Boolean);
+    const rc = (had.length ? had : lesWriteTasks(n, words, LES_TR)).map(x => ({ t: 'write', mode: 'recall', ...x }));
+    // a card, then a character from memory, in turn; a word's own card comes a step after you wrote it, never just before
+    const rw = new Set(rc.map(x => x.w)), deck = shuffle(words.filter(w => !rw.has(w))), wait = shuffle(rc);
+    while (wait.length || deck.length) { if (deck.length) q.push({ t: 'flip', w: deck.shift() }); const r = wait.shift(); if (r) { q.push(r); deck.push(r.w); } }
+  }
+  S.les = { n, part, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length, t0: Date.now(),
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
-  if (!demo) LOG.add('lesson-start', { n, title: L.title });
+  if (!demo) LOG.add('lesson-start', { n, title: L.title, part });
 }
 function utSheet(un) {   // tap a unit test on the path
   if (!unitDone(un)) { toast(`Finish the lessons in Unit ${unK(un)} first`); return; }
@@ -6437,7 +6491,7 @@ function lesWriteGraded(ok) {   // Next under the checked writing (or Got it / M
   if (++E.qi >= E.q.length) lesLast();
   lesGoOn();
 }
-const lesLast = () => S.les.demo ? lesDemoEnd(S.les) : S.les.test ? finishTest() : finishLesson();   // after the last step: the lesson's end, or a test's result
+const lesLast = () => S.les.demo ? lesDemoEnd(S.les) : S.les.test ? finishTest() : S.les.part === 1 ? finishHalf() : finishLesson();   // after the last step: the lesson's end, or a test's result
 function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWriter checks each stroke)
   const E = S.les, Q = E?.step === 'quiz' ? E.q[E.qi] : null;
   if (!Q || Q.t !== 'write' || E.ans != null) return;
@@ -6554,7 +6608,7 @@ function lesInner() {
 }
 /* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
 function lesEndHtml() {
-  const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.test) return utEndHtml();
+  const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.test) return utEndHtml(); if (E.part === 1) return lesHalfHtml();
   const L = LES(E.n), add = E.added || [], chars = [...new Set(E.wroteCh)];
   const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
   const mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer';
@@ -6568,6 +6622,38 @@ function lesEndHtml() {
         <div class="les-words">${E.words.map(w => `<span class="les-chip${add.includes(w) ? '' : ' have'}"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
         ${add.length ? '<small>They come back in your daily review tomorrow.</small>' : ''}</div></div>
     <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${lesOnLabel(E)}</button></div>`;
+}
+/* v3.79: the end of part 1. The station on the path, half filled with half a ring round it, the characters you traced,
+   and Recall now (part 2 straight away), or Later from the map */
+const lesNodeArt = (ch, cls = '') => `<span class="pp-node${cls}" aria-hidden="true"><svg class="pp-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg><span class="pp-face" lang="zh">${esc(ch)}</span></span>`;
+function lesHalfHtml() {
+  const E = S.les, L = LES(E.n), chars = [...new Set(E.wroteCh)], nt = lesTrN(L);
+  return `<div class="les-end lh"><span class="les-end-shi">${shiFace('cheer')}</span>
+      <h1>Half way there!</h1><p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
+      ${lesNodeArt(LES_LEAD[L.i], ' lh-node')}
+      <ol class="ls-parts lh-parts"><li class="got"><b>${I.check}</b><span><em>Learn</em><small>${chars.length ? `You met ${plural(E.words.length, 'card')} and traced ${plural(chars.length, 'character')}` : `You met ${plural(E.words.length, 'card')}`}</small></span></li>
+        <li class="now"><b>2</b><span><em>Recall</em><small>Turn the hanzi cards, then write ${nt === 1 ? 'it' : `the ${nt}`} from memory, free hand</small></span></li></ol>
+      ${lesEarnHtml(E)}
+      ${chars.length ? `<div class="les-wrote"><small>You traced</small>${chars.map(miniTZG).join('')}</div>` : ''}
+      <div class="les-end-box"><b>Words you met</b>
+        <div class="les-words">${E.words.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
+        <small>They go into your word bank once you recall them. A short break first helps them stick.</small></div></div>
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">Recall now</button><button class="link-btn lh-later" data-les="later">Later, from the map</button></div>`;
+}
+function finishHalf() {   // part 1 done: the station fills half way; it counts for the streak, the coins and words wait for part 2
+  const E = S.les, now = Date.now(), rec = db.lessons[E.n] ||= {}, was = practiceStreak().today, done = !!rec.done;
+  if (!done && !rec.half) ppHalfNew = E.n;
+  rec.half ||= now; rec.traced = E.q.filter(x => x.t === 'write').map(x => x.ch);   // a part dropped by Can't write now leaves only the ones written
+  if (!rec.traced.length) delete rec.traced;
+  const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push('h' + E.n);   // counts for the streak
+  { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }
+  E.pay = null; E.step = 'done'; save();
+  LOG.add('lesson-half', { n: E.n, pts: E.pts, run: E.best, wrote: E.wroteCh.join(''), redo: done || undefined });
+}
+function lesRecallNow() {   // Recall now, under part 1's end: part 2 of the same lesson, in place
+  const E = S.les; clearTimeout(E.timer); startLesson(E.n, E.demo, 2);
+  if (E.demo) S.les.demo = 'recall'; else history.replaceState(history.state, '', lesUrl(E.n, 2));
+  lesPaint(true); window.scrollTo(0, 0);
 }
 /* v3.70, the peak-end rule: a lesson or unit ends on its high point. The end screen lists what you just earned (coins and
    where they came from, the red envelope, new words, the streak), shows how close the unit is, and its one button goes on
@@ -6732,7 +6818,8 @@ function lesAct(k, b) {
     else lesQuitSheet(leave);
     return;
   }
-  if (k === 'end') { lesOnward(); return; }   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
+  if (k === 'end') { if (E.part === 1 && E.step === 'done') lesRecallNow(); else lesOnward(); return; }
+  if (k === 'later') { leave(); return; }   // v3.79: part 1 done, the recall left for later   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test, E.demo); if (E.demo) S.les.demo = 'retry'; lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
@@ -9974,7 +10061,7 @@ function TrailView() {
   </div>`;
 }
 const playSub = () => { const les = trailLessons(), due = les && utDue(), n = les && !due && LES(lesNext())?.k;   // what Play opens: the unit test that is due, the next lesson, or your HSK words (trailGo)
-  return due ? `Unit ${unK(due)} test` : n ? `Lesson ${n}` : 'Learn'; };   // the HSK list: a plain command, not the list's name
+  return due ? `Unit ${unK(due)} test` : n ? `Lesson ${n}${lesHalf(lesNext()) ? ' · recall' : ''}` : 'Learn'; };   // the HSK list: a plain command, not the list's name
 const shopBtn = (sts, fn) => {   // the Shop lantern; lit, with a count, once you can buy a monument (fn: on the food map, how many foods you can buy)
   const n = fn ?? sts.filter(x => !x.done && x.n >= x.total).length, K = '#5A0F08', G = '#FFC21F', what = fn == null ? 'monument' : 'food';
   return `<button class="tm-shopb tm-ui${n ? ' can' : ''}" data-act="shop" aria-label="Open the shop${n ? `: you can buy ${n} ${what}${n > 1 ? 's' : ''}` : ''}"><svg viewBox="0 0 64 86" aria-hidden="true">
@@ -12640,7 +12727,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.78';
+const APP_VERSION = '3.80';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12745,12 +12832,12 @@ function devLvNow() {
 function lesDemo(kind) {
   const lv = playLv() || 1, n = lesNext(lv) || lvLes(lv).at(-1)?.n || LESSONS[0].n, L = LES(n), test = ['answers', 'pass', 'fail'].includes(kind);
   Promise.all([S.H ? 0 : loadHsk(), comicLoad(L.lv).catch(() => {})]).then(() => {
-    if (test) startUnitTest(L.un, 1); else startLesson(n, 1);
+    if (test) startUnitTest(L.un, 1); else startLesson(n, 1, kind === 'half' ? 1 : 2);
     const E = S.les; E.demo = kind;
     if (kind === 'fire') E.qi = Math.max(0, E.q.findIndex(x => x.t === 'flip'));
     if (kind === 'quit') { E.qi = Math.max(1, E.q.length - 3); E.combo = E.best = 3; E.barT = 2; E.t0 = Date.now() - E.qi * 12e3; }
     if (kind === 'answers') { E.qi = Math.max(0, E.q.findIndex(x => x.t !== 'write' && x.t !== 'ear')); E.settled = E.qi; E.combo = E.best = 2; E.barT = 1; }
-    if (['end', 'unit', 'finale', 'pass', 'fail'].includes(kind)) {
+    if (['end', 'unit', 'finale', 'pass', 'fail', 'half'].includes(kind)) {
       E.qi = E.q.length; E.settled = E.total; E.best = 6; E.combo = 0;
       if (kind === 'fail') { E.wrong = Math.ceil(E.nq * .4); E.words.slice(0, E.wrong).forEach(w => E.missed.add(w.h)); }
       E.wroteCh = E.q.filter(x => x.t === 'write').map(x => x.ch); E.pts = test ? 0 : 175; lesDemoEnd(E);
@@ -12763,6 +12850,7 @@ function lesDemo(kind) {
   }, () => toast('Lessons need the internet the first time'));
 }
 function lesDemoEnd(E) {   // what the end screen would show, made up from this lesson, with nothing saved
+  if (E.part === 1) { const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: !s.today }; E.pay = null; E.step = 'done'; return; }
   const lixi = E.test ? 0 : LX_PAY.m, proven = E.test ? 0 : Math.min(2, E.words.length);
   if (E.test) { const of = Math.max(1, E.total - E.dropW); E.pct = Math.round((of - E.wrong) / of * 100); E.pass = E.pct >= UT_PASS; E.pts ||= E.settled * 15; }
   else { E.pct = Math.round((E.nq - E.q.filter(x => x.again).length) / E.nq * 100); E.first = true; E.added = E.words; E.lixi = lixi; E.proven = proven;
@@ -12829,6 +12917,7 @@ function devSheet() {
       ${p('devLesFire', 'Play: the lesson bar catches fire', '2 in a row turns it amber, 3 lights a flame at its tip, 5 is a moving blaze, then a wrong answer puts it out')}
       ${p('devLesAns', 'Play: a right answer, then a wrong one', 'In Hu Hu’s challenge: the seal stamp, Shi Shi pops up and it moves on; then the quiet “This one was it” strip')}
       ${p('devLesQuit', 'Show: leaving part way', 'Tap X with 3 to go: Shi Shi, teary with his paws together, asks you to stay')}
+      ${p('devLesHalf', 'Play: part 1 done', 'Half way there!: the station half filled with half a ring, what you traced, then Recall now plays part 2 (hanzi cards and writing from memory)')}
       ${p('devLesEnd', 'Play: lesson done', 'The seals stamp, You earned (coins, red envelope, new words, streak), the unit bar fills, coins pour into the bag')}
       ${p('devLesUnit', 'Play: a unit’s last lesson', 'Unit complete!, then Continue plays the unit’s ending comic and its finale')}
       ${p('devLesFinale', 'Play: unit finale only', 'The medal, words learned, coins earned and what is up next')}
@@ -12871,7 +12960,7 @@ function devSheet() {
       if (!at) { toast('Finish a lesson in this unit first'); return; }
       (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
     sh.querySelector('#devAuto').onclick = play(function autoplay() { ucAutoplay(); });
-    [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
+    [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesHalf', 'half'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
       .forEach(([id, k]) => { sh.querySelector('#' + id).onclick = () => { LOG.add('dev', 'lesson ' + k); closeSheet(); setTimeout(() => lesDemo(k), 320); }; });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/' + (playLv() || 1)); toast(msg); }, 300); };
@@ -13578,7 +13667,7 @@ const A = {
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
   'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')),
-  'les-go': t => { closeSheet(true); lesStart(+t.dataset.n); },
+  'les-go': t => { closeSheet(true); lesStart(+t.dataset.n, +t.dataset.p || 0); },
   'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
