@@ -636,6 +636,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .deck-count{font-size:13.5px;color:var(--muted);margin-top:1px}
 .chev{color:var(--muted)}
 .empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.rd-lock p{margin:0 0 6px}.rd-lock p b{color:var(--ink);font-size:17px}.rd-lock .btn{margin-top:14px}
 .empty .big{font-family:var(--hanzi);font-size:64px;color:var(--line-2);line-height:1}
 
 /* ---------- deck ---------- */
@@ -2302,6 +2303,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-read i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:#fff;box-shadow:0 3px 0 #C01F2B,0 6px 10px -4px rgba(200,30,40,.5);transition:transform .1s,box-shadow .1s}
 .scr-read i svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linejoin:round;filter:drop-shadow(0 1px 0 rgba(90,10,5,.35))}
 .scr-read:active i{transform:translateY(2px);box-shadow:0 1px 0 #C01F2B}
+.scr-read.off i{background:#D8CFC1;color:#FBF6EE;box-shadow:0 3px 0 #BFB3A2}.scr-read.off i svg{filter:none}.scr-read.off:active i{transform:none;box-shadow:0 3px 0 #BFB3A2}   /* v3.99: stories not open yet */
 .scr.locked .scr-txt b{color:var(--ink-2)}
 @media (max-width:360px){.scr-txt b{font-size:18px}.scr-read{width:66px}}
 .uc-path .un-bg{background:none}
@@ -3354,7 +3356,8 @@ const I = {
   map: ic('<path d="M3.5 6.5L9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>'),
   profile: ic('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'),
   camera: ic('<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.5"/>'),
-  read: ic('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5"/>'),
+  read: ic('<path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z"/><path d="M12 6v13"/>'),   // v3.99: the book of the scroll's Read button, not a sheet
+  scroll: ic('<path d="M6.5 6h11v12h-11z"/><rect x="3.5" y="3.5" width="3" height="17" rx="1.5"/><rect x="17.5" y="3.5" width="3" height="17" rx="1.5"/><path d="M9.5 10h5M9.5 14h5"/>'),   // v3.99: the Lessons tab, a handscroll like the top of the lesson path (the book went to Read)
   sound: ic('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
   refresh: ic('<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v4.3h-4.3"/>'),
   install: ic('<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7M9.2 11.2L12 14l2.8-2.8"/>'),
@@ -3369,7 +3372,8 @@ const icOn = p => `<svg class="i i-on" viewBox="0 0 24 24">${p}</svg>`;
 const IF = {
   decks: icOn('<path d="M4.5 7.5v10a3 3 0 0 0 3 3h8"/><rect x="8" y="3.5" width="11.5" height="14.5" rx="2" fill="currentColor"/>'),
   learn: icOn('<path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z" fill="currentColor"/><path d="M12 7.5v11" style="stroke:var(--seal)"/>'),
-  read: icOn('<path d="M6.5 3.5h8l4 4v12a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M9 11.5h6.5M9 15h6.5M9 18.5h3.5" style="stroke:var(--seal)"/>'),
+  read: icOn('<path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z" fill="currentColor"/><path d="M12 7v11" style="stroke:var(--seal)"/>'),
+  scroll: icOn('<path d="M6.5 6h11v12h-11z" fill="currentColor"/><rect x="3.5" y="3.5" width="3" height="17" rx="1.5" fill="currentColor"/><rect x="17.5" y="3.5" width="3" height="17" rx="1.5" fill="currentColor"/><path d="M9.5 10h5M9.5 14h5" style="stroke:var(--seal)"/>'),
   map: icOn('<path d="M3.5 6.5L9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z" fill="currentColor"/><path d="M9 4.5v13M15 6.5v13" style="stroke:var(--seal)"/>'),
   profile: icOn('<circle cx="12" cy="8.5" r="3.8" fill="currentColor"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5z" fill="currentColor"/>'),
 };
@@ -3794,7 +3798,7 @@ function render() {
 
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
 /* v3.69: Lessons first, as the page the app opens on */
-const TABS = [['learn', 'Lessons', '#/learn'], ['decks', 'Decks', '#/'], ['map', 'Map', '#/map'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
+const TABS = [['learn', 'Lessons', '#/learn', 'scroll'], ['decks', 'Decks', '#/'], ['map', 'Map', '#/map'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
   const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'group' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? S.cUnit && !LV_DUO[S.cLv] ? null : 'learn' : S.view;   // an old-style unit campaign is its own full page, without the tab bar; v3.60 (ilkem: "u should still be able to see the task bar"): the lesson path keeps it
@@ -3802,8 +3806,8 @@ function renderTabs() {
   const wasShown = frame.classList.contains('tabs');
   frame.classList.toggle('tabs', i >= 0);
   if (i < 0) return;
-  if (!bar.children.length) bar.innerHTML = '<span class="tab-pill"></span>' + TABS.map(([k, label, h]) =>
-    `<button class="tab" data-act="tab" data-h="${h}">${I[k].replace('class="i"', 'class="i i-off"')}${IF[k]}${label}</button>`).join('');
+  if (!bar.children.length) bar.innerHTML = '<span class="tab-pill"></span>' + TABS.map(([k, label, h, ik = k]) =>
+    `<button class="tab" data-act="tab" data-h="${h}">${I[ik].replace('class="i"', 'class="i i-off"')}${IF[ik]}${label}</button>`).join('');
   $$('.tab', bar).forEach((b, j) => { b.classList.toggle('on', j === i); if (j === i) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   const pill = $('.tab-pill', bar), x = `translateX(calc(${i} * var(--tabw)))`;
   if (wasShown) { if (pill._i !== i && !pill._drag) { pill.classList.remove('go'); pill.offsetWidth; pill.classList.add('go'); } pill._i = i; pill._drag = false; pill.style.transform = x; return; }   // the bead stretches as it glides (not after a swipe, where it followed the finger)
@@ -5150,8 +5154,15 @@ function scrHead(u) {
   return `<span class="scr-rod"></span><div class="scr-pap"><div class="scr-main">
     <div class="scr-txt"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b>${esc(UNIT(u)[0])}</b>
       <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(n ? nd / n * 100 : 0).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
-    <button class="scr-read" data-act="comic-replay" data-u="${u}" aria-label="Read the story of Unit ${unK(u)}"><i>${SCR_BOOK}</i></button></div><span class="scr-rod"></span>`;
+    ${readOpen() ? `<button class="scr-read" data-act="tab" data-h="#/read" aria-label="Read a story"><i>${SCR_BOOK}</i></button>`
+      : `<button class="scr-read off" data-act="read-locked" aria-disabled="true" aria-label="Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}"><i>${SCR_BOOK}</i></button>`}</div><span class="scr-rod"></span>`;
 }
+/* v3.99 (ilkem: "for hsk1 u shouldnt have the reading option just yet ... bc u need a few words to make a story"): the scroll's
+   book goes straight to the Read page, and stories open once HSK 1 Unit 3 is won (numbers, people, greetings: enough words
+   for a small story) or you start above HSK 1; anyone who has finished a story keeps them. Till then the book is grey */
+const READ_UNIT = 3;   // HSK 1 is units 1 to 8
+const readOpen = () => openLevel() > 1 || unitWon(READ_UNIT) || db.readDone.length > 0;
+const readLeft = () => lvUnits(1).filter(U => U.un <= READ_UNIT).reduce((a, U) => a + unitLessons(U.un).filter(L => !lesDone(L.n)).length, 0);   // lessons still to do before stories open
 /* v3.95 (ilkem: "when u open the lessons page for the first time, the scroll is rolled up from both sides in the middle and unfolds"):
    once a session, and again each time you pick another level (v3.96), the two rods start side by side in the middle and roll out to
    the edges, the paper opening between them */
@@ -8438,6 +8449,11 @@ function shelfOpen(zh) {   // a book on the shelf: the story, or the list of the
       <span class="row-s">finished ${shortDate(s.done)}${s.learned?.length ? ` · +${plural(s.learned.length, 'word')}` : ''}</span></span><span class="chev">${I.chev}</span></button>`).join('')}</div>`);
 }
 function ReadView() {
+  if (!S.readId && !readOpen()) { const n = readLeft();   // v3.99: stories wait for a few words
+    return `<div class="screen fade-in"><div class="rd-head pg-head"><h2>Stories <span class="cal-zh">故事</span></h2>${StreakBtn()}</div>
+      <div class="empty rd-lock"><div class="big" lang="zh" aria-hidden="true">读</div><p><b>Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}</b></p>
+      <p>A story needs a few words you know.${n ? ` ${plural(n, 'lesson')} to go.` : ''}</p>
+      <button class="btn btn-seal" data-act="tab" data-h="#/learn">Go to lessons</button></div></div>`; }
   const s = readStory(), on = !!db.prefs.readPy;
   const pyBtn = `<button class="pill${on ? ' on' : ''}" data-act="read-py" aria-pressed="${on}"><span class="py-glyph">拼</span>Pinyin</button>`;
   if (S.readId) return `<div class="screen fade-in">
@@ -13352,7 +13368,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.98';
+const APP_VERSION = '3.99';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14304,6 +14320,7 @@ const A = {
   'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
+  'read-locked': () => { const n = readLeft(); toast(`Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}${n ? `: ${plural(n, 'lesson')} to go` : ''}`); },
   'basics-open': () => nav('#/basics'),
   'crs-low': () => { S.lowOpen = !S.lowOpen; S.lowAnim = true; S.instant = true; try { navigator.vibrate?.(8); } catch (_) {} render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
