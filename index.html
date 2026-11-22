@@ -2572,7 +2572,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .js .js-rule{font-size:15px}
 .js .js-rule b{color:var(--ink)}
 .js .js-note{font-size:14px;margin-top:-6px}
-.js-not{display:block;width:100%;height:50px;margin-top:6px;font:700 15px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--jump-ink)}
+.js-not{display:block;width:100%;height:50px;margin-top:6px;font:500 15px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--jump-ink)}
 .js-not:active{opacity:.5}
 /* a life: a red heart with a shine. In the lesson's top bar, the heart and how many are left; losing one cracks and shakes it */
 svg.hrt{fill:#FF4B5C;stroke:#C42335;stroke-width:1.4;stroke-linejoin:round}
@@ -13420,7 +13420,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.07';
+const APP_VERSION = '4.08';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
