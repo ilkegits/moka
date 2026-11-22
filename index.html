@@ -1269,6 +1269,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-mapsb{position:absolute;z-index:2;left:18px;top:142px;width:64px;height:74px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tm-mapsb svg{display:block;width:64px;height:74px;overflow:visible;filter:drop-shadow(0 5px 4px rgba(60,20,0,.3))}
 .tm-mapsb:active{transform:scale(.94)}
+.tm-mapsb-l{position:absolute;left:50%;top:52px;transform:translateX(-50%);box-sizing:border-box;min-width:40px;height:18px;padding:0 6px;border:1px solid #E7D2AE;border-radius:5px;background:#FFF8F2;font:700 12.5px/16px var(--display);color:#9E1A14;white-space:nowrap;text-align:center;filter:drop-shadow(0 5px 4px rgba(60,20,0,.3))}
 .tm-mapsb:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:50%}
 .tm-showing .tm-mapsb{opacity:0;pointer-events:none}
 .maps-it .shop-pic svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -10399,8 +10400,7 @@ const mapsBtn = () => { const K = '#5A0F08';   // v3.11: under the monuments med
     <path d="M20 33Q24 28 29 31T36 30" stroke="#3E9BD6" stroke-width="2" fill="none" stroke-linecap="round"/>
     <path d="M40 26a4 4 0 1 1 8 0c0 3-4 7-4 7s-4-4-4-7Z" fill="#FF3040" stroke="${K}" stroke-width="1.5"/><circle cx="44" cy="26" r="1.4" fill="#fff"/>
     <path d="M11 18Q15 11 22 8" stroke="#FFF6C8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
-    <rect x="12" y="52" width="40" height="18" rx="5" fill="#FFF8F2" stroke="#E7D2AE" stroke-width="1"/><text x="32" y="61.5" text-anchor="middle" dominant-baseline="central" style="font:700 12.5px var(--display)" fill="#9E1A14">Maps</text>
-  </svg></button>`; };
+  </svg><span class="tm-mapsb-l">Maps</span></button>`; };   // v3.85: the label is HTML, so its pill grows with the word instead of a fixed 40px box it spilled out of
 const MAPS = [['mon', 'Monuments', '名胜', 'Buy the great sights of China'], ['food', 'Food', '美食', 'Collect the famous dishes of China']];
 function mapsSheet() {   // the Maps button: the two maps, each as a small picture of itself; a tap goes there
   const now = mapKind(); LOG.add('maps', { now });
@@ -13013,7 +13013,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.84';
+const APP_VERSION = '3.85';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
