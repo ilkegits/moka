@@ -1,1 +1,1 @@
-{"version": "4.05", "notes": "The red dot on the Map tab no longer has a white ring around it"}
+{"version": "4.06", "notes": "The progress bar on the lesson scroll never starts empty: opening a unit counts as its first step"}

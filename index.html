@@ -2300,6 +2300,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-pr{display:flex;align-items:center;gap:8px;margin-top:7px}
 .scr-bar{flex:1;height:6px;border-radius:3px;background:#EADFCC;overflow:hidden}
 .scr-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#1E1A15,#4A433A)}
+.scr.locked .scr-bar i{background:#CBBDA6}   /* v4.06: a locked unit keeps its head start, in pale ink */
 .scr-pr em{display:flex;font:900 12.5px/1 var(--ui);font-style:normal;color:var(--ink-2)}
 .scr-pr em svg{width:14px;height:14px}
 .scr-read i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:#fff;box-shadow:0 3px 0 #C01F2B,0 6px 10px -4px rgba(200,30,40,.5);transition:transform .1s,box-shadow .1s}
@@ -5165,9 +5166,12 @@ function ucHud(u) {
 const SCR_BOOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z"/><path d="M12 6v13"/></svg>';
 function scrHead(u) {
   const st = unitState(u), n = st.ls.length, nd = st.won ? n : st.nd;
+  // v4.06 (ilkem: "the bar should never start empty"): opening the unit counts as its first step, so a new unit's bar already
+  // shows one step of n + 1 filled; a lesson half done (part 1) counts as half a step
+  const fill = st.won ? 1 : (1 + nd + (st.open && lesHalf(st.ls[nd]?.n) ? .5 : 0)) / (n + 1);
   return `<span class="scr-rod"></span><div class="scr-pap"><div class="scr-main">
     <div class="scr-txt"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b>${esc(UNIT(u)[0])}</b>
-      <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(n ? nd / n * 100 : 0).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
+      <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(fill * 100).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
     ${readOpen() ? `<button class="scr-read" data-act="tab" data-h="#/read" data-riffle="1" aria-label="Read a story"><i>${SCR_BOOK}</i></button>`
       : `<button class="scr-read off" data-act="read-locked" aria-disabled="true" aria-label="Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}"><i>${SCR_BOOK}</i></button>`}</div><span class="scr-rod"></span>`;
 }
@@ -13413,7 +13417,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.05';
+const APP_VERSION = '4.06';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
