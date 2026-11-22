@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons banner round 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4EEE3; --card:#FCF9F3; --ink:#1E1A15; --ink-2:#4A433A; --muted:#8A7F70; --line:#E3D8C6; --line-2:#D2C4AD;
+  --seal:#B23A2C; --seal-ink:#FFF8F2; --seal-soft:rgba(178,58,44,.09); --red-dk:#A82A20;
+  --jade:#3F7A5F; --gold:#F4C14E; --gold-dk:#A86A0C;
+  --fill:rgba(120,95,60,.11); --ring:0 0 0 1px rgba(120,95,60,.08),0 1px 2px rgba(70,45,20,.05);
+  --hanzi:"Noto Serif SC","Songti SC",serif; --ui:"Satoshi",system-ui,-apple-system,sans-serif; --display:"Chillax",var(--ui);
+  --fo:#FF8A1F; --fm:#FFC233; --fc:#FFF1B8; --fnum:#E0701A;
+}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{margin:0;color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+a{color:var(--seal);font-weight:700}
+.page{max-width:1180px;margin:0 auto;padding:44px 16px 80px}
+.intro{max-width:740px}
+h1{font-family:var(--display);font-size:clamp(32px,6vw,50px);font-weight:600;letter-spacing:-.02em;line-height:1.04;margin:0 0 14px}
+h1 span{color:var(--seal)}
+.intro p{margin:0 0 10px;color:var(--ink-2);font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px 22px;margin-top:30px}
+.opt{display:flex;flex-direction:column;gap:14px;min-width:0}
+.opt-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.opt-head .k{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:900;font-size:15px;transform:translateY(4px)}
+.opt-head h2{margin:0;font-family:var(--display);font-size:23px;font-weight:600;letter-spacing:-.01em}
+.opt-head .pick{padding:3px 9px;border-radius:999px;background:var(--seal);color:var(--seal-ink);font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.opt .tag{margin:-8px 0 0;color:var(--ink-2);font-size:15px}
+.notes{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:14.5px;color:var(--ink-2)}
+.notes li{display:grid;grid-template-columns:62px 1fr;gap:8px}
+.notes b{font-size:11.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.notes li.win b{color:var(--jade)} .notes li.cost b{color:var(--seal)}
+
+.ph{position:relative;width:100%;max-width:360px;height:380px;margin:9px auto;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(178,58,44,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(178,58,44,.16) 1px,transparent 1px),
+    linear-gradient(rgba(178,58,44,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(178,58,44,.07) 1px,transparent 1px);
+  background-size:78px 78px,78px 78px,39px 39px,39px 39px;background-position:-1px 24px,2px 0,-1px 24px,2px 0;
+  box-shadow:0 0 0 8px #1E1A15,0 0 0 9px #3a332b,0 30px 50px -24px rgba(40,25,10,.55)}
+.ph .path{position:relative;flex:1;min-height:0;margin-top:26px}
+.node{position:absolute;left:50%;top:62px;width:76px;height:76px;margin-left:-38px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 35%,#FF5C69,#F2343F 70%);color:#fff;font:900 34px/1 var(--hanzi);
+  box-shadow:0 6px 0 #B21E28,0 0 0 9px rgba(242,52,63,.14),0 0 0 11px rgba(242,52,63,.18)}
+.bubble{position:absolute;left:50%;top:0;transform:translateX(-50%);padding:9px 18px;border-radius:14px;background:#FFFBF4;color:#E8343E;font-weight:900;font-size:16px;box-shadow:0 3px 0 #E4D9C5,var(--ring)}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-7px;width:14px;height:14px;margin-left:-7px;background:#FFFBF4;transform:rotate(45deg);border-radius:0 0 3px 0;box-shadow:2px 2px 0 #E4D9C5}
+.shi{position:absolute;left:calc(50% - 128px);top:52px;width:84px}
+
+/* the row above the banner, as in A */
+.ic{width:22px;height:22px;flex:none;display:block}
+.flame{width:26px;height:26px}
+.fo{fill:var(--fo)} .fm{fill:var(--fm)} .fc{fill:var(--fc)}
+.num{font-weight:900;font-size:16px;font-variant-numeric:tabular-nums}
+.num.f{color:var(--fnum)} .num.c{color:var(--gold-dk)}
+.stat{display:flex;align-items:center;gap:3px} .stats{display:flex;align-items:center;gap:14px}
+.chev{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.zh{font-family:var(--hanzi);font-weight:600;letter-spacing:.06em}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 14px}
+.lv{display:flex;align-items:center;gap:7px;height:38px;padding:0 10px 0 6px;border-radius:13px;background:var(--card);box-shadow:var(--ring),0 2px 0 rgba(120,95,60,.12)}
+.lv .sq{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--seal);color:#fff;font:900 15px/1 var(--hanzi)}
+.lv b{font-weight:900;font-size:15px} .lv .chev{color:var(--muted)}
+.bn small{display:block;font-weight:900;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.bn small .zh{font-size:12.5px;letter-spacing:.1em}
+.bn b.t{display:block;font:600 21px/1.15 var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- M: Stroke by stroke ---------- */
+.oM .bn{display:flex;align-items:center;gap:12px;margin:0 12px;padding:10px 0 10px 10px;border-radius:18px;background:linear-gradient(180deg,#EE4A3D,#D8392E);color:#fff;box-shadow:0 5px 0 var(--red-dk),0 14px 22px -14px rgba(168,42,32,.8)}
+.oM .grid9{position:relative;flex:none;width:64px;height:64px;border-radius:10px;background:#FFF8EC;box-shadow:inset 0 0 0 2px #F2C9B8,0 3px 0 rgba(120,15,10,.35)}
+.oM .grid9::before{content:"";position:absolute;inset:0;border-radius:10px;
+  background:linear-gradient(transparent calc(50% - .5px),rgba(178,58,44,.35) calc(50% - .5px),rgba(178,58,44,.35) calc(50% + .5px),transparent calc(50% + .5px)),
+    linear-gradient(90deg,transparent calc(50% - .5px),rgba(178,58,44,.35) calc(50% - .5px),rgba(178,58,44,.35) calc(50% + .5px),transparent calc(50% + .5px))}
+.oM .grid9 svg{position:absolute;inset:5px;width:54px;height:54px}
+.oM .grid9 .done path{fill:#1E1A15} .oM .grid9 .todo path{fill:#EADBC6}
+.oM .grid9 .next path{fill:#E8463A;opacity:.55}
+.oM .mid{flex:1;min-width:0}
+.oM b.t{font-size:19.5px}
+.oM small{color:rgba(255,255,255,.8)}
+.oM .pr{display:flex;align-items:center;gap:8px;margin-top:8px}
+.oM .bar{flex:1;height:7px;border-radius:4px;background:rgba(80,10,5,.25);overflow:hidden}
+.oM .bar i{display:block;height:100%;width:33.3%;border-radius:4px;background:#FFF8EC}
+.oM .pr em{font-style:normal;font-weight:900;font-size:12.5px}
+.oM .rd{flex:none;align-self:stretch;width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-left:2px solid rgba(120,15,10,.28)}
+.oM .rd i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#FFF8EC;color:var(--seal);font:900 17px/1 var(--hanzi);font-style:normal;box-shadow:0 2px 0 rgba(120,15,10,.35)}
+.oM .rd span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+
+/* ---------- N: Red envelope ---------- */
+.oN .bn{position:relative;display:flex;align-items:center;margin:0 12px;height:96px;border-radius:14px;overflow:hidden;color:#FFF3D6;
+  background:#D8392E;box-shadow:0 5px 0 #8E2018,0 14px 22px -14px rgba(168,42,32,.8)}
+.oN .bn::before{content:"";position:absolute;inset:0;opacity:.18;background:radial-gradient(circle at 12px 12px,#FFD15C 1.6px,transparent 2px) 0 0/22px 22px}
+.oN .flap{position:absolute;right:0;top:0;bottom:0;width:120px}
+.oN .mid{position:relative;flex:1;min-width:0;padding:0 0 0 16px}
+.oN small{color:#FFD15C}
+.oN .pr{display:flex;align-items:center;gap:8px;margin-top:8px;max-width:190px}
+.oN .bar{flex:1;height:7px;border-radius:4px;background:rgba(80,10,5,.3)}
+.oN .bar i{display:block;height:100%;width:33.3%;border-radius:4px;background:linear-gradient(90deg,#F4C14E,#FFE08A)}
+.oN .pr em{font-style:normal;font-weight:900;font-size:12.5px;color:#FFD15C}
+.oN .seal{position:relative;z-index:1;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;margin-right:16px}
+.oN .seal i{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFE08A,#F4C14E 60%,#D99A1E);color:#8E2018;font:900 21px/1 var(--hanzi);font-style:normal;box-shadow:0 0 0 3px #B8301F,0 0 0 4.5px #FFD15C,0 4px 8px rgba(80,10,5,.4)}
+.oN .seal span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#FFD15C}
+
+/* ---------- O: Ticket ---------- */
+.oO .bn{display:flex;margin:0 12px;height:100px;filter:drop-shadow(0 4px 0 rgba(150,40,30,.22)) drop-shadow(0 10px 14px rgba(120,40,20,.18))}
+.oO .main,.oO .stub{position:relative;background:#FFF4EC}
+.oO .main{flex:1;min-width:0;padding:12px 14px 0 16px;border-radius:14px 0 0 14px;
+  -webkit-mask:radial-gradient(circle at 100% 0,transparent 9px,#000 9.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 9px,#000 9.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat;
+  mask:radial-gradient(circle at 100% 0,transparent 9px,#000 9.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 9px,#000 9.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat}
+.oO .main::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--seal)}
+.oO .stub{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:0 14px 14px 0;border-left:2px dashed #E3B9A8;
+  -webkit-mask:radial-gradient(circle at 0 0,transparent 9px,#000 9.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 9px,#000 9.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat;
+  mask:radial-gradient(circle at 0 0,transparent 9px,#000 9.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 9px,#000 9.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat}
+.oO small{color:var(--seal)}
+.oO small .no{float:right;font:700 10.5px/1.6 ui-monospace,Menlo,monospace;letter-spacing:.05em;color:#C79A88}
+.oO b.t{color:var(--ink)}
+.oO .holes{display:flex;align-items:center;gap:7px;margin-top:9px}
+.oO .holes i{width:13px;height:13px;border-radius:50%;border:1.5px dashed #D9AE9C}
+.oO .holes i.on{border:0;background:var(--paper);box-shadow:inset 0 2px 3px rgba(90,40,20,.35)}
+.oO .holes em{margin-left:4px;font-style:normal;font-weight:900;font-size:12.5px;color:var(--ink-2)}
+.oO .stub i{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;background:var(--seal);color:#FFF4EC;font:900 19px/1 var(--hanzi);font-style:normal;transform:rotate(-6deg);box-shadow:inset 0 0 0 3px var(--seal),inset 0 0 0 4.5px rgba(255,244,236,.55)}
+.oO .stub span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--seal)}
+
+/* ---------- P: Lacquer box ---------- */
+.oP .bn{position:relative;display:flex;align-items:center;gap:12px;margin:0 12px;padding:16px 24px 16px 20px;border-radius:16px;color:#FFF3D6;
+  background:linear-gradient(180deg,#A3241A,#7E1810);box-shadow:inset 0 0 0 5px #8E1E14,inset 0 0 0 6.5px #E9B949,0 5px 0 #4E0E08,0 14px 22px -14px rgba(80,14,8,.8)}
+.oP .bn::before{content:"";position:absolute;inset:0;border-radius:16px;opacity:.12;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='36' viewBox='0 0 56 36'%3E%3Cpath d='M6 26c0-6 8-8 11-3 1-7 12-8 13 0 4-3 10 0 9 5H6z' fill='none' stroke='%23F4C14E' stroke-width='1.6'/%3E%3C/svg%3E") 0 0/56px 36px}
+.oP .cn{position:absolute;width:14px;height:14px;border:2px solid #E9B949}
+.oP .cn.a{left:10px;top:10px;border-right:0;border-bottom:0}.oP .cn.b{right:10px;top:10px;border-left:0;border-bottom:0}
+.oP .cn.c{left:10px;bottom:10px;border-right:0;border-top:0}.oP .cn.d{right:10px;bottom:10px;border-left:0;border-top:0}
+.oP .mid{position:relative;flex:1;min-width:0}
+.oP small{color:#E9B949}
+.oP .coins{display:flex;align-items:center;gap:5px;margin-top:9px}
+.oP .coins svg{width:18px;height:18px}
+.oP .coins .off{opacity:.9}
+.oP .coins em{margin-left:3px;font-style:normal;font-weight:900;font-size:12.5px;color:#E9B949}
+.oP .rd{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px}
+.oP .rd i{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:2px solid #E9B949;color:#E9B949;font-style:normal;background:rgba(0,0,0,.12)}
+.oP .rd i svg{width:22px;height:22px}
+.oP .rd span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#E9B949}
+
+/* ---------- Q: Hand scroll ---------- */
+.oQ .bn{position:relative;display:flex;align-items:center;margin:0 16px;height:100px}
+.oQ .rod{position:relative;z-index:2;flex:none;width:14px;height:100%;border-radius:7px;background:linear-gradient(90deg,#5A3520,#9A6238 45%,#5A3520);box-shadow:0 4px 6px -2px rgba(60,30,10,.4)}
+.oQ .rod::before,.oQ .rod::after{content:"";position:absolute;left:2px;width:10px;height:10px;border-radius:3px;background:#E9B949}
+.oQ .rod::before{top:-7px} .oQ .rod::after{bottom:-7px}
+.oQ .silk{flex:1;min-width:0;align-self:stretch;margin:6px -2px;display:flex;align-items:center;gap:12px;padding:0 14px 0 16px;
+  background:#FBF3E4;box-shadow:inset 0 5px 0 #C0392B,inset 0 -5px 0 #C0392B,inset 0 7px 0 #E9B949,inset 0 -7px 0 #E9B949,0 6px 12px -8px rgba(60,30,10,.4)}
+.oQ .mid{flex:1;min-width:0}
+.oQ small{color:var(--seal)} .oQ b.t{color:var(--ink)}
+.oQ .pr{display:flex;align-items:center;gap:8px;margin-top:8px}
+.oQ .bar{flex:1;height:6px;border-radius:3px;background:#EADFCC}
+.oQ .bar i{display:block;height:100%;width:33.3%;border-radius:3px;background:linear-gradient(90deg,#2A2420,#4A433A)}
+.oQ .pr em{font-style:normal;font-weight:900;font-size:12.5px;color:var(--ink-2)}
+.oQ .stamp{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px}
+.oQ .stamp i{display:grid;place-items:center;width:40px;height:40px;border-radius:7px;background:var(--seal);color:#FBF3E4;font:900 20px/1 var(--hanzi);font-style:normal;transform:rotate(5deg);box-shadow:inset 0 0 0 3px var(--seal),inset 0 0 0 4.5px rgba(251,243,228,.6)}
+.oQ .stamp span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--seal)}
+
+/* ---------- R: Chop break-out ---------- */
+.oR .bn{position:relative;display:flex;align-items:center;margin:14px 12px 0 12px;padding:12px 0 12px 84px;border-radius:18px;color:#fff;
+  background:linear-gradient(180deg,#EE4A3D,#D8392E);box-shadow:0 5px 0 var(--red-dk),0 14px 22px -14px rgba(168,42,32,.8)}
+.oR .bn::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;border-radius:0 0 18px 18px;opacity:.22;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='22' viewBox='0 0 28 22'%3E%3Cpath d='M0 22a14 14 0 0 1 28 0M5 22a9 9 0 0 1 18 0M10 22a4 4 0 0 1 8 0' fill='none' stroke='%23FFD15C' stroke-width='1.4'/%3E%3C/svg%3E") 0 0/28px 22px repeat-x}
+.oR .chop{position:absolute;left:12px;top:-18px;display:grid;place-items:center;width:62px;height:62px;border-radius:10px;background:#FFF8EC;color:var(--seal);transform:rotate(-7deg);
+  box-shadow:inset 0 0 0 3px #FFF8EC,inset 0 0 0 5px var(--seal),0 6px 12px -4px rgba(90,20,10,.55)}
+.oR .chop span{font:900 22px/1.02 var(--hanzi);writing-mode:vertical-rl;letter-spacing:.04em}
+.oR .mid{position:relative;flex:1;min-width:0}
+.oR small{color:rgba(255,255,255,.8)}
+.oR .stroke{display:block;flex:1;min-width:0;height:14px}
+.oR .pr{display:flex;align-items:center;gap:8px;margin-top:8px}
+.oR .pr em{font-style:normal;font-weight:900;font-size:12.5px}
+.oR .rd{position:relative;flex:none;align-self:stretch;width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:-12px 0}
+.oR .rd i{font:900 26px/1 var(--hanzi);font-style:normal;color:#FFF8EC;text-shadow:0 2px 0 rgba(120,15,10,.4)}
+.oR .rd span{font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.oR .path{margin-top:22px}
+
+@media (max-width:400px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="flame" viewBox="0 0 48 48"><path class="fo" d="M26 3C27.5 8.5 31.5 12 34.5 16.5 35.5 14.5 36.5 12.5 37.5 10 41 14.5 42 20 42 26 42 36.5 34 45 24 45 14 45 6.5 37 6.5 28 6.5 23 8.5 18.5 11.5 15 12 18 13.5 20.5 16 21.5 16 14 20 8 26 3Z"/><path class="fm" d="M24 15C27 20 33 23 33 32 33 38 29 42 24 42 19 42 15 38 15 32.5 15 28.5 17.5 26 19.5 24.5 19.8 27 21 28.5 22.5 29 21.5 24 22 19 24 15Z"/><path class="fc" d="M24.5 27C26.5 30 29 32 29 35.5 29 38.8 26.8 41 24 41 21.2 41 19 38.8 19 35.8 19 33.5 20.5 32 21.8 31 22 32.5 22.8 33.3 23.6 33.6 23.2 31 23.5 29 24.5 27Z"/></symbol>
+  <symbol id="coin" viewBox="0 0 48 48"><circle cx="24" cy="25.5" r="18" fill="#C48A12"/><circle cx="24" cy="23" r="18" fill="#FFD15C"/><circle cx="24" cy="23" r="13.5" fill="none" stroke="#E9AE2C" stroke-width="2.5"/><rect x="19" y="18" width="10" height="10" rx="1.5" fill="#C48A12"/><path d="M13 15a13 13 0 0 1 6-5" stroke="#FFF3C4" stroke-width="3" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="coinoff" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="#E9B949" stroke-width="2.5" stroke-dasharray="4 4" opacity=".55"/><rect x="19" y="19" width="10" height="10" rx="1.5" fill="none" stroke="#E9B949" stroke-width="2" opacity=".55"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 6v13" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<div class="page">
+  <div class="intro">
+    <h1>The unit banner, <span>round 3</span></h1>
+    <p>Same parts as the banner you picked: the unit, its name, its progress and a read button. Each version adds one thing Duolingo doesn’t have. Unit 3 “Family and people”, 2 of 6 lessons done.</p>
+    <p><a href="lessons-header-round2.html">Round 2</a> · <a href="lessons-header-samples.html">Round 1</a></p>
+  </div>
+
+  <div class="grid">
+    <!-- M -->
+    <section class="opt oM">
+      <div class="opt-head"><span class="k">M</span><h2>Stroke by stroke</h2><span class="pick">My pick</span></div>
+      <p class="tag">The unit’s character sits in a writing grid and inks itself in, stroke by stroke, as you finish lessons.</p>
+      <div class="ph" role="img" aria-label="Option M">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <span class="grid9" aria-label="家, 3 of 10 strokes written"><svg viewBox="0 0 1024 1024"><g transform="scale(1,-1) translate(0,-900)"><g class="todo"><path d="M 428 452 Q 477 497 478 499 Q 479 508 471 520 Q 464 530 455 536 C 432 555 419 555 409 527 Q 384 449 219 354 Q 212 351 219 347 Q 261 340 360 400 Q 361 401 365 403 Q 381 415 405 433 L 428 452 Z"/><path d="M 551 346 Q 503 421 428 452 C 401 465 380 449 405 433 Q 417 426 428 418 L 482 370 Q 495 357 506 339 L 532 275 Q 551 200 524 93 Q 512 48 498 42 Q 486 35 424 47 Q 382 56 380 48 Q 379 41 392 29 Q 458 -19 486 -52 Q 499 -70 514 -66 Q 536 -59 555 -28 Q 606 74 590 224 Q 584 260 573 295 L 551 346 Z"/><path d="M 428 418 Q 425 415 423 409 Q 396 342 230 238 Q 209 228 234 227 Q 306 227 429 327 Q 432 336 482 370 C 507 387 443 444 428 418 Z"/><path d="M 506 339 Q 505 338 502 335 Q 412 203 213 94 Q 200 88 186 79 Q 170 69 181 65 Q 188 58 203 62 Q 332 86 479 221 Q 525 263 525 266 Q 529 270 532 275 C 550 299 525 362 506 339 Z"/><path d="M 572 336 Q 674 411 723 440 Q 742 444 737 457 Q 730 473 710 494 Q 689 513 665 515 Q 649 514 650 493 Q 653 478 643 461 Q 615 418 559 350 Q 556 347 556 344 C 542 318 548 318 572 336 Z"/><path d="M 556 344 Q 555 345 551 346 C 524 359 552 316 573 295 Q 616 252 653 209 Q 704 154 796 81 Q 826 62 866 74 Q 918 87 958 98 Q 971 102 982 108 Q 989 115 976 123 Q 961 130 843 160 Q 737 185 583 328 Q 579 332 572 336 L 556 344 Z"/></g><g class="next"><path d="M 455 536 Q 536 555 631 568 Q 641 567 650 579 Q 650 589 629 599 Q 593 618 498 588 Q 495 588 493 587 Q 447 575 403 569 Q 372 565 339 559 Q 312 555 334 539 Q 367 515 407 527 L 409 527 L 455 536 Z"/></g><g class="done"><path d="M 464 824 Q 515 779 558 762 Q 574 761 583 776 Q 587 791 583 808 Q 565 851 498 862 Q 458 871 444 865 Q 438 862 442 850 Q 446 837 464 824 Z"/><path d="M 260 676 Q 251 703 237 712 Q 218 728 215 701 Q 221 659 161 605 Q 140 583 167 523 Q 182 495 203 523 Q 212 538 260 651 C 265 662 265 662 260 676 Z"/><path d="M 260 651 Q 291 627 333 640 Q 448 677 669 705 Q 715 711 732 708 Q 751 695 749 687 Q 749 686 721 608 Q 714 593 721 589 Q 730 585 746 598 Q 803 640 850 654 Q 889 669 888 677 Q 887 687 807 743 Q 780 764 669 739 Q 564 726 374 692 Q 322 683 267 677 Q 263 677 260 676 C 230 672 234 666 260 651 Z"/></g></g></svg></span>
+          <div class="mid"><small>Unit 3 · <span class="zh">家人</span></small><b class="t">Family and people</b>
+            <div class="pr"><span class="bar"><i></i></span><em>2/6</em></div></div>
+          <button class="rd" aria-label="Read the unit's story"><i>读</i><span>Read</span></button>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Each lesson inks in the next strokes of 家, and the next stroke waits in faint red. The last lesson writes the final stroke, and the full character is your unit badge.</span></li>
+        <li class="win"><b>Why</b><span>Only ShiCards can do this: the progress is the thing you’re learning. It uses the stroke data the app already has for tracing.</span></li>
+        <li class="cost"><b>Cost</b><span>Characters with few strokes (人, 二) fill in big jumps. We use the unit’s first character.</span></li>
+      </ul>
+    </section>
+
+    <!-- N -->
+    <section class="opt oN">
+      <div class="opt-head"><span class="k">N</span><h2>Red envelope</h2></div>
+      <p class="tag">The banner is a 利是 lying on its side. Its gold seal on the flap is the read button.</p>
+      <div class="ph" role="img" aria-label="Option N">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <svg class="flap" viewBox="0 0 120 96" preserveAspectRatio="none" aria-hidden="true"><path d="M120 0H60C30 20 30 76 60 96H120Z" fill="#C22F25"/><path d="M60 0C30 20 30 76 60 96" fill="none" stroke="#8E2018" stroke-width="2"/></svg>
+          <div class="mid"><small>Unit 3 · <span class="zh">家人</span></small><b class="t">Family and people</b>
+            <div class="pr"><span class="bar"><i></i></span><em>2/6</em></div></div>
+          <button class="seal" aria-label="Read the unit's story"><i>读</i><span>Read</span></button>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>When the unit is done the flap opens and the coins pour out, so the banner itself is the reward you’re working towards.</span></li>
+        <li class="win"><b>Why</b><span>Uses the red envelope the app already gives as a prize. Gold dots and the flap make it festive, not flat.</span></li>
+        <li class="cost"><b>Cost</b><span>Red envelopes also stand on the path, so it may say “prize” twice.</span></li>
+      </ul>
+    </section>
+
+    <!-- O -->
+    <section class="opt oO">
+      <div class="opt-head"><span class="k">O</span><h2>Ticket</h2></div>
+      <p class="tag">A train ticket for the unit. Each lesson punches a hole, and the tear-off stub is the read button.</p>
+      <div class="ph" role="img" aria-label="Option O">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <div class="main"><small>Unit 3 · <span class="zh">家人</span><span class="no">No. 003</span></small><b class="t">Family and people</b>
+            <div class="holes"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><em>2/6</em></div></div>
+          <button class="stub" aria-label="Read the unit's story"><i>读</i><span>Read</span></button>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>A hole gets punched (with a click) after each lesson. All six punched and the ticket gets stamped, taking you on to Unit 4.</span></li>
+        <li class="win"><b>Why</b><span>Light paper instead of a red slab, so the red Start button stays the loudest thing. The level feels like a trip, one stop at a time.</span></li>
+        <li class="cost"><b>Cost</b><span>Less “red ShiCards” at the top. A ticket fits travel better than a unit like “Family”.</span></li>
+      </ul>
+    </section>
+
+    <!-- P -->
+    <section class="opt oP">
+      <div class="opt-head"><span class="k">P</span><h2>Lacquer box</h2></div>
+      <p class="tag">Deep lacquer red with a gold inlay border, cloud pattern, and progress as square-hole coins.</p>
+      <div class="ph" role="img" aria-label="Option P">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <span class="cn a"></span><span class="cn b"></span><span class="cn c"></span><span class="cn d"></span>
+          <div class="mid"><small>Unit 3 · <span class="zh">家人</span></small><b class="t">Family and people</b>
+            <div class="coins"><svg><use href="#coin"/></svg><svg><use href="#coin"/></svg><svg class="off"><use href="#coinoff"/></svg><svg class="off"><use href="#coinoff"/></svg><svg class="off"><use href="#coinoff"/></svg><svg class="off"><use href="#coinoff"/></svg><em>2/6</em></div></div>
+          <button class="rd" aria-label="Read the unit's story"><i><svg><use href="#book"/></svg></i><span>读 Read</span></button>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>A coin drops into its slot after each lesson, matching the coins in the corner.</span></li>
+        <li class="win"><b>Why</b><span>Feels premium, like a jewellery box. Darker red sets it apart from the bright red Start button.</span></li>
+        <li class="cost"><b>Cost</b><span>The heaviest look. Thin gold lines get fiddly on small, low-res screens.</span></li>
+      </ul>
+    </section>
+
+    <!-- Q -->
+    <section class="opt oQ">
+      <div class="opt-head"><span class="k">Q</span><h2>Hand scroll</h2></div>
+      <p class="tag">A handscroll between two wooden rods, with red and gold silk edges. The read button is a red seal stamped on the paper.</p>
+      <div class="ph" role="img" aria-label="Option Q">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <span class="rod"></span>
+          <div class="silk"><div class="mid"><small>Unit 3 · <span class="zh">家人</span></small><b class="t">Family and people</b>
+            <div class="pr"><span class="bar"><i></i></span><em>2/6</em></div></div>
+            <button class="stamp" aria-label="Read the unit's story"><i>读</i><span>Read</span></button></div>
+          <span class="rod"></span>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>Changing unit rolls the scroll shut and open again on the new name. The ink bar fills like wet ink.</span></li>
+        <li class="win"><b>Why</b><span>Calm paper with a clear frame, and it looks like nothing else on a phone.</span></li>
+        <li class="cost"><b>Cost</b><span>The rods take a little width from the title.</span></li>
+      </ul>
+    </section>
+
+    <!-- R -->
+    <section class="opt oR">
+      <div class="opt-head"><span class="k">R</span><h2>Chop break-out</h2></div>
+      <p class="tag">The banner you picked, with a cream chop of the unit’s name stamped over its edge, gold waves, and a brush-stroke bar.</p>
+      <div class="ph" role="img" aria-label="Option R">
+        <div class="top">
+          <button class="lv"><span class="sq">汉</span><b>HSK 1</b><svg class="chev"><use href="#chev"/></svg></button>
+          <div class="stats"><span class="stat"><svg class="flame"><use href="#flame"/></svg><span class="num f">7</span></span><span class="stat"><svg class="ic"><use href="#coin"/></svg><span class="num c">240</span></span></div>
+        </div>
+        <div class="bn">
+          <span class="chop" aria-hidden="true"><span>家人</span></span>
+          <div class="mid"><small>Unit 3</small><b class="t">Family and people</b>
+            <div class="pr"><svg class="stroke" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><defs><clipPath id="rclip"><rect width="67" height="14"/></clipPath></defs>
+              <path d="M2 7.5C6 3.5 16 4 28 4.4L182 5.4C192 5.7 197 6 198 7.3 197 8.8 192 9.1 182 9.3L28 10.2C16 10.6 6 11 2 7.5Z" fill="rgba(80,10,5,.3)"/>
+              <path clip-path="url(#rclip)" d="M2 7.5C6 3.5 16 4 28 4.4L182 5.4C192 5.7 197 6 198 7.3 197 8.8 192 9.1 182 9.3L28 10.2C16 10.6 6 11 2 7.5Z" fill="#FFD15C"/></svg><em>2/6</em></div></div>
+          <button class="rd" aria-label="Read the unit's story"><i>读</i><span>Read</span></button>
+        </div>
+        <div class="path"><span class="bubble">Start</span><span class="node">朋</span><img class="shi" src="mascots/shi-shi.png" alt=""></div>
+      </div>
+      <ul class="notes">
+        <li><b>How</b><span>A new unit stamps its chop down onto the banner with a little bounce.</span></li>
+        <li class="win"><b>Why</b><span>The smallest change from the screenshot you liked, but the tilted chop and brush stroke make it clearly ShiCards.</span></li>
+        <li class="cost"><b>Cost</b><span>Closest to Duolingo of the six. The difference is in the details.</span></li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>
