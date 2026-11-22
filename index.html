@@ -5136,7 +5136,7 @@ function ucPane(u) {
 function ucHud(u) {
   const lv = unitLv(u), st = unitState(u), n = st.ls.length, r = db.utests[u], next = lesNext(lv), due = utDue(lv), L = st.ls[st.nd], last = unitLast(u), up = lv < 7 && lvHas(lv + 1);
   if (LV_DUO[lv]) {   // v3.49: no challenge in the way. A unit just finished: its red envelope first, then on to the next unit
-    if (!st.open) return canJump(u) ? `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>or jump here with a recap test</i></span><button class="btn btn-jump" data-act="jump-node" data-u="${u}">Jump</button>`
+    if (!st.open) return canJump(u) ? ''   // v4.00 (ilkem: "get rid of the blue jump button with the white box on the bottom"): no card; the turquoise Jump here? stop on the path is the one way to jump
       : `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
     if (st.won && !lxGot(u, 'e')) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>A red envelope for you</b><i>${LX_PAY.e} coins inside</i></span><button class="btn btn-seal" data-act="lx-open" data-k="${u}e">Open</button>`;
     if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
@@ -13368,7 +13368,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.99';
+const APP_VERSION = '4.00';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
