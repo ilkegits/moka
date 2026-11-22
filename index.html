@@ -2259,8 +2259,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-pp>.bar::before{content:"";position:absolute;left:-20px;right:-20px;top:0;height:calc(100% + 30px);z-index:-1;pointer-events:none;background:linear-gradient(var(--paper) 74%,transparent)}
 /* v3.93, the unit scroll (ilkem: "take the scroll design ... without tianzige square ... the cool element of the ticket design was that
    there was some sort of seperation to the read section"): the level and your streak and coins in a row, then the unit on a
-   handscroll between two wooden rods, faint 祥云 clouds on its paper. Its first character writes itself in, a stroke at a time, as
-   the unit's lessons get done (the next stroke waits in faint red). A torn-ticket line, notches top and bottom, parts off Read */
+   handscroll between two wooden rods, faint 祥云 clouds on its paper (v3.94: with long tails, and no character on it any more).
+   A torn-ticket line, notches top and bottom, parts off Read */
 .uc-pp>.bar{display:grid;grid-template-columns:auto 1fr;align-items:center;row-gap:10px;height:auto;padding:8px 12px 0}
 .uc-pp .uc-lv{margin-top:0;height:38px;gap:7px;padding:0 10px 0 6px;border-radius:13px;color:var(--ink);background:var(--card);box-shadow:0 0 0 1px rgba(120,95,60,.08),0 2px 0 rgba(120,95,60,.12)}
 .uc-pp .uc-lv b{font:900 15px/1 var(--ui);text-shadow:none}
@@ -2280,18 +2280,14 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-rod{position:relative;z-index:2;flex:none;width:14px;border-radius:7px;background:linear-gradient(90deg,#4E2C17,#9A6238 45%,#4E2C17);box-shadow:0 4px 6px -2px rgba(60,30,10,.4)}
 .scr-rod::before,.scr-rod::after{content:"";position:absolute;left:1px;width:12px;height:9px;border-radius:3px;background:linear-gradient(#FFD86A,#C98E1E)}
 .scr-rod::before{top:-7px} .scr-rod::after{bottom:-7px}
-.scr-main,.scr-read{position:relative;margin:7px 0;background:#FBF3E4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='56' viewBox='0 0 96 56'%3E%3Cg fill='none' stroke='%23B23A2C' stroke-width='1.3' stroke-linecap='round' opacity='.11'%3E%3Cpath d='M6 22c-4 0-5-6 0-7 0-6 7-8 10-4 2-6 12-6 14 0 5-2 10 2 8 7 5 0 5 6 0 6H8'/%3E%3Cpath d='M14 15c2-3 6-1 4 2M28 13c3-1 5 3 2 4'/%3E%3Cpath d='M54 48c-4 0-5-6 0-7 0-6 7-8 10-4 2-6 12-6 14 0 5-2 10 2 8 7 5 0 5 6 0 6H56'/%3E%3Cpath d='M62 41c2-3 6-1 4 2M76 39c3-1 5 3 2 4'/%3E%3C/g%3E%3C/svg%3E") 0 0/96px 56px;
+.scr-main,.scr-read{position:relative;margin:7px 0;background:#FBF3E4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='72' viewBox='0 0 120 72'%3E%3Cg fill='none' stroke='%23B23A2C' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' opacity='.12'%3E%3Cpath d='M48 26c-5 0-6-7 0-8 0-7 8-9 11-4 2-7 13-7 15 0 6-2 11 3 8 8 4 1 3 6-2 6ZM56 19c2-3 6-1 4 2M70 16c3-1 5 3 2 4M48 26C38 26 32 30 21 30 13 30 9 27 3 28M56 32C46 35 36 38 22 38 16 38 13 36 9 37'/%3E%3Cpath transform='translate(32 32)' d='M48 26c-5 0-6-7 0-8 0-7 8-9 11-4 2-7 13-7 15 0 6-2 11 3 8 8 4 1 3 6-2 6ZM56 19c2-3 6-1 4 2M70 16c3-1 5 3 2 4M48 26C38 26 32 30 21 30 13 30 9 27 3 28M56 32C46 35 36 38 22 38 16 38 13 36 9 37'/%3E%3C/g%3E%3C/svg%3E") 0 0/120px 72px;
   box-shadow:inset 0 5px 0 #C0392B,inset 0 -5px 0 #C0392B,inset 0 7px 0 #E9B949,inset 0 -7px 0 #E9B949}
-.scr-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin-left:-2px;padding:0 10px 0 14px;
+.scr-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin-left:-2px;padding:0 14px 0 18px;
   -webkit-mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat;
   mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat}
 .scr-read{flex:none;width:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;margin-right:-2px;border-left:2px dashed rgba(178,58,44,.42);background-position:-40px 0;
   -webkit-mask:radial-gradient(circle at 0 0,transparent 8px,#000 8.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 8px,#000 8.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat;
   mask:radial-gradient(circle at 0 0,transparent 8px,#000 8.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 8px,#000 8.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat}
-.scr-ch{flex:none;display:grid;place-items:center;width:54px;height:54px}
-.scr-ch svg{width:54px;height:54px}
-.scr-ch>b{font:900 44px/1 var(--hanzi);color:rgba(120,95,60,.2)}
-.scr-done path{fill:var(--ink)} .scr-todo path{fill:rgba(120,95,60,.17)} .scr-next path{fill:var(--seal);opacity:.45}
 .scr-txt{flex:1;min-width:0}
 .scr-txt small{display:block;font:900 11px/1.5 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--seal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scr-txt small span{font:600 12.5px/1 var(--hanzi);letter-spacing:.1em}
@@ -2306,7 +2302,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-read>span{font:900 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--seal)}
 .scr-read:active i{transform:translateY(2px);box-shadow:0 1px 0 #7E1D19}
 .scr.locked .scr-txt b{color:var(--ink-2)}
-@media (max-width:360px){.scr-ch{width:44px;height:44px}.scr-ch svg{width:44px;height:44px}.scr-txt b{font-size:18px}.scr-read{width:66px}}
+@media (max-width:360px){.scr-txt b{font-size:18px}.scr-read{width:66px}}
 .uc-path .un-bg{background:none}
 .uc-path .un-bg canvas{display:none}
 .uc-pane.uc-path.locked .uc-stage{filter:none}
@@ -5133,22 +5129,11 @@ function ucHud(u) {
     : st.nd === n ? `<button class="btn btn-seal un-hud-solo" data-act="ut-go" data-u="${u}" aria-label="Take Hu Hu's challenge: ${n * UT_PER} words, ${UT_PASS}% right to win">Challenge</button>`
     : `<span class="un-hud-t"><small>Lesson ${st.nd + 1} of ${n}${lesHalf(L.n) ? ' · part 2' : ''}</small><b>${esc(L.title)}</b><i lang="zh">${esc(L.words.join(' '))}</i></span><button class="btn btn-seal un-start" data-act="${L.n === next && !due ? 'les-go' : 'les-node'}" data-n="${L.n}">${lesHalf(L.n) ? 'Recall' : 'Start'}</button>`;
 }
-/* v3.93 the unit scroll's insides (see .scr): the unit's first character, inked stroke by stroke with the unit's lessons */
+/* v3.93 the unit scroll's insides (see .scr) */
 const SCR_BOOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z"/><path d="M12 6v13"/></svg>';
-const scrCh = u => [...UNIT(u)[1]].find(c => HAN.test(c)) || UNIT(u)[1][0];
-const scrRefs = new Map();   // a character's strokes, once HanziWriter has them
-function scrGlyph(u) {
-  const st = unitState(u), n = st.ls.length, nd = st.won ? n : st.nd, ch = scrCh(u), ref = scrRefs.get(ch);
-  if (!ref) {   // until the strokes come: the character, pale
-    if (window.HanziWriter) loadRef(ch).then(r => { scrRefs.set(ch, r); const e = $('.scr'); if (e && +e.dataset.u === u) e.querySelector('.scr-ch').innerHTML = scrGlyph(u); }, () => {});
-    return `<b>${esc(ch)}</b>`; }
-  const N = ref.strokes.length, k = st.won ? N : Math.min(N - 1, Math.round(N * nd / Math.max(1, n))), nx = st.open && k < N ? 1 : 0;
-  const ps = a => a.map(d => `<path d="${d}"/>`).join('');
-  return `<svg viewBox="0 0 1024 1024"><g transform="scale(1,-1) translate(0,-900)"><g class="scr-todo">${ps(ref.strokes.slice(k + nx))}</g>${nx ? `<g class="scr-next">${ps([ref.strokes[k]])}</g>` : ''}<g class="scr-done">${ps(ref.strokes.slice(0, k))}</g></g></svg>`;
-}
 function scrHead(u) {
   const st = unitState(u), n = st.ls.length, nd = st.won ? n : st.nd;
-  return `<span class="scr-rod"></span><div class="scr-main"><span class="scr-ch" lang="zh" aria-hidden="true">${scrGlyph(u)}</span>
+  return `<span class="scr-rod"></span><div class="scr-main">
     <div class="scr-txt"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b>${esc(UNIT(u)[0])}</b>
       <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(n ? nd / n * 100 : 0).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
     <button class="scr-read" data-act="comic-replay" data-u="${u}" aria-label="Read the story of Unit ${unK(u)}"><i>${SCR_BOOK}</i><span>Read</span></button><span class="scr-rod"></span>`;
@@ -13340,7 +13325,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.93';
+const APP_VERSION = '3.94';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
