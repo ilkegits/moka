@@ -1,1 +1,1 @@
-{"version": "4.24", "notes": "Adding cards with the keyboard up: the box you type in and its suggestions stay in view above the keyboard, and the heading with Add stays at the top"}
+{"version": "4.25", "notes": "Add card: the Front and Back boxes are plain text lines, so Chrome no longer shows its passwords, cards and addresses bar above the keyboard"}
