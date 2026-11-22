@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red envelope designs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EFE6D6;--ink:#2B2620;--muted:#7A6F60;--card:#FFFCF6;--seal:#B23A2C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1180px;margin:0 auto;padding:28px 16px 64px}
+h1{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:34px;line-height:1;margin:0}
+.lede{margin:8px 0 0;color:var(--muted);font-size:15px;max-width:60ch;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:26px}
+.s{background:var(--card);border-radius:24px;overflow:hidden;box-shadow:0 1px 2px rgba(80,55,20,.08),0 14px 30px -20px rgba(80,55,20,.45)}
+.stage{position:relative;display:block;width:100%;aspect-ratio:1/1.08;padding:0;border:0;cursor:pointer;overflow:hidden;
+  background:radial-gradient(circle at 50% 46%,#FBF2E1,#F0DDBE 88%);-webkit-tap-highlight-color:transparent;transition:background .5s}
+.stage.open{background:radial-gradient(circle at 50% 40%,#7A1F1A,#3A0C0A 80%)}
+.stage:focus-visible{outline:3px solid var(--seal);outline-offset:-3px}
+.stage>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.hint{position:absolute;left:0;right:0;bottom:12px;font:600 12px/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#9A7A52;transition:color .4s}
+.stage.open .hint{color:#F7C977}
+.meta{padding:14px 18px 18px}
+.meta h2{margin:0;font-size:16px;font-weight:600}
+.meta h2 span{font-family:"Noto Serif SC",serif;color:var(--seal);font-weight:700;margin-left:6px}
+.meta p{margin:4px 0 0;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.num{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border-radius:7px;background:var(--seal);color:#fff;font:800 13px/1 "Baloo 2",sans-serif;vertical-align:1px}
+
+/* the envelope: it sways, waiting to be opened */
+.env{transform-box:view-box;transform-origin:120px 270px;animation:sway 2.4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(0)}12%{transform:rotate(-5deg) translateY(-4px)}24%{transform:rotate(4deg) translateY(-6px)}36%{transform:rotate(-2deg)}48%{transform:rotate(0)}}
+.open .env{animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* the flap folds back: the front scales to nothing, then its inside unfolds upward */
+.flap,.flap-in{transform-box:view-box;transform-origin:120px 70px}
+.flap{transition:transform .22s ease-in .0s}
+.flap-in{transform:scaleY(0);transition:transform .26s ease-out 0s}
+.open .flap{transform:scaleY(0)}
+.open .flap-in{transform:scaleY(-1);transition-delay:.2s}
+.stage:not(.open) .flap{transition-delay:.24s;transition-timing-function:ease-out}
+.stage:not(.open) .flap-in{transition-timing-function:ease-in}
+
+/* light and coins */
+.rays{transform-box:view-box;transform-origin:120px 70px;opacity:0;transform:scale(.3);transition:opacity .4s .3s,transform .6s cubic-bezier(.2,1.2,.4,1) .3s}
+.rays g{transform-box:view-box;transform-origin:120px 70px;animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.open .rays{opacity:1;transform:scale(1)}
+.glow{opacity:0;transition:opacity .3s .25s}
+.open .glow{opacity:1}
+.coin{transform-box:fill-box;transform-origin:center;transform:translateY(80px);opacity:0;transition:transform .5s cubic-bezier(.2,1.3,.5,1),opacity .2s}
+.open .coin{opacity:1;transform:translate(var(--x),var(--y)) rotate(var(--r))}
+.open .coin:nth-child(1){transition-delay:.45s}.open .coin:nth-child(2){transition-delay:.55s}.open .coin:nth-child(3){transition-delay:.62s}.open .coin:nth-child(4){transition-delay:.7s}.open .coin:nth-child(5){transition-delay:.5s}
+@media (prefers-reduced-motion:reduce){.env,.rays g{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Red envelope designs</h1>
+  <p class="lede">Five looks for the <b>lì xì</b> (利是) that stands on the lesson path. Each one sways like it does when it's ready. <b>Tap one to open it:</b> the flap folds back, light pours out and the coins jump up. It's a small preview of the full-screen moment.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* drawn in a 240 x 300 space. The body runs x 50..190, y 70..270; the flap hangs from the top edge (y 70) */
+const X0 = 50, X1 = 190, Y0 = 70, Y1 = 270, CX = 120;
+let uid = 0;
+const GOLD = '#F6C445', GOLD_D = '#B9800F', GOLD_L = '#FFE9A3';
+const HAN = 'font-family:"Noto Serif SC",serif';
+
+const bodyRect = (fill, stroke, extra = '') => `<rect x="${X0}" y="${Y0}" width="${X1 - X0}" height="${Y1 - Y0}" rx="16" fill="${fill}" stroke="${stroke}" stroke-width="4"${extra}/>`;
+const vFlap = (tip = 150) => `M${X0} ${Y0 + 14}Q${X0} ${Y0} ${X0 + 14} ${Y0}H${X1 - 14}Q${X1} ${Y0} ${X1} ${Y0 + 14}V${Y0 + 18}Q${CX} ${tip + 26} ${X0} ${Y0 + 18}Z`;
+const coin = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle r="15" fill="#FFC21F" stroke="#8A4A06" stroke-width="2.6"/><circle r="10.5" fill="none" stroke="#E89B0C" stroke-width="1.8"/><rect x="-4" y="-4" width="8" height="8" fill="#7A2410" stroke="#8A4A06" stroke-width="2"/><path d="M-10 -5a11 11 0 0 1 5-5" fill="none" stroke="#FFF3B0" stroke-width="2.2" stroke-linecap="round"/></g>`;
+const lin = (id, a, b, x2 = 0, y2 = 1) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+
+const DESIGNS = [
+  { name: 'Classic Fu', zh: '福', note: 'The one everyone knows: deep red, a gold frame, a round gold 福 seal holding the flap shut and 大吉 (great luck) below.',
+    draw(id) {
+      return {
+        defs: lin(id + 'b', '#E2342B', '#B51E1A') + lin(id + 'f', '#EE4B3F', '#CC2B24'),
+        inner: '#8E1612',
+        body: bodyRect(`url(#${id}b)`, '#7E1512')
+          + `<rect x="${X0 + 10}" y="${Y0 + 10}" width="${X1 - X0 - 20}" height="${Y1 - Y0 - 20}" rx="9" fill="none" stroke="${GOLD}" stroke-width="2.4" opacity=".9"/>`
+          + [[X0 + 10, Y1 - 10, 1, -1], [X1 - 10, Y1 - 10, -1, -1]].map(([x, y, a, b]) => `<path d="M${x} ${y + b * 22}V${y}H${x + a * 22}" fill="none" stroke="${GOLD}" stroke-width="5" stroke-linecap="round"/>`).join('')
+          + `<text x="${CX}" y="226" text-anchor="middle" font-size="34" font-weight="900" fill="${GOLD}" style="${HAN}">大吉</text>`
+          + `<path d="M84 244h72" stroke="${GOLD}" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>`,
+        flap: `<path d="${vFlap()}" fill="url(#${id}f)" stroke="#7E1512" stroke-width="4" stroke-linejoin="round"/>`
+          + `<path d="M${X0 + 10} ${Y0 + 20}Q${CX} ${172} ${X1 - 10} ${Y0 + 20}" fill="none" stroke="${GOLD}" stroke-width="2.2" opacity=".85"/>`
+          + `<circle cx="${CX}" cy="148" r="27" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="3.5"/><circle cx="${CX}" cy="148" r="21" fill="none" stroke="#D9A21E" stroke-width="2"/>`
+          + `<text x="${CX}" y="149" text-anchor="middle" dominant-baseline="central" font-size="29" font-weight="900" fill="#C0241D" style="${HAN}">福</text>`
+          + `<path d="M101 134a20 20 0 0 1 9-8" stroke="${GOLD_L}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+      };
+    } },
+
+  { name: 'Lion dance', zh: '舞狮', note: 'The envelope is a little dancing lion. The flap is its furry forehead with a mirror and a horn, and when it opens the lion lifts its head.',
+    draw(id) {
+      const fur = Array.from({ length: 9 }, (_, i) => { const t = i / 8, x = X0 + 4 + t * (X1 - X0 - 8), y = (1 - t) ** 2 * (Y0 + 18) + 2 * t * (1 - t) * 158 + t * t * (Y0 + 18) - 4; return `<circle cx="${x}" cy="${y}" r="11" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="2.5"/>`; }).join('');
+      const eye = x => `<ellipse cx="${x}" cy="182" rx="17" ry="19" fill="#fff" stroke="#3A0A08" stroke-width="3.5"/><circle cx="${x + 2}" cy="185" r="9.5" fill="#2A0806"/><circle cx="${x - 1}" cy="180" r="3.6" fill="#fff"/>`;
+      return {
+        defs: lin(id + 'b', '#F0462F', '#C42318') + lin(id + 'f', '#FF6A3D', '#E23B22'),
+        inner: '#9A1A10',
+        body: bodyRect(`url(#${id}b)`, '#7E1512')
+          + eye(94) + eye(146)
+          + `<path d="M74 160q20-12 38-2M128 158q20-10 38 2" fill="none" stroke="#2A0806" stroke-width="5" stroke-linecap="round"/>`
+          + `<ellipse cx="72" cy="212" rx="12" ry="7" fill="#FF9AA6" opacity=".75"/><ellipse cx="168" cy="212" rx="12" ry="7" fill="#FF9AA6" opacity=".75"/>`
+          + `<path d="M84 214Q${CX} 262 156 214Z" fill="#7A0F0A" stroke="#3A0A08" stroke-width="3.5" stroke-linejoin="round"/>`
+          + `<path d="M92 216h56l-4 9h-48z" fill="#fff"/><ellipse cx="${CX}" cy="241" rx="15" ry="6" fill="#FF8A8A"/>`
+          + `<circle cx="${CX}" cy="203" r="7" fill="#FFD25A" stroke="#3A0A08" stroke-width="2.5"/>`,
+        flap: `<path d="${vFlap(132)}" fill="url(#${id}f)" stroke="#7E1512" stroke-width="4" stroke-linejoin="round"/>`
+          + fur
+          + `<path d="M${CX - 8} ${Y0 + 4}Q${CX} ${Y0 - 30} ${CX + 12} ${Y0 - 34}Q${CX + 6} ${Y0 - 12} ${CX + 10} ${Y0 + 4}Z" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="3" stroke-linejoin="round"/>`
+          + `<circle cx="${CX}" cy="104" r="15" fill="#CFE9F5" stroke="${GOLD_D}" stroke-width="4"/><path d="M${CX - 7} 99a9 9 0 0 1 6-5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`
+          + `<circle cx="${CX - 40}" cy="92" r="5" fill="#2EA36B" stroke="#14583A" stroke-width="2"/><circle cx="${CX + 40}" cy="92" r="5" fill="#2EA36B" stroke="#14583A" stroke-width="2"/>`
+      };
+    } },
+
+  { name: 'Golden clouds', zh: '祥云', note: 'Deep crimson with lucky clouds pressed into the paper, tied shut with a gold string wound round two gold buttons. Feels like a gift.',
+    draw(id) {
+      const cloud = (x, y, s, c) => `<path transform="translate(${x} ${y}) scale(${s})" d="M-24 6q-8 0-8-8t9-8q2-10 13-10t13 9q4-6 11-4t7 9q8 0 8 6t-8 6Z M-14 -2q4-5 9-1q4 4 0 7" fill="none" stroke="${c}" stroke-width="${3 / s}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      return {
+        defs: lin(id + 'b', '#B3202A', '#7D1219') + lin(id + 'f', '#C4282F', '#951820'),
+        inner: '#5E0C12',
+        body: bodyRect(`url(#${id}b)`, '#4E0A0F')
+          + cloud(88, 196, 1.2, '#D8434A') + cloud(158, 232, 1, '#D8434A') + cloud(86, 250, .7, '#D8434A') + cloud(162, 176, .7, '#D8434A')
+          + `<path d="M${X0 + 8} ${Y1 - 16}H${X1 - 8}" stroke="${GOLD}" stroke-width="3" opacity=".8"/><path d="M${X0 + 8} ${Y1 - 10}H${X1 - 8}" stroke="${GOLD}" stroke-width="1.5" opacity=".6"/>`
+          + `<circle cx="${CX}" cy="208" r="12" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="3"/><circle cx="${CX}" cy="208" r="4" fill="${GOLD_D}"/>`,
+        flap: `<path d="${vFlap(140)}" fill="url(#${id}f)" stroke="#4E0A0F" stroke-width="4" stroke-linejoin="round"/>`
+          + cloud(92, 92, .9, '#E05A60') + cloud(150, 96, .8, '#E05A60')
+          + `<path d="M${X0 + 2} ${Y0 + 3}H${X1 - 2}" stroke="${GOLD}" stroke-width="3"/>`
+          + `<circle cx="${CX}" cy="146" r="13" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="3"/><circle cx="${CX}" cy="146" r="4.5" fill="${GOLD_D}"/>`
+          + `<path d="M${CX - 14} 146C${CX - 14} 168 ${CX + 16} 186 ${CX + 14} 208C${CX + 12} 224 ${CX - 12} 224 ${CX - 14} 208C${CX - 16} 186 ${CX + 14} 168 ${CX + 14} 146C${CX + 14} 128 ${CX - 14} 128 ${CX - 14} 146Z" fill="none" stroke="${GOLD}" stroke-width="2.6" stroke-linejoin="round"/>`
+          + `<path d="M${CX + 10} 214q10 14 4 26M${CX + 6} 216q2 16-6 22" fill="none" stroke="${GOLD}" stroke-width="2.4" stroke-linecap="round"/>`
+          + `<circle cx="${CX}" cy="146" r="13" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="3"/><circle cx="${CX}" cy="146" r="4.5" fill="${GOLD_D}"/>`
+      };
+    } },
+
+  { name: 'Plum blossom', zh: '梅花', note: 'Soft red fading to coral, a plum branch in bloom running across the flap and down the front, and a small gold 春 (spring) seal.',
+    draw(id) {
+      const bloom = (x, y, s, c = '#FFD6DF') => `<g transform="translate(${x} ${y}) scale(${s})">${[0, 72, 144, 216, 288].map(a => `<circle cx="${Math.cos((a - 90) * Math.PI / 180) * 7}" cy="${Math.sin((a - 90) * Math.PI / 180) * 7}" r="6.5" fill="${c}" stroke="#C2405E" stroke-width="1.6"/>`).join('')}<circle r="3.8" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="1.2"/></g>`;
+      return {
+        defs: lin(id + 'b', '#E8333B', '#FF7A64') + lin(id + 'f', '#F45252', '#EC3D40'),
+        inner: '#A0202A',
+        body: bodyRect(`url(#${id}b)`, '#8F1D22')
+          + `<path d="M${X1} 170Q160 190 138 196Q110 204 96 232Q88 248 ${X0 + 4} 258M138 196q-6-16 4-28M110 214q16 4 26 18" fill="none" stroke="#5A2A1C" stroke-width="5" stroke-linecap="round"/>`
+          + bloom(142, 166, 1) + bloom(136, 234, .85, '#fff') + bloom(98, 226, 1.05) + bloom(66, 254, .7, '#fff') + bloom(176, 182, .6)
+          + [[78, 190], [170, 214], [118, 252], [158, 252]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="${GOLD_L}" opacity=".9"/>`).join('')
+          + `<rect x="${X0 + 14}" y="160" width="26" height="26" rx="4" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="2.5"/><text x="${X0 + 27}" y="174" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="900" fill="#B3202A" style="${HAN}">春</text>`,
+        flap: `<path d="${vFlap(140)}" fill="url(#${id}f)" stroke="#8F1D22" stroke-width="4" stroke-linejoin="round"/>`
+          + `<path d="M${X0 + 6} ${Y0 + 26}Q90 96 128 100Q150 102 166 86M110 98q2-14 14-20" fill="none" stroke="#5A2A1C" stroke-width="4.5" stroke-linecap="round"/>`
+          + bloom(92, 94, .9, '#fff') + bloom(130, 76, .8) + bloom(160, 92, .95) + bloom(124, 106, .65, '#fff')
+      };
+    } },
+
+  { name: 'Jade clasp', zh: '平安', note: 'Clean and modern, a nod to the app\'s jade logo: a gold lattice like a paper window cut, and a jade 平安扣 clasp with a red tassel at the flap\'s tip.',
+    draw(id) {
+      const lat = [];
+      for (let y = 176; y <= 252; y += 19) for (let x = 66; x <= 174; x += 18) lat.push(`<path d="M${x} ${y - 7}L${x + 7} ${y}L${x} ${y + 7}L${x - 7} ${y}Z" fill="none" stroke="${GOLD}" stroke-width="1.4" opacity=".55"/>`);
+      return {
+        defs: lin(id + 'b', '#D8262C', '#A3141B') + lin(id + 'f', '#E2342F', '#C01E23') + `<mask id="${id}m"><circle cx="${CX}" cy="150" r="22" fill="#fff"/><circle cx="${CX}" cy="150" r="8.5" fill="#000"/></mask>`
+          + `<clipPath id="${id}c"><rect x="${X0}" y="${Y0}" width="${X1 - X0}" height="${Y1 - Y0}" rx="16"/></clipPath>`,
+        inner: '#7A0F14',
+        body: bodyRect(`url(#${id}b)`, '#6E0E12')
+          + `<g clip-path="url(#${id}c)">${lat.join('')}</g>`
+          + `<rect x="${X0 + 10}" y="${Y0 + 10}" width="${X1 - X0 - 20}" height="${Y1 - Y0 - 20}" rx="9" fill="none" stroke="${GOLD}" stroke-width="1.6" opacity=".7"/>`,
+        flap: `<path d="M${X0} ${Y0 + 14}Q${X0} ${Y0} ${X0 + 14} ${Y0}H${X1 - 14}Q${X1} ${Y0} ${X1} ${Y0 + 14}V${Y0 + 16}L${CX} 152L${X0} ${Y0 + 16}Z" fill="url(#${id}f)" stroke="#6E0E12" stroke-width="4" stroke-linejoin="round"/>`
+          + `<path d="M${X0 + 12} ${Y0 + 20}L${CX} 140L${X1 - 12} ${Y0 + 20}" fill="none" stroke="${GOLD}" stroke-width="1.8" opacity=".75"/>`
+          + `<circle cx="${CX}" cy="152" r="24" fill="#6E0E12" opacity=".25"/>`
+          + `<g mask="url(#${id}m)"><circle cx="${CX}" cy="150" r="22" fill="#5CC898"/><circle cx="${CX + 2}" cy="152" r="17" fill="none" stroke="#2FA273" stroke-width="7"/><path d="M${CX - 16} 142a17 17 0 0 1 9-8" stroke="#B6F0D2" stroke-width="4" fill="none" stroke-linecap="round"/></g>`
+          + `<circle cx="${CX}" cy="150" r="22" fill="none" stroke="#1F5A41" stroke-width="2.6"/><circle cx="${CX}" cy="150" r="8.5" fill="none" stroke="#1F5A41" stroke-width="2.4"/>`
+          + `<path d="M${CX} 172v10" stroke="#E2342F" stroke-width="3"/><path d="M${CX - 7} 182h14l3 34q-10 6-20 0z" fill="#E43A2E" stroke="#8E1612" stroke-width="2.4" stroke-linejoin="round"/><path d="M${CX - 4} 190v22M${CX} 190v24M${CX + 4} 190v22" stroke="#FF8A6E" stroke-width="1.4"/><rect x="${CX - 8}" y="180" width="16" height="6" rx="2" fill="${GOLD}" stroke="${GOLD_D}" stroke-width="1.6"/>`
+      };
+    } }
+];
+
+const rays = (id) => `<g class="rays"><g>${Array.from({ length: 14 }, (_, i) => { const a = i * 360 / 14; return `<path d="M${CX} ${Y0}L${CX - 12} ${Y0 - 240}L${CX + 12} ${Y0 - 240}Z" transform="rotate(${a} ${CX} ${Y0})" fill="url(#${id}r)"/>`; }).join('')}</g></g>`;
+const COINS = [[-60, -86, -20], [0, -116, 6], [60, -92, 22], [-30, -50, -8], [32, -54, 14]];
+
+document.getElementById('grid').innerHTML = DESIGNS.map((D, i) => {
+  const id = 'lx' + i, d = D.draw(id);
+  return `<article class="s">
+    <button class="stage" aria-pressed="false" aria-label="${D.name} red envelope. Tap to open">
+      <svg viewBox="8 -26 224 352" aria-hidden="true">
+        <defs>${d.defs}
+          <linearGradient id="${id}r" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFE7A0" stop-opacity=".9"/><stop offset="1" stop-color="#FFE7A0" stop-opacity="0"/></linearGradient>
+          <radialGradient id="${id}g"><stop offset="0" stop-color="#FFF6D0"/><stop offset=".4" stop-color="#FFD25A" stop-opacity=".8"/><stop offset="1" stop-color="#FFB020" stop-opacity="0"/></radialGradient>
+        </defs>
+        ${rays(id)}
+        <ellipse cx="${CX}" cy="${Y1 + 14}" rx="64" ry="7" fill="#5A3A14" opacity=".16"/>
+        <g class="env">
+          <g class="flap-in"><path d="${vFlap(150)}" fill="${d.inner}" stroke="#4A0A0A" stroke-width="4" stroke-linejoin="round"/></g>
+          <ellipse class="glow" cx="${CX}" cy="${Y0}" rx="96" ry="54" fill="url(#${id}g)"/>
+          <g>${COINS.map(([x, y, r]) => `<g class="coin" style="--x:${x}px;--y:${y}px;--r:${r}deg">${coin(CX, Y0 + 40, 1.15)}</g>`).join('')}</g>
+          ${d.body}
+          <g class="flap">${d.flap}</g>
+        </g>
+      </svg>
+      <span class="hint">Tap to open</span>
+    </button>
+    <div class="meta"><h2><span class="num">${i + 1}</span>${D.name}<span>${D.zh}</span></h2><p>${D.note}</p></div>
+  </article>`;
+}).join('');
+
+document.querySelectorAll('.stage').forEach(b => b.addEventListener('click', () => {
+  const on = b.classList.toggle('open');
+  b.setAttribute('aria-pressed', on);
+  b.querySelector('.hint').textContent = on ? 'Tap to close' : 'Tap to open';
+}));
+</script>
+</body>
+</html>
