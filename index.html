@@ -2466,16 +2466,16 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
 .pp-jump.up svg{transform:rotate(-90deg)}
 .pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
-/* v3.90 jumping ahead: a locked unit's first station is a purple fast-forward button with "Jump here?" over it (Duolingo's
-   purple, the one colour on the path that means skipping). It stays bright and tappable while the rest of its unit is pale */
-:root{--jump:#9A5CF0;--jump-top:#B488FF;--jump-ink:#7A3FD6}
-.btn-jump{--edge:rgba(50,15,110,.32);--drop:rgba(90,40,170,.65);--halo:0 0 #0000;padding-bottom:4px;background:linear-gradient(var(--jump-top),var(--jump) 55%);color:#fff;text-shadow:0 1.5px 0 rgba(50,15,110,.4);
+/* v3.90 jumping ahead: a locked unit's first station is a blue fast-forward button with "Jump here?" over it (v3.91, ilkem:
+   "use another color than purple or green": the cobalt of blue-and-white porcelain, 青花, the one colour on the path that means skipping). It stays bright and tappable while the rest of its unit is pale */
+:root{--jump:#2457B8;--jump-top:#4A7FDB;--jump-ink:#1F4C9E}
+.btn-jump{--edge:rgba(10,30,80,.32);--drop:rgba(20,55,140,.65);--halo:0 0 #0000;padding-bottom:4px;background:linear-gradient(var(--jump-top),var(--jump) 55%);color:#fff;text-shadow:0 1.5px 0 rgba(10,30,80,.4);
   box-shadow:var(--halo),inset 0 -4px 0 var(--edge),inset 0 2px 0 rgba(255,255,255,.22),0 12px 22px -12px var(--drop);transition:transform .08s,box-shadow .08s}
 .btn-jump:active{opacity:1;transform:translateY(3px);box-shadow:var(--halo),inset 0 -2px 0 var(--edge),inset 0 2px 0 rgba(255,255,255,.22),0 6px 12px -10px var(--drop)}
 .uc-pane.locked .un-node.pp-skip{pointer-events:auto}
-.uc-path .un-node[data-s="skip"]{--f:linear-gradient(var(--jump-top),var(--jump) 55%);--l:rgba(50,15,110,.3);--e:rgba(255,255,255,.35);--t:#fff;--d:rgba(90,40,170,.7);z-index:3}
+.uc-path .un-node[data-s="skip"]{--f:linear-gradient(var(--jump-top),var(--jump) 55%);--l:rgba(10,30,80,.3);--e:rgba(255,255,255,.35);--t:#fff;--d:rgba(20,55,140,.7);z-index:3}
 .uc-path .un-node[data-s="skip"]::before{content:"";position:absolute;inset:calc(var(--k,1)*-9px);border-radius:50%;border:calc(var(--k,1)*4px) solid color-mix(in srgb,var(--jump) 28%,transparent);animation:ppRing 1.8s ease-in-out infinite}
-.pp-skip .un-spot svg.ff{width:46%;height:46%;margin-left:4%;fill:#fff;filter:drop-shadow(0 1.5px 0 rgba(50,15,110,.45))}
+.pp-skip .un-spot svg.ff{width:46%;height:46%;margin-left:4%;fill:#fff;filter:drop-shadow(0 1.5px 0 rgba(10,30,80,.45))}
 .pp-skip-tip{position:absolute;left:50%;bottom:calc(100% + var(--k,1)*14px);translate:-50% 0;padding:8px 12px 9px;border-radius:12px;background:var(--card);color:var(--jump-ink);white-space:nowrap;
   font:800 13px/1 var(--ui);font-style:normal;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 0 2px var(--line-2),0 3px 0 2px var(--line-2);animation:ppBob 1.5s ease-in-out infinite}
 .pp-skip-tip::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
@@ -2485,7 +2485,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .js-art{position:relative;display:block;width:132px;height:124px;margin:0 auto 8px}
 .js-shi{display:block;width:100%;height:100%}
 .js-shi .shi-body{width:100%;height:100%;transform-origin:50% 96%;animation:lqSway 2.6s ease-in-out infinite}
-.js-ff{position:absolute;right:-14px;bottom:4px;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(var(--jump-top),var(--jump) 55%);box-shadow:0 0 0 3px var(--card),inset 0 -3px 0 rgba(50,15,110,.3)}
+.js-ff{position:absolute;right:-14px;bottom:4px;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(var(--jump-top),var(--jump) 55%);box-shadow:0 0 0 3px var(--card),inset 0 -3px 0 rgba(10,30,80,.3)}
 .js-ff svg{width:24px;height:24px;margin-left:2px;fill:#fff}
 .js small{font:800 11.5px/1.3 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--jump-ink)}
 .sheet .js h3{margin:4px 0 8px;font-size:25px;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
@@ -5048,7 +5048,7 @@ function ucPane(u) {
   const pct = ([x, y]) => `left:${(x / W * 100).toFixed(2)}%;top:${(y / H * 100).toFixed(2)}%`;
   const path = lay === 'path', shown = (i, s) => eat < 0 ? s : i === eat ? 'cur' : i === eat + 1 ? 'locked' : s;   // the path: a lesson finished since you were here still shows as next until Shi Shi gets there (ppEat)
   const fill = ppHalfNew; if (fill) setTimeout(() => { if (ppHalfNew === fill) ppHalfNew = 0; }, 2600);   // v3.79: the station that just got half full fills in front of you, once
-  const skip = path && !st.open && canJump(u);   // v3.90: a locked unit's first station is the purple Jump here? button
+  const skip = path && !st.open && canJump(u);   // v3.90: a locked unit's first station is the blue Jump here? button
   const nodes = st.ls.map((L, i) => { const done = lesDone(L.n), cur = i === st.at && st.open, half = path && cur && lesHalf(L.n);
     if (skip && !i) return `<button class="un-node pp-skip" data-i="0" data-s="skip" style="${pct(pts[0])}" data-act="jump-node" data-u="${u}" aria-label="Jump here: a recap test that opens Unit ${unK(u)}"><span class="un-spot" aria-hidden="true">${FF_I}</span><i class="pp-skip-tip" aria-hidden="true">Jump here?</i></button>`;
     return `<button class="un-node${done ? ' done' : cur ? '' : ' locked'}${half && L.n === fill && !stillMotion() ? ' pp-fill' : ''}${lay === 'round' && i === unRnd[u] || (lay === 'court' || lay === 'pagoda' || lay === 'peaks') && cur ? ' front' : ''}" data-i="${i}"${path ? ` data-s="${shown(i, done ? 'done' : cur ? 'cur' : 'locked')}"` : ''}${half ? ' data-h="1"' : ''} style="${pct(pts[i])}" data-act="les-node" data-n="${L.n}"${off} aria-label="Lesson ${i + 1}, ${esc(L.title)}${done ? ', done' : half ? ', half done, recall next' : cur ? ', up next' : ', locked'}">
@@ -6756,7 +6756,7 @@ function startUnitTest(un, demo) {
 }
 /* v3.90, jumping ahead (ilkem, after Duolingo's "Jump here?": "u should be able to skip lections like this. Only this is to
    start a recap challenge. For which u have 5 lives. 1 mistake u lose. Only a hint counts as a life"). The first station of
-   every locked unit is a purple fast-forward button. It opens a recap of the lessons before that unit you have not done yet:
+   every locked unit is a blue fast-forward button. It opens a recap of the lessons before that unit you have not done yet:
    words from each of them in the four question kinds, and two characters from memory, free hand. You have 5 lives: a wrong
    answer costs one, a character you miss costs one, and so does every Hint. Lose them all and the jump ends; reach the end
    with any left and every lesson before the unit is done. db.lessons[n].jump: when it was jumped over (no lesson coins for
@@ -13269,7 +13269,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.90';
+const APP_VERSION = '3.91';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
