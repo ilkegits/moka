@@ -1,1 +1,1 @@
-{"version": "4.16", "notes": "Your decks is a plain list: each deck is one line with its name on the left and its card count on the right. No card picture, no progress bar"}
+{"version": "4.17", "notes": "A lesson ends with three thick mahjong tiles: they land face down and turn over one by one to show the coins, how many cards you knew first try, and your time next to your own average. The seals, the You earned list, the unit bar and the points row are gone"}

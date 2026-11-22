@@ -2865,6 +2865,35 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 .les-end-box{width:100%;margin-top:22px;padding:16px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
 .les-end-box > b{display:block;margin-bottom:12px;font-size:16.5px;color:var(--jade)}
 .les-end-box > small{display:block;margin-top:12px;font-size:13px;color:var(--muted)}
+/* v4.15 the lesson end: a sunburst behind three thick mahjong tiles that land face down and turn over to show the coins, how many you knew first try, and the time against your own average */
+.les-end.le2{position:relative;isolation:isolate;overflow-x:clip;margin:0 -20px;padding:0 20px 20px}
+body:has(.le2),.les-scr:has(.le2),.les-scr:has(.le2) .les-dock{background:#FFF1D0}
+.le2-burst{position:absolute;z-index:-1;left:50%;top:-30px;width:820px;height:820px;margin-left:-410px;pointer-events:none;background:repeating-conic-gradient(from 0deg,#FFDC8C 0deg 9deg,transparent 9deg 18deg);-webkit-mask-image:radial-gradient(circle,#000 10%,transparent 46%);mask-image:radial-gradient(circle,#000 10%,transparent 46%);opacity:.9}
+.lt-row{display:flex;gap:18px;justify-content:center;margin:40px 0 0}
+.lt{position:relative;width:96px;height:128px;--rx:20deg}
+.lt0{transform:rotate(-4deg);--ry:-30deg} .lt1{transform:translateY(-10px);--ry:0deg} .lt2{transform:rotate(4deg);--ry:30deg}
+.lt-sh{position:absolute;left:6px;right:6px;bottom:-26px;height:22px;border-radius:50%;background:rgba(110,60,0,.26);filter:blur(7px)}
+.lt-deal{position:relative;width:100%;height:100%;perspective:520px;animation:ltDeal .5s cubic-bezier(.3,.7,.3,1) calc(.25s + var(--i) * .12s) both}
+.lt-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));animation:ltFlip .75s cubic-bezier(.3,.7,.3,1) calc(1.05s + var(--i) * .32s) both}
+.lt-in > i{position:absolute;inset:0;border-radius:13px;background:#DCCBA6}
+.lt-in > i.g{background:#075E48}
+.lt-f{position:absolute;inset:0;border-radius:13px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.lt-front{transform:translateZ(19px);background:linear-gradient(#FFFDF6,#F3EAD5);box-shadow:inset 0 0 0 1.5px #fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.lt-front b{font:900 42px/48px var(--hanzi)}
+.lt-front strong{font-size:25px;line-height:27px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.lt-front small{font-size:10px;line-height:12px;font-weight:800;letter-spacing:.1em;color:#6B5A45}
+.lt-back{transform:rotateY(180deg) translateZ(19px);background:#0B7F62;box-shadow:inset 0 0 0 6px #0B7F62,inset 0 0 0 8px #5FBF9C}
+.lt-caps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:340px;margin:30px auto 0;font-size:12.5px;line-height:16px;font-weight:600;color:#6B5A45}
+.lt-caps span{animation:ltCap .4s ease-out calc(1.6s + var(--i) * .32s) both}
+.le2-notes{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:26px}
+.le2-note{display:flex;align-items:center;gap:8px;margin:0;font-size:15px;font-weight:600;color:var(--ink-2)}
+.le2-note .le-new{width:26px;height:26px;border-radius:7px;font-size:14px}
+.le2-fl{display:flex;width:20px;height:20px}
+.le2-fl .flame{width:100%;height:100%}
+@keyframes ltDeal{from{opacity:0;transform:translateY(-40px) scale(.9)}}
+@keyframes ltFlip{0%{transform:rotateX(var(--rx)) rotateY(calc(180deg + var(--ry)))}70%{transform:rotateX(var(--rx)) rotateY(calc(var(--ry) - 14deg)) translateZ(16px)}100%{transform:rotateX(var(--rx)) rotateY(var(--ry))}}
+@keyframes ltCap{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.lt-deal,.lt-in,.lt-caps span{animation:none}}
 /* 3 or more in a row: a flame and the run count beside the points */
 .les-fire{flex:none;display:inline-flex;align-items:center;gap:1px;height:32px;padding:0 9px 0 4px;border-radius:9px;background:color-mix(in srgb,#FF7A1A 15%,var(--card));color:#D9480F;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .les-fire .flame{width:24px;height:24px;transform-origin:50% 92%;animation:fireFlick 1.2s ease-in-out infinite}
@@ -7261,21 +7290,33 @@ function lesInner() {
     <div class="les-opts${list ? ' list' : ''}${done ? ' answered' : ''}">${Q.opts.map((w, i) => `<button class="les-opt${cls(w, i)}" data-les="opt" data-i="${i}"${done ? ' disabled' : ''}>${lab(w)}${done && E.ok && w === a ? `<span class="lo-stamp" aria-hidden="true">${E.seal}</span>` : ''}</button>`).join('')}</div></div>
     ${done ? lesFb() : Q.t === 'ear' ? '<div class="les-dock"><button class="btn btn-ghost wide" data-les="lskip">Can’t listen now</button></div>' : ''}`;
 }
-/* the end: three seals to earn (finish it; 80% right first time; write every character), the points, and the words */
+/* v4.15 the end of a lesson: three thick mahjong tiles land face down and turn over one by one: the coins it paid, how
+   many cards you knew the first time, and how long it took next to your own average (time per step, the last 20 lessons) */
+const lesClock = ms => { const t = Math.round(ms / 1e3); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+function lesTile(i, ch, col, val, lab) {   // a tile 38px deep: 1px slices, ivory at the front and jade at the back, so its sides show and stay solid as it turns
+  let sl = ''; for (let k = 1; k < 38; k++) sl += `<i${k < 16 ? ' class="g"' : ''} style="transform:translateZ(${k - 19}px)"></i>`;
+  return `<div class="lt lt${i}" style="--i:${i}"><span class="lt-sh"></span><div class="lt-deal"><div class="lt-in">${sl}
+    <div class="lt-f lt-front"><b lang="zh" style="color:${col}">${ch}</b><strong>${val}</strong><small>${lab}</small></div><div class="lt-f lt-back"></div></div></div></div>`;
+}
+function lesTilesHtml(E) {
+  const coins = E.pay?.n || 0, again = E.q.filter(x => x.again).length, knew = Math.max(0, E.nq - again), pct = E.pct;
+  const g = pct >= 100 ? ['完', 'PERFECT'] : pct >= 90 ? ['好', 'GREAT'] : pct >= 75 ? ['行', 'NICE'] : ['加', 'KEEP GOING'];
+  const T = E.tm || { ms: Date.now() - (E.t0 || Date.now()) }, r = T.avg ? T.ms / T.avg : 0;
+  const t = !T.avg ? ['时', 'TIME'] : r <= .75 ? ['飞', 'BLAZING'] : r <= 1 ? ['快', 'QUICK'] : ['稳', 'STEADY'];
+  const capC = E.proven ? `${plural(E.proven, 'word')} proven` : E.nRight ? plural(E.nRight, 'right answer') : coins ? 'for this lesson' : 'Paid the first time';
+  const capT = !T.avg ? 'Your first timed lesson' : T.best ? 'New best!' : `Your avg ${lesClock(T.avg)}`;
+  const tiles = lesTile(0, '金', '#C24E00', `+${coinFmt(coins)}`, 'COINS') + lesTile(1, g[0], '#0B7F62', `${pct}%`, g[1]) + lesTile(2, t[0], '#6A33CC', lesClock(T.ms), t[1]);
+  const caps = [capC, `${knew} of ${E.nq} first try`, capT].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('');
+  return `<div class="lt-row" role="img" aria-label="${coinFmt(coins)} coins, ${pct}% first try, time ${lesClock(T.ms)}">${tiles}</div><div class="lt-caps">${caps}</div>`;
+}
 function lesEndHtml() {
   const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.jump) return jumpEndHtml(); if (E.test) return utEndHtml(); if (E.part === 1) return lesHalfHtml();
-  const L = LES(E.n), add = E.added || [], chars = [...new Set(E.wroteCh)];
-  const seals = [['完', 'Finished', true], ['准', 'Knew 80% of the cards', E.pct >= 80], ['写', E.skipW ? 'Writing skipped' : 'Wrote every character', E.nWrite > 0 && !E.skipW && !E.wFail]];
-  const mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer';
-  return `<div class="les-end"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
-      <h1>${E.unitNew ? `Unit ${unK(L.un)} complete!` : 'Lesson done!'}</h1>${E.pay ? payLine(E.pay) : ''}<p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
-      <div class="les-seals">${seals.map(([zh, en, got], i) => `<span class="les-seal${got ? ' got' : ''}" style="--d:${(.45 + i * .3).toFixed(2)}s"><i>${zh}</i><small>${en}</small></span>`).join('')}</div>
-      ${lesEarnHtml(E)}${lesUnitBar(L.un, E.first)}
-      <div class="les-tally"><span><b>${E.pts}</b><small>${E.newBest ? 'points · new best' : 'points'}</small></span><span><b>${E.pct}%</b><small>cards known</small></span><span><b>${E.best}</b><small>best run</small></span></div>
-      ${chars.length ? `<div class="les-wrote"><small>You wrote</small>${chars.map(miniTZG).join('')}</div>` : ''}
-      <div class="les-end-box"><b>${add.length ? 'Your new words' : 'These words were already in your word bank'}</b>
-        <div class="les-words">${E.words.map(w => `<span class="les-chip${add.includes(w) ? '' : ' have'}"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div>
-        ${add.length ? '<small>They come back in your daily review tomorrow.</small>' : ''}</div></div>
+  const L = LES(E.n), mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer', add = E.added || [];
+    const notes = [add.length && `<p class="le2-note"><span class="le-new" lang="zh">新</span>${plural(add.length, 'new word')} in your word bank</p>`,
+      E.streak?.up && `<p class="le2-note"><span class="le2-fl on">${FLAME}</span>${E.streak.n}-day streak</p>`].filter(Boolean).join('');
+    return `<div class="les-end le2"><span class="le2-burst" aria-hidden="true"></span><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
+      <h1>${E.unitNew ? `Unit ${unK(L.un)} complete!` : E.pct === 100 ? 'Perfect lesson!' : 'Lesson done!'}</h1><p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
+      ${lesTilesHtml(E)}${notes ? `<div class="le2-notes">${notes}</div>` : ''}</div>
     <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${lesOnLabel(E)}</button></div>`;
 }
 /* v3.79: the end of part 1. The station on the path, half filled with half a ring round it, the characters you traced,
@@ -7535,6 +7576,9 @@ function finishLesson() {
   E.unitNew = fresh && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
   E.lxNew = lxWaiting(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }   // shown here, so the streak page does not come up again today
+  { const ms = Math.min(now - (E.t0 || now), E.total * 6e4), pace = ms / Math.max(1, E.total), past = db.lesPace || [];   // v4.15: time per step, your last 20 lessons
+    E.tm = { ms, avg: past.length ? past.reduce((a, b) => a + b, 0) / past.length * E.total : 0, best: past.length >= 3 && pace < Math.min(...past) };
+    db.lesPace = [...past, Math.round(pace)].slice(-20); }
   E.added = add; E.pct = pct; E.step = 'done'; lesBank(E); save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
@@ -13448,7 +13492,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.16';
+const APP_VERSION = '4.17';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -13576,7 +13620,8 @@ function lesDemoEnd(E) {   // what the end screen would show, made up from this 
   const proven = E.test ? 0 : Math.min(2, E.words.length);
   if (E.test) { const of = Math.max(1, E.total - E.dropW); E.pct = Math.round((of - E.wrong) / of * 100); E.pass = E.pct >= UT_PASS; E.pts ||= E.settled * 15; }
   else { E.pct = Math.round((E.nq - E.q.filter(x => x.again).length) / E.nq * 100); E.first = true; E.added = E.words; E.lxNew = E.demo === 'end'; E.proven = proven;
-    const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: true }; E.unitNew = E.demo === 'unit'; }
+    const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: true }; E.unitNew = E.demo === 'unit';
+    E.tm = { ms: E.total * 8e3, avg: E.total * 9.6e3, best: false }; }
   const got = E.test ? E.pass ? PAY.unit : 0 : PAY.les + proven * PAY.word;
   E.pay = got ? { n: got, bal: coinBal() + got } : null; E.step = 'done';
 }
