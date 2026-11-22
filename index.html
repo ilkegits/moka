@@ -5359,7 +5359,7 @@ function mountUnit(un) {
     jump.hidden = !(up || dn); jump.classList.toggle('up', up); };
   if (jump) { jump.onclick = () => { if (!shi?.isConnected) return; haptic(8); const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect();
     sc.scrollTo({ top: Math.max(0, sc.scrollTop + r.top + r.height / 2 - s.top - sc.clientHeight * .45), behavior: stillMotion() ? 'auto' : 'smooth' }); }; jumpSet(); }
-  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { ucSet(ucWhich()); ucPaint(); jumpSet(); }); rest(170); }, { passive: true });
+  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!sc.isConnected) return; ucSet(ucWhich()); ucPaint(); jumpSet(); }); rest(170); }, { passive: true });
   sc.addEventListener('touchstart', () => { touch = true; clearTimeout(ucQuiet); }, { passive: true });
   const up = () => { touch = false; rest(220); }; sc.addEventListener('touchend', up, { passive: true }); sc.addEventListener('touchcancel', up, { passive: true });
   document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
