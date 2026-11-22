@@ -2998,6 +2998,17 @@ function route() {
   if (S.toTop) { S.toTop = false; const top = () => { window.scrollTo(0, 0); $('#app').scrollTop = 0; }; top(); requestAnimationFrame(top); }
 }
 function nav(h) { const d = (history.state?.d || 0) + 1; history.pushState({ d }, '', h); route(); window.scrollTo(0, 0); $('#app').scrollTop = 0; }
+/* v3.69: the app opens on the roadmap, at the unit you are in, with the HSK list one step back (the same as tapping Lessons).
+   The streak moments and the freeze notice used to show on Decks at start-up; they show here instead. */
+function goStart() {
+  const lv = playLv();
+  history.replaceState({ d: 0 }, '', '#/learn');
+  if (lv && LV_DUO[lv]) history.pushState({ d: 1 }, '', unitUrl(ucMe(lv)));
+  route();
+  if (S.view !== 'course') return;
+  const nt = db.freeze.notice; if (nt) { db.freeze.notice = null; save(); setTimeout(() => toast(nt), 600); }
+  setTimeout(() => { if (S.view === 'course') moments(); }, 380);
+}
 function goBack(fallback) { if ((history.state?.d || 0) > 0) history.back(); else { history.replaceState({ d: 0 }, '', fallback); route(); } }
 addEventListener('popstate', route);
 
@@ -3282,7 +3293,8 @@ function render() {
 }
 
 /* ---------- bottom tab bar (hidden during flip and write sessions) ---------- */
-const TABS = [['decks', 'Decks', '#/'], ['learn', 'Lessons', '#/learn'], ['map', 'Map', '#/map'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
+/* v3.69: Lessons first, as the page the app opens on */
+const TABS = [['learn', 'Lessons', '#/learn'], ['decks', 'Decks', '#/'], ['map', 'Map', '#/map'], ['read', 'Read', '#/read'], ['profile', 'Profile', '#/profile']];
 function renderTabs() {
   // picking words on an HSK level: its own bottom bar (Select all / Add) takes the tab bar's place, as in a select mode
   const cur = S.view === 'hsk' && S.hskLevel ? null : S.view === 'home' || S.view === 'deck' || S.view === 'group' || S.view === 'bank' || S.view === 'hsk' ? 'decks' : S.view === 'course' ? S.cUnit && !LV_DUO[S.cLv] ? null : 'learn' : S.view;   // an old-style unit campaign is its own full page, without the tab bar; v3.60 (ilkem: "u should still be able to see the task bar"): the lesson path keeps it
@@ -12170,7 +12182,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.68';
+const APP_VERSION = '3.69';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12732,7 +12744,7 @@ function obFinish(how) {
     if (db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }
     save(); }
   LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, sig, goal: O.goal, replay: O.replay, set_level: lv || null });
-  S.ob = null; closeLayer(() => { S.instant = true; render(); });
+  S.ob = null; closeLayer(() => { S.instant = true; if (O.replay) render(); else goStart(); });   // v3.69: the first run ends on the roadmap of the level it found
 }
 async function obClick(e) {
   const b = e.target.closest('[data-ob],[data-v],[data-c],[data-qo],[data-so]'); if (!b || !S.ob || b.disabled) return;
@@ -13162,9 +13174,9 @@ document.addEventListener('click', e => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let g = null, noClickUntil = 0;
   const targets = () => {
-    if (S.view === 'deck' || S.view === 'bank') return { tab: 0, prev: { tab: 0, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
+    if (S.view === 'deck' || S.view === 'bank') return { tab: 1, prev: { tab: 1, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
     if (S.view === 'map' && S.mapLv) return null;   // inside a monument: no swiping to the next tab
-    const order = ['home', 'learn', 'map', 'read', 'profile'], views = [Home, LearnView, MapView, ReadView, ProfileView], i = order.indexOf(S.view);
+    const order = ['learn', 'home', 'map', 'read', 'profile'], views = [LearnView, Home, MapView, ReadView, ProfileView], i = order.indexOf(S.view);
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
     return { tab: i, prev: t(i - 1), next: t(i + 1) };
@@ -13362,10 +13374,11 @@ if (window.visualViewport) {
 /* re-layout tianzige on rotation */
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === 'write' && !S.write?.done && !S.write?.revealed && !S.write?.history?.length) render(); }, 200); });
 
+const RELOAD = performance.getEntriesByType?.('navigation')[0]?.type === 'reload';   // a reload (or an update) stays on the page you were on
 history.replaceState({ d: 0 }, '', location.hash || '#/');
 LOG.add('open', deviceInfo()); paintRec();
 takePairLink();
-route();
+if (location.hash === '#/' && !RELOAD) goStart(); else route();
 if (FRESH) obStart();
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
