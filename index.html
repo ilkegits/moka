@@ -1373,6 +1373,12 @@ svg.sil{filter:brightness(0);opacity:.28}
 .row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .row-t{font-size:16px;font-weight:500;line-height:1.3}
 .row-s{font-size:13px;color:var(--muted)}
+/* UX 1: grey placeholders in the shape of the text that is still loading; they appear only after 300 ms, so a quick load never flashes them */
+.skel{position:relative;display:inline-block;max-width:100%;visibility:hidden;animation:skShow 0s .3s forwards,skPulse 1.4s .3s ease-in-out infinite}
+.skel::before{content:"";position:absolute;left:0;right:0;top:50%;height:.8em;margin-top:-.4em;border-radius:6px;background:var(--line)}
+@keyframes skShow{to{visibility:visible}}
+@keyframes skPulse{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.skel{animation:skShow 0s .3s forwards}}
 .row-val{flex:none;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
 .row .chev{display:flex;opacity:.55}
 .row .chev svg.i{width:17px;height:17px;stroke-width:2.2}
@@ -12160,26 +12166,38 @@ function practiseSheet() {
 function HskView() {
   const H = S.H, lv = S.hskLevel;
   const head = `<header class="bar"><button class="icon-btn" data-act="hsk-back" aria-label="Back">${I.back}</button><div class="bar-title"></div><div style="width:42px"></div></header>`;
-  if (!H) return `<div class="screen fade-in">${head}<div class="empty"><div class="big">汉</div><p id="hskLoad">Loading the HSK lists…</p></div></div>`;
+  // UX 1: while the lists load, the same page is drawn with grey blocks where the numbers and words go (.skel), so nothing
+  // moves when they arrive. The blocks only appear after 300 ms (CSS), so a quick load never flashes them.
+  const err = H ? '' : '<p class="group-foot" id="hskLoad" role="status" hidden></p>';
   const inBank = new Set(db.bank.map(w => w.hanzi));
-  if (!lv) return `<div class="screen fade-in">${head}
+  if (!lv) return `<div class="screen fade-in"${H ? '' : ' aria-busy="true"'}>${head}
     <section class="deck-hero"><h1 class="deck-title">HSK word lists</h1>
-      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them with Prove words on the Map: each proven word earns coins for its monuments.</div></section>
+      <div class="muted">Open a level and tick the words you already know. They go into your word bank as known; prove them with Prove words on the Map: each proven word earns coins for its monuments.</div></section>${err}
     <div class="group">${[1, 2, 3, 4, 5, 6, 7].map(l => {
-      const L = H.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
+      const L = H?.levels[l] || [], k = L.filter(r => inBank.has(r.h)).length;
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
-        <span class="row-main"><span class="row-t">${HSK_NAME(l)}</span><span class="row-s">${k ? `${k.toLocaleString('en')} of ${L.length.toLocaleString('en')} words known` : `${L.length.toLocaleString('en')} words`}</span></span><span class="chev">${I.chev}</span></button>`;
+        <span class="row-main"><span class="row-t">${HSK_NAME(l)}</span><span class="row-s">${!H ? skel(l % 2 ? '7.5em' : '9em') : k ? `${k.toLocaleString('en')} of ${L.length.toLocaleString('en')} words known` : `${L.length.toLocaleString('en')} words`}</span></span><span class="chev">${I.chev}</span></button>`;
     }).join('')}</div>
     <p class="group-foot">HSK 3.0, 2026 syllabus. Word lists from complete-hsk-vocabulary (MIT), meanings from CC-CEDICT (CC BY-SA 4.0).</p>
   </div>`;
-  const L = H.levels[lv] || [], k = L.filter(r => inBank.has(r.h)).length;
-  return `<div class="screen fade-in">${head}
+  const L = H?.levels[lv] || [], k = L.filter(r => inBank.has(r.h)).length;
+  return `<div class="screen fade-in"${H ? '' : ' aria-busy="true"'}>${head}
     <section class="deck-hero"><div class="eyebrow">HSK 3.0 · 2026</div><h1 class="deck-title">${HSK_NAME(lv)}</h1>
-      <div class="muted">${L.length.toLocaleString('en')} words · <span id="hskHave">${k}</span> in your word bank</div></section>
-    ${searchField('hskQ', 'Search this level')}
-    <div class="group" id="hskList" style="margin-bottom:0"></div><div id="hskMore" style="height:1px"></div>
-    <div class="dock hsk-dock"><button class="link-btn" id="hskAll">Select all</button><button class="btn btn-primary" id="hskAdd" disabled>Add to word bank</button></div>
+      <div class="muted">${H ? `${L.length.toLocaleString('en')} words · <span id="hskHave">${k}</span> in your word bank` : skel('13em')}</div></section>${err}
+    ${H ? searchField('hskQ', 'Search this level') : searchField('hskQ', 'Search this level').replace('<input ', '<input disabled ')}
+    <div class="group" id="hskList" style="margin-bottom:0">${H ? '' : Array.from({ length: 12 }, (_, i) => hskWordRow(null, i)).join('')}</div><div id="hskMore" style="height:1px"></div>
+    <div class="dock hsk-dock"><button class="link-btn" id="hskAll"${H ? '' : ' disabled'}>Select all</button><button class="btn btn-primary" id="hskAdd" disabled>Add to word bank</button></div>
   </div>`;
+}
+/* UX 1: a grey block standing in for text that is still loading. It holds a real (blank) letter, so its line is exactly as
+   tall as it will be with the words in it */
+const skel = w => `<span class="skel" style="width:${w}" aria-hidden="true">&nbsp;</span>`;
+/* one word on an HSK level page; with no word (r null) the same row as a grey placeholder while the lists load */
+function hskWordRow(r, i, cls = '') {
+  if (!r) return `<div class="row word" style="--sep:52px" aria-hidden="true"><span class="sel">${I.check}</span><span class="hz">${skel('1.6em')}</span>
+    <span class="row-main"><span class="wp">${skel(3 + i % 3 + 'em')}</span><span class="we">${skel(8 + (i * 5) % 7 + 'em')}</span></span></div>`;
+  return `<button class="row word ${cls}" style="--sep:52px" data-h="${esc(r.h)}"><span class="sel">${I.check}</span><span class="hz">${esc(r.h)}</span>
+    <span class="row-main"><span class="wp">${esc(r.p)}</span><span class="we">${esc(meanOf(r))}</span></span></button>`;
 }
 /* Shi Shi pops up to cheer: springs out of the bottom bar with a squash, two happy hops, a speech bubble and
    paper confetti from behind his mane, then drops back after about 3 s. Tap him to send him away early. */
@@ -12246,13 +12264,12 @@ function mountHsk() {
   if (!cheerImg) { cheerImg = new Image(); cheerImg.src = 'mascots/shi-shi.svg'; }   // ready before the first cheer
   S.hskIO?.disconnect();
   const H = S.H, lv = S.hskLevel;
-  if (!H) { loadHsk().then(() => { if (S.view === 'hsk') render(); }, () => { const p = $('#hskLoad'); if (p) p.textContent = 'Could not load the HSK lists. Check your connection and open this page again.'; }); return; }
+  if (!H) { loadHsk().then(() => { if (S.view === 'hsk') { S.instant = true; render(); } }, () => { const p = $('#hskLoad'); if (p) { p.hidden = false; p.textContent = 'Could not load the HSK lists. Check your connection and open this page again.'; } }); return; }
   if (!lv) return;
   const L = H.levels[lv] || [], sel = S.hskSel, list = $('#hskList'), addB = $('#hskAdd'), allB = $('#hskAll'), q = $('#hskQ');
   const inBank = new Set(db.bank.map(w => w.hanzi));
   let rows = L, shown = 0;
-  const row = r => `<button class="row word ${inBank.has(r.h) ? 'has' : sel.has(r.h) ? 'on' : ''}" style="--sep:52px" data-h="${esc(r.h)}"><span class="sel">${I.check}</span><span class="hz">${esc(r.h)}</span>
-    <span class="row-main"><span class="wp">${esc(r.p)}</span><span class="we">${esc(meanOf(r))}</span></span></button>`;
+  const row = r => hskWordRow(r, 0, inBank.has(r.h) ? 'has' : sel.has(r.h) ? 'on' : '');
   const more = () => { if (shown >= rows.length) return; list.insertAdjacentHTML('beforeend', rows.slice(shown, shown + 150).map(row).join('')); shown += 150; };
   const fresh = () => rows.filter(r => !inBank.has(r.h));
   const paint = () => {
