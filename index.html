@@ -2287,23 +2287,80 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* v3.49: red envelopes on the path, and Hu Hu's bonus challenge beside the last one */
 .pp-lx{position:absolute;z-index:1;width:calc(var(--k,1)*62px);height:calc(var(--k,1)*78px);padding:0;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
 .pp-lx-e{width:calc(var(--k,1)*66px);height:calc(var(--k,1)*82px)}
-.pp-lx>svg{position:relative;display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 calc(var(--k,1)*3px) 0 rgba(120,20,15,.25));transform-origin:50% 88%}
-.pp-lx[data-s="locked"]>svg{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.55}
-.pp-lx[data-s="open"]>svg{filter:none;opacity:.78}
+/* v3.82: the 3D envelope (lx3), on the path and in its moment. --W is its width; its height is 10/7 of that */
+.lx3p{display:grid;place-items:center;perspective:calc(var(--W)*6);pointer-events:none}
+.lx3{--H:calc(var(--W)*10/7);--T:calc(var(--W)*.13);--R:calc(var(--W)*.072);position:relative;width:var(--W);height:var(--H);transform-style:preserve-3d;transform:rotateX(10deg) rotateY(-28deg)}
+.lx3>span{position:absolute}
+.lx3 svg{display:block;width:100%;height:100%;overflow:visible}
+.lx3-f{inset:0;transform:translateZ(calc(var(--T)/2))}
+.lx3-f::after{content:"";position:absolute;inset:0;border-radius:var(--R);background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 38%,transparent 62%,rgba(0,0,0,.18))}
+.lx3-b{inset:0;border-radius:var(--R);background:var(--in);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25);transform:translateZ(calc(var(--T)/-2)) rotateY(180deg)}
+.lx3-s{left:calc((var(--W) - var(--T))/2);top:var(--R);width:var(--T);height:calc(var(--H) - 2*var(--R));background:linear-gradient(90deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(90deg,var(--e1),var(--e2),var(--e1))}
+.lx3-s::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)}
+.lx3-s.r{transform:rotateY(90deg) translateZ(calc(var(--W)/2))}
+.lx3-s.l{transform:rotateY(-90deg) translateZ(calc(var(--W)/2))}
+.lx3-t{left:var(--R);top:calc((var(--H) - var(--T))/2);width:calc(var(--W) - 2*var(--R));height:var(--T);background:linear-gradient(0deg,transparent 44%,var(--g) 44% 56%,transparent 56%),linear-gradient(0deg,var(--e1),var(--e2),var(--e1))}
+.lx3-t.t{transform:rotateX(90deg) translateZ(calc(var(--H)/2));filter:brightness(1.25)}
+.lx3-t.b{transform:rotateX(-90deg) translateZ(calc(var(--H)/2))}
+.lx3-glow{left:-22%;right:-22%;top:-20%;height:40%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,225,.95),rgba(255,214,90,.7) 40%,rgba(255,176,32,0));opacity:0;transform:scale(.2)}
+.lx3-flap{left:0;top:0;width:var(--W);height:calc(var(--W)*var(--fh));transform-origin:50% 0;transform-style:preserve-3d;transform:translateZ(calc(var(--T)/2 + 1px))}
+.lx3-flap>span{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.lx3-flap>.in{transform:rotateY(180deg)}
+.lx3.open .lx3-flap,.pp-lx[data-s="open"] .lx3-flap{transform:translateZ(calc(var(--T)/-2)) rotateX(196deg)}   /* swung up and back, standing behind what comes out */
+.lx3-c{left:calc(50% - var(--W)*.16);top:4%;width:calc(var(--W)*.32);height:calc(var(--W)*.32)}
+.lx3-c .coin{display:block;width:100%;height:100%}
+@keyframes lxSway{0%,60%,100%{transform:rotateX(10deg) rotateY(-28deg)}15%{transform:translateY(-6%) rotateX(10deg) rotateY(-14deg) rotateZ(-5deg)}30%{transform:translateY(-10%) rotateX(12deg) rotateY(-38deg) rotateZ(5deg)}45%{transform:translateY(-4%) rotateX(10deg) rotateY(-22deg) rotateZ(-2deg)}}
+@keyframes lxWake{0%{transform:rotateX(10deg) rotateY(-28deg)}10%{transform:translateY(6%) rotateX(10deg) rotateY(-28deg) scale(1.12,.84)}30%{transform:translateY(-55%) rotateX(10deg) rotateY(-208deg) scale(1.1)}46%{transform:translateY(0) rotateX(10deg) rotateY(-388deg) scale(1.14,.86)}54%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-13deg)}62%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(12deg)}70%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-10deg)}78%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(8deg)}88%{transform:rotateX(10deg) rotateY(-388deg) rotateZ(-4deg)}100%{transform:rotateX(10deg) rotateY(-388deg)}}
+@keyframes lxRing{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.4);opacity:0}}
+/* on the path: grey while locked, swaying once ready, jumping awake when the lesson before it was just done (lxWake) */
+.pp-lx>.lx3p{position:absolute;inset:0;--W:calc(var(--k,1)*50px)}
+.pp-lx::after{content:"";position:absolute;left:16%;right:16%;bottom:-2%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(90,40,10,.3),transparent);z-index:-1}
+.pp-lx[data-s="locked"]{filter:grayscale(1) sepia(.4) brightness(1.6) contrast(.5);opacity:.55}
+.pp-lx[data-s="open"]{opacity:.8}
 .pp-lx[data-s="ready"]{z-index:2}
-.pp-lx[data-s="ready"]>svg{animation:ppLx 2.4s ease-in-out infinite}
+.pp-lx[data-s="ready"] .lx3{animation:lxSway 2.6s ease-in-out infinite}
+.pp-lx.pp-lx-wake{z-index:3}
+.pp-lx.pp-lx-wake .lx3{animation:lxWake 1.7s .6s ease-in-out both,lxSway 2.6s 2.3s ease-in-out infinite}
+.pp-lx.pp-lx-wake>i:not(.pp-lx-n){position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;margin:-100% 0 0 -100%;border-radius:50%;border:3px solid #FFD25A;opacity:0;animation:lxRing .9s ease-out both;pointer-events:none}
+.pp-lx:active>.lx3p{transform:scale(.94)}
 .pp-lx[data-s="ready"]::before{content:"";position:absolute;left:50%;top:50%;width:170%;aspect-ratio:1;margin:-85% 0 0 -85%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,50,.6),rgba(255,190,50,.22) 60%,transparent);animation:ppRing 1.8s ease-in-out infinite}
-.pp-lx:active>svg{transform:scale(.94)}
 .pp-lx-n{display:none;position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);padding:3px 7px 4px;border-radius:9px;background:#F8CF5F;color:#5A3200;font:800 11.5px/1 var(--ui);font-style:normal;white-space:nowrap;box-shadow:inset 0 -2px 0 rgba(140,85,0,.25)}
 .pp-lx[data-s="ready"] .pp-lx-n{display:block}
 .pp-lx-r .pp-lx-n,.pp-lx-l .pp-lx-n{bottom:auto;top:50%;transform:translateY(-50%)}.pp-lx-r .pp-lx-n{left:calc(100% + 4px)}.pp-lx-l .pp-lx-n{left:auto;right:calc(100% + 4px)}   /* v3.55: in the bend the coins tag sits on the open side, clear of the lessons above and below */
-.pp-lx.pp-lx-pop>svg{animation:ppLxPop .5s cubic-bezier(.2,1.3,.4,1)}
-.pp-lx-win{position:absolute;left:50%;bottom:calc(100% + 2px);z-index:3;display:flex;align-items:center;gap:4px;font:800 19px/1 var(--ui);color:#9A5200;white-space:nowrap;pointer-events:none;animation:ppWin 1.6s ease-out both}
-.pp-lx-win svg{flex:none;width:22px;height:22px}
-.pp-lx .chs-c{top:40%;z-index:3;pointer-events:none}
-@keyframes ppLx{0%,58%,100%{transform:rotate(0)}66%{transform:rotate(-9deg)}74%{transform:rotate(8deg)}82%{transform:rotate(-5deg)}90%{transform:rotate(3deg)}}
-@keyframes ppLxPop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
-@keyframes ppWin{0%{opacity:0;transform:translate(-50%,12px) scale(.6)}16%{opacity:1;transform:translate(-50%,-6px) scale(1.12)}28%{transform:translate(-50%,-4px) scale(1)}78%{opacity:1;transform:translate(-50%,-10px)}100%{opacity:0;transform:translate(-50%,-28px)}}
+/* v3.82: the red envelope's moment, over the whole screen (lxShow) */
+.lxo{position:fixed;inset:0;z-index:62;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.lxo.out{opacity:0;transition:opacity .3s}
+.lxo-bg{position:absolute;inset:0;background:radial-gradient(120% 75% at 50% var(--cy),#A8301E,#6A140D 50%,#2A0605);opacity:0;transition:opacity .4s}
+.lxo.on .lxo-bg{opacity:1}
+.lxo.on .lxo-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(40% 25% at 50% var(--cy),rgba(255,200,90,.25),transparent);animation:ppRing 1.6s ease-in-out infinite}
+.lxo-rays{position:absolute;left:50%;top:var(--top);width:0;height:0;opacity:0;transform:scale(.15)}
+.lxo-rays svg{position:absolute;left:-90vmax;top:-90vmax;width:180vmax;height:180vmax;animation:spin 20s linear infinite}
+.lxo.boom .lxo-rays{opacity:1;transform:scale(1);transition:opacity .35s .1s,transform 1s cubic-bezier(.2,1.1,.3,1) .1s}
+.lxo-shake{position:absolute;inset:0}
+.lxo-fly{position:absolute;left:50%;top:var(--cy);width:0;height:0}
+.lxo-fly>.lx3p{position:absolute;left:calc(var(--W)/-2);top:calc(var(--W)*-5/7);width:var(--W);height:calc(var(--W)*10/7);perspective:1100px}
+.lxo .lx3-flap{transition:transform .5s cubic-bezier(.5,0,.3,1.3)}
+.lxo .lx3.peek .lx3-glow{opacity:.55;transform:scale(.45);transition:opacity 1s,transform 1s}
+.lxo.boom .lx3-glow{opacity:1;transform:scale(1);transition:opacity .25s .15s,transform .5s cubic-bezier(.2,1.4,.4,1) .15s}
+.lxo-burst{position:absolute;left:50%;top:var(--top);width:0;height:0}
+.lxo-ring{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;border:4px solid #FFE08A;box-shadow:0 0 24px #FFD25A,inset 0 0 24px #FFD25A}
+.lxo-spark{position:absolute;left:0;top:0;fill:#FFE9A3;filter:drop-shadow(0 0 4px #FFC21F)}
+.lxo-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% var(--top),#fff,rgba(255,244,200,.75) 35%,rgba(255,220,140,0) 75%);opacity:0;pointer-events:none}
+.lxo-h{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 7%);display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transform:translateY(-14px) scale(.8)}
+.lxo-h i{font:normal 700 20px/1 var(--hanzi);color:#FFD25A;letter-spacing:.2em;padding-left:.2em}
+.lxo-h b{font:800 30px/1.1 var(--ui);color:#FFF4D6;text-shadow:0 3px 0 rgba(80,10,5,.5)}
+.lxo.boom .lxo-h{opacity:1;transform:none;transition:opacity .4s .35s,transform .6s cubic-bezier(.2,1.5,.4,1) .35s}
+.lxo-sum{position:absolute;left:0;right:0;top:calc(var(--cy) + var(--W)*.95);margin:0;display:flex;justify-content:center;align-items:center;gap:8px;opacity:0;transform:scale(.4)}
+.lxo-sum b{font:800 52px/1 var(--ui);color:#FFE07A;text-shadow:0 4px 0 #8A3A06,0 0 24px rgba(255,190,60,.6);font-variant-numeric:tabular-nums}
+.lxo-sum small{align-self:flex-end;margin-bottom:6px;font:700 18px/1 var(--ui);color:#F7C977}
+.lxo-coin{width:46px;height:46px}.lxo-coin .coin{display:block;width:100%;height:100%}
+.lxo.paid .lxo-sum{opacity:1;transform:none;transition:opacity .3s,transform .5s cubic-bezier(.2,1.6,.4,1)}
+.lxo-sum.land{animation:lxLand .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes lxLand{40%{transform:scale(1.22)}}
+.lxo-dock{position:absolute;left:20px;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));opacity:0;transform:translateY(24px);pointer-events:none}
+.lxo.done .lxo-dock{opacity:1;transform:none;pointer-events:auto;transition:opacity .35s,transform .45s cubic-bezier(.2,1.4,.4,1)}
+.lxo-dock .btn{width:100%;height:54px;font-size:17px;background:linear-gradient(#FFE79A,#FFD15C 55%);color:#7E1D19;text-shadow:none;--edge:rgba(150,90,10,.55);--drop:rgba(60,8,4,.7)}
+@media (prefers-reduced-motion:reduce){.lxo-rays svg,.lxo-bg::after{animation:none!important}}
 /* v3.51: friends at work beside the path */
 .pp-pal{position:absolute;z-index:0;width:calc(var(--k,1)*170px);height:calc(var(--k,1)*142px);transform:translate(-50%,-58%);pointer-events:none}
 .pp-pal>svg{display:block;width:100%;height:100%;overflow:visible}
@@ -2371,7 +2428,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-jump svg{width:27px;height:27px;stroke-width:3;transform:rotate(90deg)}
 .pp-jump.up svg{transform:rotate(-90deg)}
 .pp-jump:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
-@media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop,.pp-lx>svg,.pp-lx::before,.pp-pal *{animation:none!important}.pp-lx-win{animation:none;transform:translate(-50%,-8px)}}
+@media (prefers-reduced-motion:reduce){.pp-go,.uc-path .un-node[data-s="cur"]::before,.uc-path .un-node.pp-pop,.pp-lx .lx3,.pp-lx::before,.pp-pal *{animation:none!important}}
 /* ---------- the comic: one page, a panel per tap. v3.49: on 田字格 paper, not a dark page (ilkem: "it shouldn't be like a dark
    background of the comic. It should ideally be a light background, like in the Tianzige") ---------- */
 #ob.cm{background:var(--paper) var(--tzg) 50% 0/78px auto;overflow:hidden;cursor:pointer}
@@ -4873,8 +4930,8 @@ function ucPane(u) {
       ${half ? '<svg class="pp-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45"/><circle class="pp-ring-on" cx="50" cy="50" r="45" pathLength="100"/></svg>' : ''}<span class="un-spot" lang="zh" aria-hidden="true">${path ? esc(LES_LEAD[L.i]) : ''}</span>${path ? `<i class="pp-go" aria-hidden="true">${half ? 'Recall' : 'Start'}</i>` : ''}<small>${esc(L.title)}</small></button>`; }).join('');
   const head = path && m.head ? `<div class="pp-head${st.open ? '' : ' locked'}" style="top:${(m.head / H * 100).toFixed(2)}%"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b><span>${esc(UNIT(u)[0])}</span></b>${st.open ? '' : `<em>${LOCK_I}Finish Unit ${unK(u) - 1} to open it</em>`}</div>` : '';
   /* v3.49, the path: no shrine. The red envelope (ready once the lessons before it are done); since v3.58 no Hu Hu bonus */
-  const lxS = (w, need) => lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';
-  const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lixiSvg(s === 'open')}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
+  const lxS = (w, need) => lxDemo === u + w ? 'ready' : lxGot(u, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked';   // v3.82: a Developer one is ready whatever
+  const lx = (w, p, s) => `<button class="pp-lx${w === 'e' ? ' pp-lx-e' : ''}${m.lxL ? (m.lxL[w] ? ' pp-lx-l' : ' pp-lx-r') : ''}${s === 'ready' && lxWake === u + w && !stillMotion() ? ' pp-lx-wake' : ''}" data-s="${s}" style="${pct(p)}" data-act="lx-open" data-k="${u}${w}"${off} aria-label="Red envelope, ${LX_PAY[w]} coins${s === 'open' ? ', opened' : s === 'ready' ? ', open it' : ', locked'}">${lx3(lxLook(u))}${s === 'ready' && lxWake === u + w && !stillMotion() ? '<i style="animation-delay:1.35s"></i><i style="animation-delay:1.6s"></i>' : ''}<i class="pp-lx-n" aria-hidden="true">+${LX_PAY[w]}</i></button>`;
   const extras = !path ? '' : lx('e', m.end, lxS('e', m.lxN))
     + m.pals.map(P => ppPal(P.k, pct(P.p), P.f, LES_LEAD[st.ls[Math.min(P.s, n - 1)].i], LES_LEAD[st.ls[Math.min(P.s + 1, n - 1)].i], P.s, st.open && (eat >= 0 ? eat : st.at) >= P.s)).join('');   // v3.69: pale until the lesson level with them is reached
 
@@ -5011,6 +5068,7 @@ function mountUnit(un) {
   ucFit(); ucU = 0; ucEat = null; ucPre = eat != null ? { u: me, i: +eat } : null; ppWake();
   const at = (el, d) => { const [, l, t] = d.match(/left:([^;]+);top:([^;]+)/); return [parseFloat(l) / 100, parseFloat(t) / 100, l, t]; };
   if (ucKeep) { $('.uc').classList.add('uc-keep'); sc.scrollLeft = ucKeep.x; sc.scrollTop = ucKeep.t || 0; Object.entries(ucKeep.y).forEach(([u, y]) => { const i = ucPane$(u)?.querySelector('.uc-in'); if (i) i.scrollTop = y; }); ucKeep = null; }   // drawn again in place
+  else if (lxWake && ucPane$(parseInt(lxWake))?.querySelector('.pp-lx-wake')) { const wu = parseInt(lxWake), e = ucPane$(wu).querySelector('.pp-lx-wake'); ucFocus(wu, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, false); ucSet(wu); setTimeout(() => haptic(18), 900); lxWake = ''; }   // v3.82: back from the lesson that readied it, at the envelope as it jumps awake
   else if (LV_DUO[unitLv(go)] && go !== me && unitWon(go) && !lxGot(go, 'e') && ucPane$(go)?.querySelector('.pp-lx-e')) { const e = ucPane$(go).querySelector('.pp-lx-e'); ucFocus(go, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, false); }   // v3.49: a unit just finished: at its red envelope
   else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else if (ucV()) ucGo(go, false); else sc.scrollLeft = ucPane$(go).offsetLeft;
   ucSet(go); ucPaint();
@@ -6301,38 +6359,169 @@ function ppSprite() {
 /* the friends move only while they are on screen */
 const ppSeen = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('on', e.isIntersecting)), { rootMargin: '80px 0px' }) : null;
 function ppWake() { if (!ppSeen) { document.querySelectorAll('.pp-pal').forEach(p => p.classList.add('on')); return; } ppSeen.disconnect(); document.querySelectorAll('.pp-pal').forEach(p => ppSeen.observe(p)); }
-const lixiSvg = open => '<svg viewBox="0 0 48 60" aria-hidden="true">' + (open
-  ? '<path d="M6 21Q24-6 42 21Z" fill="#F7786B" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><rect x="5" y="19" width="38" height="37" rx="5" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><circle cx="24" cy="37.5" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><path d="M19.8 37.6l3 3 5.6-6.2" fill="none" stroke="#7A4A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
-  : '<rect x="5" y="5" width="38" height="51" rx="6" fill="#E3352B" stroke="#A81B17" stroke-width="2.2"/><path d="M5.5 12.5Q24 34 42.5 12.5V11a6 6 0 0 0-6-6H11.5a6 6 0 0 0-6 6Z" fill="#F4574A" stroke="#A81B17" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="25" r="8.5" fill="#F8CF5F" stroke="#A8721A" stroke-width="2"/><rect x="20.6" y="21.6" width="6.8" height="6.8" rx="1" fill="#E3352B" stroke="#A8721A" stroke-width="1.6"/><path d="M14 47h20" stroke="#F8CF5F" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>') + '</svg>';
-/* v3.70: an envelope that a finished lesson has just made ready opens on the lesson's end screen (its coins pour into the bag
-   with the rest); returns the coins */
-function lxClaim(un) {
-  const st = unitState(un), duo = LV_DUO[unitLv(un)]; let got = 0;
-  for (const w of duo ? ['e'] : ['m', 'e']) {
-    const need = w === 'e' ? (duo ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
-    if (!st.open || st.nd < need || lxGot(un, w)) continue;
-    (db.lixi ||= {})[un + w] = { t: Date.now(), n: LX_PAY[w] }; got += LX_PAY[w];
-    LOG.add('lixi', { unit: un, which: w, n: LX_PAY[w], at: 'lesson-end' });
+/* v3.82, the red envelope (利是) is a little 3D envelope, turned to the side so its paper edge shows (ilkem: "slightly 3d
+   looking to the side... I like the plum, jade and golden cloud version"; the looks are drawn in lixi-samples.html). Each unit
+   takes the next look in turn. The faces are drawn in a 240 x 300 space: the front runs x 50..190, y 70..270, and the flap
+   hangs from its top edge (y 70) */
+const LX_LOOKS = ['plum', 'clouds', 'jade'];
+const lxLook = un => LX_LOOKS[(un - 1) % 3];
+const LX_EDGE = { plum: ['#C42A33', '#E85A50', 0, '#A0202A', .75], clouds: ['#6E1018', '#8A1820', 1, '#5E0C12', 1.46], jade: ['#8E1218', '#A8161E', 1, '#7A0F14', 1.3] };   // paper edge, gold line on it, inside colour, flap height (x the width)
+let lxId = 0;
+function lxArt(look) {   // { defs, body, flap, inner (the flap's inside, as a path) } for one look, its gradient ids its own
+  const id = 'lx' + (++lxId), X0 = 50, X1 = 190, Y0 = 70, Y1 = 270, CX = 120, R = 10, G = '#F6C445', GD = '#B9800F', GL = '#FFE9A3';
+  const lin = (k, a, b) => `<linearGradient id="${id}${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+  const body = (k, stroke) => `<rect x="${X0}" y="${Y0}" width="${X1 - X0}" height="${Y1 - Y0}" rx="${R}" fill="url(#${id}${k})" stroke="${stroke}" stroke-width="3"/>`;
+  const top = `M${X0} ${Y0 + R}Q${X0} ${Y0} ${X0 + R} ${Y0}H${X1 - R}Q${X1} ${Y0} ${X1} ${Y0 + R}`;
+  const vFlap = tip => `${top}V${Y0 + 18}Q${CX} ${tip + 26} ${X0} ${Y0 + 18}Z`, sharp = `${top}V${Y0 + 16}L${CX} 152L${X0} ${Y0 + 16}Z`;
+  if (look === 'plum') {
+    const bloom = (x, y, s, c = '#FFD6DF') => `<g transform="translate(${x} ${y}) scale(${s})">${[0, 72, 144, 216, 288].map(a => `<circle cx="${(Math.cos((a - 90) * Math.PI / 180) * 7).toFixed(2)}" cy="${(Math.sin((a - 90) * Math.PI / 180) * 7).toFixed(2)}" r="6.5" fill="${c}" stroke="#C2405E" stroke-width="1.6"/>`).join('')}<circle r="3.8" fill="${G}" stroke="${GD}" stroke-width="1.2"/></g>`;
+    return { defs: lin('b', '#E8333B', '#FF7A64') + lin('f', '#F45252', '#EC3D40'), inner: vFlap(140),
+      body: body('b', '#8F1D22')
+        + `<path d="M${X1} 170Q160 190 138 196Q110 204 96 232Q88 248 ${X0 + 4} 258M138 196q-6-16 4-28M110 214q16 4 26 18" fill="none" stroke="#5A2A1C" stroke-width="5" stroke-linecap="round"/>`
+        + bloom(142, 166, 1) + bloom(136, 234, .85, '#fff') + bloom(98, 226, 1.05) + bloom(66, 254, .7, '#fff') + bloom(176, 182, .6)
+        + [[78, 190], [170, 214], [118, 252], [158, 252]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="${GL}" opacity=".9"/>`).join('')
+        + `<rect x="${X0 + 14}" y="160" width="26" height="26" rx="4" fill="${G}" stroke="${GD}" stroke-width="2.5"/><text x="${X0 + 27}" y="174" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="900" fill="#B3202A" style="font-family:var(--hanzi)">春</text>`,
+      flap: `<path d="${vFlap(140)}" fill="url(#${id}f)" stroke="#8F1D22" stroke-width="3" stroke-linejoin="round"/>`
+        + `<path d="M${X0 + 6} ${Y0 + 26}Q90 96 128 100Q150 102 166 86M110 98q2-14 14-20" fill="none" stroke="#5A2A1C" stroke-width="4.5" stroke-linecap="round"/>`
+        + bloom(92, 94, .9, '#fff') + bloom(130, 76, .8) + bloom(160, 92, .95) + bloom(124, 106, .65, '#fff') };
   }
-  return got;
+  if (look === 'clouds') {
+    const cloud = (x, y, s, c) => `<path transform="translate(${x} ${y}) scale(${s})" d="M-24 6q-8 0-8-8t9-8q2-10 13-10t13 9q4-6 11-4t7 9q8 0 8 6t-8 6Z M-14 -2q4-5 9-1q4 4 0 7" fill="none" stroke="${c}" stroke-width="${(3 / s).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const btn = y => `<circle cx="${CX}" cy="${y}" r="13" fill="${G}" stroke="${GD}" stroke-width="3"/><circle cx="${CX}" cy="${y}" r="4.5" fill="${GD}"/>`;
+    return { defs: lin('b', '#B3202A', '#7D1219') + lin('f', '#C4282F', '#951820'), inner: vFlap(140),
+      body: body('b', '#4E0A0F')
+        + cloud(88, 196, 1.2, '#D8434A') + cloud(158, 232, 1, '#D8434A') + cloud(86, 250, .7, '#D8434A') + cloud(162, 176, .7, '#D8434A')
+        + `<path d="M${X0 + 8} ${Y1 - 16}H${X1 - 8}" stroke="${G}" stroke-width="3" opacity=".8"/><path d="M${X0 + 8} ${Y1 - 10}H${X1 - 8}" stroke="${G}" stroke-width="1.5" opacity=".6"/>`
+        + btn(208).replace('r="13"', 'r="12"'),
+      flap: `<path d="${vFlap(140)}" fill="url(#${id}f)" stroke="#4E0A0F" stroke-width="3" stroke-linejoin="round"/>`
+        + cloud(92, 92, .9, '#E05A60') + cloud(150, 96, .8, '#E05A60') + `<path d="M${X0 + 2} ${Y0 + 3}H${X1 - 2}" stroke="${G}" stroke-width="3"/>`
+        + `<path d="M${CX - 14} 146C${CX - 14} 168 ${CX + 16} 186 ${CX + 14} 208C${CX + 12} 224 ${CX - 12} 224 ${CX - 14} 208C${CX - 16} 186 ${CX + 14} 168 ${CX + 14} 146C${CX + 14} 128 ${CX - 14} 128 ${CX - 14} 146Z" fill="none" stroke="${G}" stroke-width="2.6" stroke-linejoin="round"/>`
+        + `<path d="M${CX + 10} 214q10 14 4 26M${CX + 6} 216q2 16-6 22" fill="none" stroke="${G}" stroke-width="2.4" stroke-linecap="round"/>` + btn(146) };
+  }
+  const lat = [];   // jade: a gold lattice like a paper window cut, and a jade 平安扣 clasp with a red tassel
+  for (let y = 176; y <= 252; y += 19) for (let x = 66; x <= 174; x += 18) lat.push(`M${x} ${y - 7}L${x + 7} ${y}L${x} ${y + 7}L${x - 7} ${y}Z`);
+  return { defs: lin('b', '#D8262C', '#A3141B') + lin('f', '#E2342F', '#C01E23') + `<mask id="${id}m"><circle cx="${CX}" cy="150" r="22" fill="#fff"/><circle cx="${CX}" cy="150" r="8.5" fill="#000"/></mask>`, inner: sharp,
+    body: body('b', '#6E0E12') + `<path d="${lat.join('')}" fill="none" stroke="${G}" stroke-width="1.4" opacity=".55"/>`
+      + `<rect x="${X0 + 10}" y="${Y0 + 10}" width="${X1 - X0 - 20}" height="${Y1 - Y0 - 20}" rx="7" fill="none" stroke="${G}" stroke-width="1.6" opacity=".7"/>`,
+    flap: `<path d="${sharp}" fill="url(#${id}f)" stroke="#6E0E12" stroke-width="3" stroke-linejoin="round"/>`
+      + `<path d="M${X0 + 12} ${Y0 + 20}L${CX} 140L${X1 - 12} ${Y0 + 20}" fill="none" stroke="${G}" stroke-width="1.8" opacity=".75"/><circle cx="${CX}" cy="152" r="24" fill="#6E0E12" opacity=".25"/>`
+      + `<g mask="url(#${id}m)"><circle cx="${CX}" cy="150" r="22" fill="#5CC898"/><circle cx="${CX + 2}" cy="152" r="17" fill="none" stroke="#2FA273" stroke-width="7"/><path d="M${CX - 16} 142a17 17 0 0 1 9-8" stroke="#B6F0D2" stroke-width="4" fill="none" stroke-linecap="round"/></g>`
+      + `<circle cx="${CX}" cy="150" r="22" fill="none" stroke="#1F5A41" stroke-width="2.6"/><circle cx="${CX}" cy="150" r="8.5" fill="none" stroke="#1F5A41" stroke-width="2.4"/>`
+      + `<path d="M${CX} 172v10" stroke="#E2342F" stroke-width="3"/><path d="M${CX - 7} 182h14l3 34q-10 6-20 0z" fill="#E43A2E" stroke="#8E1612" stroke-width="2.4" stroke-linejoin="round"/><path d="M${CX - 4} 190v22M${CX} 190v24M${CX + 4} 190v22" stroke="#FF8A6E" stroke-width="1.4"/><rect x="${CX - 8}" y="180" width="16" height="6" rx="2" fill="${G}" stroke="${GD}" stroke-width="1.6"/>` };
 }
-/* open one (k: '<unit>m' or '<unit>e'): its coins come out right there and count at once. Locked: it says what is left */
+/* the envelope in 3D: a front and a back, its four paper edges, and the flap on a hinge at the top (its inside on its back).
+   The light and the coins go between the front and the back. Sized by --W on its .lx3p */
+function lx3(look) {
+  const a = lxArt(look), [e1, e2, g, ins, fh] = LX_EDGE[look];
+  return `<span class="lx3p" aria-hidden="true"><span class="lx3 lx3-${look}" style="--e1:${e1};--e2:${e2};--g:${g ? '#F6C445' : 'transparent'};--in:${ins};--fh:${fh}">`
+    + '<span class="lx3-b"></span><span class="lx3-s r"></span><span class="lx3-s l"></span><span class="lx3-t t"></span><span class="lx3-t b"></span><span class="lx3-glow"></span>'
+    + `<span class="lx3-f"><svg viewBox="50 70 140 200"><defs>${a.defs}</defs>${a.body}</svg></span>`
+    + `<span class="lx3-flap"><span class="out"><svg viewBox="50 70 140 ${(140 * fh).toFixed(1)}"><defs>${a.defs}</defs>${a.flap}</svg></span>`
+    + `<span class="in"><svg viewBox="50 70 140 ${(140 * fh).toFixed(1)}"><path d="${a.inner}" fill="${ins}" stroke="rgba(0,0,0,.35)" stroke-width="3" stroke-linejoin="round"/></svg></span></span></span></span>`;
+}
+const lxFlat = look => { const a = lxArt(look); return `<svg viewBox="46 66 148 208" aria-hidden="true"><defs>${a.defs}</defs>${a.body}${a.flap}</svg>`; };   // a small flat one, for a list
+/* a unit's envelope is waiting: its lessons up to it are done and it is not opened yet */
+const lxWaiting = un => { const st = unitState(un); return !!LV_DUO[unitLv(un)] && st.open && st.nd >= lxAt(un, st.ls.length) && !lxGot(un, 'e'); };
+let lxWake = '', lxDemo = '';   // the envelope that jumps awake when the path comes up (back from the lesson that readied it); a Developer one that only pretends
+/* open one (k: '<unit>e'): it counts at once, then the full-screen moment plays from where it stood on the path. Locked: it says what is left */
 function lixiOpen(k) {
-  const un = parseInt(k), w = k.slice(-1), st = unitState(un), need = w === 'e' ? (LV_DUO[unitLv(un)] ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
-  if (!UNIT(un) || !LX_PAY[w] || lxGot(un, w)) return;
-  if (!st.open || st.nd < need) { toast(st.open ? `${plural(need - st.nd, 'more lesson')} to open it` : `Finish Unit ${unK(un) - 1} first`); return; }
-  const n = LX_PAY[w]; (db.lixi ||= {})[k] = { t: Date.now(), n };
-  if (db.coinShown != null) db.coinShown += n;   // shown here, so not poured into the bag again at the next payoff
-  save(); LOG.add('lixi', { unit: un, which: w, n, bal: coinBal() });
+  const un = parseInt(k), w = k.slice(-1), st = unitState(un), demo = lxDemo === k, need = w === 'e' ? (LV_DUO[unitLv(un)] ? lxAt(un, st.ls.length) : st.ls.length) : Math.ceil(st.ls.length / 2);
+  if (!UNIT(un) || !LX_PAY[w] || $('.lxo') || lxGot(un, w) && !demo) return;
+  if (!demo && (!st.open || st.nd < need)) { toast(st.open ? `${plural(need - st.nd, 'more lesson')} to open it` : `Finish Unit ${unK(un) - 1} first`); return; }
+  const n = LX_PAY[w];
+  if (!demo) {
+    (db.lixi ||= {})[k] = { t: Date.now(), n };
+    if (db.coinShown != null) db.coinShown += n;   // shown here, so not poured into the bag again at the next payoff
+    save(); LOG.add('lixi', { unit: un, which: w, n, bal: coinBal() });
+  }
   const el = document.querySelector(`.pp-lx[data-k="${k}"]`), sc = $('.uc-scroll'), hud = $('.uc .un-hud');
-  const show = () => { if (!el?.isConnected) return; haptic(14); el.dataset.s = 'open'; el.querySelector('svg').outerHTML = lixiSvg(true); el.classList.add('pp-lx-pop');
-    el.insertAdjacentHTML('beforeend', `<span class="pp-lx-win" role="status">${coinSvg()}<b>+${n}</b></span>` + [[-40, -10, 0], [40, -14, 70], [-31, 24, 120], [33, 26, 40]].map(([x, y, d]) => `<i class="chs-c" style="--x:${x}px;--y:${y}px;animation-delay:${d}ms">${coinSvg()}</i>`).join(''));
-    el.setAttribute('aria-label', `Red envelope, ${n} coins, opened`);
-    setTimeout(() => { el.classList.remove('pp-lx-pop'); el.querySelectorAll('.pp-lx-win,.chs-c').forEach(x => x.remove()); }, 1700); };
-  if (hud && ucU) hud.innerHTML = ucHud(ucU);
-  if (!el || !sc) return;
+  const after = () => {
+    if (demo) lxDemo = '';
+    if (el?.isConnected) { el.classList.remove('pp-lx-wake'); el.dataset.s = demo ? (lxGot(un, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked') : 'open'; if (!demo) el.setAttribute('aria-label', `Red envelope, ${n} coins, opened`); }
+    if (hud && ucU) hud.innerHTML = ucHud(ucU);
+  };
+  const go = () => lxShow(lxLook(un), n, el?.isConnected ? el : null, after);
+  if (!el || !sc) { go(); return; }
   const r = el.getBoundingClientRect(), s = sc.getBoundingClientRect();
-  if (r.top < s.top + 150 || r.bottom > s.bottom - 110) { ucFocus(un, parseFloat(el.style.left) / 100, parseFloat(el.style.top) / 100, true); setTimeout(show, stillMotion() ? 0 : 480); } else show();
+  if (r.top < s.top + 150 || r.bottom > s.bottom - 110) { ucFocus(un, parseFloat(el.style.left) / 100, parseFloat(el.style.top) / 100, true); setTimeout(go, stillMotion() ? 0 : 480); } else go();
+}
+/* the moment (ilkem: "an epic lixi animation... when you click on it, the lid opens and light comes out and the coins you earn
+   come out. Make it epic and center animation full screen"). The screen goes deep red, the envelope flies from the path to the
+   middle with a spin and shakes harder and harder, light leaking from under its flap; then (or sooner, at a tap) the flap
+   bursts open: a white flash, the screen shakes, spinning rays and a ring of sparks, and the coins jump out of it, spinning
+   toward you and tumbling past, while the count climbs. Collect closes it */
+function lxShow(look, n, from, done) {
+  const fr = $('#frame') || document.body, still = stillMotion(), fh = fr.clientHeight || innerHeight, fw = fr.clientWidth || innerWidth;
+  const W = Math.round(Math.min(200, fh * .29, fw * .5)), H = W * 10 / 7, cy = Math.round(fh * .45), top = Math.round(cy - H / 2);
+  const star = 'M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z';
+  const rays = `<svg viewBox="-100 -100 200 200"><defs><linearGradient id="lxoRay" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFE7A0" stop-opacity=".8"/><stop offset="1" stop-color="#FFE7A0" stop-opacity="0"/></linearGradient></defs>${Array.from({ length: 18 }, (_, i) => `<path d="M0 0L-${i % 2 ? 4 : 7} -100H${i % 2 ? 4 : 7}Z" transform="rotate(${i * 20})" fill="url(#lxoRay)"/>`).join('')}</svg>`;
+  const o = document.createElement('div'); o.className = 'lxo'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', `Red envelope, ${n} coins`);
+  o.style.cssText = `--W:${W}px;--cy:${cy}px;--top:${top}px`;
+  o.innerHTML = `<div class="lxo-bg"></div><div class="lxo-rays">${rays}</div><div class="lxo-shake"><div class="lxo-fly">${lx3(look)}</div></div><div class="lxo-burst"></div><div class="lxo-flash"></div>
+    <div class="lxo-h"><i lang="zh">利是</i><b>Lucky money!</b></div>
+    <p class="lxo-sum" role="status"><span class="lxo-coin">${coinSvg(1)}</span><b>+0</b><small>coins</small></p>
+    <div class="lxo-dock"><button class="btn btn-seal" data-lxo="go">Collect</button></div>`;
+  fr.append(o);
+  const env = o.querySelector('.lx3'), fly = o.querySelector('.lxo-fly'), num = o.querySelector('.lxo-sum b'), T = [];
+  const at = (ms, f) => T.push(setTimeout(f, ms));
+  let opened = false, shake = null, closed = false;
+  const close = () => { if (closed) return; closed = true; T.forEach(clearTimeout); o.classList.add('out'); if (from) from.style.visibility = ''; done?.(); setTimeout(() => o.remove(), still ? 0 : 320); };
+  o.querySelector('[data-lxo="go"]').onclick = e => { e.stopPropagation(); haptic(10); close(); };
+  o.addEventListener('keydown', e => { if (e.key === 'Escape' && o.classList.contains('done')) close(); });
+  const open = () => {
+    if (opened || closed) return; opened = true; T.forEach(clearTimeout); T.length = 0; shake?.cancel(); env.classList.remove('peek');
+    o.classList.add('boom'); env.classList.add('open'); fanfare();
+    try { if (navigator.vibrate) navigator.vibrate([18, 40, 26, 40, 60]); else haptic(20); } catch (_) {}
+    const end = () => { num.textContent = '+' + coinFmt(n); o.classList.add('paid', 'done'); o.querySelector('[data-lxo="go"]').focus({ preventScroll: true }); };
+    if (still) { end(); return; }
+    o.querySelector('.lxo-flash').animate([{ opacity: 0 }, { opacity: .95, offset: .2 }, { opacity: 0 }], { duration: 650, delay: 140, easing: 'ease-out' });
+    o.querySelector('.lxo-shake').animate([{ transform: 'none' }, { transform: 'translate(-7px,4px)' }, { transform: 'translate(6px,-5px)' }, { transform: 'translate(-4px,-3px)' }, { transform: 'translate(3px,4px)' }, { transform: 'none' }], { duration: 380, delay: 150 });
+    env.animate([{ transform: 'rotateX(10deg) rotateY(-28deg)' }, { transform: 'translateY(5%) rotateX(10deg) rotateY(-28deg) scale(1.08,.9)', offset: .3 }, { transform: 'translateY(-3%) rotateX(10deg) rotateY(-26deg) scale(.97,1.04)', offset: .65 }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: 520, delay: 120, easing: 'ease-out' });
+    at(900, () => env.animate([{ transform: 'rotateX(10deg) rotateY(-28deg)' }, { transform: 'translateY(-3%) rotateX(12deg) rotateY(-20deg)' }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: 2600, iterations: Infinity, easing: 'ease-in-out' }));
+    const burst = o.querySelector('.lxo-burst');   // a ring, and sparks flung out from the opening
+    at(200, () => {
+      const ring = document.createElement('i'); ring.className = 'lxo-ring'; burst.append(ring);
+      ring.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(5)', opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = () => ring.remove();
+      for (let i = 0; i < 22; i++) {
+        const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), a = (i / 22) * Math.PI * 2 + Math.random() * .3, d = 90 + Math.random() * 130, z = 8 + Math.random() * 14;
+        s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'lxo-spark'); s.innerHTML = `<path d="${star}"/>`; s.style.width = s.style.height = z + 'px'; burst.append(s);
+        s.animate([{ transform: 'translate(-50%,-50%) scale(0)', opacity: 1 }, { transform: `translate(calc(-50% + ${(Math.cos(a) * d * .7).toFixed(1)}px),calc(-50% + ${(Math.sin(a) * d * .7).toFixed(1)}px)) scale(1.2) rotate(90deg)`, opacity: 1, offset: .5 },
+          { transform: `translate(calc(-50% + ${(Math.cos(a) * d).toFixed(1)}px),calc(-50% + ${(Math.sin(a) * d + 30).toFixed(1)}px)) scale(0) rotate(180deg)`, opacity: 0 }], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.2,.8,.4,1)', fill: 'both' }).onfinish = () => s.remove();
+      }
+    });
+    const k = Math.max(10, Math.min(22, Math.round(n / 2.5))), y0 = top + H * .12;   // the coins, in 3D between the front and the back: up out of the opening, then toward you and down past
+    at(260, () => o.classList.add('paid'));
+    for (let i = 0; i < k; i++) at(240 + i * 60, () => {
+      const c = document.createElement('span'); c.className = 'lx3-c'; c.innerHTML = coinSvg(1); env.append(c);
+      const x = (Math.random() - .5) * fw * .95, z = 80 + Math.random() * 300, py = -(H * .55 + Math.random() * fh * .28), ey = fh - y0 + 120, r = (Math.random() - .5) * 720, dur = 1500 + Math.random() * 600;
+      c.firstChild.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(.12)' }, { transform: 'scaleX(1)' }], { duration: 300 + Math.random() * 200, iterations: Infinity, direction: 'alternate' });
+      c.animate([{ transform: `translate3d(0,${H * .3}px,0)` }, { transform: `translate3d(${(x * .06).toFixed(1)}px,${(-H * .34).toFixed(1)}px,0)`, offset: .1, easing: 'cubic-bezier(.2,.75,.4,1)' },   // straight up out of the opening first, still inside its edges
+        { transform: `translate3d(${(x * .5).toFixed(1)}px,${py.toFixed(1)}px,${(z * .5).toFixed(1)}px) rotate(${r / 2}deg)`, offset: .38, easing: 'cubic-bezier(.55,0,.85,.45)' },
+        { transform: `translate3d(${x.toFixed(1)}px,${ey.toFixed(1)}px,${z.toFixed(1)}px) rotate(${r}deg)` }], { duration: dur, fill: 'both' }).onfinish = () => c.remove();
+      setTimeout(() => { if (closed) return; num.textContent = '+' + coinFmt(Math.round(n * (i + 1) / k)); clink(i); if (i === k - 1) num.parentNode.classList.add('land'); }, dur * .36);
+    });
+    at(240 + k * 60 + 900, end);
+  };
+  o.addEventListener('click', () => { if (!opened) open(); });
+  requestAnimationFrame(() => o.classList.add('on'));
+  if (from) from.style.visibility = 'hidden';
+  if (still) { open(); return; }
+  haptic(12);
+  let fl = 0;
+  if (from) {   // from where it stood, with a turn and a lift on the way
+    const r = from.getBoundingClientRect(), f0 = fr.getBoundingClientRect(), dx = r.left + r.width / 2 - f0.left - fw / 2, dy = r.top + r.height / 2 - f0.top - cy, s = Math.max(.12, Math.min(1, r.height / H * .9));
+    fl = 820;
+    fly.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s})` }, { transform: `translate(${(dx * .3).toFixed(1)}px,${(dy * .3 - fh * .1).toFixed(1)}px) scale(${((s + 1.2) / 2).toFixed(2)})`, offset: .55 },
+      { transform: 'translate(0,0) scale(1.1,.92)', offset: .86 }, { transform: 'none' }], { duration: fl, easing: 'cubic-bezier(.45,0,.3,1)' });
+    env.animate([{ transform: 'rotateX(10deg) rotateY(-388deg)' }, { transform: 'rotateX(10deg) rotateY(-28deg)' }], { duration: fl * .9, easing: 'cubic-bezier(.3,0,.2,1)' });
+  } else { fl = 500; fly.animate([{ transform: `translateY(${fh * .6}px) scale(.4)` }, { transform: 'translateY(-4%) scale(1.06)', offset: .8 }, { transform: 'none' }], { duration: fl, easing: 'cubic-bezier(.3,.8,.4,1)' }); }
+  at(fl, () => {   // the build-up: harder and harder, light leaking out
+    env.classList.add('peek'); haptic(10);
+    const kf = []; for (let i = 0; i <= 14; i++) { const a = (i % 2 ? 1 : -1) * (2 + i * .75) * (i < 14 ? 1 : 0); kf.push({ transform: `translateY(${i % 2 ? -1.5 * (1 + i / 5) : 0}%) rotateX(10deg) rotateY(-28deg) rotateZ(${a.toFixed(1)}deg)` }); }
+    shake = env.animate(kf, { duration: 1050, easing: 'ease-in-out', fill: 'both' });
+    at(520, () => haptic(14));
+  });
+  at(fl + 1100, open);
 }
 function lesSheet(n) {   // tap a lesson on the path: its words, its two parts, and Start
   const L = LES(n), done = lesDone(n), half = lesHalf(n), next = lesNext(L.lv), due = utDue(L.lv), nt = lesTrN(L);
@@ -6680,12 +6869,12 @@ function lesRecallNow() {   // Recall now, under part 1's end: part 2 of the sam
    to what comes next (the next lesson, or the next unit after its finale), never back to the roadmap. The X on the next
    lesson's first card still leaves at once, without asking */
 function lesEarnHtml(E) {
-  const P = E.pay?.n || 0, les = E.first ? PAY.les : 0, lx = E.lixi || 0, pv = Math.min(Math.max(0, P - les - lx), (E.proven || 0) * (PAY.word + PAY.mast));
+  const P = E.pay?.n || 0, les = E.first ? PAY.les : 0, pv = Math.min(Math.max(0, P - les), (E.proven || 0) * (PAY.word + PAY.mast));
   const row = (ic, t, v, cls = '') => `<li class="${cls}"><span class="le-ic${cls.includes('on') ? ' on' : ''}">${ic}</span><span class="le-t">${t}</span>${v ? `<b>${v}</b>` : ''}</li>`;
   const rows = [
     les && row(coinSvg(), 'Lesson finished', `+${les}`),
     pv && row(coinSvg(), `${plural(E.proven, 'word')} proven`, `+${coinFmt(pv)}`),
-    lx && row(lixiSvg(true), 'Red envelope opened', `+${lx}`, 'le-lx'),
+    E.lxNew && row(lxFlat(lxLook(E.test || LES(E.n).un)), 'A red envelope to open', '', 'le-lx'),   // v3.82: it waits on the path, where it opens
     E.added?.length && row('<span class="le-new" lang="zh">新</span>', `${plural(E.added.length, 'new word')} in your word bank`, ''),
     E.streak?.up && row(FLAME, `${E.streak.n}-day streak`, E.streak.n > 1 ? '+1 day' : 'Day 1', 'on le-fire'),
   ].filter(Boolean);
@@ -6703,6 +6892,7 @@ function lesUpNext(lv) {   // the lesson that comes after: the level's next one,
 function lesOnLabel(E) {
   const lv = unitLv(E.test || LES(E.n).un), n = lesUpNext(lv), N = n && LES(n);
   if (E.step === 'done' && E.unitNew) return 'Continue';   // the ending comic, then the unit's finale
+  if (!E.test && (E.demo ? E.lxNew : lxWaiting(LES(E.n).un))) return 'Open your red envelope';
   if (!N) return 'Continue';
   if (N.lv !== lv) return `Start ${HSK_NAME(N.lv)}`;
   return N.un !== (E.test || LES(E.n).un) ? `Start Unit ${unK(N.un)}` : 'Next lesson';
@@ -6713,7 +6903,7 @@ function lesOnward() {
   const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un);
   const back = () => { S.les = null; goBack('#/course/' + lv); };
   if (E.test && !E.pass) { back(); return; }   // Later, after a test not passed
-  const go = () => { const n = lesUpNext(lv); if (n) lesOn(n); else back(); };
+  const go = () => { if (!E.test && lxWaiting(un)) { lxWake = un + 'e'; back(); return; } const n = lesUpNext(lv); if (n) lesOn(n); else back(); };   // v3.82: a red envelope waiting: back to the path, where it jumps awake
   if (E.step === 'unit') { go(); return; }
   const ending = !COMIC[un] ? -1 : E.test ? (comicSeen(un).p1 ? 1 : -1) : LV_DUO[lv] && unitWon(un) && unitLessons(un).at(-1)?.n === E.n ? COMIC[un].pages.length - 1 : -1;
   const finale = () => { if (S.les !== E) return; E.step = 'unit'; E.cheered = false; lesPaint(); window.scrollTo(0, 0); };
@@ -6738,7 +6928,7 @@ function unitEndHtml() {
       <div class="ue-medal" aria-hidden="true"><i lang="zh">${esc((UNIT(un)[1] || '完').slice(0, 2))}</i></div>
       <div class="les-tally"><span><b>${have}</b><small>${have === 1 ? 'word' : 'words'} learned</small></span><span><b>${ls.length}</b><small>lessons</small></span><span><b class="ue-coins">${coinSvg()}${coinFmt(coins)}</b><small>coins earned</small></span></div>
       ${next}</div>
-    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${!N ? 'Continue' : N.lv !== lv ? `Start ${HSK_NAME(N.lv)}` : `Start Unit ${unK(N.un)}`}</button></div>`;
+    <div class="les-dock"><button class="btn btn-seal wide" data-les="end">${!E.test && !E.demo && lxWaiting(un) ? 'Open your red envelope' : !N ? 'Continue' : N.lv !== lv ? `Start ${HSK_NAME(N.lv)}` : `Start Unit ${unK(N.un)}`}</button></div>`;
 }
 function utEndHtml() {   // a unit test's result: passed (the next unit opens) or not yet (the words you missed, and Try again)
   const E = S.les, un = E.test, last = unitLast(un), lv = unitLv(un), missed = E.words.filter(w => E.missed.has(w.h));
@@ -6905,7 +7095,7 @@ function finishLesson() {
   const day = db.days[dayKey(now)] ||= { decks: {} }; (day.les ||= []).push(E.n);   // counts for the streak
   { const lv = LES(E.n)?.lv; if (LV_DUO[lv] && lvLes(lv).every(L => lesDone(L.n))) db.prefs.unlocked = Math.max(db.prefs.unlocked || 1, Math.min(7, lv + 1)); }   // v3.49: where the challenge is a bonus, a level's last lesson opens the next level
   E.unitNew = E.first && LV_DUO[unitLv(un)] && unitDone(un);   // this was the unit's last lesson to do: the unit is won
-  E.lixi = lxClaim(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
+  E.lxNew = lxWaiting(un); E.proven = E.words.filter(w => bankHas(w.h)?.pf?.at >= (E.t0 || now)).length;
   { const s = practiceStreak(); E.streak = { n: s.n, up: !was && s.today }; if (E.streak.up) db.kept = dayKey(now); }   // shown here, so the streak page does not come up again today
   E.added = add; E.pct = pct; E.step = 'done'; save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
@@ -12808,7 +12998,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.81';
+const APP_VERSION = '3.82';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12932,15 +13122,16 @@ function lesDemo(kind) {
 }
 function lesDemoEnd(E) {   // what the end screen would show, made up from this lesson, with nothing saved
   if (E.part === 1) { const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: !s.today }; E.pay = null; E.step = 'done'; return; }
-  const lixi = E.test ? 0 : LX_PAY.m, proven = E.test ? 0 : Math.min(2, E.words.length);
+  const proven = E.test ? 0 : Math.min(2, E.words.length);
   if (E.test) { const of = Math.max(1, E.total - E.dropW); E.pct = Math.round((of - E.wrong) / of * 100); E.pass = E.pct >= UT_PASS; E.pts ||= E.settled * 15; }
-  else { E.pct = Math.round((E.nq - E.q.filter(x => x.again).length) / E.nq * 100); E.first = true; E.added = E.words; E.lixi = lixi; E.proven = proven;
+  else { E.pct = Math.round((E.nq - E.q.filter(x => x.again).length) / E.nq * 100); E.first = true; E.added = E.words; E.lxNew = E.demo === 'end'; E.proven = proven;
     const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: true }; E.unitNew = E.demo === 'unit'; }
-  const got = E.test ? E.pass ? PAY.unit : 0 : PAY.les + proven * PAY.word + lixi;
+  const got = E.test ? E.pass ? PAY.unit : 0 : PAY.les + proven * PAY.word;
   E.pay = got ? { n: got, bal: coinBal() + got } : null; E.step = 'done';
 }
 function lesDemoOn() {   // the end button of a demo: a unit's ending comic and finale (as after its last lesson), else back
   const E = S.les, un = E.test || LES(E.n).un, back = () => { S.les = null; goBack('#/course/' + unitLv(un)); };
+  if (E.step === 'done' && E.lxNew && LV_DUO[unitLv(un)]) lxDemo = lxWake = un + 'e';   // v3.82: Open your red envelope: it jumps awake on the path, pretend
   if (E.step !== 'done' || !E.unitNew) { back(); return; }
   const finale = () => { if (S.les !== E) return; E.step = 'unit'; E.cheered = false; lesPaint(); window.scrollTo(0, 0); };
   if (COMIC[un]) comicPlay(un, COMIC[un].pages.length - 1, finale, { demo: 1 }); else finale();
@@ -12999,7 +13190,8 @@ function devSheet() {
       ${p('devLesAns', 'Play: a right answer, then a wrong one', 'In Hu Hu’s challenge: the seal stamp, Shi Shi pops up and it moves on; then the quiet “This one was it” strip')}
       ${p('devLesQuit', 'Show: leaving part way', 'Tap X with 3 to go: Shi Shi, teary with his paws together, asks you to stay')}
       ${p('devLesHalf', 'Play: part 1 done', 'Half way there!: the station half filled with half a ring, what you traced, then Recall now plays part 2 (hanzi cards and writing from memory)')}
-      ${p('devLesEnd', 'Play: lesson done', 'The seals stamp, You earned (coins, red envelope, new words, streak), the unit bar fills, coins pour into the bag')}
+      ${p('devLesEnd', 'Play: lesson done', 'The seals stamp, You earned (coins, a red envelope to open, new words, streak), the unit bar fills, coins pour into the bag')}
+      ${p('devLesLixi', 'Play: red envelope', 'Back on the path the unit’s red envelope jumps awake. Tap it: it flies to the middle, bursts open and pours out its coins. Nothing is saved')}
       ${p('devLesUnit', 'Play: a unit’s last lesson', 'Unit complete!, then Continue plays the unit’s ending comic and its finale')}
       ${p('devLesFinale', 'Play: unit finale only', 'The medal, words learned, coins earned and what is up next')}
       ${p('devLesPass', 'Play: Hu Hu’s challenge passed', 'The result page after a won challenge, with the coins')}
@@ -13041,6 +13233,10 @@ function devSheet() {
       if (!at) { toast('Finish a lesson in this unit first'); return; }
       (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
     sh.querySelector('#devAuto').onclick = play(function autoplay() { ucAutoplay(); });
+    sh.querySelector('#devLesLixi').onclick = play(function redEnvelope() {
+      const un = ucMe(S.view === 'course' && lvHas(S.cLv) ? S.cLv : playLv() || 1);
+      if (!LV_DUO[unitLv(un)]) { lixiOpen((lxDemo = un + 'e')); return; }
+      lxDemo = lxWake = un + 'e'; S.instant = true; if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
     [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesHalf', 'half'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
       .forEach(([id, k]) => { sh.querySelector('#' + id).onclick = () => { LOG.add('dev', 'lesson ' + k); closeSheet(); setTimeout(() => lesDemo(k), 320); }; });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
