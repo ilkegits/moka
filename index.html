@@ -1152,7 +1152,10 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-buy.can .tm-tag{fill:#FFD43B}
 .tm-buy.can .tm-tagt{fill:#3A2508}
 .tm-buy.p1 .tm-tagt{fill:#1F9D3A}.tm-buy.p2 .tm-tagt{fill:#D9A300}.tm-buy.p3 .tm-tagt{fill:#E5322B}.tm-buy.p4 .tm-tagt{fill:#7E0E0E}   /* the price by how dear it is: green cheap, yellow middling, red dear, dark red dearest */
-.tm-buy.can.p2 .tm-tagt{fill:#3A2508}   /* yellow would vanish on the gold tag of one you can buy */
+.tm-buy.can.p2 .tm-tagt{fill:#3A2508}
+/* v4.07 (ilkem): the coin of one you can buy is a little bigger and turns over now and then, so it is easy to find */
+.tm-buy.can .tm-cg{transform-box:fill-box;transform-origin:center;animation:tmCoinSpin 2.8s ease-in-out infinite}
+@keyframes tmCoinSpin{0%,46%,100%{transform:scale(1.28)}12%{transform:scale(.08,1.28)}24%{transform:scale(1.28)}35%{transform:scale(.08,1.28)}70%{transform:scale(1.16)}}   /* yellow would vanish on the gold tag of one you can buy */
 .tm-pin.sel .tm-buy{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:50% 100%}
 .tm-price span{color:var(--muted);font-weight:600}
 .tm-card p.tm-price em{margin:0 0 0 6px}
@@ -1370,7 +1373,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-buy.can .tm-cg{animation:none;transform:scale(1.2)}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -10469,8 +10472,8 @@ const Trail = (() => {
     const can = !st.done && st.n >= st.total;
     if (!st.done) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2, tier = st.total <= 500 ? 1 : st.total <= 1000 ? 2 : st.total <= 2500 ? 3 : 4;   // 150-500, 600-1000, 1200-2500, 3000 and up
       return (can ? `<ellipse class="tm-ping" rx="7" ry="2.6" cy=".5"/>` : '') + `<ellipse class="tm-shade" rx="4.6" ry="1.6" cy=".6"/><g class="tm-buy p${tier}${can ? ' can' : ''}">
-        <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/>${coin(-5.5, -13.4, 11)}</g>
-        <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/>${coin(-W / 2 + 1.5, -13.2, 9.2)}<text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
+        <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/><g class="tm-cg">${coin(-5.5, -13.4, 11)}</g></g>
+        <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/><g class="tm-cg">${coin(-W / 2 + 1.5, -13.2, 9.2)}</g><text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
         <rect x="-13" y="-19" width="26" height="25" fill="transparent"/>`; }
     const w = c.w, top = c.h + 4, fresh = st.done && !st.seen;
     let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
@@ -13417,7 +13420,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.06';
+const APP_VERSION = '4.07';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
