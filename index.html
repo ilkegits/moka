@@ -1623,6 +1623,8 @@ svg.sil{filter:brightness(0);opacity:.28}
 .tab.on{color:var(--seal);font-weight:700}
 .tab.on svg.i{color:var(--seal-ink)}
 .tab:focus-visible{outline:2px solid var(--seal);outline-offset:-3px}
+/* v4.03: a red dot on Map when your coins can buy something there (mapCanBuy) */
+.tab.dot::after{content:"";position:absolute;top:5px;left:calc(50% + 6px);width:9px;height:9px;border-radius:50%;background:#FF3040;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(120,20,10,.35);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.tab-pill,.tab svg.i{transition:none}.tab-pill.go::before{animation:none}}
 
 /* ---------- read ---------- */
@@ -3819,6 +3821,8 @@ function renderTabs() {
   if (!bar.children.length) bar.innerHTML = '<span class="tab-pill"></span>' + TABS.map(([k, label, h, ik = k]) =>
     `<button class="tab" data-act="tab" data-h="${h}">${I[ik].replace('class="i"', 'class="i i-off"')}${IF[ik]}${label}</button>`).join('');
   $$('.tab', bar).forEach((b, j) => { b.classList.toggle('on', j === i); if (j === i) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const mt = $$('.tab', bar)[TABS.findIndex(t => t[0] === 'map')], dot = mapCanBuy();   // v4.03 (ilkem): a red dot on Map whenever your coins can buy something new there
+  if (mt) { mt.classList.toggle('dot', dot); mt.setAttribute('aria-label', dot ? 'Map: you can buy something' : 'Map'); }
   const pill = $('.tab-pill', bar), x = `translateX(calc(${i} * var(--tabw)))`;
   if (wasShown) { if (pill._i !== i && !pill._drag) { pill.classList.remove('go'); pill.offsetWidth; pill.classList.add('go'); } pill._i = i; pill._drag = false; pill.style.transform = x; return; }   // the bead stretches as it glides (not after a swipe, where it followed the finger)
   pill._i = i;
@@ -9686,6 +9690,7 @@ const FOOD = [
 const foodOf = id => FOOD.find(f => f.id === id);
 const foodOwns = id => !!db.foodOwn?.[id];
 const coinBal = () => Math.max(0, coinEarned() + (db.coinAdj || 0) - coinSpent());
+const mapCanBuy = () => { const b = coinBal(); return TRAIL.some(c => !monOwns(c.lv) && b >= c.price) || FOOD.some(f => !foodOwns(f.id) && b >= f.price); };   // something on either map you have the coins for (the Map tab's red dot)
 const coinFmt = n => n.toLocaleString('en');
 function takePay() {   // what came in since the bag was last filled on screen: { n, bal }, or null
   const t = coinEarned(), n = Math.max(0, t - (db.coinShown ?? 0));
@@ -13401,7 +13406,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.02';
+const APP_VERSION = '4.03';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
