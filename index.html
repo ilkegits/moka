@@ -1156,10 +1156,17 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .tm-buy.can .tm-tag{fill:#FFD43B}
 .tm-buy.can .tm-tagt{fill:#3A2508}
 .tm-buy.p1 .tm-tagt{fill:#1F9D3A}.tm-buy.p2 .tm-tagt{fill:#D9A300}.tm-buy.p3 .tm-tagt{fill:#E5322B}.tm-buy.p4 .tm-tagt{fill:#7E0E0E}   /* the price by how dear it is: green cheap, yellow middling, red dear, dark red dearest */
-.tm-buy.can.p2 .tm-tagt{fill:#3A2508}
-/* v4.07 (ilkem): the coin of one you can buy is a little bigger and turns over now and then, so it is easy to find */
-.tm-buy.can .tm-cg{transform-box:fill-box;transform-origin:center;animation:tmCoinSpin 2.8s ease-in-out infinite}
-@keyframes tmCoinSpin{0%,46%,100%{transform:scale(1.28)}12%{transform:scale(.08,1.28)}24%{transform:scale(1.28)}35%{transform:scale(.08,1.28)}70%{transform:scale(1.16)}}   /* yellow would vanish on the gold tag of one you can buy */
+.tm-buy.can.p2 .tm-tagt{fill:#3A2508}   /* yellow would vanish on the gold tag of one you can buy */
+/* v4.07 (ilkem): the coin of one you can buy is bigger and spins now and then, so it is easy to find. v4.14: half as big
+   again, brighter with a glow behind it, thick like a real coin (a darker side under it, its edge showing as it turns),
+   and turning on its own middle: canCoin draws it around 0 0, so the turn needs no reference box */
+.tm-cg,.tm-cedge,.tm-cglow{transform-box:view-box;transform-origin:0 0}
+.tm-cg{animation:tmCoinSpin 2.8s linear infinite}
+.tm-cedge{fill:#C47A08;stroke:#8A4A06;stroke-width:.5;animation:tmCoinEdge 2.8s linear infinite}
+.tm-cglow{fill:#FFE27A;animation:tmCoinGlow 2.8s ease-in-out infinite}
+@keyframes tmCoinSpin{0%{transform:scale(1.5,1.5)}0.917%{transform:scale(1.5,1.5)}1.833%{transform:scale(1.497,1.5)}2.75%{transform:scale(1.485,1.5)}3.667%{transform:scale(1.454,1.5)}4.583%{transform:scale(1.393,1.5)}5.5%{transform:scale(1.287,1.5)}6.417%{transform:scale(1.124,1.5)}7.333%{transform:scale(0.896,1.5)}8.25%{transform:scale(0.599,1.5)}9.167%{transform:scale(0.242,1.5)}10.083%{transform:scale(-0.16,1.5)}11%{transform:scale(-0.574,1.5)}11.917%{transform:scale(-0.961,1.5)}12.833%{transform:scale(-1.272,1.5)}13.75%{transform:scale(-1.462,1.5)}14.667%{transform:scale(-1.49,1.5)}15.583%{transform:scale(-1.337,1.5)}16.5%{transform:scale(-1.007,1.5)}17.417%{transform:scale(-0.534,1.5)}18.333%{transform:scale(0.04,1.5)}19.25%{transform:scale(0.583,1.5)}20.167%{transform:scale(1.063,1.5)}21.083%{transform:scale(1.386,1.5)}22%{transform:scale(1.5,1.5)}22.917%{transform:scale(1.386,1.5)}23.833%{transform:scale(1.063,1.5)}24.75%{transform:scale(0.583,1.5)}25.667%{transform:scale(0.04,1.5)}26.583%{transform:scale(-0.534,1.5)}27.5%{transform:scale(-1.007,1.5)}28.417%{transform:scale(-1.337,1.5)}29.333%{transform:scale(-1.49,1.5)}30.25%{transform:scale(-1.462,1.5)}31.167%{transform:scale(-1.272,1.5)}32.083%{transform:scale(-0.961,1.5)}33%{transform:scale(-0.574,1.5)}33.917%{transform:scale(-0.16,1.5)}34.833%{transform:scale(0.242,1.5)}35.75%{transform:scale(0.599,1.5)}36.667%{transform:scale(0.896,1.5)}37.583%{transform:scale(1.124,1.5)}38.5%{transform:scale(1.287,1.5)}39.417%{transform:scale(1.393,1.5)}40.333%{transform:scale(1.454,1.5)}41.25%{transform:scale(1.485,1.5)}42.167%{transform:scale(1.497,1.5)}43.083%{transform:scale(1.5,1.5)}44%{transform:scale(1.5,1.5)}72%{transform:scale(1.41)}100%{transform:scale(1.5)}}
+@keyframes tmCoinEdge{0%{transform:scale(0,1.5)}0.917%{transform:scale(0.024,1.5)}1.833%{transform:scale(0.095,1.5)}2.75%{transform:scale(0.211,1.5)}3.667%{transform:scale(0.367,1.5)}4.583%{transform:scale(0.557,1.5)}5.5%{transform:scale(0.771,1.5)}6.417%{transform:scale(0.993,1.5)}7.333%{transform:scale(1.203,1.5)}8.25%{transform:scale(1.375,1.5)}9.167%{transform:scale(1.48,1.5)}10.083%{transform:scale(1.491,1.5)}11%{transform:scale(1.386,1.5)}11.917%{transform:scale(1.152,1.5)}12.833%{transform:scale(0.794,1.5)}13.75%{transform:scale(0.338,1.5)}14.667%{transform:scale(0.174,1.5)}15.583%{transform:scale(0.68,1.5)}16.5%{transform:scale(1.111,1.5)}17.417%{transform:scale(1.402,1.5)}18.333%{transform:scale(1.5,1.5)}19.25%{transform:scale(1.382,1.5)}20.167%{transform:scale(1.059,1.5)}21.083%{transform:scale(0.574,1.5)}22%{transform:scale(0,1.5)}22.917%{transform:scale(0.574,1.5)}23.833%{transform:scale(1.059,1.5)}24.75%{transform:scale(1.382,1.5)}25.667%{transform:scale(1.5,1.5)}26.583%{transform:scale(1.402,1.5)}27.5%{transform:scale(1.111,1.5)}28.417%{transform:scale(0.68,1.5)}29.333%{transform:scale(0.174,1.5)}30.25%{transform:scale(0.338,1.5)}31.167%{transform:scale(0.794,1.5)}32.083%{transform:scale(1.152,1.5)}33%{transform:scale(1.386,1.5)}33.917%{transform:scale(1.491,1.5)}34.833%{transform:scale(1.48,1.5)}35.75%{transform:scale(1.375,1.5)}36.667%{transform:scale(1.203,1.5)}37.583%{transform:scale(0.993,1.5)}38.5%{transform:scale(0.771,1.5)}39.417%{transform:scale(0.557,1.5)}40.333%{transform:scale(0.367,1.5)}41.25%{transform:scale(0.211,1.5)}42.167%{transform:scale(0.095,1.5)}43.083%{transform:scale(0.024,1.5)}44%{transform:scale(0,1.5)}100%{transform:scale(0,1.5)}}
+@keyframes tmCoinGlow{0%,100%{opacity:.5;transform:scale(1.85)}22%{opacity:.75;transform:scale(2.2)}50%{opacity:.5;transform:scale(1.85)}}
 .tm-pin.sel .tm-buy{animation:tmPop .55s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:50% 100%}
 .tm-price span{color:var(--muted);font-weight:600}
 .tm-card p.tm-price em{margin:0 0 0 6px}
@@ -1377,7 +1384,7 @@ svg.sil{filter:brightness(0);opacity:.28}
 .mp-steps li:not(.done):not(.cur) .mp-st-n{color:var(--muted)}
 .mp-steps small{flex:none;font-size:12.5px;font-weight:600;color:var(--muted)}
 .mp-steps li.cur small{color:var(--seal)}
-@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-buy.can .tm-cg{animation:none;transform:scale(1.2)}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
+@media (prefers-reduced-motion:reduce){.tm-pin.sel .tm-buy{animation:none}.tm-cg{animation:none;transform:scale(1.4)}.tm-cedge{animation:none;transform:scale(0)}.tm-cglow{animation:none;opacity:.5;transform:scale(1.8)}.tm-ping,.tm-spark,.tm-bob,.tm-card,.tm-pin.sel .tm-mon,.tm-pin.sel .tm-ring,.mp-fw,.mp-enter{animation:none}.mp-fw{opacity:.9}
   .mp-scene.rv .mp-old{display:none}.mp-scene.rv .mp-new{opacity:1;animation:none}.mp-flash{display:none}.mp-built{animation:none;opacity:1}}
 .wt-ghost *{fill:none!important;stroke:var(--plan,#3F6A9A)!important;stroke-width:.9!important;stroke-dasharray:3 2}
 .wt-ghost circle,.wt-ghost text,.wt-ghost image,.wt-ghost pattern *{display:none}
@@ -10493,14 +10500,19 @@ const Trail = (() => {
   /* the monuments, small: the cut-out of its 3D picture standing on its spot (base at 0 0) */
   const cutout = c => { const k = c.h / (c.ic[1] - c.ic[2]); return `<image href="mon/${c.id}-i.webp" x="${f(-c.ic[0] * k)}" y="${f(-c.ic[1] * k)}" width="${f(k)}" height="${f(k)}"/>`; };
   const coin = (x, y, d) => coinSvg().replace('<svg class="coin"', `<svg x="${f(x)}" y="${f(y)}" width="${d}" height="${d}"`);
+  /* v4.14: the coin of one you can buy, centred on cx cy: a glow, its edge (seen as it turns), a darker side under it so it
+     looks thick, and a brighter face. tmCoinSpin turns it about its own middle. */
+  const canCoin = (cx, cy, d) => { const r = d / 2;
+    return `<g transform="translate(${f(cx)} ${f(cy)})"><circle class="tm-cglow" r="${f(r * 1.05)}"/><rect class="tm-cedge" x="${f(-d * .12)}" y="${f(-r + .4)}" width="${f(d * .24)}" height="${f(d - .8)}" rx="${f(d * .1)}"/>`
+      + `<g class="tm-cg"><circle cx="${f(d * .03)}" cy="${f(d * .1)}" r="${f(r * .9)}" fill="#B06A06" stroke="#8A4A06" stroke-width=".5"/>${coin(-r, -r, d).replace(/#FFC21F/g, '#FFD53A').replace(/#E89B0C/g, '#F4AE1A')}</g></g>`; };
   /* What stands on a monument's spot. Yours: the monument. One you do not own: a coin from far away, a price tag from
      closer (gold once you can pay for it), so the map is the shop window too. */
   function monument(c, st) {
     const can = !st.done && st.n >= st.total;
     if (!st.done) { const t = coinFmt(st.total), W = 15.5 + t.length * 4.2, tier = st.total <= 500 ? 1 : st.total <= 1000 ? 2 : st.total <= 2500 ? 3 : 4;   // 150-500, 600-1000, 1200-2500, 3000 and up
       return (can ? `<ellipse class="tm-ping" rx="7" ry="2.6" cy=".5"/>` : '') + `<ellipse class="tm-shade" rx="4.6" ry="1.6" cy=".6"/><g class="tm-buy p${tier}${can ? ' can' : ''}">
-        <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/><g class="tm-cg">${coin(-5.5, -13.4, 11)}</g></g>
-        <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/><g class="tm-cg">${coin(-W / 2 + 1.5, -13.2, 9.2)}</g><text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
+        <g class="tm-buy-far"><path class="tm-tagp" d="M-2.4 -3.6L0 .4L2.4 -3.6Z"/>${can ? canCoin(0, -7.9, 11) : coin(-5.5, -13.4, 11)}</g>
+        <g class="tm-buy-near"><path class="tm-tagp" d="M-2.6 -3.2L0 .4L2.6 -3.2Z"/><rect class="tm-tag" x="${f(-W / 2)}" y="-14.6" width="${f(W)}" height="12" rx="3.6"/>${can ? canCoin(-W / 2 + 6.1, -8.6, 9.2) : coin(-W / 2 + 1.5, -13.2, 9.2)}<text class="tm-tagt" x="${f(-W / 2 + 12.6)}" y="-5.9">${t}</text></g></g>
         <rect x="-13" y="-19" width="26" height="25" fill="transparent"/>`; }
     const w = c.w, top = c.h + 4, fresh = st.done && !st.seen;
     let s = `<ellipse class="tm-shade" rx="${w}" ry="4.6" cy="1"/><ellipse class="tm-ring" rx="${w + 5}" ry="7" cy="1.5"/>`;
@@ -13449,7 +13461,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.14';
+const APP_VERSION = '4.15';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
