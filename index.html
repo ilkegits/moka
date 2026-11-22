@@ -2260,7 +2260,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 /* v3.93, the unit scroll (ilkem: "take the scroll design ... without tianzige square ... the cool element of the ticket design was that
    there was some sort of seperation to the read section"): the level and your streak and coins in a row, then the unit on a
    handscroll between two wooden rods, faint 祥云 clouds on its paper (v3.94: with long tails, and no character on it any more).
-   A torn-ticket line, notches top and bottom, parts off Read */
+   A torn-ticket line, notches top and bottom, parts off Read (v3.95: just a book, in the Start buttons' pinkish red). The first time the
+   path shows in a session, the scroll comes rolled up in the middle and unrolls to both sides (scrUnroll) */
 .uc-pp>.bar{display:grid;grid-template-columns:auto 1fr;align-items:center;row-gap:10px;height:auto;padding:8px 12px 0}
 .uc-pp .uc-lv{margin-top:0;height:38px;gap:7px;padding:0 10px 0 6px;border-radius:13px;color:var(--ink);background:var(--card);box-shadow:0 0 0 1px rgba(120,95,60,.08),0 2px 0 rgba(120,95,60,.12)}
 .uc-pp .uc-lv b{font:900 15px/1 var(--ui);text-shadow:none}
@@ -2282,10 +2283,11 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-rod::before{top:-7px} .scr-rod::after{bottom:-7px}
 .scr-main,.scr-read{position:relative;margin:7px 0;background:#FBF3E4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='72' viewBox='0 0 120 72'%3E%3Cg fill='none' stroke='%23B23A2C' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' opacity='.12'%3E%3Cpath d='M48 26c-5 0-6-7 0-8 0-7 8-9 11-4 2-7 13-7 15 0 6-2 11 3 8 8 4 1 3 6-2 6ZM56 19c2-3 6-1 4 2M70 16c3-1 5 3 2 4M48 26C38 26 32 30 21 30 13 30 9 27 3 28M56 32C46 35 36 38 22 38 16 38 13 36 9 37'/%3E%3Cpath transform='translate(32 32)' d='M48 26c-5 0-6-7 0-8 0-7 8-9 11-4 2-7 13-7 15 0 6-2 11 3 8 8 4 1 3 6-2 6ZM56 19c2-3 6-1 4 2M70 16c3-1 5 3 2 4M48 26C38 26 32 30 21 30 13 30 9 27 3 28M56 32C46 35 36 38 22 38 16 38 13 36 9 37'/%3E%3C/g%3E%3C/svg%3E") 0 0/120px 72px;
   box-shadow:inset 0 5px 0 #C0392B,inset 0 -5px 0 #C0392B,inset 0 7px 0 #E9B949,inset 0 -7px 0 #E9B949}
-.scr-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin-left:-2px;padding:0 14px 0 18px;
+.scr-pap{flex:1;min-width:0;display:flex;margin:0 -2px}
+.scr-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:0 14px 0 18px;
   -webkit-mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat;
   mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top right/51% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom right/51% 51% no-repeat,linear-gradient(#000,#000) left/50% 100% no-repeat}
-.scr-read{flex:none;width:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;margin-right:-2px;border-left:2px dashed rgba(178,58,44,.42);background-position:-40px 0;
+.scr-read{flex:none;width:74px;display:flex;align-items:center;justify-content:center;border-left:2px dashed rgba(178,58,44,.42);background-position:-40px 0;
   -webkit-mask:radial-gradient(circle at 0 0,transparent 8px,#000 8.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 8px,#000 8.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat;
   mask:radial-gradient(circle at 0 0,transparent 8px,#000 8.5px) top left/51% 51% no-repeat,radial-gradient(circle at 0 100%,transparent 8px,#000 8.5px) bottom left/51% 51% no-repeat,linear-gradient(#000,#000) right/50% 100% no-repeat}
 .scr-txt{flex:1;min-width:0}
@@ -2297,10 +2299,9 @@ button.st-d:active{transform:scale(.9);transition:none}
 .scr-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#1E1A15,#4A433A)}
 .scr-pr em{display:flex;font:900 12.5px/1 var(--ui);font-style:normal;color:var(--ink-2)}
 .scr-pr em svg{width:14px;height:14px}
-.scr-read i{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--seal);color:#FFF8EC;box-shadow:0 3px 0 #7E1D19;transition:transform .1s,box-shadow .1s}
-.scr-read i svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
-.scr-read>span{font:900 10.5px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--seal)}
-.scr-read:active i{transform:translateY(2px);box-shadow:0 1px 0 #7E1D19}
+.scr-read i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:#fff;box-shadow:0 3px 0 #C01F2B,0 6px 10px -4px rgba(200,30,40,.5);transition:transform .1s,box-shadow .1s}
+.scr-read i svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linejoin:round;filter:drop-shadow(0 1px 0 rgba(90,10,5,.35))}
+.scr-read:active i{transform:translateY(2px);box-shadow:0 1px 0 #C01F2B}
 .scr.locked .scr-txt b{color:var(--ink-2)}
 @media (max-width:360px){.scr-txt b{font-size:18px}.scr-read{width:66px}}
 .uc-path .un-bg{background:none}
@@ -5133,10 +5134,21 @@ function ucHud(u) {
 const SCR_BOOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5C5.5 4.3 8.7 4.3 12 6c3.3-1.7 6.5-1.7 9-.5v13c-2.5-1.2-5.7-1.2-9 .5-3.3-1.7-6.5-1.7-9-.5z"/><path d="M12 6v13"/></svg>';
 function scrHead(u) {
   const st = unitState(u), n = st.ls.length, nd = st.won ? n : st.nd;
-  return `<span class="scr-rod"></span><div class="scr-main">
+  return `<span class="scr-rod"></span><div class="scr-pap"><div class="scr-main">
     <div class="scr-txt"><small>Unit ${unK(u)} · <span lang="zh">${esc(UNIT(u)[1])}</span></small><b>${esc(UNIT(u)[0])}</b>
       <span class="scr-pr" aria-label="${st.open ? `${nd} of ${n} lessons done` : 'Locked'}"><span class="scr-bar"><i style="width:${(n ? nd / n * 100 : 0).toFixed(1)}%"></i></span><em>${st.open ? `${nd}/${n}` : LOCK_I}</em></span></div></div>
-    <button class="scr-read" data-act="comic-replay" data-u="${u}" aria-label="Read the story of Unit ${unK(u)}"><i>${SCR_BOOK}</i><span>Read</span></button><span class="scr-rod"></span>`;
+    <button class="scr-read" data-act="comic-replay" data-u="${u}" aria-label="Read the story of Unit ${unK(u)}"><i>${SCR_BOOK}</i></button></div><span class="scr-rod"></span>`;
+}
+/* v3.95 (ilkem: "when u open the lessons page for the first time, the scroll is rolled up from both sides in the middle and unfolds"):
+   once a session, the two rods start side by side in the middle and roll out to the edges, the paper opening between them */
+let scrT0 = 0;   // when this session's unroll began; a scroll drawn again while it runs (the page drawn twice as it loads, a unit change) picks it up where it is
+function scrUnroll() {
+  const e = $('.scr'); if (!e || stillMotion()) return;
+  if (e.querySelector('.scr-pap').getAnimations().length) return;   // already rolling
+  const now = performance.now(); if (!scrT0) scrT0 = now; const t = now - scrT0; if (t > 1250) return;
+  const [l, r] = e.querySelectorAll('.scr-rod'), d = e.clientWidth / 2 - 14, o = { duration: 1000, delay: 200, easing: 'cubic-bezier(.3,.75,.25,1)', fill: 'backwards' };
+  [l.animate([{ transform: `translateX(${d}px)` }, { transform: 'none' }], o), r.animate([{ transform: `translateX(${-d}px)` }, { transform: 'none' }], o),
+    e.querySelector('.scr-pap').animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0 0 0)' }], o)].forEach(x => x.currentTime = t);
 }
 function UnitView(un) {
   const us = ucList(unitLv(un)), u = us.includes(un) ? un : us.at(-1), pp = unitLay(u) === 'path';
@@ -5207,7 +5219,7 @@ let ucNew = 0;   // a unit you just moved on into: its comic plays once you stop
 function ucSet(u) {
   if (u === ucU) return; if (ucU && u === ucU + 1) ucNew = u; else if (u < ucU) ucNew = 0; ucU = u; const us = ucList(unitLv(u)), b = $('.un-sign-board');
   if (b) { b.querySelector('small').textContent = `Unit ${unK(u)}`; b.querySelector('b').textContent = UNIT(u)[0]; }
-  const scr = $('.scr'); if (scr) { scr.dataset.u = u; scr.classList.toggle('locked', !unitOpen(u)); scr.innerHTML = scrHead(u); }
+  const scr = $('.scr'); if (scr) { scr.dataset.u = u; scr.classList.toggle('locked', !unitOpen(u)); scr.innerHTML = scrHead(u); scrUnroll(); }
   const pl = $('.uc-pill'); if (pl) { pl.querySelector('b').innerHTML = ucLabel(u); pl.querySelector('[data-uc="-1"]').disabled = u <= us[0]; pl.querySelector('[data-uc="1"]').disabled = u >= us.at(-1); }
   const cb = $('.uc [data-act="comic-replay"]'); if (cb) cb.dataset.u = u;
   const hud = $('.uc .un-hud'); if (hud) hud.innerHTML = ucHud(u);
@@ -5285,7 +5297,7 @@ function mountUnit(un) {
   else if (lxWake && ucPane$(parseInt(lxWake))?.querySelector('.pp-lx-wake')) { const wu = parseInt(lxWake), e = ucPane$(wu).querySelector('.pp-lx-wake'); ucFocus(wu, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, false); ucSet(wu); setTimeout(() => haptic(18), 900); lxWake = ''; }   // v3.82: back from the lesson that readied it, at the envelope as it jumps awake
   else if (LV_DUO[unitLv(go)] && go !== me && unitWon(go) && !lxGot(go, 'e') && ucPane$(go)?.querySelector('.pp-lx-e')) { const e = ucPane$(go).querySelector('.pp-lx-e'); ucFocus(go, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, false); }   // v3.49: a unit just finished: at its red envelope
   else if (shi && go === me) { const [fx, fy] = at(shi, shi.getAttribute('style')); ucFocus(me, fx, fy, false); } else if (ucV()) ucGo(go, false); else sc.scrollLeft = ucPane$(go).offsetLeft;
-  ucSet(go); ucPaint();
+  ucSet(go); ucPaint(); scrUnroll();
   let raf = 0, touch = false, idle = 0;
   const paintAhead = () => { clearTimeout(idle); idle = setTimeout(() => { if (!sc.isConnected || touch) return; ucPaint.did = 0; ucPaint(true); if (ucPaint.did) paintAhead(); }, 260); };   // one town at a time while nothing moves
   paintAhead();
@@ -13325,7 +13337,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.94';
+const APP_VERSION = '3.95';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
