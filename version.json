@@ -1,1 +1,1 @@
-{"version": "3.85", "notes": "The Maps button on the Map: its word always fits its little label now, which grows with the word instead of being a fixed size it spilled out of"}
+{"version": "3.86", "notes": "The big red Play button on the Map: \"Lesson 5 \u00b7 recall\" spilled out of it. Now the lesson is the big word and Recall sits on a small line under it, and a label that is still too wide shrinks to fit"}
