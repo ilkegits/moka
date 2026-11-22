@@ -6257,6 +6257,7 @@ function lesSheet(n) {   // tap a lesson on the path: its words, and Start
     <button class="btn btn-seal wide" data-act="les-go" data-n="${n}">${done ? 'Practise again' : 'Start lesson'}</button>`);
 }
 function lesRoute(n) {   // opening #/course/<level>/lesson/n
+  if (S.les?.demo && !S.les.test && S.les.n === n) return;   // a Developer demo (lesDemo) stays as it is
   const lv = LES(n)?.lv;
   if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { history.replaceState(history.state, '', '#/course/' + (lv || 1)); S.view = 'course'; S.cLv = lv || 1; S.cPart = null; S.cBasics = false; return; }
   if (S.les && !S.les.test && S.les.n === n && S.les.step !== 'done') return;   // back to a lesson you left: carry on
@@ -6264,7 +6265,7 @@ function lesRoute(n) {   // opening #/course/<level>/lesson/n
   if (S.H) startLesson(n);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n); render(); } }, () => toast('Lessons need the internet the first time'));
 }
-function startLesson(n) {
+function startLesson(n, demo) {
   const L = LES(n), words = L.words.map(lesRow), wt = lesWriteTasks(n, words, 4);
   // meet each word on its card; a word that brings one of the characters to write is traced right after it
   const q = words.flatMap(w => [{ t: 'meet', w }, ...wt.filter(x => x.w === w).map(x => ({ t: 'write', mode: 'trace', ...x }))]);
@@ -6275,7 +6276,7 @@ function startLesson(n) {
   q.push(...fl);
   S.les = { n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq: words.length, nWrite: q.filter(x => x.t === 'write').length, t0: Date.now(),
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
-  LOG.add('lesson-start', { n, title: L.title });
+  if (!demo) LOG.add('lesson-start', { n, title: L.title });
 }
 function utSheet(un) {   // tap a unit test on the path
   if (!unitDone(un)) { toast(`Finish the lessons in Unit ${unK(un)} first`); return; }
@@ -6287,6 +6288,7 @@ function utSheet(un) {   // tap a unit test on the path
     <button class="btn btn-seal wide" data-act="ut-go" data-u="${un}">${r?.pass ? 'Challenge him again' : 'Take the challenge'}</button>`);
 }
 function utRoute(un) {   // opening #/course/<level>/test/un
+  if (S.les?.demo && S.les.test === un) return;   // a Developer demo (lesDemo) stays as it is
   if (!UNIT(un) || !unitDone(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
   comicLoad(unitLv(un));   // the ending plays when he is beaten
   if (S.les && S.les.test === un && S.les.step !== 'done') return;
@@ -6298,7 +6300,7 @@ function utRoute(un) {   // opening #/course/<level>/test/un
    as long as asking every word. The four question kinds in turn, and two characters from memory a third and
    two thirds of the way in. No second tries and no pairs at the end; 80% right passes */
 const UT_PER = 3;   // words the final boss asks from each lesson
-function startUnitTest(un) {
+function startUnitTest(un, demo) {
   const ls = unitLessons(un), T = ['hz2en', 'en2hz', 'ear', 'py'];
   const proven = h => !!bankHas(h)?.pf?.at;
   const words = ls.flatMap(L => shuffle(L.words).sort((a, b) => proven(a) - proven(b)).slice(0, UT_PER)).map(lesRow);
@@ -6307,7 +6309,7 @@ function startUnitTest(un) {
   if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
   S.les = { test: un, n: ls.at(-1).n, words, pool: words, step: 'quiz', i: words.length, q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq,
     pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set() };
-  LOG.add('unit-test-start', { unit: un, questions: q.length });
+  if (!demo) LOG.add('unit-test-start', { unit: un, questions: q.length });
 }
 function lesWriteTasks(n, words, max = 2) {   // characters to write, each from a different word, the ones this lesson brings in first
   const before = new Set(LESSONS.slice(0, LES(n).i).flatMap(L => L.words.flatMap(hanChars)));
@@ -6411,7 +6413,7 @@ function lesWriteGraded(ok) {   // Next under the checked writing (or Got it / M
   if (++E.qi >= E.q.length) lesLast();
   lesGoOn();
 }
-const lesLast = () => S.les.test ? finishTest() : finishLesson();   // after the last step: the lesson's end, or a test's result
+const lesLast = () => S.les.demo ? lesDemoEnd(S.les) : S.les.test ? finishTest() : finishLesson();   // after the last step: the lesson's end, or a test's result
 function lesWriteMount() {   // start the stroke-by-stroke writing box (HanziWriter checks each stroke)
   const E = S.les, Q = E?.step === 'quiz' ? E.q[E.qi] : null;
   if (!Q || Q.t !== 'write' || E.ans != null) return;
@@ -6576,6 +6578,7 @@ function lesOnLabel(E) {
   return N.un !== (E.test || LES(E.n).un) ? `Start Unit ${unK(N.un)}` : 'Next lesson';
 }
 function lesOnward() {
+  if (S.les?.demo) { lesDemoOn(); return; }
   if (wordMileMoment(lesOnward)) return;   // v3.75 a words milestone reached in this lesson shows first, then the lesson carries on
   const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un);
   const back = () => { S.les = null; goBack('#/course/' + lv); };
@@ -6597,7 +6600,7 @@ function unitEndHtml() {
   const E = S.les, un = E.test || LES(E.n).un, lv = unitLv(un), ls = unitLessons(un), words = [...new Set(ls.flatMap(L => L.words))];
   const have = words.filter(h => bankHas(h)).length, proven = words.filter(h => bankHas(h)?.pf?.at).length;
   const coins = ls.filter(L => lesDone(L.n)).length * PAY.les + proven * PAY.word + (lxGot(un, 'm')?.n || 0) + (lxGot(un, 'e')?.n || 0) + (utPassed(un) ? PAY.unit : 0);
-  const n = lesUpNext(lv), N = n && LES(n), last = unitLast(un);
+  const n = E.demo ? UNIT(un + 1) && unitLessons(un + 1)[0]?.n : lesUpNext(lv), N = n && LES(n), last = unitLast(un);   // a Developer demo: as if this unit were done
   const next = !N ? '' : N.lv !== lv ? `<div class="ue-next"><small>Up next</small><b>${HSK_NAME(N.lv)}</b><span>Unit 1 · ${esc(UNIT(N.un)[0])}</span></div>`
     : `<div class="ue-next"><small>Up next</small><b>Unit ${unK(N.un)} · ${esc(UNIT(N.un)[0])}</b><span lang="zh">${esc(UNIT(N.un)[1] || '')}</span></div>`;
   return `<div class="les-end ue"><span class="les-end-shi">${shiFace('star')}</span>
@@ -6706,7 +6709,7 @@ function lesAct(k, b) {
     return;
   }
   if (k === 'end') { lesOnward(); return; }   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
-  if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test); lesPaint(true); window.scrollTo(0, 0); return; }
+  if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test, E.demo); if (E.demo) S.les.demo = 'retry'; lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
     if (k === 'opt' && E.ans == null) {
@@ -6723,7 +6726,7 @@ function lesAct(k, b) {
       }
       if (E.ok || Q.again || E.test) E.settled++;
       if (Q.t === 'en2hz' || Q.t === 'py') setTimeout(() => { if (S.les === E && !E.quiet) sayZh(Q.w.h); }, 350);
-      if (!Q.again) proveWord(Q.w.h, E.ok, !!E.test);   // a word already in your word bank, right again on another day; in a unit's final boss one right answer proves it
+      if (!Q.again && !E.demo) proveWord(Q.w.h, E.ok, !!E.test);   // a word already in your word bank, right again on another day; in a unit's final boss one right answer proves it
       LOG.add('lesson-answer', { n: E.n, type: Q.t, hz: Q.w.h, ok: E.ok });
       lesPaint(); if (E.ok) lesAutoNext(); return;
     }
@@ -6738,7 +6741,7 @@ function lesAct(k, b) {
         const ok = k === 'fyes';
         if (ok) { E.combo++; E.best = Math.max(E.best, E.combo); lesGain(Q.again ? 5 : 10 + 5 * Math.min(E.combo - 1, 3)); chime(); }
         else { E.combo = 0; if (!Q.again) { E.wrong++; E.missed.add(Q.w.h); E.q.push({ t: 'flip', w: Q.w, again: true }); } }
-        if (!Q.again) proveWord(Q.w.h, ok);
+        if (!Q.again && !E.demo) proveWord(Q.w.h, ok);
         LOG.add('lesson-card', { n: E.n, hz: Q.w.h, knew: ok, again: !!Q.again });
         lesStep();
       }
@@ -12613,7 +12616,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '3.76';
+const APP_VERSION = '3.77';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -12712,6 +12715,65 @@ function devLvNow() {
   const lv = playLv() || 1, un = lvUnits(lv).find(U => !utPassed(U.un)), mons = trailStates().filter(t => t.done).length;
   return `Now: ${un ? `${HSK_NAME(lv)}, Unit ${un.k} of ${lvUnits(lv).length}` : `every unit beaten`} · ${mons} of ${TRAIL.length} monuments${db.devLv ? ' · test levels (your real ones are kept)' : ''}`;
 }
+/* v3.77 Developer, Lessons: every moment around a lesson, played on a pretend lesson (E.demo) of the unit you are on.
+   Nothing is saved: no word is proven, no lesson is marked done, no coins, envelope or streak change, and nothing goes in
+   the activity log but the button you tapped. Its end button goes back to where you were */
+function lesDemo(kind) {
+  const lv = playLv() || 1, n = lesNext(lv) || lvLes(lv).at(-1)?.n || LESSONS[0].n, L = LES(n), test = ['answers', 'pass', 'fail'].includes(kind);
+  Promise.all([S.H ? 0 : loadHsk(), comicLoad(L.lv).catch(() => {})]).then(() => {
+    if (test) startUnitTest(L.un, 1); else startLesson(n, 1);
+    const E = S.les; E.demo = kind;
+    if (kind === 'fire') E.qi = Math.max(0, E.q.findIndex(x => x.t === 'flip'));
+    if (kind === 'quit') { E.qi = Math.max(1, E.q.length - 3); E.combo = E.best = 3; E.barT = 2; E.t0 = Date.now() - E.qi * 12e3; }
+    if (kind === 'answers') { E.qi = Math.max(0, E.q.findIndex(x => x.t !== 'write' && x.t !== 'ear')); E.settled = E.qi; E.combo = E.best = 2; E.barT = 1; }
+    if (['end', 'unit', 'finale', 'pass', 'fail'].includes(kind)) {
+      E.qi = E.q.length; E.settled = E.total; E.best = 6; E.combo = 0;
+      if (kind === 'fail') { E.wrong = Math.ceil(E.nq * .4); E.words.slice(0, E.wrong).forEach(w => E.missed.add(w.h)); }
+      E.wroteCh = E.q.filter(x => x.t === 'write').map(x => x.ch); E.pts = test ? 0 : 175; lesDemoEnd(E);
+      if (kind === 'finale') E.step = 'unit';
+    }
+    nav(test ? utUrl(L.un) : lesUrl(n));
+    if (kind === 'quit') setTimeout(() => { if (S.les === E) lesAct('quit'); }, stillMotion() ? 0 : 450);
+    if (kind === 'fire') lesDemoFire(E);
+    if (kind === 'answers') lesDemoAnswers(E);
+  }, () => toast('Lessons need the internet the first time'));
+}
+function lesDemoEnd(E) {   // what the end screen would show, made up from this lesson, with nothing saved
+  const lixi = E.test ? 0 : LX_PAY.m, proven = E.test ? 0 : Math.min(2, E.words.length);
+  if (E.test) { const of = Math.max(1, E.total - E.dropW); E.pct = Math.round((of - E.wrong) / of * 100); E.pass = E.pct >= UT_PASS; E.pts ||= E.settled * 15; }
+  else { E.pct = Math.round((E.nq - E.q.filter(x => x.again).length) / E.nq * 100); E.first = true; E.added = E.words; E.lixi = lixi; E.proven = proven;
+    const s = practiceStreak(); E.streak = { n: s.today ? Math.max(1, s.n) : s.n + 1, up: true }; E.unitNew = E.demo === 'unit'; }
+  const got = E.test ? E.pass ? PAY.unit : 0 : PAY.les + proven * PAY.word + lixi;
+  E.pay = got ? { n: got, bal: coinBal() + got } : null; E.step = 'done';
+}
+function lesDemoOn() {   // the end button of a demo: a unit's ending comic and finale (as after its last lesson), else back
+  const E = S.les, un = E.test || LES(E.n).un, back = () => { S.les = null; goBack('#/course/' + unitLv(un)); };
+  if (E.step !== 'done' || !E.unitNew) { back(); return; }
+  const finale = () => { if (S.les !== E) return; E.step = 'unit'; E.cheered = false; lesPaint(); window.scrollTo(0, 0); };
+  if (COMIC[un]) comicPlay(un, COMIC[un].pages.length - 1, finale, { demo: 1 }); else finale();
+}
+function lesDemoFire(E) {   // the bar catches fire: 2 in a row (amber), 3 (a flame at its tip), 5 (the blaze), then a wrong answer puts it out
+  const steps = [1, 2, 3, 4, 5, 6, 0]; let k = 0;
+  const next = () => {
+    const scr = $('#lesScr'); if (S.les !== E || !scr) return;
+    if (k === steps.length) { lesPaint(); return; }   // back in step with the card on screen; play on from here if you like
+    E.combo = steps[k++]; E.best = Math.max(E.best, E.combo); E.flash = 1; if (E.qi < E.q.length * .6 - 1) E.qi++;
+    const t = document.createElement('template'); t.innerHTML = lesTop(); scr.querySelector('.les-top')?.replaceWith(t.content); E.flash = 0;
+    if (E.combo) chime(); else buzz();
+    setTimeout(next, k === steps.length ? 2200 : 1500);
+  };
+  setTimeout(next, 900);
+}
+function lesDemoAnswers(E) {   // a right answer (seal, praise, Shi Shi pops up, it moves on by itself), then a wrong one
+  const pick = ok => { if (S.les !== E || E.ans != null || !$('#lesScr')) return false; const Q = E.q[E.qi]; Q.opts ||= lesOpts(Q);
+    const i = ok ? Q.opts.indexOf(Q.w) : Q.opts.findIndex(w => w !== Q.w); lesAct('opt', { dataset: { i } }); return true; };
+  const wrong = () => {   // once it has moved on: the next question, made a "Which one means" one if it is writing or listening
+    if (S.les !== E || !$('#lesScr')) return; if (E.ans != null) { setTimeout(wrong, 300); return; }
+    const Q = E.q[E.qi]; if (Q && (Q.t === 'write' || Q.t === 'ear')) { E.q[E.qi] = { t: 'en2hz', w: Q.w }; lesPaint(); }
+    setTimeout(() => pick(false), 1100);
+  };
+  setTimeout(() => { if (pick(true)) setTimeout(wrong, LES_AUTO + 600); }, 1200);
+}
 function devSheet() {
   const H = hotdPick();
   const now = !H ? 'Today’s character is not picked yet (the HSK list is still loading).'
@@ -12733,14 +12795,26 @@ function devSheet() {
       ${p('devSaved', 'Play: streak saved', 'What you see after a freeze covers a missed day')}
       ${p('devKept', 'Play: streak kept today', 'After your first practice of the day: the count goes up by one, today’s dot fills in')}
       ${p('devMile', 'Play: streak milestone', 'The celebration at 3, 7, 14, 30 days and on')}
-      ${p('devWords', 'Play: words milestone', 'The celebration at 25, 50, 75, 100, 150 proven words and on')}
       ${p('devCard', 'Play: 7-day streak card', 'The one-week celebration, then the streak card you can share')}
       ${p('devBack', 'Play: welcome back', 'After 3 or more days away, with the win-back offer')}
       ${p('devPay', 'Show: paywall layout', 'Preview only. Nothing can be bought')}
+    </div>
+    <div class="day-h" style="margin-top:20px">Lessons</div>
+    <p class="muted" style="margin:-2px 0 10px">Each moment plays on a pretend lesson from the unit you are on. Nothing is saved.</p>
+    <div class="list-group">
+      ${p('devLesFire', 'Play: the lesson bar catches fire', '2 in a row turns it amber, 3 lights a flame at its tip, 5 is a moving blaze, then a wrong answer puts it out')}
+      ${p('devLesAns', 'Play: a right answer, then a wrong one', 'In Hu Hu’s challenge: the seal stamp, Shi Shi pops up and it moves on; then the quiet “This one was it” strip')}
+      ${p('devLesQuit', 'Show: leaving part way', 'Tap X with 3 to go: Shi Shi, teary with his paws together, asks you to stay')}
+      ${p('devLesEnd', 'Play: lesson done', 'The seals stamp, You earned (coins, red envelope, new words, streak), the unit bar fills, coins pour into the bag')}
+      ${p('devLesUnit', 'Play: a unit’s last lesson', 'Unit complete!, then Continue plays the unit’s ending comic and its finale')}
+      ${p('devLesFinale', 'Play: unit finale only', 'The medal, words learned, coins earned and what is up next')}
+      ${p('devLesPass', 'Play: Hu Hu’s challenge passed', 'The result page after a won challenge, with the coins')}
+      ${p('devLesFail', 'Play: Hu Hu’s challenge not passed', 'Not quite yet, the words to look at again, and Try again')}
+      ${p('devWords', 'Play: words milestone', 'The celebration at 25, 50, 75, 100, 150 proven words and on, shown after a lesson')}
+      ${p('devEat', 'Play: Shi Shi eats a baozi', 'Back on the path after a lesson: the lid lifts, he eats it, hops on, and a friend level with the next lesson wakes up')}
       ${p('devComic', 'Play: a unit comic, both parts', 'Pick a unit, then tap through part 1 and the ending. Your own progress stays as it is')}
-      ${p('devEat', 'Play: Shi Shi eats a baozi', 'Opens the unit you are on as if you had just finished its last lesson: the lid lifts and he eats it')}
-      ${p('devAuto', 'Play: the whole course by itself', 'Shi Shi eats every baozi, beats Hu Hu and moves on, unit after unit, with no lessons. Your real levels come back at the end or when you tap Stop')}
       ${p('devComicEnd', 'Play: a unit comic, part 2 only', 'Pick a unit and go straight to its ending, the part that plays after Hu Hu\'s challenge')}
+      ${p('devAuto', 'Play: the whole course by itself', 'Shi Shi eats every baozi, beats Hu Hu and moves on, unit after unit, with no lessons. Your real levels come back at the end or when you tap Stop')}
     </div>
     <div class="day-h" style="margin-top:20px">Levels</div>
     <div class="list-group">
@@ -12773,6 +12847,8 @@ function devSheet() {
       if (!at) { toast('Finish a lesson in this unit first'); return; }
       (db.unitAt ||= {})[un] = at - 1; save(); if (S.view === 'course' && S.cUnit === un) render(); else nav(unitUrl(un)); });
     sh.querySelector('#devAuto').onclick = play(function autoplay() { ucAutoplay(); });
+    [['devLesFire', 'fire'], ['devLesAns', 'answers'], ['devLesQuit', 'quit'], ['devLesEnd', 'end'], ['devLesUnit', 'unit'], ['devLesFinale', 'finale'], ['devLesPass', 'pass'], ['devLesFail', 'fail']]
+      .forEach(([id, k]) => { sh.querySelector('#' + id).onclick = () => { LOG.add('dev', 'lesson ' + k); closeSheet(); setTimeout(() => lesDemo(k), 320); }; });
     sh.querySelector('#devComicEnd').onclick = unitPick('Which ending?', function comicEnding(un) { comicPlay(un, COMIC[un].pages.length - 1, null, { demo: 1, label: 'Close' }); });
     const lvGo = (what, f, msg) => () => { LOG.add('dev', what); f(); save(); closeSheet(); setTimeout(() => { S.instant = true; if (S.view === 'course') render(); else nav('#/course/' + (playLv() || 1)); toast(msg); }, 300); };
     sh.querySelector('#devLvMax').onclick = lvGo('levels max', devLvMax, 'Every level is maxed out');
