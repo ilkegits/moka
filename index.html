@@ -2326,6 +2326,16 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pp-go-t{display:block;max-width:150px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 11.5px/1.25 var(--ui);color:var(--seal)}   /* v3.98: the flag names the lesson, since the card at the bottom is gone */
 .pp-go::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:0 0 3px 0;background:var(--card);transform:rotate(45deg);box-shadow:2px 2px 0 var(--line-2),3px 4px 0 var(--line-2)}
 .un-node[data-s="cur"] .pp-go{display:block}
+/* v4.01: tap the lesson that is next and a slim card opens under it, its words and the one Start (ppTip) */
+.un-node.tip .pp-go{display:none!important}
+.pp-tip{position:absolute;z-index:6;padding:10px 12px 12px 14px;border-radius:18px;background:var(--card);text-align:left;box-shadow:0 0 0 2px var(--line-2),0 16px 28px -14px rgba(50,25,8,.55);animation:ppTipIn .18s ease-out}
+.pp-tip::before{content:"";position:absolute;left:var(--ax);top:-7px;width:14px;height:14px;margin-left:-7px;border-radius:3px 0 0 0;background:var(--card);transform:rotate(45deg);box-shadow:-2px -2px 0 var(--line-2)}
+.pp-tip small{display:block;font-size:11.5px;font-weight:700;color:var(--seal)}
+.pp-tip b{display:block;margin:1px 0 2px;font:600 16.5px/1.2 var(--display);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-tip i{display:block;font-style:normal;font-family:var(--hanzi);font-size:13.5px;letter-spacing:.04em;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-tip .pp-tip-go{display:flex;align-items:center;justify-content:center;width:100%;height:44px;margin-top:10px;padding:0;font-size:16px}
+@keyframes ppTipIn{from{opacity:0;transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.pp-tip{animation:none}}
 @keyframes ppBob{50%{transform:translateY(-5px)}}
 @keyframes ppRing{50%{transform:scale(1.09);opacity:.45}}
 @keyframes ppPop{35%{transform:translate(-50%,-50%) scale(1.24)}70%{transform:translate(-50%,-50%) scale(.95)}}
@@ -6775,6 +6785,29 @@ function lxShow(look, n, from, done) {
   });
   at(fl + 1100, open);
 }
+/* v4.01 (ilkem: "i also want the tap to open pls, maybe make it just a bit slimmer"): on the path, tapping the lesson that is
+   next opens a slim card under it with its words and the one Start. Tapping the lesson again, or anywhere else, closes it.
+   It lives in the scrolling strip so it moves with the path */
+function ppTipClose() {
+  const t = $('.pp-tip'); if (!t) return false; t.remove();
+  $$('.un-node.tip').forEach(b => { b.classList.remove('tip'); b.setAttribute('aria-expanded', 'false'); }); return true;
+}
+function ppTip(node) {
+  const was = node.classList.contains('tip'); ppTipClose(); if (was) return;
+  const n = +node.dataset.n, L = LES(n), strip = node.closest('.uc-strip'), pane = node.closest('.uc-pane'), sc = $('.uc-scroll'); if (!L || !strip || !pane || !sc) return;
+  const half = lesHalf(n), sp = (node.querySelector('.un-spot') || node).getBoundingClientRect(), R = strip.getBoundingClientRect(), P = pane.getBoundingClientRect();
+  const w = Math.min(290, P.width - 32), cx = sp.left + sp.width / 2, x = Math.max(P.left + 16, Math.min(cx - w / 2, P.right - 16 - w));
+  const t = document.createElement('div'); t.className = 'pp-tip'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-label', `Lesson ${L.k}, ${L.title}`);
+  t.style.cssText = `left:${x - R.left}px;top:${sp.bottom - R.top + 14}px;width:${w}px;--ax:${cx - x}px`;
+  t.innerHTML = `<small>Lesson ${L.k} of ${unitState(L.un).ls.length}${half ? ' · part 2' : ''}</small><b>${esc(L.title)}</b><i lang="zh">${L.words.map(esc).join(' ')}</i>
+    <button class="btn btn-seal pp-tip-go" data-act="les-node" data-n="${n}" data-go="1">${half ? 'Recall' : 'Start'}</button>`;
+  strip.appendChild(t); node.classList.add('tip'); node.setAttribute('aria-expanded', 'true');
+  const low = t.getBoundingClientRect().bottom - (sc.getBoundingClientRect().bottom - 110);   // keep it clear of the tab bar
+  if (low > 0) sc.scrollBy({ top: low, behavior: stillMotion() ? 'auto' : 'smooth' });
+  t.querySelector('button').focus({ preventScroll: true });
+}
+document.addEventListener('pointerdown', e => { if ($('.pp-tip') && !e.target.closest('.pp-tip, .un-node.tip')) ppTipClose(); }, true);
+addEventListener('keydown', e => { if (e.key === 'Escape') ppTipClose(); });
 function lesSheet(n) {   // tap a lesson on the path. v3.84 (ilkem: "when u click the lesson circle u start the lesson asap without
   // friction... if u wanna redo it, then the system will ask which of the 2 u wanna do"): a lesson not done yet starts its next
   // part right away (lesStart picks it); a done one asks which part to do again
@@ -13368,7 +13401,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.00';
+const APP_VERSION = '4.01';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14313,7 +14346,7 @@ const A = {
   'crs-soon': t => toast(`${HSK_NAME(+t.dataset.lv)} is coming soon`),   // a level with no lessons yet (HSK 7)
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
-  'les-node': t => loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')),
+  'les-node': t => (!t.dataset.go && t.matches('.uc-path .un-node[data-s="cur"]') && LV_DUO[LES(+t.dataset.n)?.lv] ? (haptic(8), ppTip(t)) : (ppTipClose(), loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')))),
   'les-go': t => { closeSheet(true); lesStart(+t.dataset.n, +t.dataset.p || 0); },
   'jump-node': t => loadHsk().then(() => jumpSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'jump-go': t => { closeSheet(true); if (S.les?.jump) S.les = null; nav(jumpUrl(+t.dataset.u)); },
