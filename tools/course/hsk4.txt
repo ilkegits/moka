@@ -1,10 +1,10 @@
 # HSK 4 lesson plan: 16 units, 127 lessons, 990 words
 
 ## Food and drink | 美食 | Shi Shi offers to cook the festival dinner at the teahouse, but he cannot read one dish or taste on Gun Gun's recipe
-Meals: 食物 食品 美食 早餐 午餐 晚餐 中餐 快餐
+Meals: 食物 食品 美食 早餐 午餐 晚餐 中餐 快餐 汤
 Eating out: 餐厅 食堂 顿 订 排 排队 够 不够 剩
 Tastes: 味 味道 闻 香 辣 酸 咸 苦 鲜
-In the kitchen: 厨房 厨师 刀 西红柿 油 盐 汤 烤 熟
+In the kitchen: 厨房 厨师 刀 西红柿 油 盐 烤 熟 生#2
 A party: 聚 聚会 聚餐 邀请 庆祝 祝 祝贺 红包
 Snacks: 零食 小吃 饼干 巧克力 酸奶 馒头 月饼
 Drinks: 果汁 汽水 茶叶 葡萄 葡萄酒 白酒 倒 干杯
@@ -13,18 +13,18 @@ Drinks: 果汁 汽水 茶叶 葡萄 葡萄酒 白酒 倒 干杯
 Push and pull: 拉 推 按 拍 敲 响 挂
 Broken: 破 掉 修 修理 弄 师傅
 Tidying up: 收拾 整理 装 乱 扔 垃圾 桶 袋子
-Describing things: 厚 细 粗 轻 深 低 亮 满 空
+Describing things: 厚 细 粗 轻 重#2 深 低 满 空
 At home: 客厅 大厅 窗 窗户 院子 家具 钥匙 盒子
 Clothes: 外套 毛衣 帽子 袜子 皮鞋 眼镜 背包 戴 脱
 Renting a room: 租 出租 房东 房租 地址 费 费用 收费
-Town and country: 城 村 农村 区 市区 郊区 首都
+Town and country: 城 村 农村 区 市区 郊区 首都 省
 
 ## Body and health | 体检 | Bao Bao wakes up coughing, and at the clinic Shi Shi cannot tell the doctor where it hurts
 Life: 生 活 死 生命 人生 一生 日子
 Body: 身 全身 鼻子 胳膊 肚子 皮肤 血 流
 Body moves: 动作 步 抬 抬头 点头 举 抱 背 指
 Sleep: 困 躺 醒 梦 做梦 晚安 夜 夜晚 早晨
-Danger: 危险 严重 受伤 火 着火 烟 吸
+Danger: 危险 严重 受伤 火 着火 着 烟 吸
 Getting clean: 厕所 镜子 毛巾 纸巾 牙膏 擦 理发 卫生
 At the clinic: 大夫 护士 体检 体温 打针 咳 咳嗽 痛 头痛
 Keeping fit: 健身 健身房 力气 散步 体重 汗 功夫
@@ -50,20 +50,20 @@ On time: 准时 按时 及时 迟 推迟 提前 来得及 来不及 错过
 Flying: 航班 登机 安检 转机 换乘 降落 签证 使馆 旅客
 
 ## Trips and nature | 旅行 | Shi Shi leads his friends up the forest path behind the temple, but he cannot read the weather notice as the sky turns dark
-Sky, land and sea: 阳光 光 云 星星 土 江 海洋
-Weather: 气候 气 空气 吹 寒冷 暖和 凉
+Sky, land and sea: 阳光 光 亮 云 星星 土 江 海洋
+Weather: 气候 气 空气 吹 寒冷 暖和 干 凉
 Temperature: 温度 气温 高温 低温 降温 零下 摄氏度
 In the forest: 森林 树林 棵 叶子 鲜花 熊 老虎
-Protecting nature: 自然 大自然 植物 保护 环保 污染 塑料
+Protecting nature: 自然 大自然 植物 种 保护 环保 污染 塑料
 The world: 地球 全球 国际 亚洲 民族 东部 西部 南部 北部
-On holiday: 旅行 度假 旅馆 入住 假日 节假日 暑假 寒假
+On holiday: 旅行 度假 旅馆 入住 假日 节假日 暑假 寒假 空#2
 Sightseeing: 景点 景区 景色 美景 风景 参观 游玩
 
 ## Shops and post | 购物 | A parcel is waiting for Shi Shi at the post office, but he cannot work out the weight, the fee or how to pay for it
 Shopping: 购物 购买 逛 顾客 商品 货 牌 牌子 质量
 Prices: 价格 价钱 高价 低价 降价 打折 免费 值 值得
 Paying: 付 支付 交 现金 零钱 零花钱 结账 扫码 网购
-Count and weigh: 数 数字 人数 算 倍 量 克 千克
+Count and weigh: 数 数字 人数 算 倍 量 克 两 千克
 Many and few: 许多 大量 少量 多数 少数 数量 丰富 缺 缺少
 News: 消息 信息 通知 广播 播放 收听 联系 转发
 Post office: 寄 快递 上门 取 回信 短信 回复 发送 发出
@@ -92,7 +92,7 @@ Jokes: 开玩笑 笑话 好笑 幽默 有趣 无聊 猜
 ## Work | 办公 | Shi Shi wants the job of ringing the great gong, but he cannot fill in the form or get through the interview
 In charge: 负责 负责人 责任 管 管理 项 任务 安排
 Business: 生意 市场 经济 广告 推出 厂 工厂 竞争
-Pay: 工资 收入 奖金 赚 省 节约 浪费
+Pay: 工资 收入 奖金 赚 节约 浪费
 At the office: 办公 办事 办理 单位 部 部门 出差
 Printing: 文件 资料 材料 打印 打印机 复印 份
 Dates and times: 日期 月份 底 年底 末 世纪 时间表 秒
@@ -112,7 +112,7 @@ Memories and dreams: 回忆 印象 难忘 日记 梦想 理想 永远
 ## Getting along | 性格 | Shi Shi and Gun Gun fall out over a careless word at the teahouse, and he does not know how to talk it over
 Talking it over: 谈 讨论 商量 交流 建议 提醒 解释
 Speaking up: 提 提出 提到 指出 表示 表现 喊
-Yes and no: 嗯 答应 接受 拒绝 允许 禁止 千万
+Yes and no: 嗯 啊 答应 接受 拒绝 允许 禁止 千万
 Ways and views: 法 看法 想法 说法 做法 主意 意见
 Praise and blame: 表扬 鼓励 支持 尊重 重视 批评 反对 误会
 Character: 性格 脾气 态度 样子 优点 缺点 好处 坏处
@@ -124,13 +124,13 @@ Cause and effect: 原因 结果 情况 引起 产生 效果 有效
 Plans and goals: 计划 定 目标 目的 过程 条件 关键 重点
 Thinking: 考虑 理解 判断 估计 熟悉 怀疑 肯定 确实
 Finding out: 调查 研究 查看 证 证明 保证 总结
-Parts and kinds: 部分 方面 方式 内容 特点 区别 多样
+Parts and kinds: 部分 方面 方式 内容 特点 区别 多样 等
 Plain or complex: 普通 普遍 正常 正式 基本 基本上 直接 复杂
 Same and different: 相同 同样 相反 相互 互相 共 共同
 Explaining: 说明 说明书 详细 举例 例子 例如 叫作
 
 ## Making changes | 改变 | The little market is moving to a new square, and Shi Shi cannot follow what will change, what goes up and what has to stop
-Change: 改 改变 适应 养成 成为 当 分为
+Change: 改 改变 适应 养成 成为 为 当 分为
 Getting in: 入 进入 加入 通 通过 出现 活动
 Able to: 能力 能够 无法 适合 面对 经历 经验
 Start and stop: 继续 进行 顺利 举行 举办 停止 暂停 取消

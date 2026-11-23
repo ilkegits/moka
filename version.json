@@ -1,1 +1,1 @@
-{"version": "4.41", "notes": "The HSK lists follow the official HSK 3.0 syllabus (2025): 839 missing words added (HSK 1 now has 你好, 这个, 那个, 哪个, 一下, 没事), about 140 wrong readings fixed (吗, 狮子, 趟, 金子), and every new HSK 1-6 word sits in a lesson that fits it"}
+{"version": "4.42", "notes": "Every HSK level has exactly the official HSK 3.0 word count (300, 200, 500, 1,000, 1,600, 1,800, 5,600): a word the syllabus lists twice has both listings, each with its own meaning and lesson (点 o'clock at HSK 1, to order at HSK 2; 只 zhī at HSK 1, zhǐ at HSK 3)"}

@@ -1,4 +1,4 @@
-# HSK 7-9 lesson plan: 60 units, 526 lessons, 5562 words
+# HSK 7-9 lesson plan: 60 units, 526 lessons, 5600 words
 
 ## The body | 身躯 | A guard at the city gate asks where Shi Shi hurts after his long walk, and he cannot name a single part of himself
 Face and throat: 嘴唇 脸颊 须 秃 喉咙 咽喉 咽 气管 腔 五官 面孔
@@ -10,17 +10,17 @@ Chew, lick, doze: 啃 嚼 咀嚼 舔 叼 咧嘴 呻吟 酣睡 打盹儿 沉睡 �
 The whole body: 身子 身躯 浑身 肌肤 裸 裸露 生理 体质 姿态 个头儿 裸体
 Strong and nimble: 壮 健壮 硬朗 单薄 敏捷 灵敏 灵巧 利索 松弛 体魄 迟钝
 Tired and stiff: 疲惫 疲倦 劳累 僵 僵硬 虚弱 衰弱 麻痹 瘫 瘫痪 憔悴
-Blind, deaf, lame: 瞎 失明 聋 哑 口吃 瘸 伤残 畸形 拐杖
+Blind, deaf, lame: 瞎 失明 聋 哑 口吃 瘸 伤残 畸形 拐杖 麻
 
 ## Looking and posture | 眼神 | A pickpocket is eyeing Shi Shi's bag in the noisy gate crowd, but he cannot describe what he saw or heard
 Stare and study: 盯 瞪 注视 凝视 直视 审视 打量 瞅 偷窥
-Eyes and senses: 亲眼 目睹 观望 察看 视线 视野 眼神 眼色 嗅觉 触觉
-Look, listen, sniff: 俯视 仰望 眺望 围观 聆听 嗅 背影 刺眼 显露
+Eyes and senses: 亲眼 目睹 观望 察看 视线 视野 眼神 眼色 嗅觉 触觉 呛#2
+Look, listen, sniff: 俯视 仰望 眺望 围观 聆听 嗅 背影 刺眼 显露 晃
 Blank looks, blinks: 神情 神态 神气 愣 发呆 发愣 出神 眨眼 眯
 Signs and traces: 身影 轮廓 醒目 显眼 抢眼 隐形 隐约 气息 踪迹 足迹
 Loud and clear: 响亮 洪亮 清脆 悦耳 刺耳 喧闹 嘈杂 喧哗 哗然 动静 嗓音
 Stand, sit, lie: 站立 屹立 耸立 耸 就座 趴 卧 倚 垂 翘 俯首
-Shake and tremble: 抖 颤抖 发抖 哆嗦 晃 摇晃 摇摆 摆动 晃荡 震 震动
+Shake and tremble: 抖 颤抖 发抖 哆嗦 晃#2 摇晃 摇摆 摆动 晃荡 震 震动
 Roll, float, turn: 振动 跳动 滚动 飘扬 漂浮 盘旋 静止 动弹 扭头 掉头 漂流
 Tower, topple, scatter: 矗立 竖立 舒展 坠落 散落 倾倒 穿梭 潜入 飘浮
 Written on the face: 目不转睛 目瞪口呆 面红耳赤 眉开眼笑 容光焕发 愁眉苦脸 垂头丧气 无精打采 东张西望 左顾右盼
@@ -37,17 +37,17 @@ On the road idioms: 东奔西走 风餐露宿 不辞而别 争先恐后 大街�
 ## Busy hands | 亲手 | A porter at the gate drops his load and asks Shi Shi to carry, pull and tie it, but Shi Shi mixes up every order
 Hold and carry: 持 扛 拎 挎 驮 捎 揣 搀 挽 拄 背负
 Reach and touch: 伸手 亲手 出手 触摸 抚摸 捏 掐 抠 勾 搂 揽
-Rub and smear: 磨 抹 涂 糊 搓 揉 蹭 挠 挤压
-Pull and twist: 扯 拽 拔 揪 扳 撬 掰 拧 绷 拨
+Rub and smear: 磨 抹 涂 糊 搓 揉 蹭 挠 挤压 拧
+Pull and twist: 扯 拽 拔 揪 扳 撬 掰 拧#2 绷 拨
 Throw and strike: 甩 撇 抡 扬 投射 砸 捶 磕 戳 捅 挥舞
 Cut and tear: 撕 剥 扒 削 截 劈 斩 切割 分割 分成 粉碎
 Tie and wrap: 绑 捆 拴 缠 缠绕 裹 勒 绞 叠 折叠
 
 ## Handling things | 放置 | Yu Tu is tidying her cluttered little shop by the city wall and Shi Shi keeps putting everything in the wrong place
-Put and hang: 置 放置 搁 挪 卸 托 悬 悬挂 张贴 闲置
-Cover and uncover: 蒙 遮 遮盖 遮挡 捂 敞开 揭 掀 掀起 豁
+Put and hang: 置 放置 搁 挪 卸 托 悬 悬挂 张贴 闲置 码#2
+Cover and uncover: 蒙#2 遮 遮盖 遮挡 捂 敞开 揭 掀 掀起 豁
 Pour, soak, mix: 灌 注 浸泡 沾 冲洗 过滤 掺 搅 夹杂
-Dig and fish out: 挖掘 发掘 刨 淘 捞 打捞 埋藏 探 捕捉
+Dig and fish out: 挖掘 发掘 刨 淘 捞 打捞 埋藏 探 捕捉 撒
 Get rid of: 清除 除去 去除 剔除 丢弃 遗失 销毁 焚烧 点火 废弃
 Pick and swap: 拣 选用 替换 借用 退回 返还 索取 仿 效仿 分发 物色
 Mend and fix: 修补 打磨 凑 疏通 填补 填充 密封 锁定 镶 拼接 翻新
@@ -55,7 +55,7 @@ Mend and fix: 修补 打磨 凑 疏通 填补 填充 密封 锁定 镶 拼接 �
 ## Illness and cures | 就医 | Bao Bao faints in the street and Shi Shi has to explain what is wrong at the city clinic
 Serious illness: 癌 癌症 肿瘤 恶性 良性 艾滋病 糖尿病 高血压 精神病 抑郁症 痴呆
 Symptoms: 病症 发热 呕吐 腹泻 胀 疙瘩 上火 紊乱 衰竭 气色 病历
-Sudden or lasting: 急性 慢性 发作 复发 后遗症 副作用 瘾 戒 瘟疫 并发症
+Sudden or lasting: 急性 慢性 发作 复发 后遗症 副作用 瘾 戒 瘟疫 并发症 涨
 Wounds: 创伤 伤势 伤痕 疤 骨折 流血 包扎 绷带 敷 愈合 缝合
 Out cold: 昏 昏迷 休克 窒息 麻醉 催眠 苏醒 救治 输血 输液 溺水
 Seeing a doctor: 就医 就诊 求医 诊所 医务 临床 会诊 确诊 化验 阳性 阴性
@@ -79,7 +79,7 @@ Vegetables: 萝卜 南瓜 蘑菇 红薯 葱 姜 蒜 豆子 素食 荤
 Nuts and fruit: 核桃 芝麻 瓜子 莲子 枣 柿子 椰子 蜂蜜 淀粉 坚果
 Seasoning: 调料 香料 味精 香油 蘸 麻辣 火辣辣 腥 焦 作料
 Flavour: 滋味 风味 鲜美 醇厚 酥 油腻 热腾腾 馋 富含 苦涩 品味
-Meals: 伙食 膳食 便饭 就餐 酒楼 料理 丰盛 佳肴 忌口 碟
+Meals: 伙食 膳食 便饭 就餐 酒楼 料理 丰盛 佳肴 忌口 碟 粉丝
 Feasts and snacks: 盛宴 菜肴 夜宵 享用 贪吃 狼吞虎咽 解渴 小菜一碟 馅 丸子
 Ham, tins, treats: 熏 卤味 火腿 虾 罐头 易拉罐 乳制品 口香糖 冰棍儿 奶酪 螃蟹
 
@@ -99,11 +99,11 @@ Around town: 巷 临街 过道 天桥 礼堂 堂 坛 亭子 喷泉 绿地 集市
 Workshop tools: 锤 钉 钉子 螺丝 斧子 凿 铲 钩 夹子 梯子 杠杆
 Poles and baskets: 杆 筒 筐 筛 框 罩 绳子 把手 包袱 容器 火炬
 Parts and gear: 装置 零件 部件 配件 器材 器械 秤 天平 温度计 望远镜 玩意儿
-Gadgets and gizmos: 器具 支架 磁铁 半导体 便携式 按钮 拉链 锡纸 显微镜
+Gadgets and gizmos: 器具 支架 磁铁 半导体 便携式 按钮 拉链 锡纸 显微镜 卡
 Metal, gems, rubber: 铁 钢铁 锈 玉 钻石 水晶 宝石 宝藏 晶莹 橡胶 纤维
 Light and fire: 光芒 光辉 光彩 光环 荧光 耀眼 闪烁 照耀 火焰 火花 灼热
 Shape and surface: 扁 凹 凸 棱角 光滑 锋利 黏 稠 质地 人造 复合
-Holes and cracks: 孔 口子 窟窿 缺口 裂缝 裂痕 斑点 阴影 阴暗 瑕疵
+Holes and cracks: 孔 口子 窟窿 缺口 裂缝 裂痕 斑点 阴影 阴暗 瑕疵 缝#2
 Scraps and foam: 渣 粉末 颗粒 泡沫 气泡 海绵 膜 废物 废品 污秽 实物
 
 ## Family and love | 家族 | A lost little cub in the lantern street is crying for her family, and Shi Shi cannot work out who her relatives are
@@ -129,7 +129,7 @@ Ups and downs idioms: 悲欢离合 喜怒哀乐 天伦之乐 天长地久 苦尽
 
 ## People and society | 阶层 | At the crowded bridge market Shi Shi meets beggars, gentlemen and marchers all at once, and cannot tell who is who
 Names for people: 家伙 丫头 少女 老人家 诸位 同胞 老乡 乡亲 常人 老大 巨人
-Fools and novices: 傻瓜 笨蛋 疯子 胆小鬼 小人 无赖 乞丐 新手 外行
+Fools and novices: 傻瓜 笨蛋 疯子 胆小鬼 小人 无赖 乞丐 新手 外行 大意#2
 Experts and elders: 行家 内行 能人 精英 栋梁 泰斗 元老 前辈 绅士 君子
 Rich and poor: 阶级 阶层 底层 弱势 贫穷 小康 乞讨 剥削 压榨 上层 卑微
 Charity: 慈善 捐献 募捐 救济 抚恤 义工 造福 社团 团员 共同体 基金会
@@ -153,12 +153,12 @@ Trees: 松树 柏树 柳树 杨树 槐树 树梢 树荫 竹竿 挺拔 丛 丛林
 Flowers: 花卉 花瓣 百合 牡丹 荷花 桂花 盛开 绽放 芬芳 茉莉 花蕾
 Sprouts and growth: 苗 芽 茎 萌芽 萌发 扎根 生机 茂盛 茂密 发芽 茁壮
 Trunks and vines: 树干 年轮 藤蔓 草丛 籽 砍伐 凋谢 枯萎 干枯
-Fields and crops: 田野 耕地 开垦 荒 作物 禾苗 稻草 麻 棉花 盛产
+Fields and crops: 田野 耕地 开垦 荒 作物 禾苗 稻草 麻#2 棉花 盛产
 Growing things: 栽 栽培 采 灌溉 水利 温室 杂交 肥料 化肥
 Hoe and harvest: 耕 耕耘 锄 采摘 收割 谷物 田间 田园 炊烟
-Livestock: 牲畜 家禽 饲养 喂养 养殖 畜牧 饲料 粪 宰 水产
-Country life: 乡下 农场 庄园 牧场 牧民 渔民 草坪 荆棘 海藻
-Weather: 气象 风暴 冰雹 霜 瑞雪 乌云 风沙 呼啸 刺骨
+Livestock: 牲畜 家禽 饲养 喂养 养殖 畜牧 饲料 粪 宰 水产 圈#2
+Country life: 乡下 农场 庄园 牧场 牧民 渔民 草坪 荆棘 海藻 圈
+Weather: 气象 风暴 冰雹 霜 瑞雪 乌云 风沙 呼啸 刺骨 闷 露
 Climate and air: 寒带 温差 水汽 气流 对流 凝结 盛夏 晚霞 冰天雪地 烈日 闷热
 The natural world: 自然界 天地 大气 气压 热带 温带 赤道 纬度 经度
 
@@ -181,7 +181,7 @@ On the road: 路段 隧道 立交桥 岔 枢纽 堵塞 疏导 绕行 通车 绕�
 Trouble on the way: 违章 追尾 熄火 颠簸 停放 搭乘 直达 卧铺 缆车 逆行 斑马线
 Boats and harbours: 船舶 帆 帆船 渔船 游船 桨 舱 港 港湾 运河 掌舵
 Sailing and flying: 航行 航海 航运 海运 停泊 搁浅 客机 直升机 机舱 导航 续航
-Freight and post: 货运 客运 客流 物流 集装箱 邮政 邮编 沿线 提速 口岸
+Freight and post: 货运 客运 客流 物流 集装箱 邮政 邮编 沿线 提速 口岸 担#2
 Machines: 机动 手动 驱动 开动 马力 功率 闸 阀门 失灵 调试
 Signals and wires: 无线 天线 电线 绝缘 光缆 电信 电讯 来电 遥控 改装 组装
 
@@ -248,7 +248,7 @@ Boom time idioms: 日新月异 与日俱增 与时俱进 层出不穷 源源不�
 ## School and study | 求学 | Shi Shi signs up for the imperial examination and discovers he must get through a mountain of textbooks first
 Teaching: 训 管教 灌输 启蒙 启迪 熏陶 陶冶 指点 指教 赐教 演示
 Studying: 学业 求学 攻读 进修 钻研 探求 温习 背诵 观摩 取经 旷课
-Reading and learning: 学识 博学 涉猎 阅览 读物 古籍 深造 考查 减负 探究
+Reading and learning: 学识 博学 涉猎 阅览 读物 古籍 深造 考查 减负 探究 传
 Teachers and pupils: 师长 师资 师范 弟子 学子 院士 知识分子 文盲 家教 备课 办学
 Degrees and courses: 文凭 学士 授予 测验 答辩 夜校 工科 人文 国学 概论
 Sums and handbooks: 算数 运算 合计 累计 算盘 教科书 手册 指南 须知
@@ -271,7 +271,7 @@ Fine writing idioms: 画龙点睛 画蛇添足 绘声绘色 有声有色 抑扬�
 The press: 报 刊物 传媒 媒介 主编 专栏 栏目 封面 头条 改版 投稿
 Broadcasts: 电台 卫视 收音机 转播 实况 收视率 影像 磁带 预告 海报 传单
 Breaking news: 资讯 时事 独家 第一手 灵通 获悉 揭晓 问世 刊登 转载 告示
-Leaks: 曝光 揭露 披露 泄露 走漏 内幕 匿名 发言人 舆论
+Leaks: 曝光 揭露 披露 泄露 走漏 内幕 匿名 发言人 舆论 则
 Rumour and scandal: 传言 传闻 谣言 八卦 丑闻 绯闻 散布 炒作 轰动 反响
 Public statements: 声明 声称 宣称 宣告 通告 通报 宣读 宣扬 重申 表态 澄清
 Fame idioms: 家喻户晓 举世瞩目 远近闻名 大名鼎鼎 默默无闻 耳熟能详 深入人心 引人注目 沸沸扬扬 惊天动地 鲜为人知
@@ -281,9 +281,9 @@ Music: 乐队 专辑 唱片 旋律 乐谱 谱 合唱 伴奏 交响乐 音响 弦
 Instruments, dance: 吉他 小提琴 笛子 舞 歌舞 芭蕾 秧歌 歌剧 杂技 木偶 小品
 On stage: 幕 幕后 前台 后台 开场 上演 亮相 扮 道具 剧目 跑龙套
 Film: 片子 大片 卡通 银幕 上映 放映 票房 配音 对白 剧情 编剧
-Shows and theme songs: 综艺 曲艺 歌谣 主题曲 插曲 压轴 剪辑 配角 巡回 精彩纷呈
+Shows and theme songs: 综艺 曲艺 歌谣 主题曲 插曲 压轴 剪辑 配角 巡回 精彩纷呈 调
 Acting: 演技 演绎 再现 编排 逼真 滑稽 搞笑 小丑 动感 登场 诠释
-Fans and prizes: 粉丝 人气 排行榜 评委 颁奖 奖项 荣获 原创 灵感 追捧 火爆
+Fans and prizes: 粉丝#2 人气 排行榜 评委 颁奖 奖项 荣获 原创 灵感 追捧 火爆
 Painting, carving: 油画 壁画 年画 肖像 画册 线条 花纹 雕 雕刻 雕塑 陶瓷
 Brush and bronze: 笔墨 勾勒 绘制 刻画 雕像 青铜器 美学 流派 琴棋书画 取材
 Treasures on show: 珍藏 藏品 陈列 鉴赏 瑰宝 宝库 镶嵌 衬托 烘托 韵味
@@ -308,7 +308,7 @@ Battlefields: 战场 战役 作战 前线 阵地 堡垒 哨 坦克 军舰 潜艇
 Attack: 进攻 攻 袭击 突击 入侵 侵略 轰 轰炸 登陆 出动 攻克
 Into battle: 出征 进军 攻势 两翼 凯旋 备战 汗马功劳 运筹帷幄 警戒
 Conquer: 占领 征服 包围 封锁 歼灭 重创 屠杀 掠夺 俘获 收复 威慑
-Defence: 防守 防御 防卫 保卫 捍卫 自卫 戒备 掩护 隐蔽 埋伏
+Defence: 防守 防御 防卫 保卫 捍卫 自卫 戒备 掩护 隐蔽 埋伏 地道
 Retreat and supply: 撤离 撤退 退却 投降 驻 驻扎 部署 补给 后勤 士气
 Plans and secrets: 战略 战术 情报 间谍 机密 泄密 代号 口令 演习 演练 操练
 
@@ -318,7 +318,7 @@ Theft and robbery: 盗 盗窃 窃取 抢劫 抢夺 劫 劫持 侵占 霸占 强�
 Violent crime: 犯罪 杀害 谋害 绑架 挟持 人质 恐吓 尸体 失踪 受害人
 Fakes and fraud: 诈骗 欺诈 敲诈 讹诈 伪造 造假 假冒 冒充 盗版 山寨
 Bribes and drugs: 贿赂 受贿 收买 勾结 包庇 陷害 把柄 走私 毒品 吸毒 谋取
-On the case: 治安 巡逻 监控 监视 追踪 侦探 嫌疑 涉嫌 举报 揭发
+On the case: 治安 巡逻 监控 监视 追踪 侦探 嫌疑 涉嫌 举报 揭发 制服#2
 Cases and charges: 报案 立案 侦查 自首 指控 栽赃 潜伏 不法 诡计
 Search and arrest: 逮 逮捕 拘留 扣押 扣留 通缉 搜查 查明 查获 破案 藏匿
 Foul play idioms: 罪魁祸首 弄虚作假 不正之风 可乘之机 不翼而飞 不了了之 水落石出 改邪归正 万无一失
@@ -335,7 +335,7 @@ Wronged: 触犯 侵权 诽谤 诬陷 污蔑 冤 冤枉 无辜 伸张
 
 ## Government | 行政 | An official at the ministry gate will not let Shi Shi in without the right permit, stamp and committee vote
 The state: 共和国 国务院 政权 体制 行政 机关 委员会 委员 首府 基层 直辖市
-Leaders, officials: 领袖 元首 首脑 书记 干部 官僚 公仆 公职 公务 同志
+Leaders, officials: 领袖 元首 首脑 书记 干部 官僚 公仆 公职 公务 同志 率
 Elections: 选举 竞选 候选人 提名 选民 推选 连任 任期 下台 罢免 席位
 Parties and isms: 党 政党 派别 主义 社会主义 资本主义 纲领 宣言 方针 专制
 Votes and policy: 表决 决议 否决 议程 举措 出台 试点 试行 贯彻 落实 公示
@@ -345,7 +345,7 @@ Permits: 申报 申领 申办 审批 审核 审定 认证 执照 出具 颁发 �
 
 ## Running things | 掌管 | The city governor's steward falls ill on the eve of a banquet, and Shi Shi is left in charge of a hundred servants
 Setting up: 设 设定 组建 构建 重组 整合 编制 拟定 筹办 统筹
-Taking the lead: 引领 领军 领队 带队 带头 牵头 做主 拍板 把关
+Taking the lead: 引领 领军 领队 带队 带头 牵头 做主 拍板 把关 自负 命
 Run and control: 运作 运转 掌管 主宰 支配 驾驭 操纵 操控 调度 调剂 配置
 Giving orders: 指令 下令 派遣 打发 使唤 召集 动员 征 征集 动用 占用
 By force: 强制 强行 强加 迫使 逼迫 施加 施压 压制 束缚 牵制 遏制
@@ -370,7 +370,7 @@ Ghosts and spirits: 鬼 魔鬼 妖怪 怪物 神仙 仙女 天使 阎王 凤凰 
 Heaven and soul: 灵 灵魂 天堂 地狱 末日 复活 化身 玄 玄机 世间 世人
 Faith: 宗教 宗 信仰 虔诚 迷信 祈祷 保佑 洗礼 神圣 许愿 敬畏
 Temples and rites: 寺 庙 寺庙 和尚 僧人 佛 菩萨 祭 祭祀 供奉
-Omens and taboos: 预言 预兆 兆头 占卜 风水 吉利 禁忌 忌 忌讳 属相
+Omens and taboos: 预言 预兆 兆头 占卜 风水 吉利 禁忌 忌 忌讳 属相 签
 Ethics and manners: 伦理 中庸 圣贤 教条 教养 俗 惯例 礼仪 礼节 礼尚往来 糟粕
 Old tale idioms: 守株待兔 刻舟求剑 亡羊补牢 愚公移山 开天辟地 前无古人 史无前例 古今中外 约定俗成 风土人情 发扬光大
 Fable idioms: 对牛弹琴 揠苗助长 南辕北辙 井底之蛙 掩耳盗铃 纸上谈兵 水滴石穿 刮目相看 对症下药
@@ -390,7 +390,7 @@ Fright: 恐怖 吓人 吓唬 恐慌 畏惧 畏缩 胆怯 生怕 受惊 惊动 �
 Flustered and eager: 慌 慌乱 慌张 慌忙 心慌 惊慌 忙乱 急于 巴不得 不知所措 失态
 Shock and puzzle: 震惊 震撼 惊奇 诧异 纳闷儿 困惑 迷惑 茫然 触动 晕头转向
 Worry: 操心 顾虑 忧虑 疑虑 忧愁 犯愁 心事 心病 伤脑筋 苦恼 打消
-On your mind: 牵挂 挂念 惦记 焦急 焦躁 烦躁 烦闷 闷 禁不住 郁闷
+On your mind: 牵挂 挂念 惦记 焦急 焦躁 烦躁 烦闷 闷#2 禁不住 郁闷
 Anger and frenzy: 气愤 发火 发怒 恼火 发泄 宣泄 激起 唤起 疯 狂 狂热
 On edge idioms: 提心吊胆 惊慌失措 心急如焚 大惊小怪 后顾之忧 犹豫不决 无可奈何 哭笑不得 恼羞成怒 过意不去 无动于衷
 
@@ -406,7 +406,7 @@ Fed up: 厌恶 厌倦 厌烦 反感 介意 扫兴 别扭 嫉妒 眼红 忌妒
 ## A good heart | 善意 | In the palace kitchens a cook is blamed for a broken dish, and Shi Shi must speak up for her honest, kind nature
 Sincere: 真心 诚意 诚恳 诚挚 真挚 恳切 衷心 由衷 坦诚 守信 关切
 Upright: 正直 耿直 正经 端正 正气 坦然 坦白 坦率 良心 讲理
-Role models: 模范 典范 楷模 表率 无私 纯洁 美德 崇高 人道
+Role models: 模范 典范 楷模 表率 无私 纯洁 美德 崇高 人道 作为
 Kind: 善 善意 好心 好意 仁慈 慈祥 和蔼 和气 友善 体贴 心肠
 Generous: 厚道 宽厚 敦厚 慷慨 爽快 宽容 包容 豁达 开明 开朗
 Patient and modest: 容忍 忍耐 耐 克制 心胸 胸怀 谦逊 低调 分寸 懂事 节制
@@ -418,24 +418,24 @@ Calm and steady: 镇定 镇静 沉着 沉稳 稳重 从容 安详 平和 庄重 
 Brave and bold: 英勇 奋勇 壮烈 果断 魄力 气魄 豪迈 骨气 志气 胆量 当机立断
 Willpower: 意志 毅力 坚韧 韧性 执着 要强 自立 自主 严谨 进取 志向
 Hardworking, thrifty: 辛勤 勤快 刻苦 勤俭 节俭 务实 朴实 质朴 纯朴 憨厚 淳朴
-Grace and style: 高贵 尊贵 高雅 文雅 潇洒 风度 风采 风范 风趣 体面
+Grace and style: 高贵 尊贵 高雅 文雅 潇洒 风度 风采 风范 风趣 体面 精神
 Reputation: 名誉 名声 声誉 声望 威信 威望 显赫 尊严 自尊 美誉 荣耀
 Moral character: 人格 人品 品德 品行 修养 素养 得体 言行 举止 德才兼备 处事
 Your nature: 人性 本性 天性 性情 本色 内向 外向 亲和力 为人 作风 情商
 Never give up idioms: 勇往直前 前赴后继 一鼓作气 再接再厉 自力更生 自强不息 脱颖而出 有的放矢 大有可为 任重道远 鹏程万里
 
 ## Pride and cruelty | 傲慢 | Hu Hu struts into the palace courtyard boasting that he is the emperor's favourite, and Shi Shi needs the words to describe him
-Arrogant: 傲 傲慢 高傲 自负 自满 炫耀 夸耀 标榜 张扬 高调 逞强
+Arrogant: 傲 傲慢 高傲 自负#2 自满 炫耀 夸耀 标榜 张扬 高调 逞强
 Greed and vanity: 贪 贪婪 自私 吝啬 奢侈 挥霍 糟蹋 滥用 名利 虚荣 庸俗
 Stubborn and rash: 固执 顽固 倔 倔强 任性 暴躁 急躁 浮躁 鲁莽 放肆 粗鲁
-Cruel: 残酷 残忍 冷酷 凶残 凶狠 凶恶 凶 野蛮 粗暴 嚣张
+Cruel: 残酷 残忍 冷酷 凶残 凶狠 凶恶 凶 野蛮 粗暴 嚣张 横
 Wicked: 恶 邪 邪恶 恶意 丑恶 可恶 可耻 贱 猖狂 霸道 堕落
 Cold and petty: 冷漠 冷淡 漠然 无情 挑剔 苛刻 狭隘 多心 世故 肤浅 功利
 Arrogance idioms: 自以为是 目中无人 盛气凌人 肆无忌惮 夸夸其谈 急功近利 急于求成 损人利己 一毛不拔 袖手旁观 见利忘义
 
 ## Lies and laziness | 谎言 | Someone has been sleeping on duty and blaming Bao Bao, and Shi Shi must work out who in the palace is lying
 Lies: 谎言 谎话 说谎 撒谎 编造 虚假 虚伪 假装 伪装 颠倒黑白 断章取义
-Tricks: 欺负 忽悠 误导 受骗 玩弄 引诱 诱惑 搞鬼 钻空子
+Tricks: 欺负 忽悠 误导 受骗 玩弄 引诱 诱惑 搞鬼 钻空子 蒙
 Scheming: 阴谋 算计 背叛 出卖 狡猾 奸诈 作弊 无耻 卑鄙 败坏
 Hide and dodge: 隐瞒 瞒 掩饰 掩盖 回避 逃避 退缩 推卸 耍赖 避让
 Foolish and weak: 蠢 愚蠢 愚昧 无知 幼稚 糊涂 盲目 笨拙 无能 软弱 稚嫩
@@ -449,7 +449,7 @@ Fighting back: 反抗 反击 抗拒 抗争 抵制 抵挡 抵御 抵触 抗衡 �
 Feuds and revenge: 报复 报仇 恩怨 得罪 计较 过不去 作对 敌视 矛头 藐视
 Face-offs: 斗 争执 摩擦 风波 交锋 对峙 较量 较劲 比试 叫板 平息
 Mockery: 侮辱 取笑 调侃 挖苦 嘲弄 讥笑 耻笑 泼冷水 冒犯 吐槽 奚落
-Stirring trouble: 惹 挑衅 挑拨 煽动 鼓动 捣乱 闹事 起哄 扰乱 怂恿
+Stirring trouble: 惹 挑衅 挑拨 煽动 鼓动 捣乱 闹事 起哄 扰乱 怂恿 挑
 Crush and topple: 压迫 迫害 侵犯 侵害 违背 打倒 推翻 颠覆 压倒 瓜分
 Getting in the way: 阻挠 阻拦 刁难 碍事 碰钉子 排斥 卷入 纠缠 骚扰 绊 绊脚石
 
@@ -479,7 +479,7 @@ Honing your craft: 工匠 精湛 精巧 两下子 得心应手 摸索 切磋 潜
 Tricks and fixes: 窍门 诀窍 要领 招数 门路 路子 突破口 走弯路 补救 挽回 捷径
 Striving: 拼命 拼搏 挣扎 奋力 极力 竭力 力求 力争 不惜 不懈 豁出去
 Drive: 一心 致力于 着力 谋求 干劲 劲头 起劲 斗志 踊跃 励志 鞭策
-Shouldering it: 负 担 担当 担负 肩负 担子 挨 经受 吃苦 吃力 费劲
+Shouldering it: 负 担 担当 担负 肩负 担子 挨#2 经受 吃苦 吃力 费劲
 Hard slog: 操劳 奔波 忙活 折腾 苦心 心血 加紧 罢休 省事 劲 负重
 Getting it done: 着手 下手 入手 设法 预备 对付 应付 攻关 得手 到位 变通
 Breaking new ground: 创 首创 开拓 开辟 奠定 立足 造就 投身 坚守 发扬 事迹
@@ -531,7 +531,7 @@ How we talk idioms: 滔滔不绝 脱口而出 出口成章 头头是道 实话�
 ## Grand and strange | 壮观 | Shi Shi enters the throne hall for the first time, and Bao Bao, too nervous to look, begs him to describe everything
 Grand: 盛大 隆重 辉煌 灿烂 华丽 豪华 壮观 壮丽 宏伟 雄伟 庄严
 Air and style: 气势 气派 威风 声势 架势 风貌 风情 缤纷 花样 奇观 风景线
-Calm and quiet: 宁静 寂静 清静 安宁 安定 安稳 太平 祥和 平稳 宜人
+Calm and quiet: 宁静 寂静 清静 安宁 安定 安稳 太平 祥和 平稳 宜人 和
 Strange: 古怪 怪异 奇特 奇妙 离奇 稀奇 新奇 反常 微妙 蹊跷 突兀
 Strong and fierce: 猛 猛烈 强劲 强势 强硬 尖锐 严峻 火热 旺 旺盛 蓬勃
 Fine and fresh: 精 精细 精妙 细腻 别致 美妙 甜美 清新 鲜活 诱人 璀璨
@@ -557,7 +557,7 @@ Vast and trifling: 亿万 区区 莫大 不下 过量 繁多 零碎 琐碎 微 �
 Plenty: 丰厚 丰硕 充 充沛 雄厚 可观 海量 无穷 高昂 威力 充裕
 Full or short: 饱和 爆满 过剩 稠密 稀 缺失 欠缺 贫乏 劣势 低下 逊色
 Shares and totals: 份额 分量 半数 过半 总和 若干 余 余地 额外 适量 同等
-Measures: 枚 盏 幢 缕 磅 亩 公顷 立方米 人次 口径
+Measures: 枚 盏 幢 缕 磅 亩 公顷 立方米 人次 口径 尽
 Counting off: 码 编号 倒数 丁 丙 双重 首批 一连串 一揽子 终极
 Big and small idioms: 重中之重 举足轻重 必不可少 微不足道 无关紧要 寥寥无几 比比皆是 一干二净 根深蒂固 错综复杂 冰山一角
 
@@ -567,7 +567,7 @@ Now and soon: 眼下 当日 当晚 次日 来年 改日 稍后 届时 前夕 关
 Day and night: 黎明 黄昏 一早 昼夜 通宵 彻夜 连夜 成天 作息 钟
 Brief or forever: 短暂 暂 刹那 转眼 一晃 仓促 永恒 永久 终生 长效 急促
 Late or on time: 延 延误 延缓 耽搁 滞后 逾期 超前 适时 同步 间断 守候
-Spans of time: 时段 晚期 同期 年限 日程 倒计时 历时 耗时 时隔 推移
+Spans of time: 时段 晚期 同期 年限 日程 倒计时 历时 耗时 时隔 推移 成年
 Dates and moments: 即日 之际 中叶 旬 间歇 如期 顺延 即时 流逝
 Years and seasons: 农历 正月 腊月 节气 时节 平日 历届 连年 后续 阴历 阳历
 Over and over idioms: 日复一日 有朝一日 没完没了 断断续续 接二连三 三番五次 经久不息 翻来覆去 当务之急 刻不容缓
@@ -577,7 +577,7 @@ Wide and narrow: 宽敞 宽广 宽阔 开阔 辽阔 平坦 狭窄 狭小 空荡�
 Remote and open: 偏僻 偏远 边远 僻静 荒凉 露天 实地 高空 上空
 Edges and zones: 界 界限 界线 边缘 尽头 交界 地带 禁区 局部 区间
 Sides: 一面 侧面 背面 反面 一旁 横向 双向 定向 全方位 纵横 纵深
-Where it is: 所在 位子 坐落 下落 去向 去处 着落 流向 指向 会场
+Where it is: 所在 位子 坐落 下落 去向 去处 着落 流向 指向 会场 挨
 Close by: 临 临近 逼近 濒临 靠拢 迎面 沿途 中途 随身 介于 抵
 Crossed and tilted: 交叉 重叠 重合 并列 并行 错位 颠倒 倾斜 偏 逆 偏离
 Filling the space: 遍布 贯穿 环绕 容纳 布局 行列 间隙 空隙 空白 密布 充斥
@@ -588,11 +588,11 @@ Spread and expand: 扩 扩张 扩散 扩充 拓展 拓宽 蔓延 渗透 波及 �
 Gather and grow: 膨胀 壮大 增添 累积 积 堆积 凝聚 汇聚 汇集 汇合
 On the rise: 高涨 攀升 飙升 回升 翻番 递增 飞跃 崛起 振兴 复兴 复苏
 Shrink and decline: 缩 收缩 缩水 萎缩 衰退 退步 没落 回落 流失 削减 缩减
-Crack and split: 裂 破裂 断裂 分裂 分化 脱离 解体 瓦解 破碎
+Crack and split: 裂 破裂 断裂 分裂 分化 脱离 解体 瓦解 破碎 折
 Collapse and decay: 崩溃 垮 塌 破灭 腐烂 腐朽 老化 磨损 脱落 残留 遗留
 Stronger or weaker: 恶化 激化 深化 僵化 淡化 冷却 熄灭 削弱 衰减 固化 消磨
 Transform: 转化 转型 转折 转折点 演变 变迁 变革 革新 改良 变形 扭曲
-Turnarounds: 剧变 改观 翻身 衰落 倒退 兴盛 减退 焕然一新 激增
+Turnarounds: 剧变 改观 翻身 衰落 倒退 兴盛 减退 焕然一新 激增 转机
 All change idioms: 千变万化 变幻莫测 一成不变 面目全非 翻天覆地 愈演愈烈 此起彼伏 时好时坏 取而代之 潜移默化
 
 ## How things unfold | 进程 | A string of small accidents upsets the emperor's birthday rehearsal, and Shi Shi must trace how one thing led to another
@@ -642,6 +642,6 @@ If and even if: 倘若 假使 纵然 固然 虽说 别看 宁愿 宁可 与否 �
 Moreover, let alone: 况且 何况 别说 乃至 以至于 以致 继而 反之 反倒 连同 除外
 Not only, even if: 非但 尚且 加之 若是 唯有 何止 暨 按理 就此 何等
 According to: 基于 鉴于 依照 遵照 本着 据悉 按说 旨在 一经 直至 至此
-Bookish verbs: 呈 备 著称 不乏 不及 取决 诉诸 沿用 秉持
-So to speak: 所谓 可谓 堪称 不愧 好比 好似 譬如 不亚于 趋于 有待
+Bookish verbs: 呈 备 著称 不乏 不及 取决 诉诸 沿用 秉持 之
+So to speak: 所谓 可谓 堪称 不愧 好比 好似 譬如 不亚于 趋于 有待 打
 Linking idioms: 总而言之 归根到底 诸如此类 无论如何 或多或少 自始至终 随时随地 自然而然 不知不觉 一如既往

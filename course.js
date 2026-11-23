@@ -1,6 +1,7 @@
 /* ShiCards: the units and lessons of HSK 2 and up (HSK 1's are in index.html). BUILT by tools/build_course.py from the
    lesson plans in tools/course/: change those, not this file.
-   SHI_COURSE[level]: a unit line "## English|中文", then one line per lesson, "Title:word word word".
+   SHI_COURSE[level]: a unit line "## English|中文", then one line per lesson, "Title:word word word" (空#2: the word's
+   second line in that level of dict/hsk.tsv).
    Numbers never move once a level is out: level L's units are L*100+1 and on, its lessons L*1000+1 and on, in the
    order written here. The meaning and reading a lesson shows are the word list's (dict/hsk.tsv), or the hand-written
    ones in dict/gloss.tsv. SHI_COMIC_LV: the levels that have a comics file, comics/hsk<level>.js.
@@ -10,9 +11,9 @@ window.SHI_COURSE = {
   2: `
 ## Eating out|饭馆
 Tea and coffee:咖啡 奶茶 绿茶 红茶 饭馆 酒店
-A table for two:位 条 鱼 肉 等 一会儿
+A table for two:位 条 鱼 点 肉 等 一会儿
 Colours:颜色 红色 白色 黑色 绿色
-At the mall:商场 裤子 手表 包 万 送
+At the mall:商场 裤子 手表 包 万 花 送
 Good, better, best:比 最 高 长 不错 坏 错
 Don't!:别 让 就 啊 地 得 着
 
@@ -21,16 +22,16 @@ Left and right:左 右 左边 右边 旁边 往
 Front and back:面 前面 后面 上面 下面 里面 外面
 Doors and roads:门 门口 楼 洗手间 路 路上
 Near and far:远 近 离 从 间
-Walk and run:走 走路 跑 站 动 快 慢
+Walk and run:走 走路 跑 动 快 慢
 How often:时 有时 经常 每 周 次
 
 ## Out and about|旅游
 In and out:进 出 进来 进去 出来 出去
 Up and down:上来 上去 下来 下去 起来
 There and back:回来 回去 过来 过去 过
-Bus and metro:车站 地铁 公交车 打车 票 门票
+Bus and metro:车站 站 地铁 公交车 打车 票 门票
 At the airport:机场 机票 出门 出国 外国
-On a trip:旅游 游 已经 快要 开始 完
+On a trip:旅游 游 已经 过#2 快要 开始 完
 
 ## Body and sport|运动
 Body:身体 头 手 眼睛 个子 洗
@@ -38,7 +39,7 @@ Feeling ill:疼 药 药店 累 舒服 床
 Ball games:球 足球 篮球 踢 打 运动
 Hobbies:爱好 跑步 游泳 跳舞 画 上网 网上
 Fun together:有意思 没意思 一起 跟 快乐 笑
-Blue sky:晴 阴 鸟 飞 花
+Blue sky:晴 阴 鸟 飞 花#2
 
 ## School days|考试
 Exams:考 考试 题 词 懂 意思
@@ -69,7 +70,7 @@ Hills and rivers:山 爬 河 海 树 草
 People:男人 女人 大人 老 老人 别人 咱们
 Family:姐妹 叔叔 阿姨 夫妻 爱人 结婚 出生
 Body:脸 嘴 耳朵 头发 毛 腿 脚
-Looks:年轻 胖 瘦 矮 身高 可爱
+Looks:年轻 胖 瘦 矮 身高 长 可爱
 Meeting up:见面 遇到 遇见 认得 分开 不见 聊 聊天儿
 Having guests:客人 做客 请客 欢迎 礼物 热情
 
@@ -78,7 +79,7 @@ Hungry:饿 饱 渴 米 方便面 蛋糕 糖 冰激凌
 Drinks:饮料 矿泉水 酒 啤酒 冰 加 瓶子
 At the table:菜单 外卖 用 碗 子 盘子 筷子 勺子
 At the market:斤 公斤 香蕉 西瓜 甜 新鲜 尝
-Paying:银行 卡 银行卡 信用卡 借 一共 角
+Paying:银行 卡 银行卡 信用卡 借 还 一共 角
 Clothes:衬衫 上衣 大衣 裙子 短 短裤 鞋 双
 Colour and fit:蓝 黄色 试 换 合适 大小 旧
 
@@ -89,14 +90,14 @@ Cleaning:扫 打扫 干净 脏 洗澡 牙 刷 牙刷
 Moving house:搬 搬家 邻居 环境 安静 方便 生活
 In town:市 城市 小区 宾馆 图书馆 球场
 Animals:动物 种 大熊猫 马 牛 羊 鸡 养
-Parks:园 公园 花园 草地 开花 动物园
+Parks:园 公园 花园 草地 地 开花 动物园
 
 ## Time and seasons|四季
 Days:前天 后天 前年 后年 周末 工作日
 Holidays:节 节日 过节 假期 放 放假 休假 请假
 Seasons:季 季节 四季 春天 夏天 秋天 冬天 新年
 Sun, wind and rain:太阳 月亮 风 刮 凉快 雨衣 伞
-Before and after:以前 以后 先 然后 后来 最后 终于
+Before and after:过去 以前 以后 先 然后 后来 最后 终于
 Just now:刚 刚刚 刚才 最近 马上 突然
 How long:久 好久 不久 半天 刻 一直 直到
 Often:常 常常 常见 常用 总 总是 平时 习惯
@@ -112,7 +113,7 @@ Subjects:数学 历史 文化 体育 兴趣 感兴趣
 Hard or easy:难 难题 容易 简单 聪明 水平
 
 ## Free time|比赛
-Sports:体育馆 网球 羽毛球 锻炼 跳 健康
+Sports:体育馆 网球 羽毛球 锻炼 跳 站 健康
 The big match:比赛 运动会 员 运动员 参加 得分 坚持
 Music and games:游戏 音乐 声 声音 耳机 难听
 Shows and stars:表演 节目 晚会 有名 名人 画家
@@ -130,16 +131,16 @@ I see:明白 清楚 懂得 了解 发现 听说 忘记
 
 ## Getting things done|办法
 Getting it done:办 干 办法 方法 完成 结束 解决
-Office:办公室 经理 同事 服务 会议 开会 名单
-Should and must:该 应该 必须 一定 不用 可
-Want and get:需要 要求 得到 受 受到 机会
+Office:办公室 经理 同事 服务 会议 开会 会 名单
+Should and must:该 应该 必须 得#2 一定 不用 可
+Want and get:需要 要求 得到 得 受 受到 机会
 Changes:变 变成 变化 发生 发展 影响
 Describing things:重要 主要 一般 奇怪 安全 有用
 Same or different:一样 不同 其他 别的 像 好像 差
 
 ## Little words|如果
 By, for and about:把 被 为 为了 根据 关于 有关
-If and only:如果 的话 只要 只有 才 只是 只能
+If and only:如果 的话 只要 只有 才 只是 只 只能
 And, or, but:又 或 或者 可是 而且 不但 一边
 More and most:更 越 极 挺 比较 特别
 Roughly:大概 几乎 差不多 好多 以上 以下
@@ -148,10 +149,10 @@ What shall we do?:怎样 怎么办 行 不行 最好 一块儿
 `,
   4: `
 ## Food and drink|美食
-Meals:食物 食品 美食 早餐 午餐 晚餐 中餐 快餐
+Meals:食物 食品 美食 早餐 午餐 晚餐 中餐 快餐 汤
 Eating out:餐厅 食堂 顿 订 排 排队 够 不够 剩
 Tastes:味 味道 闻 香 辣 酸 咸 苦 鲜
-In the kitchen:厨房 厨师 刀 西红柿 油 盐 汤 烤 熟
+In the kitchen:厨房 厨师 刀 西红柿 油 盐 烤 熟 生#2
 A party:聚 聚会 聚餐 邀请 庆祝 祝 祝贺 红包
 Snacks:零食 小吃 饼干 巧克力 酸奶 馒头 月饼
 Drinks:果汁 汽水 茶叶 葡萄 葡萄酒 白酒 倒 干杯
@@ -160,18 +161,18 @@ Drinks:果汁 汽水 茶叶 葡萄 葡萄酒 白酒 倒 干杯
 Push and pull:拉 推 按 拍 敲 响 挂
 Broken:破 掉 修 修理 弄 师傅
 Tidying up:收拾 整理 装 乱 扔 垃圾 桶 袋子
-Describing things:厚 细 粗 轻 深 低 亮 满 空
+Describing things:厚 细 粗 轻 重#2 深 低 满 空
 At home:客厅 大厅 窗 窗户 院子 家具 钥匙 盒子
 Clothes:外套 毛衣 帽子 袜子 皮鞋 眼镜 背包 戴 脱
 Renting a room:租 出租 房东 房租 地址 费 费用 收费
-Town and country:城 村 农村 区 市区 郊区 首都
+Town and country:城 村 农村 区 市区 郊区 首都 省
 
 ## Body and health|体检
 Life:生 活 死 生命 人生 一生 日子
 Body:身 全身 鼻子 胳膊 肚子 皮肤 血 流
 Body moves:动作 步 抬 抬头 点头 举 抱 背 指
 Sleep:困 躺 醒 梦 做梦 晚安 夜 夜晚 早晨
-Danger:危险 严重 受伤 火 着火 烟 吸
+Danger:危险 严重 受伤 火 着火 着 烟 吸
 Getting clean:厕所 镜子 毛巾 纸巾 牙膏 擦 理发 卫生
 At the clinic:大夫 护士 体检 体温 打针 咳 咳嗽 痛 头痛
 Keeping fit:健身 健身房 力气 散步 体重 汗 功夫
@@ -197,20 +198,20 @@ On time:准时 按时 及时 迟 推迟 提前 来得及 来不及 错过
 Flying:航班 登机 安检 转机 换乘 降落 签证 使馆 旅客
 
 ## Trips and nature|旅行
-Sky, land and sea:阳光 光 云 星星 土 江 海洋
-Weather:气候 气 空气 吹 寒冷 暖和 凉
+Sky, land and sea:阳光 光 亮 云 星星 土 江 海洋
+Weather:气候 气 空气 吹 寒冷 暖和 干 凉
 Temperature:温度 气温 高温 低温 降温 零下 摄氏度
 In the forest:森林 树林 棵 叶子 鲜花 熊 老虎
-Protecting nature:自然 大自然 植物 保护 环保 污染 塑料
+Protecting nature:自然 大自然 植物 种 保护 环保 污染 塑料
 The world:地球 全球 国际 亚洲 民族 东部 西部 南部 北部
-On holiday:旅行 度假 旅馆 入住 假日 节假日 暑假 寒假
+On holiday:旅行 度假 旅馆 入住 假日 节假日 暑假 寒假 空#2
 Sightseeing:景点 景区 景色 美景 风景 参观 游玩
 
 ## Shops and post|购物
 Shopping:购物 购买 逛 顾客 商品 货 牌 牌子 质量
 Prices:价格 价钱 高价 低价 降价 打折 免费 值 值得
 Paying:付 支付 交 现金 零钱 零花钱 结账 扫码 网购
-Count and weigh:数 数字 人数 算 倍 量 克 千克
+Count and weigh:数 数字 人数 算 倍 量 克 两 千克
 Many and few:许多 大量 少量 多数 少数 数量 丰富 缺 缺少
 News:消息 信息 通知 广播 播放 收听 联系 转发
 Post office:寄 快递 上门 取 回信 短信 回复 发送 发出
@@ -239,7 +240,7 @@ Jokes:开玩笑 笑话 好笑 幽默 有趣 无聊 猜
 ## Work|办公
 In charge:负责 负责人 责任 管 管理 项 任务 安排
 Business:生意 市场 经济 广告 推出 厂 工厂 竞争
-Pay:工资 收入 奖金 赚 省 节约 浪费
+Pay:工资 收入 奖金 赚 节约 浪费
 At the office:办公 办事 办理 单位 部 部门 出差
 Printing:文件 资料 材料 打印 打印机 复印 份
 Dates and times:日期 月份 底 年底 末 世纪 时间表 秒
@@ -259,7 +260,7 @@ Memories and dreams:回忆 印象 难忘 日记 梦想 理想 永远
 ## Getting along|性格
 Talking it over:谈 讨论 商量 交流 建议 提醒 解释
 Speaking up:提 提出 提到 指出 表示 表现 喊
-Yes and no:嗯 答应 接受 拒绝 允许 禁止 千万
+Yes and no:嗯 啊 答应 接受 拒绝 允许 禁止 千万
 Ways and views:法 看法 想法 说法 做法 主意 意见
 Praise and blame:表扬 鼓励 支持 尊重 重视 批评 反对 误会
 Character:性格 脾气 态度 样子 优点 缺点 好处 坏处
@@ -271,13 +272,13 @@ Cause and effect:原因 结果 情况 引起 产生 效果 有效
 Plans and goals:计划 定 目标 目的 过程 条件 关键 重点
 Thinking:考虑 理解 判断 估计 熟悉 怀疑 肯定 确实
 Finding out:调查 研究 查看 证 证明 保证 总结
-Parts and kinds:部分 方面 方式 内容 特点 区别 多样
+Parts and kinds:部分 方面 方式 内容 特点 区别 多样 等
 Plain or complex:普通 普遍 正常 正式 基本 基本上 直接 复杂
 Same and different:相同 同样 相反 相互 互相 共 共同
 Explaining:说明 说明书 详细 举例 例子 例如 叫作
 
 ## Making changes|改变
-Change:改 改变 适应 养成 成为 当 分为
+Change:改 改变 适应 养成 成为 为 当 分为
 Getting in:入 进入 加入 通 通过 出现 活动
 Able to:能力 能够 无法 适合 面对 经历 经验
 Start and stop:继续 进行 顺利 举行 举办 停止 暂停 取消
@@ -309,16 +310,16 @@ Have to, need not:无 不必 不得不 只好 不如 不便 便于
   5: `
 ## Festival food|美味
 Cooking:煮 炒 炸 烧 烧烤 燃烧 加热 切 冻
-Taste and smell:口味 美味 酸甜苦辣 淡 浓 臭 咬 雪糕
+Taste and smell:口味 美味 酸甜苦辣 淡 浓 臭 咬 雪糕 点心
 In the kitchen:锅 盖 盆 叉子 吸管 开水 洒 漏
 Fruit and veg:蔬菜 土豆 番茄 黄瓜 玉米 桃 梨 橘子 橙子
-Rice and tofu:主食 粮食 大米 豆腐 豆浆 油条 饼 点心 盒饭
+Rice and tofu:主食 粮食 大米 面 豆腐 豆浆 油条 饼 盒饭
 Eating out:餐饮 西餐 海鲜 火锅 酒吧 夜市 甜品 打包 醉
 Eating well:饮食 食用 营养 热量 消化 胃 减肥 身材
 On the label:成分 含 含有 含量 水分 保质期 过期 到期 无效
 
 ## At home|住房
-A place to live:住房 房屋 公寓 宿舍 单元 居住 居民 住址
+A place to live:住房 房屋 公寓 宿舍 单元 居住 居民 住址 所
 Rooms:卧室 书房 阳台 窗台 车库 台阶 墙 玻璃
 In my room:柜子 书架 台灯 被子 床单 拖鞋 闹钟 扇子 扇
 Household things:家务 家电 电器 日用品 用品 物品 存放 玩具
@@ -330,11 +331,11 @@ Rent and repairs:住宿 租金 押金 中介 物业 装修 维修 安装
 Husband and wife:老公 老婆 太太 夫妇 新郎 新娘 婚礼 新人
 People and ages:男子 女子 妇女 小姐 成人 成年 年纪 一代
 Falling in love:恋爱 对象 亲爱 宝贝 拥抱 分手 失恋 离婚
-Self and others:个人 本人 自身 私人 他人 双方 彼此 各自
+Self and others:个人 本人 本 自身 私人 他人 双方 彼此 各自
 Friend or stranger:伙伴 熟人 陌生 贵姓 路人 人群 碰见 交往 相处
-Family ties:亲 亲人 亲情 亲朋好友 陪伴 看望 想念 珍惜
+Family ties:亲 亲人 亲情 亲朋好友 陪伴 看望 看 想念 珍惜
 Relatives:外公 外婆 姥爷 姥姥 大爷 大妈 子女 儿女
-Goodbyes:告别 分别 分离 去世 舍得 舍不得 泪 眼泪 泪水
+Goodbyes:告别 分别 别 分离 去世 舍得 舍不得 泪 眼泪
 
 ## Colours and shapes|色彩
 Colours:黑 白 红 青 紫 灰 灰色 黄金
@@ -347,8 +348,8 @@ Style and looks:打扮 样式 风格 外形 外观 形象 优美 丑
 Clothes:服装 西装 领带 系 牛仔裤 围巾 手套 口袋 套
 
 ## Body and health|人体
-The body:人体 大脑 眼 嘴巴 牙齿 手指 腰 肌肉
-Body language:脸色 表情 微笑 目光 反应 姿势 脚步 汗水
+The body:人体 大脑 眼 嘴巴 牙齿 手指 腰 背 肌肉
+Body language:脸色 表情 微笑 目光 反应 姿势 脚步 汗水 泪水
 Getting sick:疾病 流感 着凉 过敏 疼痛 毛病 病情 伤
 Treatment:治 治疗 医疗 医学 诊断 中医 中药 药物 药品
 At the hospital:挂号 门诊 急诊 病房 救护车 抢救 救 手术
@@ -358,12 +359,12 @@ Good or bad for you:有益 有利 有助于 有害 不良 不利 伤害 损害 �
 
 ## Animals and nature|生物
 Animals:龙 猪 蛇 兔子 猴子 大象 鸭子 宠物 生肖
-A flock, a bunch:群 匹 颗 根 朵 束 堆 团
-On the farm:农业 农民 土地 浇 晒 收获 产量
+A flock, a bunch:群 匹 颗 根 朵 束 堆 团 行
+On the farm:农业 农民 土地 浇 喂 晒 收获 产量
 Sky and weather:天空 天上 空中 雾 暴雨 雨水 降水 预报 升温
 Living things:生物 生存 昆虫 虫子 蝴蝶 翅膀 尾巴
 Land and water:湖 池 河流 陆地 山区 沙漠 沙子 石头 洞
-Plants:树木 竹子 木头 玫瑰 种子 果实 生长 种植
+Plants:树木 竹子 木头 头 玫瑰 种子 果实 生长 种植
 
 ## Getting around|一路顺风
 On the way:一路 一路顺风 路线 行程 前往 到达 返回 停留
@@ -377,7 +378,7 @@ Trips abroad:旅行社 游览 预订 预约 海关 海外 时差 飞行 飞行�
 ## Hands and feet|动手
 With your hands:动手 抓 抢 握 握手 摸 抽 捡 摘
 Chase and hide:追 冲 躲 藏 寻找 等待 等候 秘密
-Break and lose:断 打断 碎 拆 破坏 损失 丢失
+Break and lose:断 打断 碎 倒 拆 破坏 损失 丢失
 Slips and bumps:撞 碰 摔 滑 滚 翻 沉 低头 扶
 Closer and further:移 移动 前进 退 退出 接近 靠近 距 前来
 In the way:挡 堵 隔 围 绕 挤 闹
@@ -387,7 +388,7 @@ Reach, wave, pass:伸 挥 摇 递 传 传递 接收 领 领取
 ## Shops and money|买卖
 Buying and selling:买卖 交易 出售 销售 销量 客户 商人 商家 营业
 Companies:企业 商业 商务 电商 总部 行业 产业 开业 经营
-Costs and profits:资金 成本 利润 利益 风险 保险 资源
+Costs and profits:资金 成本 省 利润 利益 风险 保险 资源
 Factories:工业 生产 产 产品 品 加工 制造 制作
 Rich and poor:富 富有 穷 欠 赔 退还 亏 捐 挣
 Shopping:便利店 品牌 名牌 全新 二手 挑 挑选 消费 消费者
@@ -411,7 +412,7 @@ Opening night:开幕 开幕式 闭幕式 现场 明星 魅力 届
 Spreading the word:宣布 公布 发布 发表 宣传 推广 传播 普及
 In the news:媒体 报道 采访 直播 电视台 收看 标题 出版 印刷
 On record:录 录音 记录 记载 登记 保存 保留
-Free time:休闲 业余 闲 户外 乐趣 欣赏 享受 迷
+Free time:休闲 业余 闲 户外 乐趣 欣赏 享受 迷 好
 Films and photos:影片 影视 动画 纪录片 拍摄 摄影 合影 相册 画面
 Music and dance:歌曲 歌词 舞蹈 鼓 鼓掌 掌声 娱乐
 
@@ -431,9 +432,9 @@ Levels:级 初级 中级 高级 升级 超级 高档
 Learning by doing:实践 实习 培训 尝试 试用 体验 体会
 Exams:试卷 题目 填 测试 及格 录取 学历 证书 资格
 Words and sounds:词汇 字母 拼音 读音 发音 语音 语气 用法 念
-A good student:专心 勤奋 虚心 自觉 指导 改正 培养
+A good student:专心 勤奋 虚心 自觉 指导 改正 培养 才
 Skills:技能 本领 能干 擅长 善于 熟练 掌握 长处 短处
-At university:学术 学者 论文 讲座 写作 参考 提交 概括
+At university:学术 学者 系#2 论文 讲座 写作 参考 提交 概括
 
 ## Work and jobs|就业
 People at work:老板 员工 职工 秘书 主任 领导 专家 工程师 公务员
@@ -459,10 +460,10 @@ Putting to use:利用 运用 采用 应用 适用 实用 用途 便利
 In the lab:实验 实验室 试验 测 科研 观察 分析 结论
 Cause and effect:令 使得 造成 导致 促使 因素 后果
 How much:度 程度 强度 难度 角度 规模 范围 音量 轻重
-Doing the sums:计算 统计 平均 比例 总共 总数 亿
-Lots and few:无数 众多 大批 整整 将近 有限 无限
+Doing the sums:计算 数 统计 平均 比例 总共 总数 亿 面积
+Lots and few:无数 众多 大批 整整 将近 有限 无限 量
 Sciences:物理 化学 地理 哲学 逻辑 理论 规律 物质 领域
-Measuring:厘米 吨 长度 宽度 厚度 高度 深度 重量 面积
+Measuring:厘米 吨 长度 宽度 厚度 高度 深度 重量 称#2
 
 ## Feelings|情绪
 Good feelings:惊喜 期待 温暖 舒适 热爱 信任 尊敬 在乎
@@ -477,15 +478,15 @@ Shy or silly:调皮 胆小 傻 怪 好奇 犹豫 谨慎 严肃 消极
 ## Talking it over|沟通
 Chatting:谈话 话题 沟通 互动 表达 描述 讲述 提起 转告
 Names and meanings:称 称为 名称 标志 象征 主题 意味着 代表 比喻
-Arguing and urging:吵 骂 抱怨 骗 劝 说服 催 强调
+Arguing and urging:吵 骂 抱怨 骗 劝 说服 催 强调 批#2
 Agree or deny:承认 否认 否定 赞成 认 推荐 提倡
 Relying on:靠 依靠 凭 凭借 据 依据 据说
-Seeing it as:评 评价 反映 看作 视为 当作 当成
+Seeing it as:评 评价 反映 看作 视为 当作 当 当成
 Asking:询问 提问 疑问 问卷 咨询 打听 请求 请教 访问
 Post and phone:邮局 信封 邮票 包裹 邮寄 拨打 占线 话费 留言
 
 ## People and rules|规则
-Government:政府 政治 总统 机构 组织 制度 改革 派
+Government:政府 政治 总统 机构 处#2 组织 制度 改革 派
 The people:人民 人类 人口 人物 市民 大众 老百姓 群体 族
 What happened:事件 事故 意外 大事 现象 威胁 紧急 地震
 Rights and duties:权 权利 义务 自由 公平 地位 身份 贡献 志愿者
@@ -519,10 +520,10 @@ Comparing:对比 较 相对 反 差别 差距 等于 大于 小于
 Changing:化 转变 变动 形成 现代化 消失 成长 成熟
 Joining up:合 配 结合 联合 组合 统一 连接
 Gather and share:集 集中 集合 收集 分享 共享 分配 分布 排列
-Making it better:改善 改进 完善 进步 提升 修改 调 调整 更新
+Making it better:改善 改进 完善 进步 提升 修改 调#2 调整 更新
 Deep and strong:深刻 深入 深远 深厚 广泛 强烈 热烈 弱
 Too much:超 超出 过度 过分 过于 极其 格外 简直
-Swap and refill:更换 交换 代 替 代替 补充 吸收 回收
+Swap and refill:更换 交换 调 代 替 代替 补充 吸收 回收
 More and less:升 上升 增 增强 增进 加深 扩大 缩小 缩短
 Moving forward:推动 推进 促进 带动 发达 繁荣 开放
 
@@ -539,7 +540,7 @@ Dealing with:处理 面临 应对 对待 注重 讲究 忽视
 
 ## Little words|总之
 Oh and ah:哦 呀 哈 唉 哎 哎呀 不要紧 没法儿
-Formal little words:所 以 其 及 以及 至 便 某
+Formal little words:以 为 其 及 以及 至 便 某
 Really and after all:居然 果然 反而 反正 毕竟 根本 依然
 More counting words:支 副 架 批 伙 阵 册
 Maybe and as if:或许 说不定 似乎 仿佛 似的 如 正如
@@ -553,7 +554,7 @@ Head and neck:脑袋 脑子 头脑 面部 眉毛 胡子 脖子 嗓子
 Inside the body:心脏 肺 肝 肠 血液 血管 血压 血型 神经
 Body parts:胸 肩膀 手臂 骨头 颈椎 舌头 口腔 部位 一身
 Looking:视觉 听觉 视力 近视 睁 闭 瞧 仰 回头
-Push and pull:拖 抛 撒 扭 夹 撑 支撑
+Push and pull:拖 抛 撒 扭 夹 撑 支撑 支
 On the move:奔跑 闯 扑 闪 穿过 跟随 转身 使劲 滑行
 On your feet:踩 迈 蹲 跪 跌 落地 后退 歇
 With your hands:手势 招手 牵 捧 掏 拾 捉 携带
@@ -564,7 +565,7 @@ Pots and plates:盘 壶 罐 叉 盛 烫 电饭锅
 Sauces and flour:酱 酱油 醋 辣椒 粉 面粉 奶粉 粒
 Snacks:粥 香肠 花生 糖果 薯片 粽子 汤圆 元宵
 Meals:用餐 套餐 自助 酒水 饮用水 酒精 品尝 家常 衣食住行
-How it tastes:可口 口感 味觉 清淡 脆 烂 气味 变质
+How it tastes:可口 口感 味觉 清淡 脆 烂 气味 冲 变质
 Clean up:清 清理 清洁 清洗 净 灰尘 晾 清扫 洗漱
 Around the house:住宅 隔壁 走廊 楼道 墙壁 浴室 枕头 自来水 家居
 Heat and light:开关 电源 照明 灯笼 火柴 暖 暖气 热水器 插座
@@ -581,7 +582,7 @@ Fashion:时尚 潮流 款式 新款 过时 模特儿 造型 搭配 款
 
 ## Health|康复
 Call for help:求 求助 求救 救命 救援 救助 协助 互助
-Feeling unwell:不适 晕 晕车 中暑 恶心 吐 吞 痒 肿
+Feeling unwell:不适 晕 晕车 中暑 恶心 吐#2 吞 痒 肿
 Falling ill:患 患者 症状 发病 发炎 炎症 伤口 损伤
 Germs:病毒 细菌 感染 传染 传染病 肺炎 免疫 消毒 防治
 At the hospital:内科 外科 儿科 医药 服用 康复 急救
@@ -590,23 +591,23 @@ Fat and hunger:肥 肥胖 脂肪 蛋白质 维生素 饥饿 食欲 胃口
 Growing old:衰老 寿命 长寿 养老 养老院 残疾 轮椅 盲人
 
 ## Making and mending|针线
-Dig and cut:挖 埋 钻 砍 割 刺 折 枝
+Dig and cut:挖 埋 钻 砍 割 刺 折 枝 株
 Cloth and thread:布 棉 皮 线 针 染 披
 Stick and fasten:粘 粘贴 胶水 胶带 扣 扎 串 塞
-Set up and cover:搭 摆 摆放 布置 铺 吊 覆盖
+Set up and cover:搭 摆 摆放 布置 铺 卷 吊 覆盖
 Mixing:混 混合 混乱 杂 融合 融入 分散
 Drip and float:滴 泡 喷 淋 泼 浮 漂 飘 水面
 Metal, wood, stone:料 金属 金子 银 铜 砖 水泥 木材 材质
 Light and colour:黄 棕色 明亮 鲜明 鲜艳 影子 透 透过 透明
 
 ## Size and shape|尺寸
-Shapes and curves:形态 圈 环 曲 弯曲 歪 尖 旋转 转动
-Sides and ends:顶 端 侧 正面 跟前 内外 方位 定位
+Shapes and curves:形态 圈 环 曲 弯曲 歪 旋转 转动 转
+Sides and ends:顶 端 尖 侧 正面 跟前 内外 方位 定位
 Lines and gaps:横 竖 垂直 对称 均匀 间隔 密 密集 密度
 Measure and test:测量 衡量 检测 检验 监测 验证 评估 考核
-Units:尺 寸 尺寸 长短 毫米 毫升 平方 平方米
+Units:尺 寸 尺寸 长短 毫米 毫升 升 平方 平方米
 How much:体积 容量 幅度 比重 占比 概率 频率 次数 数目
-Adding up:总计 共计 人均 百分点 剩余 诸多 成千上万 番 倍增
+Adding up:总计 共计 人均 百分点 诸多 成千上万 番 倍增 乘
 Huge or moderate:庞大 宏大 广阔 遥远 中等 适度 极端 剧烈 大幅
 
 ## Land and weather|风雨
@@ -622,8 +623,8 @@ Disasters:灾 灾难 灾害 灾区 受灾 救灾 旱灾 突发
 ## Earth and science|能源
 Animals:狮子 狼 老鼠 蜜蜂 鲨鱼 蚂蚁 乌龟 野生 钓鱼
 Crops and flowers:庄稼 小麦 水稻 播种 丰收 梅花 兰花 菊花 花朵
-Life science:细胞 基因 遗传 进化 繁殖 培育 化石 有机 株
-Fuel:能源 燃料 石油 煤 天然 天然气 消耗 新能源
+Life science:细胞 基因 遗传 进化 繁殖 培育 有机 结 结果
+Fuel:能源 燃料 石油 煤 天然 天然气 消耗 新能源 化石
 Power:能量 电力 发电 太阳能 节能 再生 发光 低碳
 Clean air:生态 绿化 污水 排放 噪声 氧气 二氧化碳 气体 通风
 Matter:物体 固体 液体 元素 合成 弹性 构造 万物 微小
@@ -631,7 +632,7 @@ Space and science:太空 月球 月光 天文 轨道 科普 原理 效应 两极
 
 ## Towns and roads|旅途
 Town and village:镇 城镇 村庄 都市 州 一带 周边 街头 地域
-Buildings:栋 建筑物 塔 桥梁 工地 空地 栏 窗口
+Buildings:栋 建筑物 塔 桥梁 工地 空地 栏 窗口 扇
 On the street:人行道 路面 路况 通道 管道 角落 拥挤 畅通
 Wheels and ships:轮 轮子 货车 客车 轮船 船只 艘 航空
 Driving:机动车 摩托车 刹车 倒车 拐 拐弯 碰撞 时速
@@ -645,7 +646,7 @@ Drive:动力 活力 潜力 智力 力度 激励 鼓舞 激发 生命力
 Talent:才能 才华 天才 特长 技巧 技艺 手法 高超 精通
 Masters:大师 高手 师父 徒弟 杰出 优异 一流 多才多艺 高端
 Picking the best:竞赛 选拔 评选 筛选 入选 淘汰 考验 击败 赛事
-Chess and prizes:象棋 围棋 棋子 局 彩票 抽奖 中奖 奖品
+Chess and prizes:象棋 围棋 棋子 局 彩票 抽奖 中奖 中 奖品
 Sports:体操 田径 跳水 滑雪 滑冰 棒球 台球 场地 场馆
 Medals:奖牌 金牌 银牌 铜牌 亚军 季军 荣誉 排名
 
@@ -660,7 +661,7 @@ Music:乐器 乐曲 演奏 歌唱 民歌 节奏 动听 古典
 The arts:文艺 诗歌 散文 戏曲 相声 绘画 瓷器 园林 书画
 
 ## School and study|学问
-Books:书籍 著作 卷 章 目录 开头 结尾 简介
+Books:书籍 著作 卷#2 章 目录 开头 结尾 简介
 Read and write:书写 书面 抄 朗读 描写 描绘 叙述 口头 诗词
 Learn by example:传授 示范 榜样 模仿 纠正 启发 启示 借鉴 吸取
 Explaining:解 解答 解读 解说 讲解 比方 定义 含义
@@ -671,9 +672,9 @@ Subjects:科 科目 文科 理科 专科 必修 选修 学问
 
 ## Work|岗位
 Posts and duties:职位 职务 岗位 职责 事务 履行 值班 打卡 分工
-The boss:总裁 主管 高层 上级 人事 指示 指定 调动
+The boss:总裁 主管 高层 上级 人事 指示 指定 调动 副
 People at work:职员 白领 助理 助手 会计 顾问 同行 劳动力 录用
-Leading:率 率领 率先 带领 指挥 引导 主导
+Leading:率领 率先 带领 指挥 引导 主导
 Planning:策略 策划 规划 决策 筹备 主办 承办 协调 监督
 Hiring and pay:业 从业 求职 招 招收 用人 兼职 薪水 福利
 Founding:立 创办 创立 创建 开设 开创 打造 树立 确立
@@ -681,7 +682,7 @@ Paper and pens:档案 文档 文献 附件 链接 图表 卡片 钢笔 文具
 
 ## Money|金钱
 Rich and poor:财产 财富 财物 财务 资产 资本 富裕 贫困
-Stocks:投资 基金 股票 股市 炒股 收益 亏损 上市
+Stocks:投资 基金 股票 股市 炒股 收益 亏损 上市 率
 At the bank:储蓄 提取 贷款 利息 汇 汇款 理财 金融 收取
 Bills and cash:金钱 货币 金额 余额 账单 分期 发票 券 支出
 Paying back:补 补贴 补偿 赔偿 弥补 回报 归还 捐款 捐赠
@@ -703,7 +704,7 @@ Materials:原料 原材料 农产品 制品 产地 国产 百货 现货
 War and peace:战争 和平 战斗 打仗 英雄 战胜 败 爆发
 The army:军队 部队 兵 士兵 军人 将军 基地 命令
 Weapons:武器 装备 枪 剑 箭 棍 射 射击
-Attack:攻击 打击 冲击 爆 爆炸 灭 消灭
+Attack:攻击 打击 冲击 爆 爆炸 炸 灭 消灭
 Seize and hold:夺 夺取 争夺 占据 占有 持有 对抗 抵抗 斗争
 Fights and rows:冲突 对立 纠纷 争议 争论 争吵 吵架 打架
 At the palace:国王 皇帝 公主 王子 宫 大臣 朝代 公元
@@ -712,17 +713,17 @@ Long ago:古人 祖先 后人 相传 文物 国宝 古迹 遗址 现存
 ## Crime and rules|规矩
 Poison and death:杀 自杀 死亡 毒 中毒 害 暴力
 Thieves and cheats:偷 小偷儿 偷偷 骗子 欺骗 上当 犯 罪
-Clues:线索 痕迹 脚印 跟踪 真相 证实 鉴定
+Clues:线索 痕迹 脚印 跟踪 真相 露#2 证实 鉴定
 Judge and jail:法官 公安 追究 惩罚 处罚 逃 逃跑 释放 捕
 Hiding:隐藏 隐私 躲避 避 暗示 默默 摆脱
 Forced to obey:逼 强迫 被迫 勉强 自愿 肯 服 服从 听话
-Rules:规矩 规范 正规 常规 纪律 秩序 有序 法定
+Rules:规矩 规范 正规 常规 纪律 秩序 有序 法定 该
 Allowed or not:不许 严禁 不宜 许可 法规 违规 例外 不得
 Limits:限 限于 限度 局限 制 约束 抑制 封闭 期限
 
 ## State and society|公民
-Officials:官 官员 官方 中央 总理 大使 外交 联合国
-Power and policy:权力 势力 政策 治理 推行 革命 解放
+Officials:官 官员 官方 中央 总理 大使 外交 联合国 局#2
+Power and policy:权力 势力 政策 治理 推行 革命 解放 地方
 Votes and rights:投票 当选 上台 民主 公民 平等 公正 正义
 In public:公 公开 公众 公告 公益 公认 启事
 Clubs and groups:社 协会 团体 俱乐部 团结 聚集 号召
@@ -747,23 +748,23 @@ Good and bad sides:细致 周到 马虎 大方 小气 呆 淘气 上进
 Hard-working:勤劳 用功 好学 下功夫 用心 专注 勇于 精心 出力
 Giving and caring:给予 赋予 奉献 关怀 关爱 顾 辅助 借助 乐于
 Getting along:交际 打交道 往来 来往 亲密 信赖 依赖 赖
-Visits and guests:拜访 会见 招待 好客 陪同 一同 一道 当面
+Visits and guests:拜访 会见 招待 待 好客 陪同 一同 一道 当面
 How you see people:看待 看重 看中 看好 看得起 看不起 面子 嘲笑 逗
 Praise and agree:夸 夸奖 夸张 赞赏 赞同 认可 认同 采纳
 
 ## Words and talk|言语
-Talking:交谈 谈论 议论 评论 自言自语 实话 承诺 热议
+Talking:交谈 谈论 议论 评论 自言自语 实话 承诺 热议 吐
 Ask and answer:征求 寻求 听取 倾听 答复 反馈 汇报 传达 提示
 Blame and doubt:指责 警告 投诉 认错 质疑 疑惑 误 误解
-Guess and expect:猜测 推测 预料 预期 预定 试图 不料
-Know and tell apart:得知 识 识别 认定 区分 划分 忽略 分级
+Guess and expect:猜测 推测 预料 料#2 预期 预定 试图 不料
+Know and tell apart:得知 识 识别 认定 区分 划分 划 忽略 分级
 Think it over:回顾 反思 感想 联想 幻想 设想 假设
 Names and fame:命名 称呼 称作 称号 名气 出名 闻名 众所周知
 Language:言语 母语 方言 声调 音节 成语 符号 口号 内涵
 
 ## Describing things|恰当
 Clear or dark:清晰 清醒 显著 精确 纯 浓厚 黑暗 精准
-Hard and soft:坚硬 坚固 结实 牢 松 柔软 脆弱 薄弱
+Hard and soft:坚硬 坚固 结实 牢 松 散 柔软 脆弱 薄弱
 Strange and new:罕见 异常 神奇 妙 巧妙 崭新 新兴 原始 热门
 What matters most:首要 至关重要 迫切 优先 特定 专用 通用 多余
 Just right:恰当 适宜 可行 切实 健全 齐全 充实 地道
@@ -784,12 +785,12 @@ Pros and cons:缺陷 弱点 漏洞 用处 益处 功效 特性 素质
 ## Change and action|转换
 In trouble:遭到 遭遇 遭受 陷入 丧失 危机 险 冒 冒险
 Blocked:障碍 阻碍 妨碍 阻挡 拦 干扰 困扰 耽误 拖延
-Clear away:除 排除 消除 撤销 撤回 拆除 散 散发
+Clear away:除 排除 消除 撤销 撤回 拆除 散#2 散发
 Shift and switch:转移 转换 转交 取代 过渡 调节 改造 数字化
 Show and appear:露 透露 暴露 显 呈现 出示 涌现 兴起 生成
 Fix and protect:修复 重建 还原 损坏 维护 保障 保管 巩固
 More and stronger:添 添加 放大 加倍 扩展 延伸 强化 加重 加剧
-Less and simpler:减弱 压缩 简化 优化 中断 尽 免
+Less and simpler:减弱 压缩 简化 优化 中断 尽 免 剩余
 
 ## Time|岁月
 A short while:瞬间 片刻 一阵 一时 此刻 当下 实时 当场 工夫
@@ -802,7 +803,7 @@ Again and again:一再 再三 接连 频繁 不时 不已 日益 轮流 一一
 The calendar:年度 年终 上旬 中旬 下旬 截止 截至 延期 为期
 
 ## Little words|干脆
-Why and because:为何 为此 为止 之所以 出于 多亏 至于
+Why and because:为何 为此 为止 之所以 所 出于 多亏 至于
 Never and not:未 未必 从未 不曾 毫无 毫不 不止 不至于
 Even if, unless:虽 就算 即便 除非 要么 与其 不顾
 So that:以便 以免 得以 足 足以 十足 加以 进而 易于
@@ -810,6 +811,6 @@ Surely, simply:明明 无疑 算是 倒是 干脆 极为 特 看似 好不
 Formal words:于 则 凡是 本身 前者 后者 上述 犹如 较为
 Always and all:一向 一贯 依旧 仍旧 一律 大都 大致 处处 遍地
 On purpose or not:特意 特地 白白 不禁 难免 只得 只顾
-In a rush:匆匆 匆忙 赶忙 飞速 一口气 顿时 眼看
+In a rush:匆匆 匆忙 赶忙 飞速 一口气 顿时 眼看 落
 `,
 };

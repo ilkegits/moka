@@ -1,15 +1,15 @@
 ## Festival food | 美味 | Shi Shi promised mooncakes for the family reunion, but he cannot follow one step of Gun Gun's recipe
 Cooking: 煮 炒 炸 烧 烧烤 燃烧 加热 切 冻
-Taste and smell: 口味 美味 酸甜苦辣 淡 浓 臭 咬 雪糕
+Taste and smell: 口味 美味 酸甜苦辣 淡 浓 臭 咬 雪糕 点心
 In the kitchen: 锅 盖 盆 叉子 吸管 开水 洒 漏
 Fruit and veg: 蔬菜 土豆 番茄 黄瓜 玉米 桃 梨 橘子 橙子
-Rice and tofu: 主食 粮食 大米 豆腐 豆浆 油条 饼 点心 盒饭
+Rice and tofu: 主食 粮食 大米 面 豆腐 豆浆 油条 饼 盒饭
 Eating out: 餐饮 西餐 海鲜 火锅 酒吧 夜市 甜品 打包 醉
 Eating well: 饮食 食用 营养 热量 消化 胃 减肥 身材
 On the label: 成分 含 含有 含量 水分 保质期 过期 到期 无效
 
 ## At home | 住房 | The guests arrive tomorrow and Shi Shi cannot tell the repairman which room the broken lamp is in
-A place to live: 住房 房屋 公寓 宿舍 单元 居住 居民 住址
+A place to live: 住房 房屋 公寓 宿舍 单元 居住 居民 住址 所
 Rooms: 卧室 书房 阳台 窗台 车库 台阶 墙 玻璃
 In my room: 柜子 书架 台灯 被子 床单 拖鞋 闹钟 扇子 扇
 Household things: 家务 家电 电器 日用品 用品 物品 存放 玩具
@@ -21,11 +21,11 @@ Rent and repairs: 住宿 租金 押金 中介 物业 装修 维修 安装
 Husband and wife: 老公 老婆 太太 夫妇 新郎 新娘 婚礼 新人
 People and ages: 男子 女子 妇女 小姐 成人 成年 年纪 一代
 Falling in love: 恋爱 对象 亲爱 宝贝 拥抱 分手 失恋 离婚
-Self and others: 个人 本人 自身 私人 他人 双方 彼此 各自
+Self and others: 个人 本人 本 自身 私人 他人 双方 彼此 各自
 Friend or stranger: 伙伴 熟人 陌生 贵姓 路人 人群 碰见 交往 相处
-Family ties: 亲 亲人 亲情 亲朋好友 陪伴 看望 想念 珍惜
+Family ties: 亲 亲人 亲情 亲朋好友 陪伴 看望 看 想念 珍惜
 Relatives: 外公 外婆 姥爷 姥姥 大爷 大妈 子女 儿女
-Goodbyes: 告别 分别 分离 去世 舍得 舍不得 泪 眼泪 泪水
+Goodbyes: 告别 分别 别 分离 去世 舍得 舍不得 泪 眼泪
 
 ## Colours and shapes | 色彩 | At the lantern stall Shi Shi cannot describe the round red lantern he wants, and Hu Hu is eyeing the last one
 Colours: 黑 白 红 青 紫 灰 灰色 黄金
@@ -38,8 +38,8 @@ Style and looks: 打扮 样式 风格 外形 外观 形象 优美 丑
 Clothes: 服装 西装 领带 系 牛仔裤 围巾 手套 口袋 套
 
 ## Body and health | 人体 | Bao Bao tasted nine practice mooncakes and Shi Shi cannot tell the doctor what hurts
-The body: 人体 大脑 眼 嘴巴 牙齿 手指 腰 肌肉
-Body language: 脸色 表情 微笑 目光 反应 姿势 脚步 汗水
+The body: 人体 大脑 眼 嘴巴 牙齿 手指 腰 背 肌肉
+Body language: 脸色 表情 微笑 目光 反应 姿势 脚步 汗水 泪水
 Getting sick: 疾病 流感 着凉 过敏 疼痛 毛病 病情 伤
 Treatment: 治 治疗 医疗 医学 诊断 中医 中药 药物 药品
 At the hospital: 挂号 门诊 急诊 病房 救护车 抢救 救 手术
@@ -49,12 +49,12 @@ Good or bad for you: 有益 有利 有助于 有害 不良 不利 伤害 损害 
 
 ## Animals and nature | 生物 | Yu Tu sends Shi Shi along the riverbank to gather things for the lotus lamps, and he cannot name a single plant or creature
 Animals: 龙 猪 蛇 兔子 猴子 大象 鸭子 宠物 生肖
-A flock, a bunch: 群 匹 颗 根 朵 束 堆 团
-On the farm: 农业 农民 土地 浇 晒 收获 产量
+A flock, a bunch: 群 匹 颗 根 朵 束 堆 团 行
+On the farm: 农业 农民 土地 浇 喂 晒 收获 产量
 Sky and weather: 天空 天上 空中 雾 暴雨 雨水 降水 预报 升温
 Living things: 生物 生存 昆虫 虫子 蝴蝶 翅膀 尾巴
 Land and water: 湖 池 河流 陆地 山区 沙漠 沙子 石头 洞
-Plants: 树木 竹子 木头 玫瑰 种子 果实 生长 种植
+Plants: 树木 竹子 木头 头 玫瑰 种子 果实 生长 种植
 
 ## Getting around | 一路顺风 | The last train to the river town is boarding and Shi Shi cannot read his ticket or the platform signs
 On the way: 一路 一路顺风 路线 行程 前往 到达 返回 停留
@@ -68,7 +68,7 @@ Trips abroad: 旅行社 游览 预订 预约 海关 海外 时差 飞行 飞行�
 ## Hands and feet | 动手 | Long Long shouts down from the pagoda how to hang the lantern strings, and Shi Shi does the opposite every time
 With your hands: 动手 抓 抢 握 握手 摸 抽 捡 摘
 Chase and hide: 追 冲 躲 藏 寻找 等待 等候 秘密
-Break and lose: 断 打断 碎 拆 破坏 损失 丢失
+Break and lose: 断 打断 碎 倒 拆 破坏 损失 丢失
 Slips and bumps: 撞 碰 摔 滑 滚 翻 沉 低头 扶
 Closer and further: 移 移动 前进 退 退出 接近 靠近 距 前来
 In the way: 挡 堵 隔 围 绕 挤 闹
@@ -78,7 +78,7 @@ Reach, wave, pass: 伸 挥 摇 递 传 传递 接收 领 领取
 ## Shops and money | 买卖 | Shi Shi needs one more box of mooncakes from the riverside stalls, but he cannot follow the prices or ask for a discount
 Buying and selling: 买卖 交易 出售 销售 销量 客户 商人 商家 营业
 Companies: 企业 商业 商务 电商 总部 行业 产业 开业 经营
-Costs and profits: 资金 成本 利润 利益 风险 保险 资源
+Costs and profits: 资金 成本 省 利润 利益 风险 保险 资源
 Factories: 工业 生产 产 产品 品 加工 制造 制作
 Rich and poor: 富 富有 穷 欠 赔 退还 亏 捐 挣
 Shopping: 便利店 品牌 名牌 全新 二手 挑 挑选 消费 消费者
@@ -102,7 +102,7 @@ Opening night: 开幕 开幕式 闭幕式 现场 明星 魅力 届
 Spreading the word: 宣布 公布 发布 发表 宣传 推广 传播 普及
 In the news: 媒体 报道 采访 直播 电视台 收看 标题 出版 印刷
 On record: 录 录音 记录 记载 登记 保存 保留
-Free time: 休闲 业余 闲 户外 乐趣 欣赏 享受 迷
+Free time: 休闲 业余 闲 户外 乐趣 欣赏 享受 迷 好
 Films and photos: 影片 影视 动画 纪录片 拍摄 摄影 合影 相册 画面
 Music and dance: 歌曲 歌词 舞蹈 鼓 鼓掌 掌声 娱乐
 
@@ -122,9 +122,9 @@ Levels: 级 初级 中级 高级 升级 超级 高档
 Learning by doing: 实践 实习 培训 尝试 试用 体验 体会
 Exams: 试卷 题目 填 测试 及格 录取 学历 证书 资格
 Words and sounds: 词汇 字母 拼音 读音 发音 语音 语气 用法 念
-A good student: 专心 勤奋 虚心 自觉 指导 改正 培养
+A good student: 专心 勤奋 虚心 自觉 指导 改正 培养 才
 Skills: 技能 本领 能干 擅长 善于 熟练 掌握 长处 短处
-At university: 学术 学者 论文 讲座 写作 参考 提交 概括
+At university: 学术 学者 系#2 论文 讲座 写作 参考 提交 概括
 
 ## Work and jobs | 就业 | Gun Gun's mooncake stall is swamped and hires Shi Shi for the night, but he cannot understand the boss's instructions
 People at work: 老板 员工 职工 秘书 主任 领导 专家 工程师 公务员
@@ -150,10 +150,10 @@ Putting to use: 利用 运用 采用 应用 适用 实用 用途 便利
 In the lab: 实验 实验室 试验 测 科研 观察 分析 结论
 Cause and effect: 令 使得 造成 导致 促使 因素 后果
 How much: 度 程度 强度 难度 角度 规模 范围 音量 轻重
-Doing the sums: 计算 统计 平均 比例 总共 总数 亿
-Lots and few: 无数 众多 大批 整整 将近 有限 无限
+Doing the sums: 计算 数 统计 平均 比例 总共 总数 亿 面积
+Lots and few: 无数 众多 大批 整整 将近 有限 无限 量
 Sciences: 物理 化学 地理 哲学 逻辑 理论 规律 物质 领域
-Measuring: 厘米 吨 长度 宽度 厚度 高度 深度 重量 面积
+Measuring: 厘米 吨 长度 宽度 厚度 高度 深度 重量 称#2
 
 ## Feelings | 情绪 | The festival is over, Bao Bao will not stop crying, and Shi Shi cannot find the words to ask what is wrong
 Good feelings: 惊喜 期待 温暖 舒适 热爱 信任 尊敬 在乎
@@ -168,15 +168,15 @@ Shy or silly: 调皮 胆小 傻 怪 好奇 犹豫 谨慎 严肃 消极
 ## Talking it over | 沟通 | Shi Shi and Long Long fall out over the last mooncake, and he does not know how to talk it through
 Chatting: 谈话 话题 沟通 互动 表达 描述 讲述 提起 转告
 Names and meanings: 称 称为 名称 标志 象征 主题 意味着 代表 比喻
-Arguing and urging: 吵 骂 抱怨 骗 劝 说服 催 强调
+Arguing and urging: 吵 骂 抱怨 骗 劝 说服 催 强调 批#2
 Agree or deny: 承认 否认 否定 赞成 认 推荐 提倡
 Relying on: 靠 依靠 凭 凭借 据 依据 据说
-Seeing it as: 评 评价 反映 看作 视为 当作 当成
+Seeing it as: 评 评价 反映 看作 视为 当作 当 当成
 Asking: 询问 提问 疑问 问卷 咨询 打听 请求 请教 访问
 Post and phone: 邮局 信封 邮票 包裹 邮寄 拨打 占线 话费 留言
 
 ## People and rules | 规则 | A guard stops Shi Shi from floating the leftover lotus lamps on the river, and he cannot tell which rule he broke
-Government: 政府 政治 总统 机构 组织 制度 改革 派
+Government: 政府 政治 总统 机构 处#2 组织 制度 改革 派
 The people: 人民 人类 人口 人物 市民 大众 老百姓 群体 族
 What happened: 事件 事故 意外 大事 现象 威胁 紧急 地震
 Rights and duties: 权 权利 义务 自由 公平 地位 身份 贡献 志愿者
@@ -210,10 +210,10 @@ Comparing: 对比 较 相对 反 差别 差距 等于 大于 小于
 Changing: 化 转变 变动 形成 现代化 消失 成长 成熟
 Joining up: 合 配 结合 联合 组合 统一 连接
 Gather and share: 集 集中 集合 收集 分享 共享 分配 分布 排列
-Making it better: 改善 改进 完善 进步 提升 修改 调 调整 更新
+Making it better: 改善 改进 完善 进步 提升 修改 调#2 调整 更新
 Deep and strong: 深刻 深入 深远 深厚 广泛 强烈 热烈 弱
 Too much: 超 超出 过度 过分 过于 极其 格外 简直
-Swap and refill: 更换 交换 代 替 代替 补充 吸收 回收
+Swap and refill: 更换 交换 调 代 替 代替 补充 吸收 回收
 More and less: 升 上升 增 增强 增进 加深 扩大 缩小 缩短
 Moving forward: 推动 推进 促进 带动 发达 繁荣 开放
 
@@ -230,7 +230,7 @@ Dealing with: 处理 面临 应对 对待 注重 讲究 忽视
 
 ## Little words | 总之 | Shi Shi writes a thank-you letter to Yu Tu on the moon, but without the little linking words it reads like a shopping list
 Oh and ah: 哦 呀 哈 唉 哎 哎呀 不要紧 没法儿
-Formal little words: 所 以 其 及 以及 至 便 某
+Formal little words: 以 为 其 及 以及 至 便 某
 Really and after all: 居然 果然 反而 反正 毕竟 根本 依然
 More counting words: 支 副 架 批 伙 阵 册
 Maybe and as if: 或许 说不定 似乎 仿佛 似的 如 正如

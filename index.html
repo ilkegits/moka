@@ -24,7 +24,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
-<script src="course.js?v=333"></script>
+<script src="course.js?v=334"></script>
 <style>
 /* ǖ ǘ ǚ ǜ (lǜ, nǚ) from a system font: Satoshi has no ü with tone marks and would show the mark beside the letter */
 @font-face{font-family:"PyMarks";src:local("Segoe UI"),local("SegoeUI"),local("Helvetica Neue"),local("HelveticaNeue"),local("Roboto"),local("Arial");unicode-range:U+01D5-01DC}
@@ -4633,7 +4633,10 @@ for (const [lv, txt] of Object.entries(window.SHI_COURSE || {})) { let k = 0; if
 const UNIT_BY = new Map(LES_UNITS.map(U => [U.un, U])), UNIT = un => UNIT_BY.get(+un);
 const LV_UNITS = {}; LES_UNITS.forEach(U => (LV_UNITS[U.lv] ||= []).push(U));
 const lvUnits = lv => LV_UNITS[lv] || [], lvHas = lv => !!LV_UNITS[lv];
-const LESSONS = LES_UNITS.flatMap(U => U[2].map(([title, w]) => ({ un: U.un, lv: U.lv, title, words: w.split(' ') })));
+/* v4.42: a word the HSK list has twice in one level is written 空#2 for its second line there (空 kōng, 空#2 kòng); a lesson
+   keeps the plain word in words and which line it means in sense (word -> 2). lesRow reads the line of the lesson's level */
+const LESSONS = LES_UNITS.flatMap(U => U[2].map(([title, w]) => { const sense = new Map(), words = w.split(' ').map(t => { const [h, k] = t.split('#'); if (+k > 1) sense.set(h, +k); return h; });
+  return { un: U.un, lv: U.lv, title, words, sense }; }));
 { const at = {}; LESSONS.forEach((L, i) => { L.i = i; L.k = at[L.lv] = (at[L.lv] || 0) + 1; L.n = (L.lv === 1 ? 0 : L.lv * 1000) + L.k; }); }
 const LES_BY = new Map(LESSONS.map(L => [L.n, L])), LES = n => LES_BY.get(+n);
 const LV_LES = {}; LESSONS.forEach(L => (LV_LES[L.lv] ||= []).push(L));
@@ -4644,9 +4647,17 @@ const lvDoneSay = lv => lv < 7 ? `finishes ${HSK_NAME(lv)} and opens ${HSK_NAME(
 /* plain meanings for lessons where the dictionary's first one is odd or too long ("年: grain; harvest") */
 const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome|你好=hello|这个=this; this one|那个=that; that one|哪个=which; which one|一下=(do something) a bit; once|没事=it's nothing; never mind`.split('|').map(s => s.split('=')));
 const lesRows = new Map();
-function lesRow(h) {   // { h, p, en } for a lesson word
-  if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: S.H.gloss?.get(h)?.p || r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') }); }
-  return lesRows.get(h) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
+/* { h, p, en } for a lesson word. L: its lesson. v4.42: the official list gives some words more than once (点 HSK 1
+   "o'clock", HSK 2 "to order"; 只 zhī HSK 1, zhǐ HSK 3), so a lesson shows the line of its own level (the k-th one when the
+   word is there twice). The hand-written meanings (gloss, LES_MEAN) are for a word's first line only */
+function lesRow(h, L) {
+  const lv = L?.lv || 0, k = L?.sense?.get(h) || 1, key = `${lv}|${k}|${h}`;
+  if (!lesRows.has(key) && S.H) {
+    const first = S.H.byHz.get(h), here = (S.H.levels[lv] || []).filter(r => r.h === h), r = here[k - 1] || here[0] || first;
+    lesRows.set(key, r && r !== first ? { h, p: r.p, en: meanOf(r) }
+      : { h, p: S.H.gloss?.get(h)?.p || r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') });
+  }
+  return lesRows.get(key) || { h, p: autoPinyin(h), en: LES_MEAN[h] || '' };
 }
 const lesDone = n => !!db.lessons[n]?.done;
 /* v3.79, a lesson in two parts (ilkem: "u learn the character, sketch it in the first lesson, and the 2nd lesson recall it
@@ -7118,7 +7129,7 @@ function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: t
 }
 function lesDrop() { const E = S.les; if (E) clearTimeout(E.timer); if (S.write?.les) { $('.shi-side')?.remove(); S.write = null; } S.les = null; }   // forget a lesson left half done
 function startLesson(n, demo, part) {   // v3.79: part 1 learns and traces, part 2 recalls (lesHalf)
-  const L = LES(n), words = L.words.map(lesRow), q = [];
+  const L = LES(n), words = L.words.map(h => lesRow(h, L)), q = [];
   part = demo ? part || 2 : lesPartOf(n, part);
   if (part === 1) {   // meet each word on its card, and always trace it right after
     const wt = lesTraceTasks(n, words);
@@ -7159,7 +7170,7 @@ const UT_PER = 3;   // words the final boss asks from each lesson
 function startUnitTest(un, demo) {
   const ls = unitLessons(un), T = ['hz2en', 'en2hz', 'ear', 'py'];
   const proven = h => !!bankHas(h)?.pf?.at;
-  const words = ls.flatMap(L => shuffle(L.words).sort((a, b) => proven(a) - proven(b)).slice(0, UT_PER)).map(lesRow);
+  const words = ls.flatMap(L => shuffle(L.words).sort((a, b) => proven(a) - proven(b)).slice(0, UT_PER).map(h => lesRow(h, L)));
   const q = shuffle(shuffle(words).map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
   if (wt[1]) q.splice(Math.round(nq * .66), 0, { t: 'write', mode: 'recall', ...wt[1] });
   if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
@@ -7236,9 +7247,9 @@ function jumpRoute(un) {   // opening #/course/<level>/jump/<unit>
 }
 function startJump(un) {   // a word from each lesson to skip in turn (more lessons than questions: a random few of them), 10 questions and 2 more for each extra unit, up to 20
   const ls = jumpLessons(un), T = ['hz2en', 'en2hz', 'ear', 'py'], nu = new Set(ls.map(L => L.un)).size;
-  const want = Math.min(20, 10 + 2 * (nu - 1)), seen = new Set(), pick = [], per = shuffle(ls.map(L => shuffle(L.words.slice())));
-  while (pick.length < want && per.some(a => a.length)) for (const a of per) { if (pick.length >= want) break; let h; while ((h = a.pop()) && seen.has(h)); if (h) { seen.add(h); pick.push(h); } }
-  const words = pick.map(lesRow), q = shuffle(words.map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
+  const want = Math.min(20, 10 + 2 * (nu - 1)), seen = new Set(), pick = [], per = shuffle(ls.map(L => shuffle(L.words.map(h => lesRow(h, L)))));
+  while (pick.length < want && per.some(a => a.length)) for (const a of per) { if (pick.length >= want) break; let w; while ((w = a.pop()) && seen.has(w.h)); if (w) { seen.add(w.h); pick.push(w); } }
+  const words = pick, q = shuffle(words.map((w, k) => ({ t: T[k % 4], w }))), nq = q.length, wt = lesWriteTasks(ls[0].n, words);
   if (wt[1]) q.splice(Math.round(nq * .66), 0, { t: 'write', mode: 'recall', ...wt[1] });
   if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
   S.les = { test: un, jump: un, n: ls.at(-1).n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq, t0: Date.now(),
@@ -7487,7 +7498,7 @@ function lesDropEars() {   // "Can't listen now": the listening questions left a
 }
 function lesOpts(Q) {   // the answer and three others that can't be mistaken for it
   const a = Q.w, show = Q.t === 'hz2en' || Q.t === 'flip' ? 'en' : Q.t === 'py' ? 'p' : 'h', sound = Q.t === 'ear' || Q.t === 'py';
-  const at = LES(S.les.n).i, more = shuffle(LESSONS.slice(Math.max(0, at - 60), at + 4).flatMap(L => L.words)).map(lesRow);   // wrong answers come from the lessons around this one
+  const at = LES(S.les.n).i, more = shuffle(LESSONS.slice(Math.max(0, at - 60), at + 4).flatMap(L => L.words.map(h => lesRow(h, L))));   // wrong answers come from the lessons around this one
   const out = [a], seen = new Set([a[show]]);
   for (const w of [...shuffle(S.les.pool), ...more]) {
     if (out.length >= 4) break;
@@ -9162,7 +9173,7 @@ function hotdPick(fresh) {   // fresh: the Developer sheet's "Try another charac
   if (H?.day === today && H.h && !fresh) return H;
   if (!S.H) return null;
   const known = knownWords(), past = new Set(H?.past || []);
-  const ok = r => [...r.h].length === 1 && HAN.test(r.h) && r.e && r.e[0] !== '(' && !/^surname /.test(r.e);   // no particles, no surnames
+  const ok = r => [...r.h].length === 1 && HAN.test(r.h) && r.e && r.e[0] !== '(' && !/^surname /.test(r.e) && S.H.byHz.get(r.h) === r;   // no particles, no surnames; a character's first line
   let pool = [];
   for (const l of [1, 2, 3, 4, 5, 6, 7].filter(l => l >= (db.prefs.level || 1))) { pool = (S.H.levels[l] || []).filter(r => ok(r) && !known.has(r.h) && !past.has(r.h)); if (pool.length) break; }
   if (!pool.length) pool = (S.H.levels[1] || []).filter(ok);
@@ -13600,11 +13611,13 @@ function wireSearch(inp, onClear) {
 
 /* ---------- HSK lists ----------
    dict/hsk.tsv: the HSK 3.0 word lists of the official 2025 syllabus 《HSK 考试大纲》 (levels 1-6, and 7 for the 7-9 band):
-   every word once, at the lowest level it is listed at, in its official reading, with CC-CEDICT meanings; rebuild with
+   every listing, so each level has the official number of entries (300, 200, 500, 1,000, 1,600, 1,800 and 5,600). A word
+   listed again (点 "o'clock" at HSK 1, "to order" at HSK 2) has a line for each; byHz holds its first line, the lowest
+   level. Readings are the official ones, meanings CC-CEDICT or written for that listing; rebuild with
    tools/build_hsk.py. A line whose reading was corrected in v4.41 keeps its old pinyin and meanings in two more columns.
    One line per word: level <TAB> simplified <TAB> pinyin <TAB> meanings. */
 const HSK_NAME = l => l === 7 ? 'HSK 7–9' : 'HSK ' + l;
-const HSK_COUNT = { 1: 300, 2: 197, 3: 491, 4: 990, 5: 1579, 6: 1777, 7: 5562 };   // words per level, shown before the lists load
+const HSK_COUNT = { 1: 300, 2: 200, 3: 500, 4: 1000, 5: 1600, 6: 1800, 7: 5600 };   // words per level, shown before the lists load
 /* the shelf of HSK levels on the Decks page; rings fill in once the lists are loaded */
 function HskShelf() {
   const inBank = S.H && new Set(db.bank.map(w => w.hanzi));
@@ -13927,7 +13940,7 @@ function mountHsk() {
   list.onclick = e => {
     const b = e.target.closest('.row[data-h]'); if (!b) return; const h = b.dataset.h;
     if (b.classList.contains('has')) { toast(`${h} is already in your word bank`); return; }
-    sel.has(h) ? sel.delete(h) : sel.add(h); b.classList.toggle('on', sel.has(h)); paint();
+    sel.has(h) ? sel.delete(h) : sel.add(h); list.querySelectorAll('.row[data-h]').forEach(x => x.dataset.h === h && x.classList.toggle('on', sel.has(h))); paint();
   };
   allB.onclick = () => {
     const f = fresh(), all = f.every(r => sel.has(r.h)); f.forEach(r => all ? sel.delete(r.h) : sel.add(r.h));
@@ -13935,7 +13948,8 @@ function mountHsk() {
   };
   addB.onclick = () => {
     const now = Date.now();
-    const words = L.filter(r => sel.has(r.h) && !inBank.has(r.h)).map((r, i) => ({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - i, hsk: r.lv }));
+    const one = new Set(), words = L.filter(r => sel.has(r.h) && !inBank.has(r.h) && !one.has(r.h) && one.add(r.h))   // 空 kōng and 空 kòng: one card
+      .map((r, i) => ({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - i, hsk: r.lv }));
     if (!words.length) return;
     db.bank = [...words, ...db.bank]; save();
     words.forEach(w => inBank.add(w.hanzi)); sel.clear();
@@ -13951,7 +13965,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.41';
+const APP_VERSION = '4.42';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14461,7 +14475,7 @@ function obCharsAt(lv) {   // how many different characters each level brings in
 function obRound(lv) {
   const C = S.ob.chk, shown = new Set(C.rounds.flatMap(r => r.chars.map(x => x.h)));
   if (!S.obFirst) { S.obFirst = {}; for (const l of [1, 2, 3, 4, 5, 6, 7]) for (const r of S.H.levels[l] || []) for (const c of r.h) S.obFirst[c] ??= l; }   // the level that first uses each character
-  const pool = shuffle((S.H.levels[lv] || []).filter(r => obPoolOk(r) && S.obFirst[r.h] === lv && !shown.has(r.h)));
+  const pool = shuffle((S.H.levels[lv] || []).filter(r => obPoolOk(r) && S.obFirst[r.h] === lv && !shown.has(r.h) && S.H.byHz.get(r.h) === r));
   C.rounds.push({ lv, chars: pool.slice(0, OB_ROUND), on: new Set() });
 }
 function obPlace() {   // after each round: go up, go down, or stop

@@ -243,9 +243,131 @@ def cmeaning(ms, p, depth=0):
             if m: return m
     return ''
 
+# ---- words the official list gives more than once ----
+# A word listed again, at a higher level or at the same one, with another meaning (点 "o'clock" at HSK 1, "to order" at
+# HSK 2) or another reading (只 zhī at HSK 1, zhǐ at HSK 3). Each listing is its own line, so every level holds exactly the
+# official number of entries. (word, n): the meaning of its n-th listing, in the official order; every listing after the
+# first must have one. A first listing is here only where CC-CEDICT's meanings fit the other listing better (花 at HSK 2 is
+# first the verb "to spend", then the noun "flower").
+SENSES = {
+    ('点', 2): 'to order (food); to light; to nod; to touch on',
+    ('花', 1): 'to spend (money or time)', ('花', 2): 'flower; blossom; colourful; fancy',
+    ('过', 2): '(after a verb: have done before, as in "have been")',
+    ('会', 2): 'meeting; gathering; association',
+    ('只', 2): 'only; just; merely',
+    ('地', 2): 'ground; earth; land; place',
+    ('得', 2): 'to get; to obtain; to gain', ('得', 3): 'must; to have to; to need',
+    ('站', 2): 'to stand; to stop',
+    ('过去', 1): 'to go over; to pass by', ('过去', 2): 'the past; in the past; former',
+    ('还', 2): 'to give back; to return; to pay back',
+    ('长', 2): 'to grow; to get bigger; head; chief',
+    ('两', 2): 'liang; tael (unit of weight, 50 grams)',
+    ('为', 2): 'to be; to act as; to become', ('为', 3): '(formal, passive: by, as in "be loved by all")',
+    ('啊', 2): 'ah! oh! (surprise)',
+    ('干', 1): 'to do; to work', ('干', 2): 'dry; dried',
+    ('生', 1): 'to be born; to give birth; to grow; to get (ill)', ('生', 2): 'raw; unripe; unfamiliar; strange',
+    ('着', 2): 'to succeed in (after a verb); to touch; to catch (fire, a cold)',
+    ('种', 2): 'to plant; to grow',
+    ('空', 2): 'free time; spare; to leave empty',
+    ('等', 1): 'to wait (for); until', ('等', 2): 'and so on; etc.; class; grade',
+    ('重', 2): 'heavy; weight; important',
+    ('倒', 2): 'to fall over; to collapse; to change (trains, buses)',
+    ('别', 1): "don't (do something)", ('别', 2): 'to leave; to part; to pin; to fasten',
+    ('喂', 1): 'hello (on the phone); hey', ('喂', 2): 'to feed',
+    ('处', 2): 'place; office; department',
+    ('头', 2): '(noun ending, as in "stone" or "inside")',
+    ('好', 2): 'to like; to be fond of; to be keen on',
+    ('当', 2): 'to treat as; to regard as; to pawn',
+    ('才', 1): 'only then; just (now); only', ('才', 2): 'talent; ability; capable person',
+    ('批', 1): '(measure word: batch; group)', ('批', 2): 'to criticize; to approve (a document); to comment on',
+    ('数', 2): 'to count; to be reckoned as',
+    ('本', 1): '(measure word for books)', ('本', 2): "this; one's own; originally",
+    ('省', 1): 'province', ('省', 2): 'to save; to economize; to leave out',
+    ('看', 2): 'to look after; to watch over',
+    ('称', 1): 'to call; to name; to say', ('称', 2): 'to weigh',
+    ('系', 2): 'department (of a university); system; to relate to',
+    ('背', 2): 'back (of the body); to recite from memory; to turn away',
+    ('行', 1): 'to go; to be all right; OK; capable', ('行', 2): 'line; row; profession; (measure word for rows)',
+    ('调', 2): 'to adjust; to mix; to provoke', ('调', 3): 'tune; tone; accent',
+    ('量', 2): 'amount; quantity; capacity',
+    ('面', 2): 'noodles; flour',
+    ('中', 2): 'to hit (the target); to win (a prize); to be hit by',
+    ('乘', 2): 'to multiply',
+    ('冲', 2): 'facing; towards; (of a smell) strong; vigorous',
+    ('划', 2): 'to draw (a line); to mark off; to divide',
+    ('副', 1): '(measure word: pair, set, as for glasses or gloves)', ('副', 2): 'deputy; vice-; secondary',
+    ('升', 2): 'litre',
+    ('卷', 2): 'volume; (exam) paper; scroll',
+    ('吐', 2): 'to vomit; to throw up',
+    ('地方', 2): 'local; region (not central)',
+    ('局', 1): '(measure word for games: match, set, round)', ('局', 2): 'office; bureau; situation',
+    ('待', 2): 'to wait for; to treat; to deal with',
+    ('所', 1): 'place; (measure word for houses, schools, hospitals)', ('所', 2): 'that which (formal particle); by (in passive sentences)',
+    ('扇', 2): '(measure word for doors and windows); fan',
+    ('支', 1): '(measure word for long thin things: pens, songs, teams)', ('支', 2): 'to support; to prop up; to pay out',
+    ('散', 2): 'to break up; to disperse; to scatter',
+    ('料', 1): 'material; stuff; ingredients', ('料', 2): 'to expect; to anticipate',
+    ('炸', 2): 'to explode; to blow up; to burst',
+    ('结', 2): 'to bear fruit; to form seeds',
+    ('结果', 2): 'to bear fruit',
+    ('落', 2): 'to leave behind; to forget; to be left out',
+    ('该', 2): '(formal) this; that; the said',
+    ('转', 2): 'to turn round; to spin; to stroll',
+    ('露', 2): '(formal) to reveal; to show', ('露', 3): 'dew',
+    ('之', 1): "(literary) of; 's", ('之', 2): '(literary) him; her; it; this',
+    ('传', 2): 'biography; commentary',
+    ('作为', 1): 'as (in the role of); to regard as', ('作为', 2): 'conduct; achievement; to accomplish something',
+    ('则', 2): '(measure word for news items and notices)',
+    ('制服', 1): 'uniform', ('制服', 2): 'to subdue; to bring under control',
+    ('卡', 1): 'card', ('卡', 2): 'to get stuck; to block; clip',
+    ('呛', 2): 'to irritate the nose; to choke (of smoke or a smell)',
+    ('命', 1): 'life; fate', ('命', 2): 'to order; to command; to name',
+    ('和', 2): 'mild; gentle; peaceful; harmonious',
+    ('圈', 2): 'to pen in; to shut in', ('圈', 3): 'pen; pigsty; fold',
+    ('地道', 2): 'tunnel',
+    ('大意', 2): 'careless',
+    ('尽', 2): 'as much as possible; to the greatest extent; at the very (end)',
+    ('成年', 2): 'all year round',
+    ('打', 2): '(spoken) from; since',
+    ('折', 2): '(of something long) to break; to lose money',
+    ('担', 2): 'load; burden; (measure word: a carrying-pole load)',
+    ('拧', 2): 'to twist; to screw',
+    ('挑', 2): 'to raise; to poke; to stir up',
+    ('挨', 2): 'to suffer; to endure; to be beaten',
+    ('撒', 2): '(of a net) to cast; to let go; to act (spoiled)',
+    ('晃', 2): 'to sway; to shake',
+    ('横', 2): 'harsh; unreasonable; rude',
+    ('涨', 2): 'to swell; to expand',
+    ('率', 2): 'to lead; to command',
+    ('码', 1): 'yard (unit of length); number; code; (measure word: a matter)', ('码', 2): 'to stack; to pile up',
+    ('签', 2): 'bamboo slip; label; tag',
+    ('粉丝', 1): 'bean vermicelli', ('粉丝', 2): 'fan (enthusiast); follower',
+    ('精神', 2): 'spirit; mind; essence',
+    ('缝', 2): 'seam; crack; gap',
+    ('自负', 1): 'to take responsibility (oneself)', ('自负', 2): 'conceited',
+    ('蒙', 2): 'to cover; to receive (kindness); to suffer',
+    ('转机', 1): 'to change planes', ('转机', 2): 'a turn for the better',
+    ('闷', 2): 'bored; depressed; gloomy',
+    ('麻', 1): 'numb; tingling', ('麻', 2): 'hemp; flax; sesame',
+}
+
+def spaced(official_py, cand):
+    """the official pinyin of a listing ('dàyi', 'guo'), cut into the syllables of a CC-CEDICT reading of the same letters"""
+    off = unicodedata.normalize('NFD', re.sub(r"[\s'’\-·]", '', official_py.split('/')[0].lower()))
+    cuts, at = set(), 0
+    for syl in cand.split():
+        at += len(tones(syl)[0]); cuts.add(at)
+    out, n = [], 0
+    for c in off:
+        if c not in MARK and (c.isalpha() or c == '̈'):
+            if n in cuts and n: out.append(' ')
+            n += 1
+        out.append(c)
+    return unicodedata.normalize('NFC', ''.join(out))
+
 # ---- the official list ----
-official = {}   # word -> (level, pinyin of that listing), first (lowest) listing wins
-order = []
+official = {}   # word -> (level, pinyin) of its first listing, which is its lowest level
+order, listings = [], []   # listings: (word, n, level, pinyin) of every listing after a word's first
 with io.open(src, encoding='utf-8-sig') as f:
     for r in csv.DictReader(f):
         word = re.sub(r'\d+$', '', (r.get('词语') or r.get('Word')).strip())
@@ -253,8 +375,9 @@ with io.open(src, encoding='utf-8-sig') as f:
         lv, py = BANDS[band], (r.get('拼音') or r.get('Pinyin')).strip()
         if word not in official:
             official[word] = (lv, py); order.append(word)
-        elif lv < official[word][0]:
-            official[word] = (lv, py)
+        else:
+            assert lv >= official[word][0], f'{word}: a later listing at a lower level'
+            listings.append((word, 1 + sum(1 for x in listings if x[0] == word) + 1, lv, py))
 
 # ---- CC-CEDICT readings, and how common each word is (jieba) ----
 cedict, jieba = {}, {}
@@ -310,16 +433,29 @@ for word in order:
     else:
         missing.append(f'{word} {py}'); continue
     if best >= 0 and score(word, p, py) < 2: report.append(f'CHECK {word}: {p} vs official {py}')
-    rows.append((lv, q, word, p, m))
+    if (word, 1) in SENSES: m = SENSES[(word, 1)]
+    rows.append((lv, q, word, p, m, 1))
 if missing: sys.exit('no meaning in CC-CEDICT, write them in HAND: ' + ', '.join(missing))
+# the later listings of a word: their own reading and the meaning written in SENSES, ranked with the word's first line
+first = {r[2]: r for r in rows}
+for word, n, lv, py in listings:
+    if (word, n) not in SENSES: missing.append(f'{word} listing {n} ({py}): no meaning in SENSES')
+    cands = [c[0] for c in cedict.get(word, [])] + [first[word][3]]
+    cand = max(cands, key=lambda c: score(word, c, py))
+    if score(word, cand, py) < 1: missing.append(f'{word} listing {n}: {py} matches no reading'); continue
+    rows.append((lv, first[word][1], word, spaced(py, cand), SENSES.get((word, n), ''), n))
+extra = [k for k in SENSES if k[1] > 1 and not any(w == k[0] and n == k[1] for w, n, _, _ in listings)]
+if extra: missing.append(f'SENSES for listings the list does not have: {extra}')
+if missing: sys.exit('\n'.join(missing))
+
 # an erhua word whose only meaning is "erhua form of 小偷": the plain word's meanings after it, as the app reads them
-built = {r[2]: r[4] for r in rows}
-for i, (lv, q, s, p, m) in enumerate(rows):
+built = {r[2]: r[4] for r in rows if r[5] == 1}
+for i, (lv, q, s, p, m, n) in enumerate(rows):
     e = re.fullmatch(r'erhua (?:form|variant) of ([^;\s]+)', m)
     if e:
         base = e.group(1)
         bm = built.get(base) or meanings(max(cedict.get(base, [('', [])]), key=lambda c: bool(meanings(c[1])))[1])
-        rows[i] = (lv, q, s, p, meanings([f'erhua variant of {base}'] + bm.split('; ')) if bm else m)
+        rows[i] = (lv, q, s, p, meanings([f'erhua variant of {base}'] + bm.split('; ')) if bm else m, n)
 
 # ---- old lines, for correcting cards ----
 was = {}
@@ -327,17 +463,19 @@ if prev and os.path.exists(prev):
     for line in io.open(prev, encoding='utf-8'):
         if line.startswith('#'): continue
         f = line.rstrip('\n').split('\t')
-        if len(f) >= 4: was[f[1]] = f[2:6]
+        if len(f) >= 4 and f[1] not in was: was[f[1]] = f[2:6]   # a word's first line
 
-rows.sort(key=lambda r: (r[0], r[1]))
+rows.sort(key=lambda r: (r[0], r[1], r[5]))   # a word's listings at one level stay in the official order
 with io.open(out, 'w', encoding='utf-8', newline='\n') as o:
     o.write('# HSK 3.0 word lists of the 2025 syllabus 《HSK 考试大纲》 (levels 1-6, 7 = 7-9): words, levels and readings from the official list '
             '(chinesetest.cn, via github.com/ofou/hsk); meanings CC-CEDICT (CC BY-SA 4.0), some via complete-hsk-vocabulary (MIT). Built by tools/build_hsk.py\n')
-    for lv, _, s, p, m in rows:
+    for lv, _, s, p, m, n in rows:
         line = f'{lv}\t{s}\t{p}\t{m}'
-        w = was.get(s)
-        if w and (w[0], w[1]) != (p, m): line += f'\t{w[0]}\t{w[1]}'                 # changed now: remember the old line
-        elif w and len(w) == 4 and (w[0], w[1]) == (p, m): line += f'\t{w[2]}\t{w[3]}'   # changed before: carry it forward
+        w = was.get(s) if n == 1 else None
+        if w and (w[0], w[1]) != (p, m) and (w[0] != p or not good(w[1])):
+            line += f'\t{w[0]}\t{w[1]}'   # a wrong reading or no real meaning before: remember the old line, cards made from it are corrected
+        elif w and len(w) == 4:
+            line += f'\t{w[2]}\t{w[3]}'   # corrected before: carry it forward (a meaning narrowed to one listing, 花 "to spend", is no correction)
         o.write(line + '\n')
 for r in report: print(r)
-print(len(rows), 'words ->', out, {l: sum(1 for r in rows if r[0] == l) for l in range(1, 8)})
+print(len(rows), 'lines,', len(first), 'words ->', out, {l: sum(1 for r in rows if r[0] == l) for l in range(1, 8)})

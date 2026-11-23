@@ -12,7 +12,7 @@ Hills and rivers: 山 爬 河 海 树 草
 People: 男人 女人 大人 老 老人 别人 咱们
 Family: 姐妹 叔叔 阿姨 夫妻 爱人 结婚 出生
 Body: 脸 嘴 耳朵 头发 毛 腿 脚
-Looks: 年轻 胖 瘦 矮 身高 可爱
+Looks: 年轻 胖 瘦 矮 身高 长 可爱
 Meeting up: 见面 遇到 遇见 认得 分开 不见 聊 聊天儿
 Having guests: 客人 做客 请客 欢迎 礼物 热情
 
@@ -21,7 +21,7 @@ Hungry: 饿 饱 渴 米 方便面 蛋糕 糖 冰激凌
 Drinks: 饮料 矿泉水 酒 啤酒 冰 加 瓶子
 At the table: 菜单 外卖 用 碗 子 盘子 筷子 勺子
 At the market: 斤 公斤 香蕉 西瓜 甜 新鲜 尝
-Paying: 银行 卡 银行卡 信用卡 借 一共 角
+Paying: 银行 卡 银行卡 信用卡 借 还 一共 角
 Clothes: 衬衫 上衣 大衣 裙子 短 短裤 鞋 双
 Colour and fit: 蓝 黄色 试 换 合适 大小 旧
 
@@ -32,14 +32,14 @@ Cleaning: 扫 打扫 干净 脏 洗澡 牙 刷 牙刷
 Moving house: 搬 搬家 邻居 环境 安静 方便 生活
 In town: 市 城市 小区 宾馆 图书馆 球场
 Animals: 动物 种 大熊猫 马 牛 羊 鸡 养
-Parks: 园 公园 花园 草地 开花 动物园
+Parks: 园 公园 花园 草地 地 开花 动物园
 
 ## Time and seasons | 四季 | The next ferry leaves the day after tomorrow, and Shi Shi keeps turning up at the pier on the wrong day in the rain
 Days: 前天 后天 前年 后年 周末 工作日
 Holidays: 节 节日 过节 假期 放 放假 休假 请假
 Seasons: 季 季节 四季 春天 夏天 秋天 冬天 新年
 Sun, wind and rain: 太阳 月亮 风 刮 凉快 雨衣 伞
-Before and after: 以前 以后 先 然后 后来 最后 终于
+Before and after: 过去 以前 以后 先 然后 后来 最后 终于
 Just now: 刚 刚刚 刚才 最近 马上 突然
 How long: 久 好久 不久 半天 刻 一直 直到
 Often: 常 常常 常见 常用 总 总是 平时 习惯
@@ -55,7 +55,7 @@ Subjects: 数学 历史 文化 体育 兴趣 感兴趣
 Hard or easy: 难 难题 容易 简单 聪明 水平
 
 ## Free time | 比赛 | Hu Hu signs Shi Shi up for the village dragon-boat race and he does not even know how to score
-Sports: 体育馆 网球 羽毛球 锻炼 跳 健康
+Sports: 体育馆 网球 羽毛球 锻炼 跳 站 健康
 The big match: 比赛 运动会 员 运动员 参加 得分 坚持
 Music and games: 游戏 音乐 声 声音 耳机 难听
 Shows and stars: 表演 节目 晚会 有名 名人 画家
@@ -73,16 +73,16 @@ I see: 明白 清楚 懂得 了解 发现 听说 忘记
 
 ## Getting things done | 办法 | The boat springs a leak under an old stone bridge and Shi Shi cannot say what should be done to fix it
 Getting it done: 办 干 办法 方法 完成 结束 解决
-Office: 办公室 经理 同事 服务 会议 开会 名单
-Should and must: 该 应该 必须 一定 不用 可
-Want and get: 需要 要求 得到 受 受到 机会
+Office: 办公室 经理 同事 服务 会议 开会 会 名单
+Should and must: 该 应该 必须 得#2 一定 不用 可
+Want and get: 需要 要求 得到 得 受 受到 机会
 Changes: 变 变成 变化 发生 发展 影响
 Describing things: 重要 主要 一般 奇怪 安全 有用
 Same or different: 一样 不同 其他 别的 像 好像 差
 
 ## Little words | 如果 | At the last pier in Yangshuo Shi Shi wants to tell the whole journey as one story but cannot join his sentences with if, but and or
 By, for and about: 把 被 为 为了 根据 关于 有关
-If and only: 如果 的话 只要 只有 才 只是 只能
+If and only: 如果 的话 只要 只有 才 只是 只 只能
 And, or, but: 又 或 或者 可是 而且 不但 一边
 More and most: 更 越 极 挺 比较 特别
 Roughly: 大概 几乎 差不多 好多 以上 以下
