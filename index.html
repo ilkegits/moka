@@ -2613,6 +2613,24 @@ button.st-d:active{transform:scale(.9);transition:none}
 .js p{margin:0 0 14px;font-size:16px;line-height:1.4;color:var(--ink-2);text-wrap:pretty}
 .js-lives{display:flex;justify-content:center;gap:6px;margin:4px 0 10px}
 .js-lives svg.hrt{width:30px;height:30px}
+.js-lives i{display:block;width:30px;height:30px}
+.js-lives i svg.hrt{fill:var(--fill);stroke:var(--line-2)}
+.js-lives i svg.hrt .hrt-sh{display:none}
+.js-lives i.on svg.hrt{fill:#FF4B5C;stroke:#C42335}
+.js-lives i.on svg.hrt .hrt-sh{display:inline}
+.hb{list-style:none;margin:0 0 14px;padding:4px 14px;border-radius:16px;background:var(--fill);text-align:left}
+.hb li{display:flex;align-items:center;gap:10px;min-height:44px;font-size:15px;line-height:1.3;color:var(--ink-2)}
+.hb li+li{border-top:1px solid var(--line)}
+.hb li>span:nth-child(2){flex:1}
+.hb-ic{flex:none;display:grid;place-items:center;width:26px;height:26px;color:var(--jump-ink)}
+.hb-ic svg{width:22px;height:22px}
+.hb li>b{display:flex;align-items:center;gap:2px;font:800 15px/1 var(--ui);color:#E8293C;white-space:nowrap}
+.hb li>b svg.hrt{width:17px;height:17px}
+.hb-buy{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:50px;margin:0 0 4px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--card,#fff);font:700 16px/1 var(--ui);color:var(--ink)}
+.hb-buy svg{width:22px;height:22px}
+.hb-buy:active{transform:translateY(1px)}
+.hb-buy:disabled{opacity:.5}
+.hb-buy small{font:500 14px/1 var(--ui);letter-spacing:0;text-transform:none;color:var(--muted)}
 .js .js-rule{font-size:15px}
 .js .js-rule b{color:var(--ink)}
 .js .js-note{font-size:14px;margin-top:-6px}
@@ -2636,6 +2654,8 @@ svg.hrt .hrt-sh{fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-l
 .wh-cost svg.hrt{width:13px;height:13px}
 /* the end of a jump: the five lives, the ones kept full, popping in one by one */
 .je-lives{display:flex;justify-content:center;gap:8px;margin:2px 0 18px}
+.je-back{margin-top:18px}
+.je-back h2{margin:0 0 10px;font-size:17px;font-weight:800;text-align:left}
 .je-lives i{display:block;width:34px;height:34px;animation:lifePop .45s var(--d) cubic-bezier(.3,1.6,.5,1) both}
 .je-lives i svg.hrt{width:100%;height:100%;fill:var(--fill);stroke:var(--line-2)}
 .je-lives i svg.hrt .hrt-sh{display:none}
@@ -2933,6 +2953,7 @@ body:has(.le2),.les-scr:has(.le2),.les-scr:has(.le2) .les-dock{background:#FFF1D
 .le2-notes{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:26px}
 .le2-note{display:flex;align-items:center;gap:8px;margin:0;font-size:15px;font-weight:600;color:var(--ink-2)}
 .le2-note .le-new{width:26px;height:26px;border-radius:7px;font-size:14px}
+.le2-hrt svg.hrt{width:24px;height:24px}
 .le2-fl{display:flex;width:20px;height:20px}
 .le2-fl .flame{width:100%;height:100%}
 /* v4.28 the end of a flip round wears the same sunburst and tiles */
@@ -2990,6 +3011,7 @@ body:has(.fe2){background:#FFF1D0}
 .le-t{flex:1;font-size:15.5px;font-weight:600;color:var(--ink)}
 .les-earn li>b{font-size:17px;font-weight:800;color:#9A5200;font-variant-numeric:tabular-nums}
 .les-earn li.le-fire>b{color:#D9480F}
+.les-earn li.le-hrt>b{color:#E8293C}
 @keyframes leIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
 .les-unit{width:100%;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--card);box-shadow:var(--ring);text-align:left}
 .les-unit-t{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
@@ -7141,22 +7163,58 @@ const JUMP_LIVES = 5;
 const jumpLessons = un => lvLes(unitLv(un)).filter(L => L.un < un && !lesDone(L.n));
 const canJump = un => { const U = UNIT(un); return !!U && !!LV_DUO[U.lv] && U.lv <= openLevel() && !unitOpen(un) && jumpLessons(un).length > 0; };
 const jumpUrl = un => `#/course/${unitLv(un)}/jump/${un}`;
+/* v4.36 (ilkem: "when u attempt to jump lections and lose hearts, and still wanna quit, ur hearts shouldnt regenerate to 5 ...
+   u lost 2 hearts. 3 left"). Lives are one pool kept between jumps: a life lost stays lost when you quit or run out, and the
+   next jump starts with what is left. Ways back, the learning way first: every lesson you finish gives one back; one comes
+   back by itself every 4 hours (all 5 by the next day, a reason to come back); or refill the lost ones for 20 coins each.
+   db.hearts = { n, t }: n lives, t = when the 4-hour clock last ticked; no db.hearts: all 5. db.heartBuy = [{ t, n: coins }]
+   counts in coinSpent */
+const HEART_MS = 4 * 36e5, HEART_COIN = 20;
+function hearts(now = Date.now()) {   // lives in the pool now, with the ones the clock gave back
+  const h = db.hearts; if (!h) return JUMP_LIVES;
+  const k = Math.floor((now - h.t) / HEART_MS); if (k > 0) { h.n += k; h.t += k * HEART_MS; }
+  if (h.n >= JUMP_LIVES) { delete db.hearts; return JUMP_LIVES; }
+  return Math.max(0, h.n);
+}
+function heartLose() { const n = hearts(); if (n <= 0) return; db.hearts = { n: n - 1, t: n >= JUMP_LIVES ? Date.now() : db.hearts.t }; save(); }
+function heartGain(k) { const n = hearts(); if (n >= JUMP_LIVES) return 0; const g = Math.min(k, JUMP_LIVES - n); db.hearts.n += g; if (db.hearts.n >= JUMP_LIVES) delete db.hearts; save(); return g; }
+const heartNext = () => hearts() >= JUMP_LIVES ? 0 : db.hearts.t + HEART_MS - Date.now();
+const heartCost = () => (JUMP_LIVES - hearts()) * HEART_COIN;
+function heartBuy() { const c = heartCost(); if (!c || coinBal() < c) return false; (db.heartBuy ||= []).push({ t: Date.now(), n: c }); delete db.hearts; save(); LOG.add('hearts-refill', { coins: c }); haptic(20); return true; }
+const heartWait = ms => { const m = Math.max(1, Math.ceil(ms / 6e4)), h = Math.floor(m / 60); return h ? (m % 60 ? `${h} h ${m % 60} min` : `${h} h`) : `${m} min`; };
+const heartRow = n => `<div class="js-lives" role="img" aria-label="${n} of ${JUMP_LIVES} lives">${Array.from({ length: JUMP_LIVES }, (_, i) => `<i class="${i < n ? 'on' : ''}">${HEART}</i>`).join('')}</div>`;
+const HB_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>';
+function heartBackHtml(n, act) {   // the ways to win lost lives back; act: the refill button's data attribute
+  if (n >= JUMP_LIVES) return '';
+  const c = heartCost(), bal = coinBal();
+  return `<ul class="hb"><li><span class="hb-ic">${I.learn}</span><span>Finish a lesson</span><b>+1 ${HEART}</b></li>
+      <li><span class="hb-ic">${HB_CLOCK}</span><span>One comes back by itself in ${heartWait(heartNext())}</span><b>+1 ${HEART}</b></li></ul>
+    <button class="hb-buy" ${act}${bal < c ? ' disabled' : ''}>Refill ${JUMP_LIVES - n === 1 ? 'it' : 'all'} for ${coinSvg()}${coinFmt(c)}${bal < c ? ` <small>· you have ${coinFmt(bal)}</small>` : ''}</button>`;
+}
 const livesHtml = E => `<span class="les-lives${E.hurt ? ' hurt' : ''}${E.lives ? '' : ' none'}" role="img" aria-label="${E.lives} ${E.lives === 1 ? 'life' : 'lives'} left">${HEART}<b>${E.lives}</b></span>`;
 function jumpSheet(un) {
   if (!canJump(un)) { toast(unitOpen(un) ? `Unit ${unK(un)} is open already` : `Finish Unit ${unK(un) - 1} first`); return; }
-  const ls = jumpLessons(un), nu = new Set(ls.map(L => L.un)).size, r = db.jumps?.[un];
+  const ls = jumpLessons(un), nu = new Set(ls.map(L => L.un)).size, r = db.jumps?.[un], n = hearts();
+  if (!n) { openSheet(`<div class="js"><span class="js-art" aria-hidden="true"><span class="js-shi">${shiBody('plead')}</span></span>
+      <small>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</small>
+      <h3>Out of lives</h3>
+      <p>Win lives back to jump ahead to Unit ${unK(un)}.</p>
+      ${heartRow(0)}${heartBackHtml(0, `data-act="heart-buy" data-u="${un}"`)}
+      <button class="btn btn-seal wide" data-act="heart-les" data-u="${un}">Do a lesson</button>
+      <button class="js-not" data-act="close-sheet">Not now</button></div>`); return; }
   openSheet(`<div class="js"><span class="js-art" aria-hidden="true"><span class="js-shi">${shiBody('cheer')}</span><span class="js-ff">${FF_I}</span></span>
       <small>Unit ${unK(un)} · ${esc(UNIT(un)[0])}</small>
       <h3>Jump ahead to Unit ${unK(un)}</h3>
       <p>A recap of the ${plural(ls.length, 'lesson')} before it${nu > 1 ? `, from ${nu} units` : ''}. Pass it and they all count as done.</p>
-      <div class="js-lives" aria-hidden="true">${HEART.repeat(JUMP_LIVES)}</div>
-      <p class="js-rule"><b>${JUMP_LIVES} lives.</b> Each wrong answer costs one, and so does each hint.</p>
-      ${r && !r.pass ? '<p class="muted js-note">You ran out of lives last time. Have another go.</p>' : ''}
+      ${heartRow(n)}
+      <p class="js-rule"><b>${n === JUMP_LIVES ? `${JUMP_LIVES} lives.` : `${n} of ${JUMP_LIVES} lives left.`}</b> Each wrong answer costs one, and so does each hint.${n < JUMP_LIVES ? ' Lost lives stay lost until you win them back.' : ''}</p>
+      ${r && !r.pass && n === JUMP_LIVES ? '<p class="muted js-note">You ran out of lives last time. Have another go.</p>' : ''}
       <button class="btn btn-jump wide" data-act="jump-go" data-u="${un}">Start the recap</button>
+      ${heartBackHtml(n, `data-act="heart-buy" data-u="${un}"`)}
       <button class="js-not" data-act="close-sheet">Not now</button></div>`);
 }
 function jumpRoute(un) {   // opening #/course/<level>/jump/<unit>
-  if (!canJump(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
+  if (!canJump(un) || !hearts()) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; if (canJump(un)) setTimeout(() => jumpSheet(un)); return; }
   lesDrop();   // a recap you left starts again too
   if (S.H) startJump(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startJump(un); render(); } }, () => toast('Lessons need the internet the first time'));
@@ -7169,12 +7227,13 @@ function startJump(un) {   // a word from each lesson to skip in turn (more less
   if (wt[1]) q.splice(Math.round(nq * .66), 0, { t: 'write', mode: 'recall', ...wt[1] });
   if (wt[0]) q.splice(Math.round(nq * .33), 0, { t: 'write', mode: 'recall', ...wt[0] });
   S.les = { test: un, jump: un, n: ls.at(-1).n, words, pool: words, step: 'quiz', q, qi: 0, ans: null, settled: 0, total: q.length, nq, nWrite: q.length - nq, t0: Date.now(),
-    pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set(), lives: JUMP_LIVES };
+    pts: 0, combo: 0, best: 0, wroteCh: [], wrong: 0, dropW: 0, missed: new Set(), lives: hearts() };   // v4.36: what is left in the pool, not a fresh 5
+  S.les.lives0 = S.les.lives;
   LOG.add('jump-start', { unit: un, lessons: ls.length, questions: q.length });
 }
 function jumpHurt(now) {   // a life gone: the heart breaks. now: show it at once, in place (a hint, while you write)
   const E = S.les; if (!E?.jump || E.lives <= 0) return;
-  E.lives--; E.hurt = 1; haptic(30);
+  E.lives--; E.hurt = 1; haptic(30); heartLose();   // v4.36: gone from the pool now, so leaving does not give it back
   LOG.add('jump-life', { unit: E.jump, left: E.lives });
   if (!now) return;
   const el = $('#lesScr .les-lives'); if (el) { const t = document.createElement('template'); t.innerHTML = livesHtml(E); el.replaceWith(t.content); }
@@ -7196,18 +7255,19 @@ function finishJump() {   // lives left at the end: every lesson before the unit
   LOG.add('jump-done', { unit: un, pass, lives: E.lives, pct: E.pct, skipped: E.skipped || 0, missed: [...E.missed].join(' ') });
 }
 function jumpEndHtml() {   // the jump's result: in (the unit is open, its first lesson one tap away) or out of lives (the words you missed, and Try again)
-  const E = S.les, un = E.jump, missed = E.words.filter(w => E.missed.has(w.h)), right = Math.max(0, E.settled - E.dropW - E.wrong);
-  const hearts = Array.from({ length: JUMP_LIVES }, (_, i) => `<i class="${i < E.lives ? 'on' : ''}" style="--d:${(.45 + i * .12).toFixed(2)}s">${HEART}</i>`).join('');
+  const E = S.les, un = E.jump, missed = E.words.filter(w => E.missed.has(w.h)), right = Math.max(0, E.settled - E.dropW - E.wrong), hn = hearts();
+  const hrow = Array.from({ length: JUMP_LIVES }, (_, i) => `<i class="${i < E.lives ? 'on' : ''}" style="--d:${(.45 + i * .12).toFixed(2)}s">${HEART}</i>`).join('');
   return `<div class="les-end je"><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(E.pass ? 'star' : 'oops') : shiFace(E.pass ? E.lives === JUMP_LIVES ? 'star' : 'cheer' : 'oops')}</span>
       <h1>${E.pass ? `Welcome to Unit ${unK(un)}!` : 'Out of lives'}</h1>${E.pay ? payLine(E.pay) : ''}
-      <p class="muted">${E.pass ? `You jumped over ${plural(E.skipped, 'lesson')}. Unit ${unK(un)} · ${esc(UNIT(un)[0])} is open.` : `Keep going lesson by lesson, or have another go at the jump.`}</p>
-      <div class="je-lives" aria-label="${E.lives} of ${JUMP_LIVES} lives left">${hearts}</div>
+      <p class="muted">${E.pass ? `You jumped over ${plural(E.skipped, 'lesson')}. Unit ${unK(un)} · ${esc(UNIT(un)[0])} is open.` : hn ? `Keep going lesson by lesson, or have another go at the jump.` : `Win lives back to have another go, or keep going lesson by lesson.`}</p>
+      <div class="je-lives" aria-label="${E.lives} of ${JUMP_LIVES} lives left">${hrow}</div>
       ${lesEarnHtml(E)}
       <div class="les-tally"><span><b>${E.lives}</b><small>${E.lives === 1 ? 'life' : 'lives'} left</small></span><span><b>${right}</b><small>right</small></span><span><b>${E.best}</b><small>best run</small></span></div>
       ${missed.length ? `<div class="les-end-box"><b class="no">Look at ${missed.length === 1 ? 'this one' : 'these'} again</b>
-        <div class="les-words">${missed.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div></div>` : ''}</div>
+        <div class="les-words">${missed.map(w => `<span class="les-chip"><b>${esc(w.h)}</b><small>${esc(w.p)}</small><i>${esc(w.en)}</i></span>`).join('')}</div></div>` : ''}
+      ${!E.pass && !hn ? `<div class="js je-back"><h2>Win your lives back</h2>${heartBackHtml(0, 'data-les="refill"')}</div>` : ''}</div>
     <div class="les-dock">${E.pass ? `<button class="btn btn-seal wide" data-les="end">Start Unit ${unK(un)}</button>`
-      : '<div class="row-btns"><button class="btn btn-ghost" data-les="end">Later</button><button class="btn btn-jump" data-les="retry">Try again</button></div>'}</div>`;
+      : `<div class="row-btns"><button class="btn btn-ghost" data-les="end">Later</button>${hn ? '<button class="btn btn-jump" data-les="retry">Try again</button>' : '<button class="btn btn-seal" data-les="earn">Do a lesson</button>'}</div>`}</div>`;
 }
 function lesWriteTasks(n, words, max = 2) {   // characters to write, each from a different word, the ones this lesson brings in first
   const before = new Set(LESSONS.slice(0, LES(n).i).flatMap(L => L.words.flatMap(hanChars)));
@@ -7264,9 +7324,10 @@ function lesQuitSheet(leave) {
   const per = E.t0 && done ? Math.max(5e3, Math.min(6e4, (Date.now() - E.t0) / done)) : 15e3, min = Math.max(1, Math.round(per * left / 6e4));
   const what = E.jump ? 'the jump' : E.test ? 'Hu Hu’s challenge' : 'this lesson', t = lesTier(E.combo);
   const c = E.coins || 0;   // v4.13 (ilkem): the coins this lesson has earned, lost if you leave
+  const lost = E.jump ? Math.max(0, (E.lives0 ?? JUMP_LIVES) - E.lives) : 0;   // v4.36: lives are not given back on quitting
   openSheet(`<div class="lq">${c ? lqScene(c) : `<span class="lq-shi">${shiBody('plead')}</span>`}
       <h3>${left === 1 ? 'Just one to go!' : `Only ${left} to go!`}</h3>
-      <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${c ? ` Leave now and you lose the ${c} coins you earned, and ${E.test || E.jump ? 'you start it again' : 'it starts over'}.` : E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}</p>
+      <p>About ${min === 1 ? 'a minute' : `${min} minutes`} more and ${what} is done.${c ? ` Leave now and you lose the ${c} coins you earned, and ${E.test || E.jump ? 'you start it again' : 'it starts over'}.` : E.test ? ' Leave now and you start it again.' : ' Leave now and it starts over.'}${lost ? ` ${lost === 1 ? 'The life you lost stays lost' : `The ${lost} lives you lost stay lost`}.` : ''}</p>
       <span class="les-bar lq-bar lb-t${t}"><i style="width:${gBar(lesProg(E))}%"></i><span class="lq-end">完</span></span>
       <button class="btn btn-seal wide" data-act="close-sheet">Keep going</button>
       <button class="lq-quit" id="lqQuit">${c ? `Quit and lose ${c} coins` : 'Quit and lose progress'}</button></div>`,
@@ -7484,7 +7545,8 @@ function lesEndHtml() {
   const E = S.les; if (E.step === 'unit') return unitEndHtml(); if (E.jump) return jumpEndHtml(); if (E.test) return utEndHtml(); if (E.part === 1) return lesHalfHtml();
   const L = LES(E.n), mood = E.pct === 100 || E.unitNew ? 'star' : 'cheer', add = E.added || [];
     const notes = [add.length && `<p class="le2-note"><span class="le-new" lang="zh">新</span>${plural(add.length, 'new word')} in your word bank</p>`,
-      E.streak?.up && `<p class="le2-note"><span class="le2-fl on">${FLAME}</span>${E.streak.n}-day streak</p>`].filter(Boolean).join('');
+      E.streak?.up && `<p class="le2-note"><span class="le2-fl on">${FLAME}</span>${E.streak.n}-day streak</p>`,
+      E.heart && `<p class="le2-note le2-hrt">${HEART}+1 life back · ${hearts()} of ${JUMP_LIVES} for jumping ahead</p>`].filter(Boolean).join('');   // v4.36
     return `<div class="les-end le2"><span class="le2-burst" aria-hidden="true"></span><span class="les-end-shi${E.pay ? ' bag' : ''}">${E.pay ? bagShi(mood) : shiFace(mood)}</span>
       <h1>${E.unitNew ? `Unit ${unK(L.un)} complete!` : E.pct === 100 ? 'Perfect lesson!' : 'Lesson done!'}</h1><p class="muted">Lesson ${L.k} · ${esc(L.title)}</p>
       ${lesTilesHtml(E)}${notes ? `<div class="le2-notes">${notes}</div>` : ''}</div>
@@ -7538,6 +7600,7 @@ function lesEarnHtml(E) {
     E.lxNew && row(lxFlat(lxLook(E.test || LES(E.n).un)), 'A red envelope to open', '', 'le-lx'),   // v3.82: it waits on the path, where it opens
     E.added?.length && row('<span class="le-new" lang="zh">新</span>', `${plural(E.added.length, 'new word')} in your word bank`, ''),
     E.streak?.up && row(FLAME, `${E.streak.n}-day streak`, E.streak.n > 1 ? '+1 day' : 'Day 1', 'on le-fire'),
+    E.heart && row(HEART, `A life back · ${hearts()} of ${JUMP_LIVES} for jumping ahead`, '+1', 'le-hrt'),
   ].filter(Boolean);
   return rows.length ? `<div class="les-earn"><h2>You earned</h2><ul>${rows.join('')}</ul></div>` : '';
 }
@@ -7692,7 +7755,9 @@ function lesAct(k, b) {
   }
   if (k === 'end') { if (E.part === 1 && E.step === 'done') lesRecallNow(); else lesOnward(); return; }
   if (k === 'later') { leave(); return; }   // v3.79: part 1 done, the recall left for later   // v3.70: on to what comes next (a unit's last lesson or a beaten boss: its ending comic and finale first)
-  if (k === 'retry' && E.jump && E.step === 'done') { if (!canJump(E.jump)) { leave(); return; } startJump(E.jump); lesPaint(true); window.scrollTo(0, 0); return; }
+  if (k === 'retry' && E.jump && E.step === 'done') { if (!canJump(E.jump) || !hearts()) { leave(); return; } startJump(E.jump); lesPaint(true); window.scrollTo(0, 0); return; }
+  if (k === 'refill' && E.jump && E.step === 'done') { if (heartBuy()) { toast('Lives full again'); lesPaint(true); } return; }   // v4.36
+  if (k === 'earn' && E.jump && E.step === 'done') { const n = lesNext(unitLv(E.jump)); if (n) lesOn(n); else leave(); return; }
   if (k === 'retry' && E.test && E.step === 'done') { startUnitTest(E.test, E.demo); if (E.demo) S.les.demo = 'retry'; lesPaint(true); window.scrollTo(0, 0); return; }
   if (E.step === 'quiz') {
     const Q = E.q[E.qi];
@@ -7750,6 +7815,7 @@ function finishLesson() {
   { const ms = Math.min(now - (E.t0 || now), E.total * 6e4), pace = ms / Math.max(1, E.total), past = db.lesPace || [];   // v4.15: time per step, your last 20 lessons
     E.tm = { ms, avg: past.length ? past.reduce((a, b) => a + b, 0) / past.length * E.total : 0, best: past.length >= 3 && pace < Math.min(...past) };
     db.lesPace = [...past, Math.round(pace)].slice(-20); }
+  E.heart = heartGain(1);   // v4.36: a lesson wins back a life lost in a jump
   E.added = add; E.pct = pct; E.step = 'done'; lesBank(E); save(); E.pay = takePay();
   LOG.add('lesson-done', { n: E.n, pct, pts: E.pts, seals, run: E.best, wrote: E.wroteCh.join(''), added: add.map(w => w.h).join('') });
 }
@@ -9930,7 +9996,7 @@ function coinEarned() {
   const run = (db.runCoins || []).reduce((a, x) => a + (x.t > from ? x.n : 0), 0);   // v4.13: right answers in lessons you finished (lesBank)
   return pv.length * PAY.word + pv.filter(w => w.pf.m).length * PAY.mast + les * PAY.les + story * PAY.story + unit * PAY.unit + chest + lixi + run;
 }
-const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0) + Object.keys(db.foodOwn || {}).reduce((a, id) => a + (foodOf(id)?.price || 0), 0);
+const coinSpent = () => Object.keys(db.monOwn || {}).reduce((a, lv) => a + (TRAIL[lv - 1]?.price || 0), 0) + Object.keys(db.foodOwn || {}).reduce((a, id) => a + (foodOf(id)?.price || 0), 0) + (db.heartBuy || []).reduce((a, x) => a + x.n, 0);   // v4.36: lives refilled
 /* v3.45: the food map's foods. One famous dish for a food city, bought with coins like a monument (db.foodOwn = { food: when you
    bought it }). site: where it stands, just east of its city's pavilion; ar: its cut-out's height over width (food/<id>-i.webp,
    baked in foods3d/studio.html with ?cut=1; food/<id>.webp is its picture for the shop) */
@@ -13809,7 +13875,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.35';
+const APP_VERSION = '4.36';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -13857,7 +13923,7 @@ function nameSheet() {
    proven after the reset count), not by changing words. Coins: max owns every monument, reset owns none and starts the
    bag at nothing; neither pours a payoff for what it changed (db.coinShown). Set my coins (devCoinSet) puts any number in the
    bag by moving db.coinAdj, also kept first so Restore gives your own coins back. */
-const DEV_LV = ['lessons', 'utests', 'jumps', 'comic', 'lixi', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen'];
+const DEV_LV = ['lessons', 'utests', 'jumps', 'comic', 'lixi', 'unitAt', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'coinAdj', 'coinShown', 'monWish', 'foodOwn', 'foodSeen', 'hearts', 'heartBuy'];
 function devLvKeep() { if (!db.devLv) db.devLv = { ...JSON.parse(JSON.stringify(Object.fromEntries(DEV_LV.map(k => [k, db[k] ?? null])))), unlocked: db.prefs.unlocked ?? null }; }
 function devLvMax() {
   devLvKeep(); const now = Date.now();
@@ -13870,7 +13936,7 @@ function devLvMax() {
 function devLvZero() {
   devLvKeep();
   db.lessons = {}; db.utests = {}; db.jumps = {}; db.comic = {}; db.lixi = {}; db.unitAt = {}; db.monOpen = {}; db.mapKeep = {}; delete db.mapMax; db.mapFrom = Date.now(); db.prefs.unlocked = 1;
-  db.monOwn = {}; db.foodOwn = {}; db.foodSeen = {}; db.coinAdj = 0; delete db.monWish; db.coinShown = coinEarned();
+  db.monOwn = {}; db.foodOwn = {}; db.foodSeen = {}; db.coinAdj = 0; delete db.monWish; delete db.hearts; delete db.heartBuy; db.coinShown = coinEarned();
 }
 function devLvRestore() {
   const K = db.devLv; if (!K) return;
@@ -14759,6 +14825,8 @@ const A = {
   'les-node': t => (!t.dataset.go && t.matches('.uc-path .un-node[data-s="cur"]') && LV_DUO[LES(+t.dataset.n)?.lv] ? (haptic(8), ppTip(t)) : (ppTipClose(), loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')))),
   'les-go': t => { closeSheet(true); lesStart(+t.dataset.n, +t.dataset.p || 0); },
   'jump-node': t => loadHsk().then(() => jumpSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
+  'heart-buy': t => { if (heartBuy()) { toast('Lives full again'); jumpSheet(+t.dataset.u); } },   // v4.36
+  'heart-les': t => { closeSheet(true); const n = lesNext(unitLv(+t.dataset.u)); if (n) lesStart(n); },
   'jump-go': t => { closeSheet(true); if (S.les?.jump) S.les = null; nav(jumpUrl(+t.dataset.u)); },
   'lx-open': t => lixiOpen(t.dataset.k),
   'unit-open': t => unitGo(+t.dataset.u),
