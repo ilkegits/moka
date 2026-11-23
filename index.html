@@ -1993,8 +1993,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pf-hero{position:relative;flex:none;height:calc(238px + env(safe-area-inset-top));margin:calc(-1 * env(safe-area-inset-top)) -20px 0;overflow:hidden;
   background:linear-gradient(180deg,#2A2756 0%,#4A3A7A 55%,#7E4C7E 100%)}
 .pf-bk{position:absolute;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.32)}
-.pf-glow{position:absolute;left:50%;bottom:-40px;width:340px;height:260px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(255,176,102,.55),rgba(255,176,102,0))}
-.pf-hero .shi-body{position:absolute;left:50%;bottom:-32px;width:218px;height:auto;transform:translateX(-50%)}
 .pf-gear{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
   background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;transition:transform .15s}
 .pf-gear:active{transform:scale(.9);transition:none}
@@ -8399,14 +8397,15 @@ function ProfileView() {
   const road = `<div class="pf-st now"><span class="pf-dot">${l === 7 ? '7+' : l}</span><b>${HSK_NAME(l)}</b><span></span>
         <div class="pf-bx"><div class="pf-bar"><i style="width:${gBar(total ? known / total : 0)}%"></i></div>
           <div class="pf-bxt"><span>${known.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} words</span><b>${left ? `${left.toLocaleString('en-GB')} to go` : 'All known'}</b></div></div></div>`;
-  /* blurred lantern lights behind Shi Shi: left %, top %, size px, colour, opacity */
+  /* v4.53 (ilkem: "get rid of the avatar on the profile page"): no Shi Shi in the picture, only the lantern lights.
+     blurred lantern lights: left %, top %, size px, colour, opacity */
   const bokeh = [[9, 22, 58, '#FFC857', .5], [27, 9, 24, '#FFE3A3', .55], [21, 62, 34, '#FF6B6B', .45], [6, 84, 44, '#FF8FAB', .32],
     [40, 34, 14, '#FFE3A3', .5], [52, 8, 18, '#FFFFFF', .3], [62, 26, 12, '#FFFFFF', .35], [80, 15, 64, '#FF8FAB', .4],
     [93, 47, 36, '#FFC857', .45], [70, 66, 26, '#FF6B6B', .42], [88, 85, 50, '#FFB347', .36], [35, 88, 20, '#FFC857', .35]]
     .map(([x, y, d, c, o]) => `<span class="pf-bk" style="left:${x}%;top:${y}%;width:${d}px;height:${d}px;background:${c};opacity:${o};filter:blur(${(d / 22).toFixed(1)}px)"></span>`).join('');
   const seal = l === 7 ? '高等' : '一二三四五六'[l - 1] + '级';
   return `<div class="screen fade-in pf-pg">
-    <div class="pf-hero">${bokeh}<span class="pf-glow" aria-hidden="true"></span>${shiBody('cheer')}
+    <div class="pf-hero">${bokeh}
       <button class="pf-gear" data-act="settings" aria-label="App settings">${I.gear}</button></div>
     <div class="pf-sheet">
     <div class="pf-me"><span class="pf-seal" role="img" aria-label="${HSK_NAME(l)}">${seal}</span>
@@ -13829,7 +13828,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.52';
+const APP_VERSION = '4.53';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
