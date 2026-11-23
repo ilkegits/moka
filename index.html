@@ -13827,7 +13827,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.57';
+const APP_VERSION = '4.58';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
@@ -14732,8 +14732,9 @@ async function obCheckStart() {   // the HSK lists may still be loading
   if (!S.ob || OB_STEPS[S.ob.i] !== 'check') return;
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
 }
-/* v4.57: the last page offers an account (Google or email), unless you already have one or this is a replay */
-const obSaveAsk = () => S.ob && !S.ob.replay && !CLOUD.user;
+/* v4.57: the last page offers an account (Google or email), unless you already have one. v4.58: Play: onboarding shows it too */
+const obSaveAsk = () => S.ob && (S.ob.replay || !CLOUD.user);
+const obHaveAcct = () => { if (!CLOUD.user) return false; toast('You’re already signed in as ' + (CLOUD.user.email || CLOUD.user.name)); return true; };
 function obEnd(how) { if (obSaveAsk()) { S.ob.how = how; obGo('save'); } else obFinish(how); }
 function obFinish(how) {
   const O = S.ob, sig = O.chk ? obSignals() : {}, lv = O.chk ? obLevel(sig) : how === 'skipped' ? null : O.level ? Math.min(O.level, 2) : null;
@@ -14806,9 +14807,9 @@ async function obClick(e) {
     O.i = OB_STEPS.indexOf(to); obShow(); return;
   }
   if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obEnd('reminder'); return; }
-  if (a === 'google') { LOG.add('onboarding-save', { pick: 'google' }); obFinish(O.how || 'done');
+  if (a === 'google') { LOG.add('onboarding-save', { pick: 'google' }); obFinish(O.how || 'done'); if (obHaveAcct()) return;
     try { await CLOUD.google(); } catch (_) { toast('Couldn’t reach Google. Are you online?'); } return; }   // Google takes over the page and comes back signed in
-  if (a === 'email') { LOG.add('onboarding-save', { pick: 'email' }); obFinish(O.how || 'done'); setTimeout(() => acctSheet(false, true), 450); return; }
+  if (a === 'email') { LOG.add('onboarding-save', { pick: 'email' }); obFinish(O.how || 'done'); if (obHaveAcct()) return; setTimeout(() => acctSheet(false, true), 450); return; }
   if (a === 'nosave') { LOG.add('onboarding-save', { pick: 'not-now' }); const how = O.how || 'done'; obFinish(how); if (how === 'install-help') setTimeout(installHelp, 350); return; }
   if (a === 'install') {
     if (installEvt) { installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null; LOG.add('install', { outcome, from: 'onboarding' }); obEnd('install-' + outcome); }
