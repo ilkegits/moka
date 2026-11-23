@@ -6784,9 +6784,9 @@ function ppWake() { if (!ppSeen) { document.querySelectorAll('.pp-pal').forEach(
    looking to the side... I like the plum, jade and golden cloud version"; the looks are drawn in lixi-samples.html). Each unit
    takes the next look in turn. The faces are drawn in a 240 x 300 space: the front runs x 50..190, y 70..270, and the flap
    hangs from its top edge (y 70) */
-const LX_LOOKS = ['plum', 'clouds', 'jade'];
-const lxLook = un => LX_LOOKS[(un - 1) % 3];
-const LX_EDGE = { plum: ['#C42A33', '#E85A50', 0, '#A0202A', .75], clouds: ['#6E1018', '#8A1820', 1, '#5E0C12', 1.46], jade: ['#8E1218', '#A8161E', 1, '#7A0F14', 1.3] };   // paper edge, gold line on it, inside colour, flap height (x the width)
+const LX_LOOKS = ['plum', 'clouds', 'jade', 'fu'];   // v4.35: Classic Fu is back as the fourth (ilkem: "u can also add the fu one in there")
+const lxLook = un => LX_LOOKS[(un - 1) % LX_LOOKS.length];
+const LX_EDGE = { plum: ['#C42A33', '#E85A50', 0, '#A0202A', .75], clouds: ['#6E1018', '#8A1820', 1, '#5E0C12', 1.46], jade: ['#8E1218', '#A8161E', 1, '#7A0F14', 1.3], fu: ['#9A1A16', '#D23026', 0, '#8E1612', .8] };   // paper edge, gold line on it, inside colour, flap height (x the width)
 let lxId = 0;
 function lxArt(look) {   // { defs, body, flap, inner (the flap's inside, as a path) } for one look, its gradient ids its own
   const id = 'lx' + (++lxId), X0 = 50, X1 = 190, Y0 = 70, Y1 = 270, CX = 120, R = 10, G = '#F6C445', GD = '#B9800F', GL = '#FFE9A3';
@@ -6818,6 +6818,19 @@ function lxArt(look) {   // { defs, body, flap, inner (the flap's inside, as a p
         + cloud(92, 92, .9, '#E05A60') + cloud(150, 96, .8, '#E05A60') + `<path d="M${X0 + 2} ${Y0 + 3}H${X1 - 2}" stroke="${G}" stroke-width="3"/>`
         + `<path d="M${CX - 14} 146C${CX - 14} 168 ${CX + 16} 186 ${CX + 14} 208C${CX + 12} 224 ${CX - 12} 224 ${CX - 14} 208C${CX - 16} 186 ${CX + 14} 168 ${CX + 14} 146C${CX + 14} 128 ${CX - 14} 128 ${CX - 14} 146Z" fill="none" stroke="${G}" stroke-width="2.6" stroke-linejoin="round"/>`
         + `<path d="M${CX + 10} 214q10 14 4 26M${CX + 6} 216q2 16-6 22" fill="none" stroke="${G}" stroke-width="2.4" stroke-linecap="round"/>` + btn(146) };
+  }
+  if (look === 'fu') {   // v4.35, Classic Fu from lixi-samples (first version): deep red, a gold frame, a round gold 福 seal holding the flap shut and 大吉 below
+    return { defs: lin('b', '#E2342B', '#B51E1A') + lin('f', '#EE4B3F', '#CC2B24'), inner: vFlap(150),
+      body: body('b', '#7E1512')
+        + `<rect x="${X0 + 10}" y="${Y0 + 10}" width="${X1 - X0 - 20}" height="${Y1 - Y0 - 20}" rx="7" fill="none" stroke="${G}" stroke-width="2.4" opacity=".9"/>`
+        + [[X0 + 10, Y1 - 10, 1], [X1 - 10, Y1 - 10, -1]].map(([x, y, a]) => `<path d="M${x} ${y - 22}V${y}H${x + a * 22}" fill="none" stroke="${G}" stroke-width="5" stroke-linecap="round"/>`).join('')
+        + `<text x="${CX}" y="226" text-anchor="middle" font-size="34" font-weight="900" fill="${G}" style="font-family:var(--hanzi)">大吉</text>`
+        + `<path d="M84 244h72" stroke="${G}" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>`,
+      flap: `<path d="${vFlap(150)}" fill="url(#${id}f)" stroke="#7E1512" stroke-width="3" stroke-linejoin="round"/>`
+        + `<path d="M${X0 + 10} ${Y0 + 20}Q${CX} 172 ${X1 - 10} ${Y0 + 20}" fill="none" stroke="${G}" stroke-width="2.2" opacity=".85"/>`
+        + `<circle cx="${CX}" cy="148" r="27" fill="${G}" stroke="${GD}" stroke-width="3.5"/><circle cx="${CX}" cy="148" r="21" fill="none" stroke="#D9A21E" stroke-width="2"/>`
+        + `<text x="${CX}" y="149" text-anchor="middle" dominant-baseline="central" font-size="29" font-weight="900" fill="#C0241D" style="font-family:var(--hanzi)">福</text>`
+        + `<path d="M101 134a20 20 0 0 1 9-8" stroke="${GL}" stroke-width="3" fill="none" stroke-linecap="round"/>` };
   }
   const lat = [];   // jade: a gold lattice like a paper window cut, and a jade 平安扣 clasp with a red tassel
   for (let y = 176; y <= 252; y += 19) for (let x = 66; x <= 174; x += 18) lat.push(`M${x} ${y - 7}L${x + 7} ${y}L${x} ${y + 7}L${x - 7} ${y}Z`);
@@ -13796,7 +13809,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.34';
+const APP_VERSION = '4.35';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
