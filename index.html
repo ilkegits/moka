@@ -2366,12 +2366,14 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc-path .un-bg canvas{display:none}
 .uc-pane.uc-path.locked .uc-stage{filter:none}
 /* v3.49: true circles (ilkem: "more circle-like and not a bit like oval-like... the mini shine which the start button has"):
-   the lip is inside the circle now, like the red buttons: darker along the bottom, a thin light edge on top, a soft shadow below. --d: that shadow */
+   the lip is inside the circle now, like the red buttons: darker along the bottom, a thin light edge on top, a soft shadow below. --d: that shadow.
+   v4.65: the face is pinned to the button's box (position:absolute). Safari sizes a block inside a <button> to its content, so
+   width:100% gave a face as wide as its character only: tall ovals on iPhones */
 .uc-path .un-node{--f:#EFE7D8;--l:rgba(120,95,60,.2);--e:rgba(255,255,255,.7);--t:#BDB09A;--d:rgba(120,95,60,.4);display:block;width:calc(var(--k,1)*66px);height:calc(var(--k,1)*66px);border-radius:50%;transform:translate(-50%,-50%);-webkit-tap-highlight-color:transparent}
 .uc-path .un-node[data-s="done"]{--f:linear-gradient(#FFE08C,#F4C14E 58%);--l:rgba(140,85,0,.3);--e:rgba(255,255,255,.5);--t:#3B1A12;--d:rgba(150,100,10,.65)}
 .uc-path .un-node[data-s="cur"]{--f:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);--l:rgba(60,10,5,.3);--e:rgba(255,255,255,.3);--t:var(--seal-ink);--d:rgba(120,30,20,.7);z-index:3}
 .uc-path .un-node small{display:none}
-.uc-path .un-spot{display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*31px)/1 "Noto Serif SC",var(--hanzi);
+.uc-path .un-spot{position:absolute;left:0;top:0;display:grid;place-items:center;width:100%;height:100%;padding-bottom:calc(var(--k,1)*4px);border-radius:50%;font:900 calc(var(--k,1)*31px)/1 "Noto Serif SC",var(--hanzi);
   background:var(--f);color:var(--t);box-shadow:inset 0 calc(var(--k,1)*-4px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*9px) calc(var(--k,1)*12px) calc(var(--k,1)*-9px) var(--d);transition:transform .08s,box-shadow .08s}
 .uc-path .un-node[data-s="cur"] .un-spot{text-shadow:0 1.5px 0 rgba(90,10,5,.45)}
 .uc-path .un-node:active .un-spot{background:var(--f);transform:translateY(calc(var(--k,1)*2px));box-shadow:inset 0 calc(var(--k,1)*-2px) 0 var(--l),inset 0 2px 0 var(--e),0 calc(var(--k,1)*4px) calc(var(--k,1)*8px) calc(var(--k,1)*-8px) var(--d)}
@@ -13855,7 +13857,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.64';
+const APP_VERSION = '4.65';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
