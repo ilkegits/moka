@@ -2592,6 +2592,21 @@ button.st-d:active{transform:scale(.9);transition:none}
 .uc:has(.un-hud:empty) .pp-jump i{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(#ff5a66,var(--seal-btn) 45%);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--seal-btn) 65%,#000)}
 .uc:has(.un-hud:empty) .pp-jump svg{width:20px;height:20px}
 .pp-jump i{display:contents;font-style:normal}
+/* v4.59: the envelope button. On the right, above the round way back to Shi Shi (or in its place when that one is the wide button);
+   the little red envelope sways, and a chevron in its corner points to where it waits */
+.pp-lxgo{position:absolute;right:2px;bottom:calc(166px + env(safe-area-inset-bottom));z-index:3;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--card);
+  box-shadow:0 0 0 2px var(--line-2),0 4px 0 1px var(--line-2),0 12px 22px -12px rgba(50,25,8,.5)}
+#frame.tabs .pp-lxgo{bottom:calc(var(--tabh) + 176px + env(safe-area-inset-bottom))}
+.uc:has(.un-hud:empty) .pp-lxgo{bottom:calc(104px + env(safe-area-inset-bottom))}
+#frame.tabs .uc:has(.un-hud:empty) .pp-lxgo{bottom:calc(var(--tabh) + 114px + env(safe-area-inset-bottom))}
+.pp-lxgo[hidden]{display:none}
+.pp-lxgo>svg{width:27px;height:38px;animation:lxGoSway 2.4s ease-in-out infinite;filter:drop-shadow(0 2px 1px rgba(90,10,10,.25))}
+.pp-lxgo i{position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(#ff5a66,var(--seal-btn) 45%);color:#fff;box-shadow:0 0 0 2px var(--card)}
+.pp-lxgo i svg{width:15px;height:15px;stroke-width:3.2;transform:rotate(90deg)}
+.pp-lxgo.up i svg{transform:rotate(-90deg)}
+.pp-lxgo:active{transform:translateY(3px);box-shadow:0 0 0 2px var(--line-2),0 1px 0 1px var(--line-2)}
+@keyframes lxGoSway{0%,60%,100%{transform:rotate(0)}68%{transform:rotate(-9deg)}76%{transform:rotate(8deg)}84%{transform:rotate(-5deg)}92%{transform:rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){.pp-lxgo>svg{animation:none}}
 /* v3.90 jumping ahead: a locked unit's first station is a turquoise fast-forward button with "Jump here?" over it (v3.92, ilkem:
    "use another color than purple or green", then "Do it in turquoise": turquoise, the one colour on the path that means skipping). It stays bright and tappable while the rest of its unit is pale */
 :root{--jump:#0E9DA3;--jump-top:#3CC8C8;--jump-ink:#0A7479}
@@ -5228,7 +5243,7 @@ function ucHud(u) {
   if (LV_DUO[lv]) {   // v3.49: no challenge in the way. A unit just finished: its red envelope first, then on to the next unit
     if (!st.open) return canJump(u) ? ''   // v4.00 (ilkem: "get rid of the blue jump button with the white box on the bottom"): no card; the turquoise Jump here? stop on the path is the one way to jump
       : `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
-    if (st.won && !lxGot(u, 'e')) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>A red envelope for you</b><i>${LX_PAY.e} coins inside</i></span><button class="btn btn-seal" data-act="lx-open" data-k="${u}e">Open</button>`;
+    // v4.59 (ilkem: "i get the button that i can open a lishi. I dont want"): no envelope card; the envelope button (.pp-lxgo) finds it once it is off the screen
     if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
     return '';   // v3.98 (ilkem: "i want 1 obvious choice"): a lesson to do has no card; its station on the path, with its Start flag, is the one button
   }
@@ -5274,7 +5289,7 @@ function UnitView(un) {
   return `<div class="screen fade-in c1 un uc${UC_VERT[unitLv(u)] ? ' uc-v' : ''}${pp ? ' uc-pp' : ''}"><header class="bar"><button class="uc-lv" data-act="lv-pick" aria-haspopup="true" aria-expanded="false" aria-label="${HSK_NAME(unitLv(u))}, change level"><span class="uc-lv-sq" lang="zh" aria-hidden="true">汉</span><b>${HSK_NAME(unitLv(u))}</b>${I.chev}</button>
     <span class="uc-stats">${StreakBtn()}<button class="uc-coins" data-act="shop" aria-label="${coinFmt(bal)} coins. Open the shop">${coinSvg()}<b>${coinFmt(bal)}</b></button></span>
     <div class="scr${unitOpen(u) ? '' : ' locked'}" data-u="${u}">${scrHead(u)}</div></header>
-    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>${pp ? `<button class="pp-jump" hidden aria-label="${back}"><b>${back}</b><i>${I.chev}</i></button>` : ''}
+    <div class="uc-scroll"><div class="uc-strip">${us.map(ucPane).join('')}</div></div>${pp ? `<button class="pp-jump" hidden aria-label="${back}"><b>${back}</b><i>${I.chev}</i></button><button class="pp-lxgo" hidden aria-label="Go to your red envelope">${lxFlat(lxLook(u))}<i>${I.chev}</i></button>` : ''}
     <div class="un-hud">${ucHud(u)}</div></div>`;
 }
 /* v3.87 (ilkem: "there shouldnt be a back button, instead just a button with ur hskx level on it, and when u click it, it
@@ -5431,9 +5446,20 @@ function mountUnit(un) {
   // v3.48, the path: a round button brings you back to Shi Shi while he is off the screen (its arrow points to where he is)
   const jump = $('.pp-jump'), jumpSet = () => { if (!jump || !shi?.isConnected) return; const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect(), up = r.bottom < ($('.uc>.bar')?.getBoundingClientRect().bottom ?? s.top + 112), dn = r.top > s.bottom - 96;
     jump.hidden = !(up || dn); jump.classList.toggle('up', up); };
+  // v4.59 (ilkem: "have it only when u have unopened lishi and swiped down already. A button whichll bring u asap to the first in line
+  // unopened lishi"): while a red envelope waits unopened and is off the screen, an envelope button takes you straight to the first one
+  const lxGo = $('.pp-lxgo'), lxFirst = () => sc.querySelector('.uc-pane:not(.locked) .pp-lx[data-s="ready"]');
+  const lxGoSet = () => { if (!lxGo) return; const e = lxFirst(); if (!e) { lxGo.hidden = true; return; }
+    const r = e.getBoundingClientRect(), s = sc.getBoundingClientRect(), top = $('.uc>.bar')?.getBoundingClientRect().bottom ?? s.top, up = r.bottom < top + 20, dn = r.top > s.bottom - 60;
+    lxGo.hidden = !(up || dn); lxGo.classList.toggle('up', up); };
+  if (lxGo) { lxGo.onclick = () => { const e = lxFirst(); if (!e) { lxGo.hidden = true; return; } haptic(12); const pu = +e.closest('.uc-pane').dataset.u;
+    ucFocus(pu, parseFloat(e.style.left) / 100, parseFloat(e.style.top) / 100, true);
+    if (!stillMotion()) { e.classList.remove('pp-lx-wake'); void e.offsetWidth; e.classList.add('pp-lx-wake'); } };
+    lxGoSet(); }
+  ucLxGo = lxGoSet;
   if (jump) { jump.onclick = () => { if (!shi?.isConnected) return; haptic(8); const r = shi.getBoundingClientRect(), s = sc.getBoundingClientRect();
     sc.scrollTo({ top: Math.max(0, sc.scrollTop + r.top + r.height / 2 - s.top - sc.clientHeight * .45), behavior: stillMotion() ? 'auto' : 'smooth' }); }; jumpSet(); }
-  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!sc.isConnected) return; ucSet(ucWhich()); ucPaint(); jumpSet(); }); rest(170); }, { passive: true });
+  sc.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!sc.isConnected) return; ucSet(ucWhich()); ucPaint(); jumpSet(); lxGoSet(); }); rest(170); }, { passive: true });
   sc.addEventListener('touchstart', () => { touch = true; clearTimeout(ucQuiet); }, { passive: true });
   const up = () => { touch = false; rest(220); }; sc.addEventListener('touchend', up, { passive: true }); sc.addEventListener('touchcancel', up, { passive: true });
   document.querySelectorAll('.uc-pill [data-uc]').forEach(b => b.onclick = () => { haptic(8); ucGo(ucU + +b.dataset.uc); });
@@ -6796,6 +6822,7 @@ function lx3(look) {
 const lxFlat = look => { const a = lxArt(look); return `<svg viewBox="46 66 148 208" aria-hidden="true"><defs>${a.defs}</defs>${a.body}${a.flap}</svg>`; };   // a small flat one, for a list
 /* a unit's envelope is waiting: its lessons up to it are done and it is not opened yet */
 const lxWaiting = un => { const st = unitState(un); return !!LV_DUO[unitLv(un)] && st.open && st.nd >= lxAt(un, st.ls.length) && !lxGot(un, 'e'); };
+let ucLxGo = () => {};   // v4.59: shows or hides the path's envelope button (set while a path is up)
 let lxWake = '', lxDemo = '';   // the envelope that jumps awake when the path comes up (back from the lesson that readied it); a Developer one that only pretends
 /* open one (k: '<unit>e'): it counts at once, then the full-screen moment plays from where it stood on the path. Locked: it says what is left */
 function lixiOpen(k) {
@@ -6813,6 +6840,7 @@ function lixiOpen(k) {
     if (demo) lxDemo = '';
     if (el?.isConnected) { el.classList.remove('pp-lx-wake'); el.dataset.s = demo ? (lxGot(un, w) ? 'open' : st.open && st.nd >= need ? 'ready' : 'locked') : 'open'; if (!demo) el.setAttribute('aria-label', `Red envelope, ${n} coins, opened`); }
     if (hud && ucU) hud.innerHTML = ucHud(ucU);
+    ucLxGo();   // v4.59: that one is open, so the envelope button looks for the next
     const cb = $('.uc-coins');   // v4.31: the coins flew into it
     if (cb && !demo) { cb.querySelector('b').textContent = coinFmt(coinBal()); cb.setAttribute('aria-label', `${coinFmt(coinBal())} coins. Open the shop`); }
   };
@@ -13827,7 +13855,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.58';
+const APP_VERSION = '4.59';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
