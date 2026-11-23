@@ -1273,12 +1273,12 @@ html.kb-up .sheet{max-height:calc(100% - var(--kb) - 8px)}
 .tm-play.tm-go small{display:block;margin-top:3px;font:700 13px/1 var(--display);letter-spacing:.04em;opacity:.88}
 /* v3.28: the big pinkish red buttons (Learn on the map, Play on the current unit in Lessons; v3.29 Start in a unit) shine every 6 s: a slanted
    band of light sweeps across them in 0.8 s, then they rest */
-.tm-play.tm-go,.lv em,.un-start{position:relative;overflow:hidden;isolation:isolate}
-.tm-play.tm-go::after,.lv em::after,.un-start::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:45%;pointer-events:none;
+.tm-play.tm-go,.un-start{position:relative;overflow:hidden;isolation:isolate}
+.tm-play.tm-go::after,.un-start::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:45%;pointer-events:none;
   background:linear-gradient(100deg,rgba(255,255,255,0) 15%,rgba(255,255,255,.5) 50%,rgba(255,255,255,0) 85%);
   transform:translateX(-120%) skewX(-18deg);animation:btnShine 6s ease-in-out 1.2s infinite}
 @keyframes btnShine{0%{transform:translateX(-120%) skewX(-18deg)}13%,100%{transform:translateX(330%) skewX(-18deg)}}
-@media (prefers-reduced-motion:reduce){.tm-play.tm-go::after,.lv em::after,.un-start::after{animation:none;display:none}}
+@media (prefers-reduced-motion:reduce){.tm-play.tm-go::after,.un-start::after{animation:none;display:none}}
 /* Shi Shi beside Play when the Map opens: he pops up on its left, a speech bubble says what Play gives you, and every few
    seconds he leans toward the button. A tap on him plays too; any other touch on the map sends him off (mapShi) */
 .tm-shi{position:absolute;z-index:3;right:209px;bottom:calc(var(--tabh) + 40px + env(safe-area-inset-bottom));width:84px;height:84px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -2131,35 +2131,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 .c1-art-stroke{fill:none;stroke:var(--seal);stroke-width:6;stroke-linecap:round}
 .c1-art-n{font:700 8px var(--ui);fill:#fff;text-anchor:middle;dominant-baseline:central}
 /* ---------- HSK 1 lessons: the card deck, then the lesson screens ---------- */
-.les-count{font-size:13px;font-weight:700}
-.les-intro{margin:-4px 2px 4px;font-size:14px;line-height:1.4}
-/* ---------- units as levels: the list on the lessons page ---------- */
-.lv-list{display:flex;flex-direction:column;gap:12px;margin:6px 0 4px}
-.lv{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px 10px 10px;border-radius:20px;background:var(--card);text-align:left;box-shadow:0 0 0 1.5px var(--line-2),0 4px 0 var(--line-2);transition:transform .12s}
-.lv:active{transform:translateY(3px);box-shadow:0 0 0 1.5px var(--line-2),0 1px 0 var(--line-2)}
-.lv.cur{box-shadow:0 0 0 2.5px var(--seal),0 4px 0 var(--seal)}
-.lv.cur:active{box-shadow:0 0 0 2.5px var(--seal),0 1px 0 var(--seal)}
-.lv.locked{background:var(--card-2)}
-.lv-pic{position:relative;flex:none;display:grid;place-items:center;width:92px;height:66px;border-radius:12px;background:var(--c1-soft);box-shadow:0 0 0 2px #3B1A12}
-.lv-pic > svg:not(.i){display:block;width:100%;height:100%;border-radius:12px}
-.lv-zh{font-family:var(--hanzi);font-weight:600;line-height:1;color:var(--c1)}
-.lv.locked .lv-pic{box-shadow:0 0 0 2px var(--line-2);background:var(--fill)}
-.lv.locked .lv-pic > svg:not(.i){filter:grayscale(1);opacity:.45}
-.lv.locked .lv-zh{color:var(--muted)}
-.lv-badge{position:absolute;right:-7px;bottom:-7px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--card);color:var(--muted);box-shadow:0 0 0 2px var(--line-2)}
-.lv-badge svg.i{width:16px;height:16px}
-.lv.won .lv-badge{background:#F4C14E;color:#3B1A12;box-shadow:0 0 0 2px #3B1A12}
-.lv-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.lv-main small{font-size:12.5px;font-weight:700;color:var(--muted)}
-.lv-main b{font:600 18px/1.15 var(--display);letter-spacing:-.01em;color:var(--ink)}
-.lv.locked .lv-main b{color:var(--ink-2)}
-.lv-pips{display:flex;align-items:center;gap:5px;margin-top:6px}
-.lv-pips i{width:9px;height:9px;border-radius:50%;background:var(--fill);box-shadow:inset 0 0 0 1.5px var(--line-2)}
-.lv-pips i.on{background:#F4C14E;box-shadow:inset 0 0 0 1.5px #3B1A12}
-.lv-pips i.boss{margin-left:3px;border-radius:2px;transform:rotate(45deg)}
-.lv-pips i.boss.on{background:var(--seal)}
-.lv > svg.i{flex:none;width:20px;height:20px;color:var(--muted)}
-.lv em{flex:none;padding:8px 14px 9px;border-radius:12px;background:linear-gradient(var(--seal-btn-top),var(--seal-btn) 55%);color:var(--seal-ink);font:600 14.5px/1 var(--display);font-style:normal;box-shadow:inset 0 -3px 0 rgba(60,10,5,.28)}
 /* ---------- a unit's campaign: a little 3D town (unitWorld paints it into .un-bg) with a bamboo steamer for every lesson ---------- */
 .un{position:relative}
 .un-bg{position:absolute;top:0;bottom:0;left:-20px;right:-20px;z-index:0;overflow:hidden;pointer-events:none;background:var(--paper)}
@@ -3638,7 +3609,8 @@ function parse() {
     if (p[2] === 'jump') return { view: 'lesson', deckId: null, jump: +p[3] || 0 };   // v3.90: a recap test that jumps ahead to this unit
     if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0, lpart: +p[4] || 0 };
     if (p[2] === 'unit') return { view: 'course', deckId: null, clv: lv, unit: UNIT(+p[3])?.lv === lv ? +p[3] : lvUnits(lv)[0].un };   // a unit's campaign
-    return { view: 'course', deckId: null, clv: lv, part: lv === 1 ? p[2] || null : null }; }   // HSK 1's old /tones etc. links still open the Basics pages
+    if (lv === 1 && C1_PARTS.some(x => x[0] === p[2])) return { view: 'course', deckId: null, clv: 1, part: p[2] };   // HSK 1's old /tones etc. links still open the Basics pages
+    const un = ucMe(lv); history.replaceState(history.state, '', unitUrl(un)); return { view: 'course', deckId: null, clv: lv, unit: un }; }   // v4.38 (ilkem: "Get rid of these pages, these are outdated"): a level's old units page is gone, its address opens the road map at your unit
   if (p[0] === 'group' && groupById(p[1])) return { view: 'group', deckId: null, groupId: p[1] };
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(TRAIL.length, Math.max(0, +p[1] || 0)) || null };
@@ -4575,17 +4547,7 @@ function CourseView() {
   if (P === 'radicals') return RadicalsView();
   if (P === 'strokes') return StrokesView();
   if (S.cBasics) return BasicsView();
-  if (S.cUnit) return UnitView(S.cUnit);
-  const lv = S.cLv || 1, L = S.H?.levels[lv] || [], k = knownWords(), n = L.filter(r => k.has(r.h)).length;
-  const all = lvLes(lv), done = all.filter(x => lesDone(x.n)).length;
-  return `<div class="screen fade-in c1">${c1Head('')}
-    <div class="c1-scene"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[lv][1]()}</svg></div>
-    <section class="c1-top"><h1 class="c1-title">${HSK_NAME(lv)} <span class="c1-zh">${CRS_ZH[lv]}</span></h1>
-      ${L.length ? `<p class="muted">${L.length.toLocaleString('en')} words · ${n.toLocaleString('en')} you know.</p>` : ''}</section>
-    <div class="section-head"><h2>Units <span class="cal-zh">单元</span></h2><span class="muted les-count">${done} of ${all.length} lessons done</span></div>
-    <p class="muted les-intro">Each unit is a path of short lessons that ends at the shrine of Hu Hu, the challenger: beat his challenge to open the next unit. A lesson is a small deck of hanzi cards: meet each word, trace its characters, turn the cards, then write from memory. Finished words go into your word bank by themselves.</p>
-    ${UnitLevels()}
-  </div>`;
+  return UnitView(S.cUnit || ucMe(S.cLv || 1));   // v4.38: a level's old units page is gone
 }
 
 /* ---------- HSK 1 lessons ----------
@@ -4699,7 +4661,7 @@ const TROPHY_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><path d=
 /* each lesson's card face: the first character it brings in that no lesson before it had */
 const LES_LEAD = (() => { const seen = new Set(); return LESSONS.map(L => { const cs = L.words.flatMap(hanChars), c = cs.find(x => !seen.has(x)) || cs[0]; cs.forEach(x => seen.add(x)); return c; }); })();
 /* ---------- Units as levels: comic, campaign, final boss ----------
-   The lessons page lists the units as levels (UnitLevels). A tap on a unit opens its campaign (#/course/1/unit/n): a
+   v4.38: the lessons page that listed the units as levels is gone. A unit opens its campaign (#/course/1/unit/n): a
    glowing dotted path through its lessons that ends at the final boss, which is the unit test, over a pale picture of
    where its comic starts. Shi Shi stands on the card of the lesson you are on and hops on when you come back from one
    you finished; (v3.18) Hu Hu, the challenger, waits at the end in his shrine, and the units are one strip you swipe
@@ -5169,26 +5131,6 @@ const unitLessons = un => LESSONS.filter(L => L.un === un);
 const unitOpen = un => { const U = UNIT(un); return !!U && ((U.k === 1 ? U.lv <= openLevel() : unitWon(un - 1)) || unitLessons(un).some(L => lesDone(L.n))); };   // a level's first unit is open once the level is
 /* where a unit stands. at = the place on its path: 0 to n-1 the lesson you are on, n the boss, n+1 won */
 function unitState(un) { const ls = unitLessons(un), nd = ls.filter(L => lesDone(L.n)).length, won = unitWon(un); return { ls, nd, won, open: unitOpen(un), at: won ? ls.length + 1 : nd }; }
-function unitGo(un) {   // tap a unit: its comic first (the first time, and again each time you come back to a unit you have won), whose Start button opens the campaign
-  if (!UNIT(un)) return;
-  if (!unitOpen(un)) { toast(LV_DUO[unitLv(un)] ? `Finish Unit ${unK(un) - 1} first` : `Beat Hu Hu's challenge in Unit ${unK(un) - 1} first`); return; }
-  const go = () => nav(unitUrl(un));
-  if (LV_DUO[unitLv(un)]) { go(); return; }   // v3.49: the roadmap first; its comic waits for the first lesson
-  comicLoad(unitLv(un)).then(() => { if (COMIC[un] && (!comicSeen(un).p1 || utPassed(un))) comicPlay(un, 0, go); else go(); });
-}
-/* the lessons page: every unit as a level. Its picture is a panel of its comic (or its name in hanzi), the dots are
-   its lessons and the diamond its boss */
-function UnitLevels(lv = S.cLv || 1) {
-  const us = lvUnits(lv), cur = us.find(U => !unitWon(U.un))?.un || 0;   // the unit you are on (0: every boss beaten)
-  return `<div class="lv-list">${us.map(U => {
-    const [en, zh] = U, un = U.un, st = unitState(un), C = COMIC[un], on = un === cur && st.open;
-    return `<button class="lv${st.won ? ' won' : st.open ? '' : ' locked'}${on ? ' cur' : ''}" data-act="unit-open" data-u="${un}" aria-label="Unit ${U.k}, ${esc(en)}${st.won ? ', won' : st.open ? `, ${st.nd} of ${st.ls.length} lessons done` : ', locked'}">
-      <span class="lv-pic">${C ? comicThumb(C.pages[st.won && comicSeen(un).p2 ? 1 : 0]) : `<span class="lv-zh" lang="zh" style="font-size:${[0, 30, 26, 19][[...zh].length] || 16}px">${zh}</span>`}${st.won ? `<i class="lv-badge">${TROPHY_I}</i>` : st.open ? '' : `<i class="lv-badge">${LOCK_I}</i>`}</span>
-      <span class="lv-main"><small>Unit ${U.k}</small><b>${esc(en)}</b>
-        <span class="lv-pips" aria-hidden="true">${st.ls.map((_, i) => `<i${i < st.nd ? ' class="on"' : ''}></i>`).join('')}<i class="boss${st.won ? ' on' : ''}"></i></span></span>
-      ${on ? `<em>${st.nd ? 'Continue' : 'Play'}</em>` : I.chev}</button>`;
-  }).join('')}</div>`;
-}
 /* the campaign map, 360 wide: the lessons snake down three to a row, the boss stands alone at the end */
 function unitNodes(n) {
   const X = [64, 180, 296], ROW = 178, TOP = 122;
@@ -7120,10 +7062,12 @@ function lesSheet(n) {   // tap a lesson on the path. v3.84 (ilkem: "when u clic
     <p class="lsh-ask">Which part do you want to do again?</p>
     <div class="lsh-opts">${opt(1, I.learn, 'Learn', `${plural(L.words.length, 'card')} · trace ${lesTraceN(L)}`)}${opt(2, I.flip, 'Recall', `Write ${nt} from memory`)}</div>`);
 }
+/* v4.38: in place of a lesson or test that can't open, the level's road map at your unit */
+function lvHome(lv) { const un = ucMe(lv); history.replaceState(history.state, '', unitUrl(un)); Object.assign(S, { view: 'course', cLv: lv, cUnit: un, cPart: null, cBasics: false }); }
 function lesRoute(n, part) {   // opening #/course/<level>/lesson/n (/1 or /2: that part)
   if (S.les?.demo && !S.les.test && S.les.n === n) return;   // a Developer demo (lesDemo) stays as it is
   const lv = LES(n)?.lv;
-  if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { history.replaceState(history.state, '', '#/course/' + (lv || 1)); S.view = 'course'; S.cLv = lv || 1; S.cPart = null; S.cBasics = false; return; }
+  if (!lv || !lesDone(n) && (n !== lesNext(lv) || utDue(lv))) { lvHome(lv || 1); return; }
   lesDrop();   // v4.10: back to a lesson you left, it starts again from the beginning
   if (S.H) startLesson(n, 0, part);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startLesson(n, 0, part); render(); } }, () => toast('Lessons need the internet the first time'));
@@ -7158,7 +7102,7 @@ function utSheet(un) {   // tap a unit test on the path
 }
 function utRoute(un) {   // opening #/course/<level>/test/un
   if (S.les?.demo && S.les.test === un) return;   // a Developer demo (lesDemo) stays as it is
-  if (!UNIT(un) || !unitDone(un)) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; return; }
+  if (!UNIT(un) || !unitDone(un)) { lvHome(unitLv(un)); return; }
   comicLoad(unitLv(un));   // the ending plays when he is beaten
   lesDrop();   // a challenge you left starts again from the first question
   if (S.H) startUnitTest(un);
@@ -7241,7 +7185,7 @@ function jumpSheet(un) {
       <button class="js-not" data-act="close-sheet">Not now</button></div>`);
 }
 function jumpRoute(un) {   // opening #/course/<level>/jump/<unit>
-  if (!canJump(un) || !hearts()) { history.replaceState(history.state, '', '#/course/' + unitLv(un)); S.view = 'course'; S.cLv = unitLv(un); S.cPart = null; S.cBasics = false; if (canJump(un)) setTimeout(() => jumpSheet(un)); return; }
+  if (!canJump(un) || !hearts()) { lvHome(unitLv(un)); if (canJump(un)) setTimeout(() => jumpSheet(un)); return; }
   lesDrop();   // a recap you left starts again too
   if (S.H) startJump(un);
   else loadHsk().then(() => { if (S.view === 'lesson' && !S.les) { startJump(un); render(); } }, () => toast('Lessons need the internet the first time'));
@@ -13928,7 +13872,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.37';
+const APP_VERSION = '4.38';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14882,14 +14826,13 @@ const A = {
   'heart-les': t => { closeSheet(true); const n = lesNext(unitLv(+t.dataset.u)); if (n) lesStart(n); },
   'jump-go': t => { closeSheet(true); if (S.les?.jump) S.les = null; nav(jumpUrl(+t.dataset.u)); },
   'lx-open': t => lixiOpen(t.dataset.k),
-  'unit-open': t => unitGo(+t.dataset.u),
   'comic-replay': t => comicReplay(+t.dataset.u),
   'read-locked': () => { const n = readLeft(); toast(`Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}${n ? `: ${plural(n, 'lesson')} to go` : ''}`); },
   'basics-open': () => nav('#/basics'),
   'crs-low': () => { S.lowOpen = !S.lowOpen; S.lowAnim = true; S.instant = true; try { navigator.vibrate?.(8); } catch (_) {} render(); },
   'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
-  'c1-back': () => goBack(S.cUnit ? '#/course/' + (S.cLv || 1) : S.cPart ? '#/basics' : '#/learn'),
+  'c1-back': () => goBack(S.cPart ? '#/basics' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
   'c1-rad': t => radSheet(t),
   'c1-char': t => strokeSheet(t),
