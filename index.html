@@ -13827,7 +13827,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.56';
+const APP_VERSION = '4.57';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
@@ -14265,7 +14265,7 @@ const CLOUD = (() => {
 const GOOGLE_G = '<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.2 1.5-5 2.3-8.2 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
 /* The account pop-up. Signed out: Continue with Google (the one obvious button), email under it. Signed in: who you are,
    when it last synced, Sign out; deleting the account sits small at the bottom. welcome = opened from "I've used ShiHanzi before". */
-function acctSheet(welcome) {
+function acctSheet(welcome, viaEmail) {   // viaEmail: open on the email form, set to create an account
   const u = CLOUD.user;
   if (u) {
     openSheet(`<h3>Your account</h3>
@@ -14314,6 +14314,7 @@ function acctSheet(welcome) {
       catch (x) { err.textContent = /rate|seconds|security/i.test(String(x?.message)) ? 'An email was just sent. Wait a minute, then try again' : navigator.onLine ? 'Couldn’t send the email. Try again' : 'You’re offline. Connect and try again'; }
       finally { btn.disabled = false; }
     };
+    if (viaEmail) { sh.querySelector('#acMail').click(); sh.querySelector('#acNew').click(); }
     f.onsubmit = async e => {
       e.preventDefault();
       const em = sh.querySelector('#acEm').value.trim(), p = pw.value;
@@ -14510,8 +14511,8 @@ function goalSheet() {
 const OB_WHY = [['travel', '旅', 'Travel'], ['family', '家', 'Family and heritage'], ['work', '工', 'Work or school'],
   ['exam', '考', 'The HSK exam'], ['culture', '文', 'Films, books and culture'], ['fun', '趣', 'Just for fun']];
 const OB_LEVEL = [[1, '初', 'Beginner'], [2, '中', 'Intermediate'], [4, '高', 'Advanced'], [5, '专', 'Pro']];   // value: the HSK level the character check starts at
-const OB_STEPS = ['hi', 'why', 'level', 'check', 'words', 'read', 'placed', 'goal', 'habit'];
-const OB_PROG = { why: .14, level: .26, check: .4, words: .54, read: .66, placed: .78, goal: .9, habit: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
+const OB_STEPS = ['hi', 'why', 'level', 'check', 'words', 'read', 'placed', 'goal', 'habit', 'save'];
+const OB_PROG = { why: .14, level: .26, check: .4, words: .54, read: .66, placed: .78, goal: .9, habit: .95, save: 1 };   // jumps early, then slows (progress bars that start fast keep more people going)
 const OB_ROUND = 12, OB_ROUNDS = 4, OB_CARDS = 4;
 /* the short reading test: hand-written passages per HSK level (two each, one picked at random), each with one question */
 const OB_READ = {
@@ -14704,6 +14705,10 @@ function obShow() {
         <h2 class="mo-title">Keep Shi Shi on your home screen</h2><p class="mo-text">Then today’s round is one tap away, and ShiHanzi opens full screen like any other app.</p>
         <div class="ob-dock"><button class="btn btn-seal" data-ob="install">Add to home screen</button><button class="ob-link" data-ob="done">Not now</button></div>`;
   }
+  else if (step === 'save') html = obTop(false) + `<div class="ob-art">${shiFace('happy')}</div>
+      <h2 class="mo-title">Save your progress</h2><p class="mo-text">Make a free account and your level, words and streak are safe, even if you lose your phone. They follow you to every device.</p>
+      <div class="ob-dock"><button class="btn btn-ghost acct-g wide" data-ob="google">${GOOGLE_G}<span>Continue with Google</span></button>
+        <button class="btn btn-ghost wide" data-ob="email">Continue with email</button><button class="ob-link" data-ob="nosave">Not now</button></div>`;
   html = html.replace(/[–—]/g, '-');   // short dashes only on these pages (HSK 7-9, HSK 1-2)
   const el = layer(html, 'obs-' + step);
   el.querySelector('.ob-in').addEventListener('click', obClick);
@@ -14727,6 +14732,9 @@ async function obCheckStart() {   // the HSK lists may still be loading
   if (!S.ob || OB_STEPS[S.ob.i] !== 'check') return;
   S.ob.chk = { rounds: [], res: {} }; obRound(S.ob.level || 1); obShow();
 }
+/* v4.57: the last page offers an account (Google or email), unless you already have one or this is a replay */
+const obSaveAsk = () => S.ob && !S.ob.replay && !CLOUD.user;
+function obEnd(how) { if (obSaveAsk()) { S.ob.how = how; obGo('save'); } else obFinish(how); }
 function obFinish(how) {
   const O = S.ob, sig = O.chk ? obSignals() : {}, lv = O.chk ? obLevel(sig) : how === 'skipped' ? null : O.level ? Math.min(O.level, 2) : null;
   if (!O.replay && O.chk) {   // what you showed you know goes into the word bank as known (back for a light review over the next weeks)
@@ -14783,7 +14791,7 @@ async function obClick(e) {
   }
   const a = b.dataset.ob;
   if (a === 'skip') { obFinish('skipped'); if (!CLOUD.user) setTimeout(() => acctSheet(true), 450); return; }   // v4.47: bring your progress back
-  if (a === 'done') { obFinish(step === 'habit' ? 'not-now' : 'done'); return; }
+  if (a === 'done') { obEnd(step === 'habit' ? 'not-now' : 'done'); return; }
   if (a === 'quit') { LOG.add('onboarding-done', { how: 'closed', replay: O.replay }); S.ob = null; closeLayer(); return; }
   if (a === 'back') {   // one page (or one round, one card) back; your answers there stay picked
     if (step === 'check' && O.chk?.rounds.length > 1) { const R = O.chk.rounds.pop(); delete O.chk.res[O.chk.rounds.at(-1).lv]; delete O.chk.res[R.lv]; obShow(); return; }
@@ -14797,9 +14805,14 @@ async function obClick(e) {
     if (to === 'read' && O.st) O.st.pick = null;
     O.i = OB_STEPS.indexOf(to); obShow(); return;
   }
-  if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obFinish('reminder'); return; }
+  if (a === 'remind') { const h = +$('#obHr .chip.on')?.dataset.h || 19; await remindSet(true, h); obEnd('reminder'); return; }
+  if (a === 'google') { LOG.add('onboarding-save', { pick: 'google' }); obFinish(O.how || 'done');
+    try { await CLOUD.google(); } catch (_) { toast('Couldn’t reach Google. Are you online?'); } return; }   // Google takes over the page and comes back signed in
+  if (a === 'email') { LOG.add('onboarding-save', { pick: 'email' }); obFinish(O.how || 'done'); setTimeout(() => acctSheet(false, true), 450); return; }
+  if (a === 'nosave') { LOG.add('onboarding-save', { pick: 'not-now' }); const how = O.how || 'done'; obFinish(how); if (how === 'install-help') setTimeout(installHelp, 350); return; }
   if (a === 'install') {
-    if (installEvt) { installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null; LOG.add('install', { outcome, from: 'onboarding' }); obFinish('install-' + outcome); }
+    if (installEvt) { installEvt.prompt(); const { outcome } = await installEvt.userChoice; installEvt = null; LOG.add('install', { outcome, from: 'onboarding' }); obEnd('install-' + outcome); }
+    else if (obSaveAsk()) obEnd('install-help');   // the install steps show after the account page
     else { obFinish('install-help'); setTimeout(installHelp, 350); }
     return;
   }
@@ -14810,7 +14823,7 @@ async function obClick(e) {
     if (obPlace()) { LOG.add('onboarding-placed', O.chk.est); O.q = null; O.st = null; obGo(obSkipTests() ? 'placed' : 'words'); } else obShow();
     return;
   }
-  if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obFinish('done'); return; }
+  if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obEnd('done'); return; }
   obGo(OB_STEPS[O.i + 1]);
 }
 
