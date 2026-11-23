@@ -1,4 +1,4 @@
-# ShiCards daily reminder. Copy to .github/workflows/remind.yml in ilkegits/shicards-log,
+# ShiHanzi daily reminder. Copy to .github/workflows/remind.yml in ilkegits/shicards-log,
 # with remind.mjs at .github/remind.mjs and the secrets VAPID_PUBLIC and VAPID_PRIVATE set on that repo.
 # Runs at five past each hour from 15:00 to 21:00 UTC (17:00 to 22:00 in Central Europe, summer or winter),
 # about 7 short runs a day.

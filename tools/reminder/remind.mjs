@@ -1,4 +1,4 @@
-// ShiCards daily reminder sender. Runs in the private repo ilkegits/shicards-log on a schedule (remind.yml).
+// ShiHanzi daily reminder sender. Runs in the private repo ilkegits/shicards-log on a schedule (remind.yml).
 // Each phone that switched the reminder on keeps a note at remind/<device>.json:
 //   { on, hour, tz, sub, done, streak, waiting, waitingDay }
 // done = the last day it practised (its own date), sub = its Web Push sign-up.

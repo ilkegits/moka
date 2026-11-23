@@ -1,4 +1,4 @@
-/* ShiCards: the comics of HSK 2, the snack street by night (小吃街). Loaded the first time the HSK 2 course is opened.
+/* ShiHanzi: the comics of HSK 2, the snack street by night (小吃街). Loaded the first time the HSK 2 course is opened.
    Each unit has two parts of four panels, drawn with the kit HSK 1's comics use (see COMIC in index.html): part 1 ends
    at the worst moment, part 2 is the happy ending after the boss. Bubbles only use words up to that unit.
    The friend of this level is Bao Bao, the little steamed bun who would rather not be eaten. */

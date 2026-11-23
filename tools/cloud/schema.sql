@@ -1,4 +1,4 @@
--- ShiCards accounts and sync (v4.47). Run once in the Supabase SQL editor.
+-- ShiHanzi accounts and sync (v4.47). Run once in the Supabase SQL editor.
 -- One row per account: the app's whole save (db) as JSON. rev counts uploads; the app only
 -- updates a row whose rev is the one it last saw, so two devices never overwrite each other blind.
 

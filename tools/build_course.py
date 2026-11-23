@@ -45,7 +45,7 @@ for lv in levels:
     print(f'HSK {lv}: {len(units)} units, {sum(len(u[2]) for u in units)} lessons, {sum(got.values())} words')
 if errs: sys.exit('\n'.join(errs))
 comics = [lv for lv in levels if os.path.exists(os.path.join(ROOT, 'comics', f'hsk{lv}.js'))]
-head = '''/* ShiCards: the units and lessons of HSK 2 and up (HSK 1's are in index.html). BUILT by tools/build_course.py from the
+head = '''/* ShiHanzi: the units and lessons of HSK 2 and up (HSK 1's are in index.html). BUILT by tools/build_course.py from the
    lesson plans in tools/course/: change those, not this file.
    SHI_COURSE[level]: a unit line "## English|中文", then one line per lesson, "Title:word word word" (空#2: the word's
    second line in that level of dict/hsk.tsv).

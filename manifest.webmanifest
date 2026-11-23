@@ -1,8 +1,8 @@
 {
   "id": "/moka/",
-  "name": "ShiCards",
-  "short_name": "ShiCards",
-  "description": "Flashcards for Chinese, with Shi Shi the lion",
+  "name": "ShiHanzi",
+  "short_name": "ShiHanzi",
+  "description": "Learn Chinese characters with Shi Shi the lion",
   "start_url": "./#/",
   "scope": "./",
   "display": "standalone",

@@ -1,4 +1,4 @@
-# ShiCards: rules for agents
+# ShiHanzi: rules for agents
 
 ## Ship without asking
 

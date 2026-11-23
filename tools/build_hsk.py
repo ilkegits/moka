@@ -1,4 +1,4 @@
-"""Build dict/hsk.tsv, the HSK word lists ShiCards offers for picking the words you know and builds its lessons from.
+"""Build dict/hsk.tsv, the HSK word lists ShiHanzi offers for picking the words you know and builds its lessons from.
 
 Sources (not stored in the repo, download them first):
   1. The official word list of the HSK 3.0 syllabus 《HSK 考试大纲》 (released 2025-11 by 中外语言交流合作中心, in force from

@@ -147,7 +147,7 @@ finish() {
 }
 
 # ============================ STAGES ============================
-# ShiCards daily reminder: set up the scheduled sender in the private log repo.
+# ShiHanzi daily reminder: set up the scheduled sender in the private log repo.
 
 REPO="ilkegits/shicards-log"
 SRC="/c/Users/ilkem/HANZI/tools/reminder"
@@ -205,7 +205,7 @@ if [ "$DRY_RUN" != "1" ]; then
     && step "The job ran fine." || warn "The job did not finish cleanly. Tell Claude: it can read the run log."
 fi
 say ""
-say "Last step, on your phone: open ShiCards (version 1.51), Profile, Daily reminder, switch on Remind me, pick a time."
+say "Last step, on your phone: open ShiHanzi (version 1.51), Profile, Daily reminder, switch on Remind me, pick a time."
 say "To undo everything later: delete .github/workflows/remind.yml in $REPO."
 pause
 

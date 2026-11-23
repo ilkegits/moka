@@ -1,4 +1,4 @@
-"""Build dict/zh-en.tsv, the compact Chinese-English dictionary ShiCards uses for quick add.
+"""Build dict/zh-en.tsv, the compact Chinese-English dictionary ShiHanzi uses for quick add.
 
 Sources (not stored in the repo, download them first):
   CC-CEDICT  https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz   (CC BY-SA 4.0)
