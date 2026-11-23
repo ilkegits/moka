@@ -1945,25 +1945,21 @@ button.st-d:active{transform:scale(.9);transition:none}
    you are on open and the one red button, one strip of four tappable numbers, a small streak calendar; this week; badges */
 .pf-card{background:var(--card);border-radius:18px;box-shadow:var(--ring)}
 /* v4.47 Profile after Duolingo and Snapchat (ilkem: "take inspo from duolingo and snap"): a picture at the top with Shi Shi
-   standing big in front of blurred lantern lights at dusk, a round settings button in its corner, and a sheet with a
-   grab handle sliding up over his feet. On the sheet: a red seal with your level (一级 for HSK 1) where Snapchat has its
+   standing big in front of blurred lantern lights at dusk, a round settings button in its corner, and the page below
+   meets it in a straight line (v4.48, ilkem: "make it a straight line, not a notch no more"). On the sheet: a red seal with your level (一级 for HSK 1) where Snapchat has its
    code, your name big, the date you started in small capitals as Duolingo does, then the sections. */
 .pf-pg{line-height:1.3}
-.pf-hero{position:relative;flex:none;height:calc(268px + env(safe-area-inset-top));margin:calc(-1 * env(safe-area-inset-top)) -20px 0;overflow:hidden;
-  background:linear-gradient(180deg,#2A2756 0%,#4A3A7A 55%,#7E4C7E 100%);
-  /* the sheet's rounded top is cut out of the picture, so the sheet itself stays see-through and the page's paper grain runs on unbroken */
-  -webkit-mask:linear-gradient(#000,#000) top/100% calc(100% - 30px) no-repeat,radial-gradient(circle 28px at 28px 28px,transparent 98%,#000) left bottom/28px 30px no-repeat,radial-gradient(circle 28px at 0 28px,transparent 98%,#000) right bottom/28px 30px no-repeat;
-  mask:linear-gradient(#000,#000) top/100% calc(100% - 30px) no-repeat,radial-gradient(circle 28px at 28px 28px,transparent 98%,#000) left bottom/28px 30px no-repeat,radial-gradient(circle 28px at 0 28px,transparent 98%,#000) right bottom/28px 30px no-repeat}
+.pf-hero{position:relative;flex:none;height:calc(238px + env(safe-area-inset-top));margin:calc(-1 * env(safe-area-inset-top)) -20px 0;overflow:hidden;
+  background:linear-gradient(180deg,#2A2756 0%,#4A3A7A 55%,#7E4C7E 100%)}
 .pf-bk{position:absolute;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.32)}
 .pf-glow{position:absolute;left:50%;bottom:-40px;width:340px;height:260px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(255,176,102,.55),rgba(255,176,102,0))}
-.pf-hero .shi-body{position:absolute;left:50%;bottom:-2px;width:218px;height:auto;transform:translateX(-50%)}
+.pf-hero .shi-body{position:absolute;left:50%;bottom:-32px;width:218px;height:auto;transform:translateX(-50%)}
 .pf-gear{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
   background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;transition:transform .15s}
 .pf-gear:active{transform:scale(.9);transition:none}
 .pf-gear svg.i{width:22px;height:22px}
 .pf-gear:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.pf-sheet{position:relative;flex:1;margin:-30px 0 0;padding-top:10px}
-.pf-grab{display:block;width:40px;height:5px;border-radius:3px;background:var(--line-2);margin:0 auto 16px}
+.pf-sheet{flex:1;padding-top:22px}
 .pf-seal{flex:none;width:60px;height:60px;border-radius:12px;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);
   box-shadow:inset 0 0 0 4px var(--seal),inset 0 0 0 5.5px rgba(255,248,242,.6),0 3px 0 rgba(120,30,20,.25);transform:rotate(-3deg);
   font:700 21px/1 var(--hanzi);letter-spacing:.02em}
@@ -8371,7 +8367,7 @@ function ProfileView() {
   return `<div class="screen fade-in pf-pg">
     <div class="pf-hero">${bokeh}<span class="pf-glow" aria-hidden="true"></span>${shiBody('cheer')}
       <button class="pf-gear" data-act="settings" aria-label="App settings">${I.gear}</button></div>
-    <div class="pf-sheet"><span class="pf-grab" aria-hidden="true"></span>
+    <div class="pf-sheet">
     <div class="pf-me"><span class="pf-seal" role="img" aria-label="${HSK_NAME(l)}">${seal}</span>
       <span class="pf-id"><input class="pf-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
         <small>${since ? `Learning since ${since}` : 'Learning Chinese with Shi Shi'}</small></span></div>
@@ -13758,7 +13754,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.47';
+const APP_VERSION = '4.48';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
