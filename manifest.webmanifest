@@ -1,7 +1,7 @@
 {
   "id": "/moka/",
-  "name": "ShiHanzi",
-  "short_name": "ShiHanzi",
+  "name": "ShiHanzi2",
+  "short_name": "ShiHanzi2",
   "description": "Learn Chinese characters with Shi Shi the lion",
   "start_url": "./#/",
   "scope": "./",
