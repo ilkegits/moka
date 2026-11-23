@@ -1991,19 +1991,19 @@ button.st-d:active{transform:scale(.9);transition:none}
    meets it in a straight line (v4.48, ilkem: "make it a straight line, not a notch no more"). On the sheet: a red seal with your level (一级 for HSK 1) where Snapchat has its
    code, your name big, the date you started in small capitals as Duolingo does, then the sections. */
 .pf-pg{line-height:1.3}
-.pf-hero{position:relative;flex:none;height:calc(238px + env(safe-area-inset-top));margin:calc(-1 * env(safe-area-inset-top)) -20px 0;overflow:hidden;
-  background:linear-gradient(180deg,#2A2756 0%,#4A3A7A 55%,#7E4C7E 100%)}
-.pf-bk{position:absolute;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.32)}
-.pf-gear{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
-  background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;transition:transform .15s}
+/* v4.55 (ilkem: remove the lantern picture too): no picture at the top; the settings gear sits in the top corner of your
+   name row, beside the name, leaving the "Learning since" line its full width */
+.pf-gear{position:absolute;top:-6px;right:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:var(--card);box-shadow:var(--ring);color:var(--ink-2);transition:transform .15s}
 .pf-gear:active{transform:scale(.9);transition:none}
 .pf-gear svg.i{width:22px;height:22px}
-.pf-gear:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pf-gear:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
 .pf-sheet{flex:1;padding-top:22px}
 .pf-seal{flex:none;width:60px;height:60px;border-radius:12px;display:grid;place-items:center;background:var(--seal);color:var(--seal-ink);
   box-shadow:inset 0 0 0 4px var(--seal),inset 0 0 0 5.5px rgba(255,248,242,.6),0 3px 0 rgba(120,30,20,.25);transform:rotate(-3deg);
   font:700 21px/1 var(--hanzi);letter-spacing:.02em}
-.pf-me{display:flex;align-items:center;gap:14px;margin:0 2px 22px;line-height:1.3}
+.pf-me{position:relative;display:flex;align-items:center;gap:14px;margin:0 2px 22px;line-height:1.3}
+.pf-me .pf-name{width:calc(100% - 44px)}
 .pf-id{flex:1;min-width:0;display:flex;flex-direction:column}
 .pf-name{width:100%;height:36px;margin:0 0 0 -6px;padding:0 6px;border:0;border-radius:10px;background:transparent;font:600 26px var(--display);letter-spacing:-.02em;color:var(--ink);outline:none;transition:background .2s}
 .pf-name::placeholder{color:var(--seal);opacity:1}
@@ -8400,20 +8400,13 @@ function ProfileView() {
   const road = `<div class="pf-st now"><span class="pf-dot">${l === 7 ? '7+' : l}</span><b>${HSK_NAME(l)}</b><span></span>
         <div class="pf-bx"><div class="pf-bar"><i style="width:${gBar(total ? known / total : 0)}%"></i></div>
           <div class="pf-bxt"><span>${known.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} words</span><b>${left ? `${left.toLocaleString('en-GB')} to go` : 'All known'}</b></div></div></div>`;
-  /* v4.53 (ilkem: "get rid of the avatar on the profile page"): no Shi Shi in the picture, only the lantern lights.
-     blurred lantern lights: left %, top %, size px, colour, opacity */
-  const bokeh = [[9, 22, 58, '#FFC857', .5], [27, 9, 24, '#FFE3A3', .55], [21, 62, 34, '#FF6B6B', .45], [6, 84, 44, '#FF8FAB', .32],
-    [40, 34, 14, '#FFE3A3', .5], [52, 8, 18, '#FFFFFF', .3], [62, 26, 12, '#FFFFFF', .35], [80, 15, 64, '#FF8FAB', .4],
-    [93, 47, 36, '#FFC857', .45], [70, 66, 26, '#FF6B6B', .42], [88, 85, 50, '#FFB347', .36], [35, 88, 20, '#FFC857', .35]]
-    .map(([x, y, d, c, o]) => `<span class="pf-bk" style="left:${x}%;top:${y}%;width:${d}px;height:${d}px;background:${c};opacity:${o};filter:blur(${(d / 22).toFixed(1)}px)"></span>`).join('');
   const seal = l === 7 ? '高等' : '一二三四五六'[l - 1] + '级';
   return `<div class="screen fade-in pf-pg">
-    <div class="pf-hero">${bokeh}
-      <button class="pf-gear" data-act="settings" aria-label="App settings">${I.gear}</button></div>
     <div class="pf-sheet">
     <div class="pf-me"><span class="pf-seal" role="img" aria-label="${HSK_NAME(l)}">${seal}</span>
       <span class="pf-id"><input class="pf-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
-        <small>${since ? `Learning since ${since}` : 'Learning Chinese with Shi Shi'}</small></span></div>
+        <small>${since ? `Learning since ${since}` : 'Learning Chinese with Shi Shi'}</small></span>
+      <button class="pf-gear" data-act="settings" aria-label="App settings">${I.gear}</button></div>
     <div class="section-head"><h2>My level <span class="cal-zh">等级</span></h2></div>
     <section class="pf-card pf-road" aria-label="Your HSK level">
       ${road}
@@ -13831,7 +13824,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.54';
+const APP_VERSION = '4.55';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
