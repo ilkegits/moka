@@ -5244,7 +5244,7 @@ function ucHud(u) {
     if (!st.open) return canJump(u) ? ''   // v4.00 (ilkem: "get rid of the blue jump button with the white box on the bottom"): no card; the turquoise Jump here? stop on the path is the one way to jump
       : `<span class="un-hud-t"><small>Locked</small><b>Finish Unit ${unK(u) - 1} first</b><i>Its last lesson opens Unit ${unK(u)}</i></span>`;
     // v4.59 (ilkem: "i get the button that i can open a lishi. I dont want"): no envelope card; the envelope button (.pp-lxgo) finds it once it is off the screen
-    if (st.won) return `<span class="un-hud-t"><small>Unit ${unK(u)} done</small><b>${last ? `All of ${HSK_NAME(lv)} done` : `Unit ${unK(u) + 1} is open`}</b>${last ? up ? `<i>${HSK_NAME(lv + 1)} is open</i>` : '' : `<i>${esc(UNIT(u + 1)[0])}</i>`}</span>${last ? up ? `<button class="btn btn-seal" data-act="c1-open" data-lv="${lv + 1}">${HSK_NAME(lv + 1)}</button>` : '' : `<button class="btn btn-seal" data-ucgo="${u + 1}">Next unit</button>`}`;
+    if (st.won) return '';   // v4.64 (ilkem: "I want the circled part away"): no "Unit N done · Next unit" card; the path goes on below to the next unit
     return '';   // v3.98 (ilkem: "i want 1 obvious choice"): a lesson to do has no card; its station on the path, with its Start flag, is the one button
   }
   return !st.open ? `<span class="un-hud-t"><small>Locked</small><b>Beat Hu Hu in Unit ${unK(u) - 1}</b><i>His challenge opens Unit ${unK(u)}</i></span>`
@@ -13855,7 +13855,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.63';
+const APP_VERSION = '4.64';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
