@@ -57,12 +57,14 @@ for l in io.open('dict/hsk.tsv', encoding='utf-8'):
         hsk[f[1]] = (int(f[0]), f[2], short(f[3]) if len(f) > 3 else '')
 
 rank = {h: i for i, h in enumerate(order)}
-best = {}
+# HSK characters whose official reading is not the one a voice says for the character alone (只 zhī: a voice says zhǐ)
+VOICE_OTHER = {'只', '教'}
+best = {('zhao', 2): ('着', 'to touch')}   # 着 is listed as zhe now; a voice says zháo for it alone, the only common zháo
 # first the everyday HSK 1-2 characters in their HSK reading, even when they have a rarer second one
 # (a voice reading 好 on its own says hao3, the reading learners need)
 for h, (lv, p, e) in sorted(hsk.items(), key=lambda x: (x[1][0], rank.get(x[0], 1e9))):
     n = lv <= 2 and numbered(p)
-    if any(not numbered(r) for r in readings.get(h, ())):   # 吗 also reads ma: a voice may say that
+    if any(not numbered(r) for r in readings.get(h, ())) or h in VOICE_OTHER:   # 吗 also reads ma: a voice may say that
         continue
     if n and n not in best:
         best[n] = (h, e or meaning.get(h, ''))

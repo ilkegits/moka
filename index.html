@@ -24,7 +24,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
-<script src="course.js?v=332"></script>
+<script src="course.js?v=333"></script>
 <style>
 /* ǖ ǘ ǚ ǜ (lǜ, nǚ) from a system font: Satoshi has no ü with tone marks and would show the mark beside the letter */
 @font-face{font-family:"PyMarks";src:local("Segoe UI"),local("SegoeUI"),local("Helvetica Neue"),local("HelveticaNeue"),local("Roboto"),local("Arial");unicode-range:U+01D5-01DC}
@@ -4595,15 +4595,15 @@ function CourseView() {
 }
 
 /* ---------- HSK 1 lessons ----------
-   49 short lessons in 8 units cover all 294 HSK 1 words, one theme each, shown as a deck of hanzi cards. A lesson is hanzi
+   49 short lessons in 8 units cover all 300 HSK 1 words, one theme each, shown as a deck of hanzi cards. A lesson is hanzi
    cards and writing: meet each word on its card and trace its new character in the tianzige right after, then turn the
    cards (the character first: think of its meaning, turn it, say if you knew it; "Not yet" comes back at the end), with two
    characters to write from memory, one halfway through the cards and one at the end. Finishing a lesson puts its words into the word bank by
    itself, back in the daily review tomorrow, so the word bank fills as you learn; Quick add and the HSK lists still add
    words by hand. Lessons open one after another. db.lessons = { n: { done, last, best } }, n from 1. Route: #/course/1/lesson/n */
 const LES_UNITS = [
-  ['Hello', '你好', [['Hello', '你 好 我 您 再见 谢谢'], ['Polite words', '不客气 对不起 没关系 请 请问 喂'], ['Me, you, them', '我们 你们 他 她 他们 她们'],
-    ['Who is it?', '是 不 谁 人 叫 名字'], ['Asking questions', '吗 呢 什么 哪 哪儿 哪里'], ['One to five', '一 二 三 四 五 零']]],
+  ['Hello', '你好', [['Hello', '你 好 你好 我 您 再见 谢谢'], ['Polite words', '不客气 对不起 没关系 没事 请 请问 一下'], ['Me, you, them', '我们 你们 他 她 他们 她们'],
+    ['Who is it?', '是 不 谁 人 叫 名字'], ['Asking questions', '吗 呢 什么 哪 哪个 哪儿 哪里'], ['One to five', '一 二 三 四 五 零']]],
   ['Numbers and time', '时间', [['Six to ten', '六 七 八 九 十 两'], ['Big numbers', '百 千 几 多少 第 半 一半'], ['Days', '今天 明天 昨天 天 日 号'],
     ['Weeks and months', '星期 星期天 星期日 月 年 岁'], ['Times of day', '早上 上午 中午 下午 晚上 白天'], ['Telling the time', '点 分 分钟 小时 时候 时间']]],
   ['Family and people', '家人', [['Family', '爸爸 妈妈 家 家人 孩子 儿子 女儿'], ['Brothers and sisters', '哥哥 姐姐 弟弟 妹妹 们'], ['Friends', '朋友 男朋友 女朋友 同学 大家 小朋友'],
@@ -4612,12 +4612,12 @@ const LES_UNITS = [
     ['Fruit', '水果 苹果 好吃 杯子 口 一点儿'], ['Money', '买 卖 钱 块 元 贵 便宜'], ['Shops', '商店 超市 书店 店 东西 衣服 穿']]],
   ['School', '学校', [['School', '学校 小学 中学 大学 上学 课'], ['Students', '大学生 中学生 小学生 上课 下课'], ['Studying', '学 学习 读 读书 写 字'],
     ['Chinese', '中国 中文 汉语 汉字 国 书'], ['Talking', '说 说话 问 问题 听 知道'], ['See and hear', '看 看见 听见 见 认识 觉得']]],
-  ['Home and travel', '回家', [['My room', '房间 桌子 椅子 电脑 电视 手机'], ['Sleep and rest', '睡 睡觉 起床 休息 住 回'], ['Phones and films', '电话 打电话 电影 电影院 歌 唱'],
+  ['Home and travel', '回家', [['My room', '房间 桌子 椅子 电脑 电视 手机'], ['Sleep and rest', '睡 睡觉 起床 休息 住 回'], ['Phones and films', '喂 电话 打电话 电影 电影院 歌 唱'],
     ['Getting around', '车 开车 出租车 火车 飞机 坐'], ['Come and go', '去 来 到 开 找 给'], ['Here and there', '这里 那里 这儿 那儿 这边 那边']]],
   ['Describing things', '怎么样', [['Up and down', '上 下 里 外 外边 边'], ['Big and small', '大 小 多 少 很 太'], ['Likes', '爱 喜欢 想 要 高兴 忙'],
-    ['Weather', '天气 热 冷 雨 下雨 雪'], ['Nice!', '漂亮 好看 好听 好玩儿 新 真'], ['Feeling ill', '病 生病 看病 有点儿 非常'], ['Pets and play', '狗 猫 玩 做']]],
-  ['Little words', '小词', [['This and that', '这 那 这些 那些 哪些 些'], ['Counting words', '个 本 件 一些 有些 有的'], ['Have and be', '有 没有 在 正在 的 了'],
-    ['And, also, all', '和 也 都 还 再 只'], ['Can and may', '会 能 可以 不要 吧 对'], ['How', '怎么 怎么样 前 后 事 它 它们']]],
+    ['Weather', '天气 热 冷 雨 下雨 雪'], ['Nice!', '漂亮 好看 好听 好玩儿 新 真'], ['Feeling ill', '病 生病 看病 有点儿 非常'], ['Pets and play', '狗 猫 只 玩 做']]],
+  ['Little words', '小词', [['This and that', '这 那 这个 那个 这些 那些 哪些'], ['Counting words', '个 本 件 些 一些 有些 有的'], ['Have and be', '有 没有 在 正在 的 了'],
+    ['And, also, all', '和 也 都 还 再'], ['Can and may', '会 能 可以 不要 吧 对'], ['How', '怎么 怎么样 前 后 事 它 它们']]],
 ];
 /* v3.31: every HSK level has units. HSK 1's are written out above; HSK 2 and up come from course.js (window.SHI_COURSE:
    one text per level, a unit line "## English|中文" and under it its lessons "Title:word word word"). Numbers never
@@ -4642,7 +4642,7 @@ const unitLv = un => UNIT(un)?.lv || 1, unK = un => UNIT(un)?.k ?? un, unitLast 
 const unitUrl = un => `#/course/${unitLv(un)}/unit/${un}`, utUrl = un => `#/course/${unitLv(un)}/test/${un}`, lesUrl = (n, part) => `#/course/${LES(n)?.lv || 1}/lesson/${n}${part ? '/' + part : ''}`;
 const lvDoneSay = lv => lv < 7 ? `finishes ${HSK_NAME(lv)} and opens ${HSK_NAME(lv + 1)}` : `finishes ${HSK_NAME(lv)}`;
 /* plain meanings for lessons where the dictionary's first one is odd or too long ("年: grain; harvest") */
-const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome`.split('|').map(s => s.split('=')));
+const LES_MEAN = Object.fromEntries(`的=of; 's|了=(action done; change)|是=to be; yes|在=at; in; to be at|不=no; not|个=(measure word)|和=and; with|好=good; well|也=also; too|会=can; will|还=still; also|给=to give; for|没有=not have; didn't|那=that|什么=what|吧=(let's…; …right?)|点=o'clock; a bit|里=in; inside|年=year|很=very|太=too; very|吗=(yes or no question)|呢=(and…? question)|时候=time; when|你们=you (more than one)|怎么=how|谁=who|找=to look for|今天=today|觉得=to feel; to think|几=how many|大家=everyone|开=to open; to drive|叫=to be called|请=please; to invite|钱=money|不要=don't|本=(measure word: books)|回=to go back|岁=years old|号=date; number|件=(measure word: clothes)|女=woman; female|分=minute; cent|日=day; date|正在=(doing right now)|早=early; morning|们=(more than one person)|块=yuan (money)|多少=how many; how much|哪=which|先生=Mr; sir|卖=to sell|些=some|歌=song|店=shop|元=yuan|唱=to sing|她们=they (women)|它们=they (things)|字=character; word|热=hot|第=(-th: 第一 first)|读=to read|猫=cat|休息=to rest|有的=some (of them)|喂=hello? (phone)|课=lesson; class|饭=rice; meal|家人=family|同学=classmate|雨=rain|雪=snow|百=hundred|那边=over there|哪些=which ones|一点儿=a little|好玩儿=fun|面条儿=noodles|包子=steamed bun|牛奶=milk|鸡蛋=egg|好听=nice to hear|请问=excuse me, may I ask|饺子=dumplings|想=to want; to think|上=up; on|下=down; under|天=day; sky|菜=dish; vegetables|小朋友=kid|起床=to get up|打电话=to phone|妈妈=mum|手机=mobile phone|电影=film|他=he; him|她=she; her|晚=late; evening|坐=to sit; to take (a bus)|认识=to know (someone)|怎么样=how is it?|上课=to have class|读书=to read; to study|没关系=it's OK|中文=Chinese (language)|汉语=Chinese (spoken)|东西=thing; stuff|两=two (of)|一些=a few; some|有些=somewhat; some|学=to learn|学习=to study|上班=to go to work|知道=to know|好看=good-looking|看见=to see|做=to do; to make|家=home; family|后=after; behind|前=before; in front|边=side|外=outside|事=thing; matter|有点儿=a bit|非常=very; really|星期日=Sunday (written)|星期天=Sunday|这里=here|这儿=here (spoken)|那里=there|那儿=there (spoken)|哪里=where|哪儿=where (spoken)|白天=daytime|做饭=to cook|好吃=tasty|下雨=to rain|一半=half|半=half (of)|您=you (polite)|再见=goodbye|谢谢=thank you|对不起=sorry|不客气=you're welcome|你好=hello|这个=this; this one|那个=that; that one|哪个=which; which one|一下=(do something) a bit; once|没事=it's nothing; never mind`.split('|').map(s => s.split('=')));
 const lesRows = new Map();
 function lesRow(h) {   // { h, p, en } for a lesson word
   if (!lesRows.has(h) && S.H) { const r = S.H.byHz.get(h); lesRows.set(h, { h, p: S.H.gloss?.get(h)?.p || r?.p || autoPinyin(h), en: LES_MEAN[h] || (r ? meanOf(r) : '') }); }
@@ -12737,7 +12737,7 @@ function WriteSummary(d) {
 
 /* ---------- pinyin → hanzi (online IME) ---------- */
 const candCache = new Map(); let candCtl = null;
-const normPy = s => s.toLowerCase().replace(/ü|u:/g, 'v').replace(/[āáǎà]/g, 'a').replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i').replace(/[ōóǒò]/g, 'o').replace(/[ūúǔù]/g, 'u').replace(/[ǖǘǚǜ]/g, 'v').replace(/[^a-z']/g, '');
+const normPy = s => s.toLowerCase().replace(/ü|u:/g, 'v').replace(/[āáǎà]/g, 'a').replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i').replace(/[ōóǒò]/g, 'o').replace(/[ūúǔù]/g, 'u').replace(/[ǖǘǚǜ]/g, 'v').replace(/[ńňǹ]/g, 'n').replace(/[^a-z']/g, '');   // ǹg: 嗯
 async function fetchCands(py) {
   if (candCache.has(py)) return candCache.get(py);
   candCtl?.abort(); candCtl = new AbortController();
@@ -13599,11 +13599,12 @@ function wireSearch(inp, onClear) {
 }
 
 /* ---------- HSK lists ----------
-   dict/hsk.tsv: the HSK 3.0 word lists of the 2026 syllabus (levels 1-6, and 7 for the 7-9 band), from
-   complete-hsk-vocabulary (MIT) with CC-CEDICT meanings; rebuild with tools/build_hsk.py.
+   dict/hsk.tsv: the HSK 3.0 word lists of the official 2025 syllabus 《HSK 考试大纲》 (levels 1-6, and 7 for the 7-9 band):
+   every word once, at the lowest level it is listed at, in its official reading, with CC-CEDICT meanings; rebuild with
+   tools/build_hsk.py. A line whose reading was corrected in v4.41 keeps its old pinyin and meanings in two more columns.
    One line per word: level <TAB> simplified <TAB> pinyin <TAB> meanings. */
 const HSK_NAME = l => l === 7 ? 'HSK 7–9' : 'HSK ' + l;
-const HSK_COUNT = { 1: 294, 2: 197, 3: 487, 4: 972, 5: 1547, 6: 1684, 7: 4876 };   // words per level, shown before the lists load
+const HSK_COUNT = { 1: 300, 2: 197, 3: 491, 4: 990, 5: 1579, 6: 1777, 7: 5562 };   // words per level, shown before the lists load
 /* the shelf of HSK levels on the Decks page; rings fill in once the lists are loaded */
 function HskShelf() {
   const inBank = S.H && new Set(db.bank.map(w => w.hanzi));
@@ -13620,8 +13621,9 @@ function loadHsk() {
     const levels = {}, byHz = new Map(), gl = new Map();
     for (const l of t.split('\n')) {
       if (!l || l[0] === '#') continue;
-      const [lv, h, p, e] = l.split('\t'); if (!h) continue;
+      const [lv, h, p, e, op, oe] = l.split('\t'); if (!h) continue;
       const row = { lv: +lv, h, p, e: e || '' };
+      if (op !== undefined) row.was = { p: op, e: oe || '' };   // v4.41: the line before its reading was corrected (狮子 was "Leo (star sign)")
       (levels[row.lv] ||= []).push(row); if (!byHz.has(h)) byHz.set(h, row);
     }
     for (const l of g.split('\n')) { const [h, p, en] = l.replace(/\r$/, '').split('\t'); if (h && h[0] !== '#' && en) gl.set(h, { p, en }); }
@@ -13636,6 +13638,14 @@ function loadHsk() {
     }
     let fixed = false;
     for (const w of db.bank) { const r = byHz.get(w.hanzi); if (r && was.has(w.hanzi) && w.en === was.get(w.hanzi) && w.en !== meanOf(r)) { w.en = meanOf(r); fixed = true; } }
+    /* v4.41: the HSK lists now follow the official 2025 syllabus, whose pinyin picks the right reading of a word. A card made
+       from a line that had the wrong one (吗 "má: what?", 金子 "Kaneko", 趟 "to wade") takes the right reading and meaning;
+       a meaning or pinyin you typed yourself stays */
+    for (const c of [...db.bank, ...db.decks.flatMap(d => d.cards || [])]) {
+      const r = byHz.get(c.hanzi); if (!r?.was) continue;
+      if (c.en && c.en === shortMeaning(r.was.e) && c.en !== meanOf(r)) { c.en = meanOf(r); fixed = true; }
+      const py = gl.get(c.hanzi)?.p || r.p; if (c.pinyin && c.pinyin === r.was.p && c.pinyin !== py) { c.pinyin = py; fixed = true; }
+    }
     if (fixed) save();
     S.H = { levels, byHz, gloss: gl }; tagBank(); return S.H;
   }).catch(e => { hskP = null; throw e; });
@@ -13808,7 +13818,7 @@ function HskView() {
       return `<button class="row" data-act="hsk-level" data-lv="${l}" style="--sep:68px">${ring(l === 7 ? '7–9' : String(l), L.length ? k / L.length : 0)}
         <span class="row-main"><span class="row-t">${HSK_NAME(l)}</span><span class="row-s">${!H ? skel(l % 2 ? '7.5em' : '9em') : k ? `${k.toLocaleString('en')} of ${L.length.toLocaleString('en')} words known` : `${L.length.toLocaleString('en')} words`}</span></span><span class="chev">${I.chev}</span></button>`;
     }).join('')}</div>
-    <p class="group-foot">HSK 3.0, 2026 syllabus. Word lists from complete-hsk-vocabulary (MIT), meanings from CC-CEDICT (CC BY-SA 4.0).</p>
+    <p class="group-foot">HSK 3.0, the official 2025 syllabus (in force since July 2026). Words, levels and readings from the official word list, meanings from CC-CEDICT (CC BY-SA 4.0).</p>
   </div>`;
   const L = H?.levels[lv] || [], k = L.filter(r => inBank.has(r.h)).length;
   return `<div class="screen fade-in"${H ? '' : ' aria-busy="true"'}>${head}
@@ -13941,7 +13951,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.40';
+const APP_VERSION = '4.41';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });

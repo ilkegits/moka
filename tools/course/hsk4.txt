@@ -1,32 +1,32 @@
-# HSK 4 lesson plan: 16 units, 127 lessons, 972 words
+# HSK 4 lesson plan: 16 units, 127 lessons, 990 words
 
 ## Food and drink | 美食 | Shi Shi offers to cook the festival dinner at the teahouse, but he cannot read one dish or taste on Gun Gun's recipe
 Meals: 食物 食品 美食 早餐 午餐 晚餐 中餐 快餐
 Eating out: 餐厅 食堂 顿 订 排 排队 够 不够 剩
-Tastes: 味道 闻 香 辣 酸 咸 苦 鲜
+Tastes: 味 味道 闻 香 辣 酸 咸 苦 鲜
 In the kitchen: 厨房 厨师 刀 西红柿 油 盐 汤 烤 熟
-A party: 聚 聚会 邀请 庆祝 祝 祝贺 红包
+A party: 聚 聚会 聚餐 邀请 庆祝 祝 祝贺 红包
 Snacks: 零食 小吃 饼干 巧克力 酸奶 馒头 月饼
-Drinks: 果汁 汽水 茶叶 葡萄 葡萄酒 白酒 干杯
+Drinks: 果汁 汽水 茶叶 葡萄 葡萄酒 白酒 倒 干杯
 
 ## Home and town | 客厅 | Shi Shi rents a little room off the stone lane, but he cannot tell the landlord that the window is broken and the key is gone
 Push and pull: 拉 推 按 拍 敲 响 挂
-Broken: 破 掉 倒 修 修理 弄 师傅
-Tidying up: 收拾 整理 装 乱 扔 垃圾 桶
+Broken: 破 掉 修 修理 弄 师傅
+Tidying up: 收拾 整理 装 乱 扔 垃圾 桶 袋子
 Describing things: 厚 细 粗 轻 深 低 亮 满 空
-At home: 客厅 大厅 窗户 院子 家具 钥匙 盒子
+At home: 客厅 大厅 窗 窗户 院子 家具 钥匙 盒子
 Clothes: 外套 毛衣 帽子 袜子 皮鞋 眼镜 背包 戴 脱
 Renting a room: 租 出租 房东 房租 地址 费 费用 收费
 Town and country: 城 村 农村 区 市区 郊区 首都
 
 ## Body and health | 体检 | Bao Bao wakes up coughing, and at the clinic Shi Shi cannot tell the doctor where it hurts
 Life: 生 活 死 生命 人生 一生 日子
-Body: 鼻子 胳膊 肚子 背 皮肤 血 流 全身
-Body moves: 动作 步 抬 抬头 点头 举 抱 指
+Body: 身 全身 鼻子 胳膊 肚子 皮肤 血 流
+Body moves: 动作 步 抬 抬头 点头 举 抱 背 指
 Sleep: 困 躺 醒 梦 做梦 晚安 夜 夜晚 早晨
 Danger: 危险 严重 受伤 火 着火 烟 吸
-Getting clean: 厕所 镜子 毛巾 牙膏 擦 理发 卫生
-At the clinic: 大夫 护士 体检 体温 打针 咳 咳嗽 痛
+Getting clean: 厕所 镜子 毛巾 纸巾 牙膏 擦 理发 卫生
+At the clinic: 大夫 护士 体检 体温 打针 咳 咳嗽 痛 头痛
 Keeping fit: 健身 健身房 力气 散步 体重 汗 功夫
 
 ## Family and people | 家庭 | Yu Tu's whole family comes to visit the temple, and Shi Shi keeps greeting her grandfather as her little brother
@@ -34,7 +34,7 @@ Parents: 父亲 母亲 父母 父子 父女 母子 母女 家长
 Relatives: 家庭 兄弟 孙子 孙女 亲戚 家乡 老家 俩
 Men and women: 性 男性 女性 男士 姑娘 小伙子 各位 对方
 Ages: 年龄 儿童 童年 少年 青年 中年 老年
-Jobs: 职业 警察 交警 记者 律师 工人 导游
+Jobs: 职业 警察 交警 记者 律师 工人 导游 售票员
 Fans and members: 观众 听众 读者 球迷 网友 会员 人员
 Being polite: 打招呼 礼貌 客气 感谢 抱歉 道歉 原谅
 Rules: 社会 公共 法律 规定 标准 符合 合格
@@ -42,12 +42,12 @@ Rules: 社会 公共 法律 规定 标准 符合 合格
 ## Getting around | 交通 | The only morning bus is pulling away from the bus stop, and Shi Shi cannot ask which road it takes or if he is still on time
 On the road: 交通 道 道路 公路 高速 街道 桥 十字路口 堵车
 Driving: 停 停车 停车场 车位 车速 转 加油 加油站
-By bus: 乘 乘坐 乘客 大巴 电动车 座 座位 趟
+By bus: 乘 乘坐 乘客 大巴 电动车 动车 座 座位 趟
 Hurry up: 赶 赶上 赶紧 赶快 快速 加快 速度
 All around: 入口 出口 对面 前方 底下 周围 左右 前后
 On the way: 外出 出行 顺便 路过 距离 公里 远离 目的地 到来
 On time: 准时 按时 及时 迟 推迟 提前 来得及 来不及 错过
-Flying: 航班 登机 安检 转机 降落 签证 旅客
+Flying: 航班 登机 安检 转机 换乘 降落 签证 使馆 旅客
 
 ## Trips and nature | 旅行 | Shi Shi leads his friends up the forest path behind the temple, but he cannot read the weather notice as the sky turns dark
 Sky, land and sea: 阳光 光 云 星星 土 江 海洋
@@ -56,25 +56,25 @@ Temperature: 温度 气温 高温 低温 降温 零下 摄氏度
 In the forest: 森林 树林 棵 叶子 鲜花 熊 老虎
 Protecting nature: 自然 大自然 植物 保护 环保 污染 塑料
 The world: 地球 全球 国际 亚洲 民族 东部 西部 南部 北部
-On holiday: 旅行 度假 旅馆 假日 节假日 暑假 寒假
+On holiday: 旅行 度假 旅馆 入住 假日 节假日 暑假 寒假
 Sightseeing: 景点 景区 景色 美景 风景 参观 游玩
 
 ## Shops and post | 购物 | A parcel is waiting for Shi Shi at the post office, but he cannot work out the weight, the fee or how to pay for it
 Shopping: 购物 购买 逛 顾客 商品 货 牌 牌子 质量
 Prices: 价格 价钱 高价 低价 降价 打折 免费 值 值得
-Paying: 付 支付 交 现金 零钱 零花钱 结账
+Paying: 付 支付 交 现金 零钱 零花钱 结账 扫码 网购
 Count and weigh: 数 数字 人数 算 倍 量 克 千克
 Many and few: 许多 大量 少量 多数 少数 数量 丰富 缺 缺少
-News: 消息 信息 通知 广播 播放 收听 联系
+News: 消息 信息 通知 广播 播放 收听 联系 转发
 Post office: 寄 快递 上门 取 回信 短信 回复 发送 发出
-Online: 互联网 网页 网址 密码 视频 信号 查找
+Online: 互联网 网页 网址 密码 视频 信号 查找 线上 线下
 
 ## School | 课堂 | It is exam day at the town school, and Shi Shi cannot follow the questions Long Long is helping him go over
 Teachers: 教育 教学 教师 教授 教练 学院 院长
 Reading: 阅读 文章 作文 篇 小说 杂志 者 作者 作家
 Marks: 分数 答 答案 正确 错误 准 准确
 Science: 科学 科技 技术 专业 专门 基础 知识
-In class: 课堂 课程 功课 预习 自学 点名 师生 操场
+In class: 课堂 课程 功课 预习 自学 自习 点名 师生 操场
 Language: 语法 词语 口语 听力 普通话 流利 翻译 文字
 Exams: 高考 报考 报名 考生 试题 笔试 期 期中 期末
 University: 入学 毕业 毕业生 本科 硕士 博士 研究生 学费

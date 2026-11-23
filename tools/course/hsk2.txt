@@ -4,13 +4,13 @@ A table for two: 位 条 鱼 肉 等 一会儿
 Colours: 颜色 红色 白色 黑色 绿色
 At the mall: 商场 裤子 手表 包 万 送
 Good, better, best: 比 最 高 长 不错 坏 错
-Don't!: 别 让 就 啊 得 着
+Don't!: 别 让 就 啊 地 得 着
 
 ## Which way? | 旁边 | Bao Bao has vanished from his steamer and Shi Shi cannot ask which way he went
 Left and right: 左 右 左边 右边 旁边 往
 Front and back: 面 前面 后面 上面 下面 里面 外面
 Doors and roads: 门 门口 楼 洗手间 路 路上
-Near and far: 远 近 离 从 地 间
+Near and far: 远 近 离 从 间
 Walk and run: 走 走路 跑 站 动 快 慢
 How often: 时 有时 经常 每 周 次
 

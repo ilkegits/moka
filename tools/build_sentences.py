@@ -18,6 +18,7 @@ src = sys.argv[1]
 hsk = sys.argv[2] if len(sys.argv) > 2 else 'dict/hsk.tsv'
 out = sys.argv[3] if len(sys.argv) > 3 else 'dict/sentences.tsv'
 PER_CHAR = 3
+SKIP_IDS = {'29236'}   # sentences where a character is only a sound in a foreign name (怀 in 怀基基 Waikiki)
 HAN = re.compile(r'[㐀-鿿]')
 
 # each character's level: the lowest HSK level of any word that uses it
@@ -46,6 +47,8 @@ for line in io.open(src, encoding='utf-8'):
     if not 4 <= len(han) <= 16 or any(c not in lvl for c in han) or len(en) > 70:
         continue
     m = re.search(r'#(\d+)', attr)
+    if m and m.group(1) in SKIP_IDS:
+        continue
     hard = max(lvl[c] for c in han)
     for c in set(han):
         cands.setdefault(c, []).append((hard, abs(len(han) - 9), zh, en, m.group(1) if m else ''))

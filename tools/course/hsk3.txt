@@ -1,6 +1,6 @@
 ## Setting off | 出发 | The dragon boat is ready to leave Guilin, but Shi Shi cannot read the map or tell east from west
-Setting off: 出发 离开 带 行李 箱子 护照 丢
-On the road: 街 马路 路口 路边 汽车 辆 司机
+Setting off: 出发 离开 带 行李 箱子 护照 检票 丢
+On the road: 街 马路 路口 路边 红绿灯 汽车 辆 司机
 East and west: 东 南 西 北 向 方向 地图
 North and south: 南方 北方 东方 西方 东北 东南 西北 西南
 Where is it?: 中 中间 面前 身边 附近 到处
@@ -10,16 +10,16 @@ Hills and rivers: 山 爬 河 海 树 草
 
 ## People | 咱们 | A whole riverbank village comes out to greet the boat and Shi Shi cannot tell who is whose aunt, uncle or sister
 People: 男人 女人 大人 老 老人 别人 咱们
-Family: 子 姐妹 叔叔 阿姨 夫妻 爱人 结婚 出生
+Family: 姐妹 叔叔 阿姨 夫妻 爱人 结婚 出生
 Body: 脸 嘴 耳朵 头发 毛 腿 脚
 Looks: 年轻 胖 瘦 矮 身高 可爱
 Meeting up: 见面 遇到 遇见 认得 分开 不见 聊 聊天儿
 Having guests: 客人 做客 请客 欢迎 礼物 热情
 
 ## Food and shopping | 菜单 | At the ferry-pier market Shi Shi is starving but cannot read the menu or ask for a kilo of bananas
-Hungry: 饿 饱 渴 米 方便面 蛋糕 糖
+Hungry: 饿 饱 渴 米 方便面 蛋糕 糖 冰激凌
 Drinks: 饮料 矿泉水 酒 啤酒 冰 加 瓶子
-At the table: 菜单 外卖 用 碗 盘子 筷子 勺子
+At the table: 菜单 外卖 用 碗 子 盘子 筷子 勺子
 At the market: 斤 公斤 香蕉 西瓜 甜 新鲜 尝
 Paying: 银行 卡 银行卡 信用卡 借 一共 角
 Clothes: 衬衫 上衣 大衣 裙子 短 短裤 鞋 双
@@ -47,7 +47,7 @@ Often: 常 常常 常见 常用 总 总是 平时 习惯
 ## School | 校园 | The boat stops at a little school in the tea fields and Shi Shi cannot follow the textbook or the homework
 At school: 校园 校长 班级 年级 初中 学期 放学 迟到
 Students: 男生 女生 留学 留学生 外语 语言
-Books: 课本 课文 页 故事 查 字典 词典
+Books: 课本 课文 页 故事 查 字典 词典 电子书
 Pen and paper: 铅笔 纸 张 记 笔记 笔记本 黑板
 Sentences: 句 句子 段 遍 对话 讲 回答
 Homework: 作业 练 练习 复习 成绩 提高 认真 努力
