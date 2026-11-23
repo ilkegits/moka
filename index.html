@@ -2053,15 +2053,7 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pf-bxt{display:flex;justify-content:space-between;margin-top:6px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .pf-bxt b{font-size:12.5px;font-weight:700;color:var(--ink-2)}
 .pf-go{height:52px;margin-top:18px;font-size:16.5px}
-/* four numbers in one strip; each opens its own page */
-.pf-strip{display:grid;grid-template-columns:repeat(4,1fr);padding:4px 0;margin-bottom:6px}
-.pf-strip button{display:flex;flex-direction:column;align-items:center;padding:9px 2px 8px;line-height:1.2;text-align:center;border-radius:14px;transition:transform .15s}
-.pf-strip button:active{transform:scale(.94);transition:none}
-.pf-strip button + button{border-radius:0;border-left:1px solid var(--line)}
-.pf-strip b{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.1;font-variant-numeric:lining-nums tabular-nums}
-.pf-strip b em{font-style:normal;font-size:14px;color:var(--muted)}
-.pf-strip small{margin-top:3px;font-size:11.5px;line-height:1.15;color:var(--muted)}
-/* the small streak calendar: this month, streak days orange and joined up, today ringed; tap it for the Streak page */
+/* v4.45 this week's streak: Monday to Sunday in one row, streak days orange and joined up, today ringed; tap it for the Streak page */
 .pf-cal{display:block;width:100%;padding:12px 12px 12px;margin-bottom:6px;text-align:left;line-height:1.3;transition:transform .15s}
 .pf-cal:active{transform:scale(.98);transition:none}
 .pf-cal-t{display:flex;align-items:center;gap:8px;padding:0 4px 8px}
@@ -2083,23 +2075,6 @@ button.st-d:active{transform:scale(.9);transition:none}
 .pf-cd.jl::before,.pf-cd.jr::before{content:"";position:absolute;top:3px;bottom:3px;left:50%;right:50%;background:rgba(232,116,44,.28)}
 .pf-cd.jl::before{left:0}
 .pf-cd.jr::before{right:0}
-.pf-week{padding:14px 14px 10px;margin-bottom:6px}
-.pf-wk-top{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
-.pf-wk-top span{font-size:14px;color:var(--ink-2)}
-.pf-wk-top span b{font-family:var(--display);font-size:26px;font-weight:600;color:var(--ink);margin-right:2px}
-.pf-wk-top small{font-size:13px;color:var(--muted)}
-.pf-wk-top small b{color:var(--seal)}
-.pf-bars{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:134px;padding-top:16px}
-.pf-day{display:flex;flex-direction:column;align-items:center;height:100%}
-.pf-col{flex:1;width:100%;max-width:30px;display:flex;align-items:flex-end;border-radius:8px;background:var(--fill)}
-.pf-col i{display:block;width:100%;border-radius:8px;background:#E8A33C}
-.pf-day.ok .pf-col i{background:#35A877}
-.pf-day.later .pf-col{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
-.pf-day small{flex:none;height:20px;line-height:22px;font:600 12px/22px var(--hanzi);color:var(--muted)}
-.pf-day.today small{color:var(--seal);font-weight:700}
-.pf-day.today .pf-col{box-shadow:0 0 0 2px var(--seal)}
-.pf-col i{position:relative}
-.pf-col em{position:absolute;left:-4px;right:-4px;bottom:100%;margin-bottom:3px;text-align:center;font:700 12px var(--ui);font-style:normal;color:var(--ink-2)}
 .pf-left{font-size:13.5px;font-weight:700;color:var(--muted)}
 .pf-next{display:flex;align-items:center;gap:13px;padding:13px 14px;margin-bottom:10px}
 .pf-next .bdg-seal{flex:none;width:50px;height:50px;font-size:23px}
@@ -8449,74 +8424,41 @@ function pfSince() {   // the first day ShiCards saw you practise or add a word
   for (const k of Object.keys(db.days)) { const [y, m, d] = k.split('-').map(Number), x = new Date(y, m, d).getTime(); if (x < t) t = x; }
   return t < Infinity ? new Date(t).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
 }
-function pfWeek() {   // this week, Monday to Sunday: the words you proved each day, and the week's total against last week's. Never time spent in the app (ilkem: nobody should be told how long they spent)
-  const now = new Date(), lead = (now.getDay() + 6) % 7, act = practiceDays(), per = {};
-  for (const w of db.bank) if (w.pf?.at) { const k = dayKey(w.pf.at); per[k] = (per[k] || 0) + 1; }
-  const D = [...'一二三四五六日'].map((zh, i) => { const d = new Date(now); d.setDate(now.getDate() - lead + i); const p = new Date(d); p.setDate(d.getDate() - 7);
-    return { zh, w: per[dayKey(d)] || 0, last: per[dayKey(p)] || 0, on: act.has(dayKey(d)), today: i === lead, later: i > lead }; });
-  const tw = D.reduce((a, x) => a + x.w, 0), lw = D.reduce((a, x) => a + x.last, 0), top = Math.max(...D.map(x => x.w), 5), days = D.filter(x => x.on).length;
-  const line = lw && tw < lw ? `<b>${lw - tw} more</b> to beat last week (${lw})` : lw && tw >= lw ? `${tw - lw} more than last week. Nice!`
-    : days ? `You practised on ${plural(days, 'day')} so far` : 'Practise today to start your week';
-  const bars = D.map(x => { const h = x.w ? Math.max(14, Math.round(Math.min(1, x.w / top) * 100)) : x.on ? 8 : 0;   // a practice day with no new proofs still shows a sliver
-    return `<span class="pf-day${x.today ? ' today' : ''}${x.later ? ' later' : ''}${x.on ? ' ok' : ''}"><span class="pf-col"><i style="height:${h}%">${x.w ? `<em>${x.w}</em>` : ''}</i></span><small>${x.zh}</small></span>`; }).join('');
-  return `<section class="pf-card pf-week" aria-label="This week: ${plural(tw, 'word')} proven">
-      <div class="pf-wk-top"><span><b>${tw}</b> ${tw === 1 ? 'word' : 'words'} proven this week</span><small>${line}</small></div>
-      <div class="pf-bars">${bars}</div>
-    </section>`;
-}
-/* v4.40 the small streak calendar on Profile: this month only, no lunar dates, streak days orange and joined into bands
-   like the big one on the Streak page; today has a ring. The whole card is one button that opens the Streak page. */
+/* v4.45 the streak on Profile is this week only (ilkem: "show only the current weeks streaks"): Monday to Sunday, streak
+   days orange and joined into bands like the big calendar on the Streak page; today has a ring. One button that opens the Streak page. */
 function PfCal() {
-  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), td = now.getDate(), act = practiceDays(), ice = new Set(db.freeze.days);
-  const len = new Date(y, m + 1, 0).getDate(), lead = (new Date(y, m, 1).getDay() + 6) % 7, lit = d => d >= 1 && d <= len && (act.has(`${y}-${m}-${d}`) || ice.has(`${y}-${m}-${d}`));
-  const cells = Array.from({ length: lead }, () => '<span class="pf-cd"></span>');
-  for (let d = 1; d <= len; d++) {
-    const col = (lead + d - 1) % 7, k = `${y}-${m}-${d}`, on = act.has(k), fr = !on && ice.has(k);
-    const jl = (on || fr) && col > 0 && lit(d - 1), jr = (on || fr) && col < 6 && lit(d + 1);
-    cells.push(`<span class="pf-cd${on ? ' fire' : fr ? ' frz' : ''}${jl ? ' jl' : ''}${jr ? ' jr' : ''}${d === td ? ' today' : ''}${d > td ? ' later' : ''}"><i>${d}</i></span>`);
-  }
-  const days = [...act].filter(k => k.startsWith(`${y}-${m}-`)).length, mon = now.toLocaleDateString('en-GB', { month: 'long' });
-  return `<button class="pf-card pf-cal" data-act="streak" aria-label="${mon}: ${plural(days, 'day')} practised. Open the Streak page">
-      <span class="pf-cal-t"><b>${mon}<em>${ZH_MONTH[m]}</em></b><small>${days ? `${plural(days, 'day')} practised` : 'No practice yet'}</small>${I.chev}</span>
+  const now = new Date(), lead = (now.getDay() + 6) % 7, act = practiceDays(), ice = new Set(db.freeze.days), { n } = practiceStreak();
+  const D = Array.from({ length: 7 }, (_, i) => { const d = new Date(now); d.setDate(now.getDate() - lead + i); const k = dayKey(d);
+    return { d: d.getDate(), on: act.has(k), fr: !act.has(k) && ice.has(k), today: i === lead, later: i > lead }; });
+  const lit = i => i >= 0 && i < 7 && (D[i].on || D[i].fr), days = D.filter(x => x.on).length;
+  const cells = D.map((x, i) => `<span class="pf-cd${x.on ? ' fire' : x.fr ? ' frz' : ''}${lit(i) && lit(i - 1) ? ' jl' : ''}${lit(i) && lit(i + 1) ? ' jr' : ''}${x.today ? ' today' : ''}${x.later ? ' later' : ''}"><i>${x.d}</i></span>`).join('');
+  return `<button class="pf-card pf-cal" data-act="streak" aria-label="${n} day streak, ${plural(days, 'day')} practised this week. Open the Streak page">
+      <span class="pf-cal-t"><b>${n ? `${n} day streak` : 'No streak yet'}</b><small>${days ? `${days} of 7 days this week` : 'No practice this week yet'}</small>${I.chev}</span>
       <span class="pf-cal-w" aria-hidden="true">${[...'一二三四五六日'].map(c => `<span>${c}</span>`).join('')}</span>
-      <span class="pf-cal-g" aria-hidden="true">${cells.join('')}</span>
+      <span class="pf-cal-g" aria-hidden="true">${cells}</span>
     </button>`;
 }
 function ProfileView() {
-  const { n } = practiceStreak(), pv = provenCount(), own = TRAIL.filter((_, i) => monOwns(i + 1)).length, k = knownWords(), { lv } = goalLevel();
+  const k = knownWords(), { lv } = goalLevel();
   const since = pfSince(), t = playSub(), go = t === 'Learn' ? 'Learn new words' : `Continue: ${t}`;
-  /* the road: every level from HSK 1 to HSK 7–9. Earlier levels show Done (all words known) or what is left; the level you
-     are on is open, with its bar (never empty, counting down what is left); the next one is darker; the rest wait faintly */
-  const road = [1, 2, 3, 4, 5, 6, 7].map(l => {
-    const L = S.H?.levels[l], total = L?.length || HSK_COUNT[l], left = L ? L.filter(r => !k.has(r.h)).length : total, known = total - left;
-    if (l === lv) return `<div class="pf-st now"><span class="pf-dot">${l === 7 ? '7+' : l}</span><b>${HSK_NAME(l)}</b><span></span>
+  /* v4.45 only the level you are on (ilkem: "only show the current hsk progress bar the user is in"): its bar, never
+     empty, counting down what is left */
+  const l = lv, L = S.H?.levels[l], total = L?.length || HSK_COUNT[l], left = L ? L.filter(r => !k.has(r.h)).length : total, known = total - left;
+  const road = `<div class="pf-st now"><span class="pf-dot">${l === 7 ? '7+' : l}</span><b>${HSK_NAME(l)}</b><span></span>
         <div class="pf-bx"><div class="pf-bar"><i style="width:${gBar(total ? known / total : 0)}%"></i></div>
           <div class="pf-bxt"><span>${known.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} words</span><b>${left ? `${left.toLocaleString('en-GB')} to go` : 'All known'}</b></div></div></div>`;
-    const done = l < lv && !left;
-    return `<div class="pf-st${done ? ' done' : l === lv + 1 ? ' nx' : ''}"><span class="pf-dot">${done ? I.check : l === 7 ? '7+' : l}</span><b>${HSK_NAME(l)}</b>
-        <small>${done ? 'Done' : l < lv ? `${left.toLocaleString('en-GB')} to go` : `${total.toLocaleString('en-GB')} words`}</small></div>`;
-  }).join('');
-  const num = (act, big, label, aria) => `<button data-act="${act}" aria-label="${aria}"><b>${big}</b><small>${label}</small></button>`;
   return `<div class="screen fade-in pf">
     <div class="section-head cal-head pg-head"><h2>Profile <span class="cal-zh">我的</span></h2>
       <span class="pg-tr"><button class="icon-btn" data-act="settings" aria-label="App settings">${I.menu}</button></span></div>
     <div class="pf-me"><span class="pf-av" aria-hidden="true">${shiFace('cheer')}</span>
       <span class="pf-id"><input class="pf-name" id="pName" placeholder="Add your name" aria-label="Your name" value="${esc(db.prefs.name || '')}" maxlength="24" autocomplete="given-name" enterkeyhint="done" spellcheck="false">
         <small>${since ? `Learning since ${since}` : 'Learning Chinese with Shi Shi'}</small></span></div>
-    <section class="pf-card pf-road" aria-label="Your HSK road">
+    <section class="pf-card pf-road" aria-label="Your HSK level">
       ${road}
       <button class="btn btn-seal wide pf-go" data-act="pf-go">${go}</button>
     </section>
-    <div class="pf-card pf-strip">
-      ${num('streak', n, 'day<br>streak', `${n} day streak, open your calendar`)}
-      ${num('open-bank', pv.toLocaleString('en-GB'), 'words<br>proven', `${pv} words proven, open your word bank`)}
-      ${num('pf-map', `${own}<em>/${TRAIL.length}</em>`, 'monu-<br>ments', `${own} of ${TRAIL.length} monuments, open the map`)}
-      ${num('pf-shop', coinFmt(coinBal()), 'coins<br>&nbsp;', `${coinBal()} coins, open the shop`)}
-    </div>
-    <div class="section-head"><h2>Streak <span class="cal-zh">日历</span></h2></div>
-    ${PfCal()}
     <div class="section-head"><h2>This week <span class="cal-zh">本周</span></h2></div>
-    ${pfWeek()}
+    ${PfCal()}
     ${Badges()}
   </div>`;
 }
@@ -13892,7 +13834,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.44';
+const APP_VERSION = '4.45';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
