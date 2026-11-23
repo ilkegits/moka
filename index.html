@@ -170,83 +170,6 @@ button.pill.on{box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 8px 14px -10px rgba(30
   background:linear-gradient(transparent, var(--paper) 32%);z-index:4}
 
 /* ---------- home ---------- */
-/* Learn: the HSK course, one big picture card per level (scene on top, name, word count and progress underneath) */
-.crs-list{display:flex;flex-direction:column;gap:16px;margin-bottom:28px}
-.crs{display:block;width:100%;padding:0;border-radius:20px;background:var(--card);box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);overflow:hidden;text-align:left;transition:transform .2s}
-.crs:active{transform:translateY(2px) scale(.985);transition:none}
-.crs.cur{box-shadow:0 0 0 2.5px var(--crs),0 4px 0 var(--crs)}
-.crs-art{display:block;background:var(--crs)}
-.crs-art svg{display:block;width:100%;height:auto}
-.crs-art{position:relative}
-.crs.locked .crs-art{filter:grayscale(1) contrast(.8)}
-.crs.locked .crs-art>svg{opacity:.45}
-.crs-lock{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;display:grid;place-items:center;
-  background:var(--card);color:var(--muted);box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13)}
-.crs-lock svg.i{width:28px;height:28px}
-.crs.locked .crs-name,.crs.locked .crs-badge{opacity:.5}
-.crs-locked{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--muted)}
-.crs-locked svg.i{width:17px;height:17px}
-/* Basics as a slim row above the HSK levels */
-.crs-fold{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px 10px 10px;border-radius:18px;background:var(--card);text-align:left;
-  box-shadow:0 0 0 2px rgba(120,95,60,.13),0 3px 0 rgba(120,95,60,.13);transition:transform .2s}
-.crs-fold:active{transform:translateY(2px) scale(.985);transition:none}
-.crs-fold-seal{flex:none;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:var(--crs);color:#fff;font-family:var(--hanzi);font-weight:700;font-size:22px}
-.crs-fold-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.crs-fold-main b{font-weight:800;font-size:17px}
-.crs-fold-main small{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crs-fold-chev{flex:none;color:var(--muted);transition:transform .2s}
-/* v3.61: the levels below yours, folded into one row: a stack of their own seals (一 二 三, each in its level's colour,
-   tilted like stamps pressed one on another) with a jade tick. Open, the seals fan out side by side and the level cards
-   drop in one after another; closed again, the seals slide back into a stack */
-.crs-low{background:linear-gradient(100deg,color-mix(in srgb,var(--c0) 9%,var(--card)),var(--card) 62%)}
-.crs-stack{flex:none;position:relative;display:flex;align-items:center;padding:3px 3px 3px 2px}
-.crs-stack i{--o0:-25px;--o1:var(--of);flex:none;width:38px;height:38px;margin-left:var(--o0);border-radius:10px;display:grid;place-items:center;
-  background:var(--c);color:#fff;font:700 19px/1 var(--hanzi);font-style:normal;text-shadow:0 1px 0 rgba(0,0,0,.18);
-  box-shadow:0 0 0 2.5px var(--card),inset 0 -3px 0 rgba(0,0,0,.18);transform:rotate(var(--r))}
-.crs-stack i:first-child{--o0:0px;--o1:0px}
-.crs-low.open .crs-stack i{margin-left:var(--o1);transform:none}
-.crs-stack-ok{position:absolute;right:-4px;top:-3px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--jade);color:#fff;box-shadow:0 0 0 2.5px var(--card)}
-.crs-stack-ok svg.i{width:13px;height:13px;stroke-width:3.4}
-.crs-low.open .crs-stack-ok{opacity:0;transform:scale(.4)}
-.crs-low.open .crs-fold-chev{transform:rotate(90deg)}
-.crs-low.anim .crs-stack i{animation:crsFan .42s cubic-bezier(.3,1.4,.5,1) both}
-.crs-low.shut .crs-stack i{animation:crsShut .34s cubic-bezier(.3,1.3,.5,1) both}
-.crs-low.anim .crs-stack i:nth-child(2),.crs-low.shut .crs-stack i:nth-child(5){animation-delay:.03s}
-.crs-low.anim .crs-stack i:nth-child(3),.crs-low.shut .crs-stack i:nth-child(4){animation-delay:.06s}
-.crs-low.anim .crs-stack i:nth-child(4),.crs-low.shut .crs-stack i:nth-child(3){animation-delay:.09s}
-.crs-low.anim .crs-stack i:nth-child(5),.crs-low.shut .crs-stack i:nth-child(2){animation-delay:.12s}
-.crs-low.anim .crs-stack i:nth-child(6){animation-delay:.15s}
-.crs-low.anim .crs-stack-ok{animation:crsOkOut .2s ease-in both}
-.crs-low.shut .crs-stack-ok{animation:crsOkIn .4s .22s cubic-bezier(.3,1.6,.5,1) both}
-.crs-low.anim .crs-fold-chev{animation:crsChevOpen .3s cubic-bezier(.3,1.4,.5,1)}
-.crs-low.shut .crs-fold-chev{animation:crsChevShut .3s cubic-bezier(.3,1.4,.5,1)}
-@keyframes crsFan{from{margin-left:var(--o0);transform:rotate(var(--r))}}
-@keyframes crsShut{from{margin-left:var(--o1);transform:none}}
-@keyframes crsOkOut{from{opacity:1;transform:none}}
-@keyframes crsOkIn{from{opacity:0;transform:scale(.4)}}
-@keyframes crsChevOpen{from{transform:none}}
-@keyframes crsChevShut{from{transform:rotate(90deg)}}
-.crs-lows{display:contents}
-.crs-lows.anim>.crs{animation:crsIn .46s cubic-bezier(.2,.9,.3,1.12) both}
-.crs-lows.anim>.crs:nth-child(2){animation-delay:.07s}
-.crs-lows.anim>.crs:nth-child(3){animation-delay:.14s}
-.crs-lows.anim>.crs:nth-child(4){animation-delay:.21s}
-.crs-lows.anim>.crs:nth-child(5){animation-delay:.28s}
-.crs-lows.anim>.crs:nth-child(6){animation-delay:.35s}
-@keyframes crsIn{from{opacity:0;transform:translateY(-18px) scale(.94)}}
-@media (prefers-reduced-motion:reduce){.crs-low *,.crs-lows>.crs{animation:none!important}}
-.crs-cap{display:block;padding:14px 16px 16px 18px}
-.crs-top{display:flex;align-items:center;gap:10px}
-.crs-name{flex:1;min-width:0;font-weight:800;font-size:23px;letter-spacing:-.02em;line-height:1.1}
-.crs-zh{font-family:var(--hanzi);font-weight:600;font-size:16px;color:var(--seal);margin-left:8px;letter-spacing:.04em}
-.crs-badge{flex:none;padding:5px 9px;border-radius:9px;background:var(--fill);font-size:13px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.crs-sub{display:block;margin-top:6px;font-size:14px;color:var(--muted);line-height:1.35}
-.crs-foot{display:flex;align-items:center;gap:10px;margin-top:12px;min-height:16px}
-.crs-bar{flex:1;height:14px;border-radius:8px;background:var(--fill);overflow:hidden}
-.crs-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#E8A33C,#FFD15C);box-shadow:inset 0 -3px 0 rgba(168,106,12,.25)}
-.crs-pct{flex:none;font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
-.crs-done{display:flex;align-items:center;gap:5px;font-size:14.5px;font-weight:700;color:var(--jade)}
-.crs-done svg.i{width:18px;height:18px}
 .group.remind-row{margin:-10px 0 24px}
 .remind-row .list-btn{gap:12px}
 .rem-ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--seal-soft);color:var(--seal)}
@@ -2212,6 +2135,8 @@ button.st-d:active{transform:scale(.9);transition:none}
 .lvp-ok svg{width:14px;height:14px;stroke-width:3.2}
 .lvp-row.off .lvp-seal{filter:grayscale(.85);opacity:.55}
 .lvp-row.off .lvp-main b{opacity:.6}
+.lvp-basics{margin-top:6px;position:relative}
+.lvp-basics::before{content:"";position:absolute;left:10px;right:10px;top:-4px;border-top:1.5px solid rgba(120,95,60,.14)}
 @media (prefers-reduced-motion: reduce){.lvp,.lvp-scrim.off .lvp{transition:opacity .12s;transform:none}}
 .uc-pill{position:relative;z-index:2;display:flex;align-items:center;gap:0;max-width:100%;margin-top:11px;padding:2px;border-radius:999px;
   background:linear-gradient(#A8231A,#7E140D);box-shadow:inset 0 0 0 1.5px #E9B949,inset 0 0 0 2.5px #5E0E09,0 3px 0 #4A0B07,0 8px 14px -6px rgba(0,0,0,.55)}
@@ -3583,15 +3508,18 @@ const cardById = (d, id) => d.cards.find(c => c.id === id);
 
 /* ---------- routing ---------- */
 const S = { view: 'home', deckId: null, study: null, write: null, smo: 0 };   // smo: which month the Streak calendar shows (0 = this month)
+/* v4.45 (ilkem: "Get rid of this page all together"): the HSK course page is gone. #/learn, the Lessons tab and every
+   fallback that led there open the road map at the unit you are on; Basics moved into the level pop-up on the road map */
+function toPath() { const un = ucMe(playLv() || 1); history.replaceState(history.state, '', unitUrl(un)); return { view: 'course', deckId: null, clv: unitLv(un), unit: un }; }
 function parse() {
   const p = location.hash.replace(/^#\/?/, '').split('/');
   if (p[0] === 'deck' && p[1] === 'bank') return p[2] === 'study' || p[2] === 'write' ? { view: p[2], deckId: 'bank' } : { view: 'bank', deckId: null };
-  if (p[0] === 'deck' && p[1] === 'today') return p[2] === 'study' ? { view: 'study', deckId: 'today' } : { view: 'learn', deckId: null };
+  if (p[0] === 'deck' && p[1] === 'today') return p[2] === 'study' ? { view: 'study', deckId: 'today' } : toPath();
   if (p[0] === 'deck' && deckById(p[1])) return { view: p[2] || 'deck', deckId: p[1] };
   if (p[0] === 'hsk') return { view: 'hsk', deckId: null, lv: Math.min(7, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'basics') return { view: 'course', deckId: null, basics: true, part: p[1] || null };
   if (p[0] === 'course' && lvHas(+p[1])) { const lv = +p[1];   // v3.31: every level with lessons has a course: #/course/<level>, /unit/<unit>, /lesson/<lesson>, /test/<unit>
-    if (lv > openLevel()) { history.replaceState(history.state, '', '#/learn'); return { view: 'learn', deckId: null }; }   // a level still locked: back to Lessons
+    if (lv > openLevel()) return toPath();   // a level still locked: your own road map
     if (p[2] === 'test') return { view: 'lesson', deckId: null, test: +p[3] || 0 };
     if (p[2] === 'jump') return { view: 'lesson', deckId: null, jump: +p[3] || 0 };   // v3.90: a recap test that jumps ahead to this unit
     if (p[2] === 'lesson') return { view: 'lesson', deckId: null, les: +p[3] || 0, lpart: +p[4] || 0 };
@@ -3602,7 +3530,8 @@ function parse() {
   if (p[0] === 'read') return { view: 'read', deckId: null, readId: p[1] || null };
   if (p[0] === 'map') return { view: 'map', deckId: null, city: Math.min(TRAIL.length, Math.max(0, +p[1] || 0)) || null };
   if (p[0] === 'build') return { view: 'build', deckId: null, city: Math.min(TRAIL.length, Math.max(1, +p[1] || 1)) };
-  if (p[0] === 'learn' || p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
+  if (p[0] === 'learn') return toPath();
+  if (p[0] === 'profile' || p[0] === 'bank' || p[0] === 'streak') return { view: p[0], deckId: null };
   return { view: 'home', deckId: null };
 }
 function route() {
@@ -3614,7 +3543,7 @@ function route() {
   S.hskLevel = r.lv || null; S.groupId = r.groupId || null; S.readId = r.readId || null; S.cPart = r.part || null; S.cBasics = !!r.basics; S.cUnit = r.unit || null; S.cLv = r.clv || 1;
   const d = curDeck();
   if ((S.view === 'study' || S.view === 'write') && (!d || !d.cards.length)) {
-    if (S.deckId === 'today') { history.replaceState(history.state, '', '#/learn'); S.view = 'learn'; S.deckId = null; }
+    if (S.deckId === 'today') { history.replaceState(history.state, '', '#/learn'); route(); return; }
     else S.view = S.deckId === 'bank' ? 'bank' : 'deck';
   }
   if (S.view === 'study') startStudy();
@@ -3630,12 +3559,10 @@ function route() {
   if (S.toTop) { S.toTop = false; const top = () => { window.scrollTo(0, 0); $('#app').scrollTop = 0; }; top(); requestAnimationFrame(top); }
 }
 function nav(h) { const d = (history.state?.d || 0) + 1; history.pushState({ d }, '', h); route(); window.scrollTo(0, 0); $('#app').scrollTop = 0; }
-/* v3.69: the app opens on the roadmap, at the unit you are in, with the HSK list one step back (the same as tapping Lessons).
+/* v3.69: the app opens on the roadmap, at the unit you are in (the same as tapping Lessons).
    The streak moments and the freeze notice used to show on Decks at start-up; they show here instead. */
 function goStart() {
-  const lv = playLv();
   history.replaceState({ d: 0 }, '', '#/learn');
-  if (lv && LV_DUO[lv]) history.pushState({ d: 1 }, '', unitUrl(ucMe(lv)));
   route();
   if (S.view !== 'course') return;
   const nt = db.freeze.notice; if (nt) { db.freeze.notice = null; save(); setTimeout(() => toast(nt), 600); }
@@ -3942,7 +3869,6 @@ function render() {
   else if (S.view === 'group') { app.innerHTML = GroupView(curGroup()); }
   else if (S.view === 'study') { app.innerHTML = StudyView(d); if (!S.study.done) mountStudy(); else setTimeout(() => coinRain($('.done-hero'), S.study?.pay), 900); }
   else if (S.view === 'write') { app.innerHTML = WriteView(d); mountWrite(); if (S.write?.done) setTimeout(() => coinRain($('.ws-end'), S.write?.pay), 700); }
-  else if (S.view === 'learn') { app.innerHTML = LearnView(); }
   else if (S.view === 'map') { S.mapFresh = S.lastView !== 'map'; app.innerHTML = MapView(); mountMap(); }   // mapFresh: the Map was just opened, not drawn again
   else if (S.view === 'build') { app.innerHTML = BuildView(); if (S.fb?.done) setTimeout(() => coinRain($('.fb-end'), S.fb?.pay), 450); }
   else if (S.view === 'read') { app.innerHTML = ReadView(); mountRead(); }
@@ -3954,7 +3880,7 @@ function render() {
   else if (S.view === 'lesson') { app.innerHTML = LessonView(); mountLesson(); }
   if (S.instant) { app.firstElementChild?.classList.remove('fade-in'); S.instant = false; }  // tab switches are instant, like Uber
   renderTabs(); renderFab();
-  const main = () => ['home', 'learn', 'profile'].includes(S.view) || S.view === 'read' && !S.readId;
+  const main = () => ['home', 'profile'].includes(S.view) || S.view === 'read' && !S.readId;
   if (main()) setTimeout(() => { if (main()) moments(); }, 380);
   iconBadge(); S.lastView = S.view;
 }
@@ -4274,34 +4200,6 @@ const CRS = (() => {
    raise db.prefs.unlocked to the next one once lessons exist; until then the levels above yours stay locked */
 const openLevel = () => Math.min(7, Math.max(db.prefs.level || 1, db.prefs.unlocked || 1));
 const LOCK_I = `<svg viewBox="0 0 24 24" class="i" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>`;
-function CourseBlock() {
-  const k = knownWords(), H = S.H, top = openLevel();
-  const lv = [1, 2, 3, 4, 5, 6, 7].map(l => { const L = H?.levels[l] || []; return { l, n: L.length, k: L.filter(r => k.has(r.h)).length }; });
-  const zh = ['', '一级', '二级', '三级', '四级', '五级', '六级', '七至九级'];
-  /* Basics is a slim row above the levels that opens it; its picture is on the Basics page itself */
-  const basics = `<button class="crs-fold" data-act="basics-open"><span class="crs-fold-seal" style="--crs:${CRS[0][0]}">基</span>
-      <span class="crs-fold-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span><span class="crs-fold-chev">${I.chev}</span></button>`;
-  /* the levels below the one you started on are open but folded into one row, so your own level is what you see first */
-  const start = Math.min(7, db.prefs.level || 1), lowN = start - 1;
-  /* v3.61: a stack of the folded levels' own seals; S.lowAnim says the row was just tapped, so it plays its open or close once */
-  const mo = S.lowAnim ? (S.lowOpen ? ' anim' : ' shut') : ''; S.lowAnim = false;
-  const tilt = [-7, 4, -3, 6, -5, 3];
-  const stack = `<span class="crs-stack" aria-hidden="true" style="--of:${lowN > 3 ? -18 : -5}px">${lv.filter(x => x.l < start).map((x, i) => `<i style="--c:${CRS[x.l][0]};--r:${tilt[i]}deg">${zh[x.l][0]}</i>`).join('')}<span class="crs-stack-ok">${I.check}</span></span>`;
-  const fold = lowN ? `<button class="crs-fold crs-low${S.lowOpen ? ' open' : ''}${mo}" data-act="crs-low" aria-expanded="${!!S.lowOpen}" style="--c0:${CRS[lowN][0]}">${stack}
-      <span class="crs-fold-main"><b>${lowN > 1 ? `HSK 1–${lowN}` : 'HSK 1'}</b><small>${S.lowOpen ? 'Tap to fold them away' : 'Below your level · already known'}</small></span><span class="crs-fold-chev">${I.chev}</span></button>` : '';
-  const card = x => {
-    const f = x.n ? x.k / x.n : 0, done = x.n && x.k >= x.n, locked = x.l > top;
-    const foot = !lvHas(x.l) ? '<span class="crs-locked">Coming soon</span>' : locked ? `<span class="crs-locked">${LOCK_I}Finish ${HSK_NAME(x.l - 1)} to unlock</span>`
-      : !H ? '' : done ? `<span class="crs-done">${I.check}Complete</span>`
-      : `<span class="crs-bar"><i style="width:${gBar(f)}%"></i></span><span class="crs-pct">${goLab(x.k, x.n, String, ' words')}</span>`;
-    return `<button class="crs${locked ? ' locked' : ''}${x.l === top ? ' cur' : ''}" data-act="${!lvHas(x.l) ? 'crs-soon' : locked ? 'crs-locked' : 'c1-open'}" data-lv="${x.l}" style="--crs:${CRS[x.l][0]}"${locked ? ` aria-label="${HSK_NAME(x.l)}, locked"` : ''}>
-      <span class="crs-art"><svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${CRS[x.l][1]()}</svg>${locked ? `<span class="crs-lock">${LOCK_I}</span>` : ''}</span>
-      <span class="crs-cap"><span class="crs-top"><span class="crs-name">${HSK_NAME(x.l)}<span class="crs-zh">${zh[x.l]}</span></span>
-        ${x.n ? `<span class="crs-badge">${x.n.toLocaleString('en')} words</span>` : ''}</span>
-        ${foot ? `<span class="crs-foot">${foot}</span>` : ''}</span></button>`;
-  };
-  return `<div class="crs-list">${basics}${fold}${lowN && S.lowOpen ? `<div class="crs-lows${mo}">${lv.filter(x => x.l < start).map(card).join('')}</div>` : ''}${lv.filter(x => x.l >= start).map(card).join('')}</div>`;
-}
 /* ---------- HSK 1 course: tap the HSK 1 picture on Learn ----------
    HSK levels are lessons only: the HSK 1 page holds the lessons path, still locked. The four foundation topics
    (tones, pinyin chart, radicals, stroke order) live under Basics instead: #/basics, #/basics/tones, /pinyin, /radicals, /strokes. */
@@ -5328,10 +5226,12 @@ function lvPick(btn) {
       <span class="lvp-seal" style="--crs:${CRS[l][0]}">${zh[l]}</span><span class="lvp-main"><b>${HSK_NAME(l)}</b><small>${sub}</small></span>${l === cur ? `<span class="lvp-ok">${I.check}</span>` : ''}</button>`; };
   const o = document.createElement('div'); o.className = 'lvp-scrim';
   o.innerHTML = `<div class="lvp" role="menu" aria-label="Choose a level" style="left:${Math.round(r.left)}px;top:${Math.round(r.bottom + 10)}px;max-height:calc(100dvh - ${Math.round(r.bottom + 24)}px)">
-    <div class="lvp-head">Levels <span>等级</span></div>${[1, 2, 3, 4, 5, 6, 7].map(row).join('')}</div>`;
+    <div class="lvp-head">Levels <span>等级</span></div>${[1, 2, 3, 4, 5, 6, 7].map(row).join('')}
+    <button class="lvp-row lvp-basics" data-lvb role="menuitem"><span class="lvp-seal" style="--crs:${CRS[0][0]}">基</span><span class="lvp-main"><b>Basics</b><small>Tones, pinyin, radicals, strokes</small></span></button></div>`;
   document.body.appendChild(o); btn.setAttribute('aria-expanded', 'true'); btn.classList.add('open');
   requestAnimationFrame(() => o.classList.add('on'));
   o.addEventListener('click', e => {
+    if (e.target.closest('[data-lvb]')) { lvPickClose(); nav('#/basics'); return; }   // v4.45: Basics lives here now that the course page is gone
     const t = e.target.closest('[data-lvp]'); if (!t) { if (!e.target.closest('.lvp')) lvPickClose(); return; }
     const l = +t.dataset.lvp;
     if (!lvHas(l)) { toast(`${HSK_NAME(l)} is coming soon`); return; }
@@ -7994,13 +7894,6 @@ function strokeSheet(t) {
         onComplete: () => { cap.textContent = miss ? `Done, ${plural(miss, 'slip')}. Once more?` : 'Every stroke right ✓'; LOG.add('c1-write', { hz: h, mistakes: miss }); } });
     };
   });
-}
-function LearnView() {
-  if (!S.H) loadHsk().then(() => { if (S.view === 'learn') { S.instant = true; render(); } }, () => {});
-  return `<div class="screen fade-in">
-    <div class="section-head cal-head pg-head"><h2>HSK course <span class="cal-zh">课程</span></h2></div>
-    ${CourseBlock()}
-  </div>`;
 }
 
 /* ---------- this month's calendar ----------
@@ -13834,7 +13727,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.45';
+const APP_VERSION = '4.46';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiCards is on your home screen'); });
@@ -14777,8 +14670,6 @@ const A = {
   'open-hsk': () => nav('#/hsk'),
   'hsk-level': t => nav('#/hsk/' + t.dataset.lv),
   'lv-pick': t => lvPick(t),
-  'c1-open': t => { const lv = lvHas(+t?.dataset?.lv) ? +t.dataset.lv : 1; nav(LV_DUO[lv] ? unitUrl(ucMe(lv)) : '#/course/' + lv); },   // v3.59 (ilkem: "when u click hskx, u straightly go to the roadmap"): a level opens on its path, at your unit
-  'crs-soon': t => toast(`${HSK_NAME(+t.dataset.lv)} is coming soon`),   // a level with no lessons yet (HSK 7)
   'ut-node': t => loadHsk().then(() => utSheet(+t.dataset.u), () => toast('Lessons need the internet the first time')),
   'ut-go': t => { closeSheet(true); nav(utUrl(+t.dataset.u)); },
   'les-node': t => (!t.dataset.go && t.matches('.uc-path .un-node[data-s="cur"]') && LV_DUO[LES(+t.dataset.n)?.lv] ? (haptic(8), ppTip(t)) : (ppTipClose(), loadHsk().then(() => { const n = +t.dataset.n; return comicLoad(LES(n)?.lv).then(() => { if (lesComicDue(n)) lesStart(n); else lesSheet(n); }); }, () => toast('Lessons need the internet the first time')))),
@@ -14790,9 +14681,6 @@ const A = {
   'lx-open': t => lixiOpen(t.dataset.k),
   'comic-replay': t => comicReplay(+t.dataset.u),
   'read-locked': () => { const n = readLeft(); toast(`Stories open after ${HSK_NAME(1)} Unit ${unK(READ_UNIT)}${n ? `: ${plural(n, 'lesson')} to go` : ''}`); },
-  'basics-open': () => nav('#/basics'),
-  'crs-low': () => { S.lowOpen = !S.lowOpen; S.lowAnim = true; S.instant = true; try { navigator.vibrate?.(8); } catch (_) {} render(); },
-  'crs-locked': t => toast(`Finish ${HSK_NAME(t.dataset.lv - 1)} to unlock ${HSK_NAME(+t.dataset.lv)}`),
   'c1-part': t => nav('#/basics/' + t.dataset.p),
   'c1-back': () => goBack(S.cPart ? '#/basics' : '#/learn'),
   'c1-tone': t => playTone(+t.dataset.t),
@@ -14839,7 +14727,6 @@ const A = {
   'rec-note': () => noteSheet(),
   'close-sheet': () => closeSheet(),
   'tab': t => { haptic(8); if (t.dataset.riffle) S.riffle = true; if (location.hash === t.dataset.h || (t.dataset.h === '#/' && S.view === 'home')) { $('#app').scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } S.instant = true;
-    if (t.dataset.h === '#/learn') { const lv = playLv(); if (lv && LV_DUO[lv]) { history.replaceState({ d: 0 }, '', '#/learn'); nav(unitUrl(ucMe(lv))); return; } }   // v3.57 (ilkem: "clicking the hsk screen will directly make u go to the scrolling screen")
     nav(t.dataset.h); },
   'study': () => nav(`#/deck/${S.deckId}/study`),
   'write': () => { S.write = null; nav(`#/deck/${S.deckId}/write`); },
@@ -14919,7 +14806,7 @@ document.addEventListener('click', e => {
   const targets = () => {
     if (S.view === 'deck' || S.view === 'bank') return { tab: 1, prev: { tab: 1, html: () => Home(), go: () => { S.instant = S.toTop = true; goBack('#/'); } } };
     if (S.view === 'map' && S.mapLv) return null;   // inside a monument: no swiping to the next tab
-    const order = ['learn', 'home', 'map', 'read', 'profile'], views = [LearnView, Home, MapView, ReadView, ProfileView], i = order.indexOf(S.view);
+    const order = ['learn', 'home', 'map', 'read', 'profile'], views = [null, Home, MapView, ReadView, ProfileView], i = order.indexOf(S.view);   // Lessons is the road map: no swipe preview of it
     if (i < 0) return null;
     const t = j => views[j] && { tab: j, html: views[j], go: () => { S.instant = true; nav(TABS[j][2]); } };
     return { tab: i, prev: t(i - 1), next: t(i + 1) };
