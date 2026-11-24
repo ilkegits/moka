@@ -162,6 +162,16 @@ html{overscroll-behavior-y:none}
 .sys-opt b{font-weight:700;font-size:15px;line-height:1.1}
 .sys-opt small{font-size:12px;color:var(--muted);line-height:1.25;text-align:center}
 .sys-opt small i{font-style:normal;font-family:var(--hanzi);color:var(--ink-2)}
+.sys-sync{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:12px 6px 2px;border-top:1px solid var(--line);text-align:left}
+.sys-sync>span:first-child{flex:1;display:flex;flex-direction:column;gap:2px}
+.sys-sync b{font-weight:600;font-size:15px}
+.sys-sync small{font-size:12.5px;color:var(--muted);line-height:1.3}
+.sys-ask{display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 6px 0}
+.sys-ask .flag{width:72px;height:50px;border-radius:10px;margin-bottom:4px;box-shadow:0 0 0 1px rgba(30,26,21,.12),0 3px 0 rgba(30,26,21,.18)}
+.sys-ask .sys-h{margin:0;text-align:center}
+.sys-ask .sys-note{margin:0 0 8px}
+.sys-ask .link-btn{padding:8px;font-size:14.5px}
+.sys-ask .sys-back{color:var(--muted)}
 .sys-note{margin:12px 6px 2px;font-size:12.5px;color:var(--muted);line-height:1.4;text-align:center}
 @keyframes sysFade{from{opacity:0}}
 @keyframes sysDrop{from{opacity:0;transform:translateY(-10px) scale(.97)}}
@@ -3737,38 +3747,115 @@ for (const m of ['fillText', 'strokeText', 'measureText']) {
   CanvasRenderingContext2D.prototype[m] = function (t, ...a) { return f.call(this, ZH.t && typeof t === 'string' ? zhT(t) : t, ...a); };
 }
 sysBoot();
-/* switching: the flag's picker drops down under the top bar; pick a flag and the whole app changes over (your words and
-   progress stay, they are the same words) */
+/* v4.69: each system has its own progress. ilkem: "ur progress shouldnt be synched across languages or writing systems
+   unless u want it". Your words, decks, lessons, level, stories, map and coins belong to the system you learn them in;
+   switching puts them away (db.sysData = { system: its parked progress }) and takes out the other system's, or a fresh
+   start. What is yours in every system stays shared: the streak (stories finished in any system count), streak freezes,
+   daily goal, reminder, name and settings. "Sync progress" (db.prefs.sysShare) uses one progress for all three; turning
+   it off again gives the others back what they had. */
+const SYS_PER = ['decks', 'groups', 'grpOpen', 'bank', 'lessons', 'utests', 'unitAt', 'comic', 'jumps', 'hearts', 'heartBuy', 'readDone', 'readCur', 'rc',
+  'lixi', 'hotd', 'mapSeen', 'monOpen', 'mapKeep', 'mapMax', 'mapFrom', 'monOwn', 'foodOwn', 'foodSeen', 'coinAdj', 'coinShown', 'coinDay', 'coinSeen',
+  'coinIntro', 'runCoins', 'chests', 'wordMile', 'last', 'lesPace', 'deckTime'];
+const SYS_PER_PREFS = ['level', 'unlocked', 'bankLv', 'bankLevels', 'map'];
+const sysOf = d => SYS[d?.prefs?.sys] ? d.prefs.sys : 'cn';
+function sysPack(d) {   // the progress of the system now out in save d
+  const o = { prefs: {} };
+  for (const k of SYS_PER) if (d[k] !== undefined) o[k] = d[k];
+  for (const k of SYS_PER_PREFS) if (d.prefs?.[k] !== undefined) o.prefs[k] = d.prefs[k];
+  return o;
+}
+function sysUnpack(d, o) {   // put parked progress (or a fresh start) out in save d
+  for (const k of SYS_PER) delete d[k];
+  for (const k of SYS_PER_PREFS) delete d.prefs[k];
+  for (const k of SYS_PER) if (o[k] !== undefined) d[k] = o[k];
+  Object.assign(d.prefs, o.prefs || {});
+}
+const sysFresh = () => ({ decks: seed().decks, prefs: {} });   // the rest fills in as on a new phone
+const sysHas = k => sysK() === k || !!db.sysData?.[k];
+/* save d with system k out (also used to line a save from your other device up with this one before they are put together) */
+function sysAlign(d, k) {
+  if (!d?.prefs || d.prefs.sysShare || sysOf(d) === k) return d;
+  d.sysData = d.sysData && typeof d.sysData === 'object' ? d.sysData : {};
+  d.sysData[sysOf(d)] = sysPack(d);
+  sysUnpack(d, d.sysData[k] || sysFresh()); delete d.sysData[k];
+  d.prefs.sys = k;
+  return d;
+}
+db.sysData = db.sysData && typeof db.sysData === 'object' ? db.sysData : {};
+const sysOthers = () => db.prefs.sysShare ? [] : Object.values(db.sysData);   // the progress put away (for the shared streak)
+
+/* switching: the flag's picker drops down under the top bar. A system you learned before opens where you left it; one you
+   haven't asks how to start: find your level, from the beginning, or with your progress synced */
 const sysSub = k => `${SYS[k].sound}<br><i>${SYS[k].zh}</i>`;
 function sysPick(from) {
   $('#sysPop')?.remove();
-  const k = sysK(), r = from?.getBoundingClientRect?.(), top = r ? Math.round(r.bottom + 10) : 70, ax = r ? Math.round(r.left + r.width / 2) : null;
+  const r = from?.getBoundingClientRect?.(), top = r ? Math.round(r.bottom + 10) : 70, ax = r ? Math.round(r.left + r.width / 2) : null;
   const el = document.createElement('div'); el.className = 'sys-pop'; el.id = 'sysPop'; el.dataset.zhKeep = '';
-  el.innerHTML = `<div class="sys-card" role="dialog" aria-modal="true" aria-label="Which Chinese are you learning?" style="top:${top}px">${ax ? '<i class="sys-arrow"></i>' : ''}
-    <p class="sys-h">Which Chinese are you learning?</p>
-    <div class="sys-row">${SYS_KEYS.map(x => `<button class="sys-opt" data-sys="${x}" aria-pressed="${x === k}">${flagSvg(x)}<b>${SYS[x].name}</b><small>${sysSub(x)}</small></button>`).join('')}</div>
-    <p class="sys-note">Lessons, decks, stories and writing all switch over. Your words and progress stay.</p></div>`;
-  document.body.append(el);
-  if (ax) { const c = el.querySelector('.sys-card'), cr = c.getBoundingClientRect(); el.querySelector('.sys-arrow').style.left = Math.min(cr.width - 24, Math.max(24, ax - cr.left)) + 'px'; }
+  const card = document.createElement('div'); card.className = 'sys-card'; card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.style.top = top + 'px';
+  el.append(card); document.body.append(el);
+  const list = () => {
+    const k = sysK(), share = !!db.prefs.sysShare;
+    card.setAttribute('aria-label', 'Which Chinese are you learning?');
+    card.innerHTML = `${ax ? '<i class="sys-arrow"></i>' : ''}<p class="sys-h">Which Chinese are you learning?</p>
+      <div class="sys-row">${SYS_KEYS.map(x => `<button class="sys-opt" data-sys="${x}" aria-pressed="${x === k}">${flagSvg(x)}<b>${SYS[x].name}</b><small>${sysSub(x)}</small></button>`).join('')}</div>
+      <button class="sys-sync" data-sync aria-pressed="${share}"><span><b>Sync progress</b><small>${share ? 'One set of words, lessons and level for all three' : 'Each one keeps its own words, lessons and level'}</small></span><span class="switch${share ? ' on' : ''}"></span></button>`;
+    if (ax) { const cr = card.getBoundingClientRect(); card.querySelector('.sys-arrow').style.left = Math.min(cr.width - 24, Math.max(24, ax - cr.left)) + 'px'; }
+  };
+  const ask = k => {   // a system you haven't learned yet
+    card.setAttribute('aria-label', 'Start ' + SYS[k].long);
+    card.innerHTML = `<div class="sys-ask">${flagSvg(k)}<p class="sys-h">Start ${SYS[k].long}</p>
+      <p class="sys-note">It gets its own words, lessons and level. Your streak comes with you.</p>
+      <button class="btn btn-seal wide" data-how="place">Find my level</button>
+      <button class="btn btn-ghost wide" data-how="fresh">Start from the beginning</button>
+      <button class="link-btn" data-how="share">Use my ${SYS[sysK()].name} progress instead</button>
+      <button class="link-btn sys-back" data-how="back">Back</button></div>`;
+    card.dataset.k = k;
+  };
+  list();
   const close = () => { el.remove(); removeEventListener('popstate', close); };
   el.onclick = async e => {
-    const b = e.target.closest('[data-sys]');
-    if (!b) { if (!e.target.closest('.sys-card')) close(); return; }
-    if (b.dataset.sys === sysK()) { close(); return; }
-    el.querySelectorAll('.sys-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
-    if (await setSys(b.dataset.sys)) close();
+    if (!e.target.closest('.sys-card')) { close(); return; }
+    const how = e.target.closest('[data-how]')?.dataset.how, k = card.dataset.k;
+    if (how === 'back') { delete card.dataset.k; list(); return; }
+    if (how) { LOG.add('system-start', { to: k, how }); if (how === 'share') { db.prefs.sysShare = sysK(); save(); } if (await setSys(k, { place: how === 'place' })) close(); return; }
+    if (e.target.closest('[data-sync]')) { sysShareSet(!db.prefs.sysShare); list(); return; }
+    const b = e.target.closest('[data-sys]'); if (!b) return;
+    const to = b.dataset.sys;
+    if (to === sysK()) { close(); return; }
+    if (!db.prefs.sysShare && !sysHas(to)) { ask(to); return; }
+    card.querySelectorAll('.sys-opt').forEach(x => x.setAttribute('aria-pressed', x === b));
+    if (await setSys(to)) close();
   };
   addEventListener('popstate', close);
-  LOG.add('system-picker', { now: k });
+  LOG.add('system-picker', { now: sysK(), share: !!db.prefs.sysShare });
 }
-async function setSys(k, quiet) {
+/* Sync progress on: the progress you have out now is used for every system (the others' stays put away, untouched);
+   db.prefs.sysShare remembers the system it came from. Off: the synced progress stays with the system you're on and with
+   the one it came from (a copy each, unless that one has its own put away); the others get their own back, or start fresh. */
+function sysShareSet(on) {
+  const k = sysK(), home = db.prefs.sysShare;
+  if (on) db.prefs.sysShare = k;
+  else { if (SYS[home] && home !== k && !db.sysData[home]) db.sysData[home] = JSON.parse(JSON.stringify(sysPack(db))); db.prefs.sysShare = false; }
+  save(); LOG.add('system-sync', { on: !!on, sys: k, home: SYS[home] ? home : null });
+  toast(on ? 'Progress now syncs across all three' : `Your progress stays with ${SYS[k].name}${SYS[home] && home !== k ? ' and ' + SYS[home].name : ''}`);
+}
+async function setSys(k, opt = {}) {
   if (!SYS[k]) return false;
-  const was = sysK();
+  const was = sysK(); if (k === was) return true;
   try { await sysLibs(k); }
   catch (_) { toast('Couldn’t load the traditional characters. Are you online?'); return false; }
-  db.prefs.sys = k; save(); LOG.add('system', { from: was, to: k });
-  sysApply(); render();
-  if (!quiet && k !== was) toast(`Now learning ${SYS[k].long}`);
+  LOG.add('system', { from: was, to: k, share: !!db.prefs.sysShare, keep: !!opt.keep });
+  if (opt.keep || db.prefs.sysShare) {   // the same progress, shown in the other system (the first run's pick, or Sync progress)
+    db.prefs.sys = k; save(); sysApply(); render();
+    if (!opt.quiet) toast(`Now learning ${SYS[k].long}`);
+    return true;
+  }
+  const back = sysHas(k);
+  sysAlign(db, k);
+  if (opt.place) db.prefs.sysPlace = 1;   // after the restart: the level check (obStart 'course')
+  save();
+  try { sessionStorage.setItem('shicards.sysNote', back ? `Back to ${SYS[k].long}` : `${SYS[k].long}: a fresh start`); } catch (_) {}
+  cloudLock = true; location.reload();   // every page starts again on that system's progress
   return true;
 }
 
@@ -8187,6 +8274,7 @@ const ZH_MONTH = ['一月', '二月', '三月', '四月', '五月', '六月', '�
 const dayKey = t => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 function practiceDays() {   // the days you practised cards, wrote, finished a lesson or finished a story
   const days = new Set(db.readDone.map(s => dayKey(s.done)));
+  for (const o of sysOthers()) for (const s of o.readDone || []) days.add(dayKey(s.done));   // v4.69: the streak is yours in every system
   for (const [k, v] of Object.entries(db.days)) if (Object.keys(v?.decks || {}).length || v?.les?.length || v?.fb) days.add(k);
   return days;
 }
@@ -14057,7 +14145,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.68';
+const APP_VERSION = '4.69';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
@@ -14410,6 +14498,7 @@ const CLOUD = (() => {
           st.owner = st.user.id;
           if (!mine) { if (calm() || first) take(full.data.data, full.data.rev, 'Your progress is here from your other device'); else keep(); return; }
           // single values (coins, settings): the side changed last wins; on a first sign-in, the side with more progress
+          sysAlign(full.data.data, sysK());   // v4.69: each system's progress with its own
           const both = merge(db, full.data.data, first ? used(db) >= used(full.data.data) : (st.at || 0) > Date.parse(full.data.updated_at));
           st.rev = full.data.rev; db = both; st.dirty = true; keep();
           if (await push()) { take(both, st.rev, 'Progress from your devices put together'); return; }
@@ -14774,8 +14863,8 @@ const OB_READ = {
         q: 'What does 因材施教 mean here?', a: ['Teaching each student in the way that suits them', 'Using one method for everyone', 'Students teaching each other', 'Studying old books first'] }],
 };
 const canRemind = () => 'PushManager' in window && 'Notification' in window && SYNC.on && !(db.prefs.remind?.on);
-function obStart(replay) {
-  S.ob = { i: 0, hist: [], why: [], level: null, goal: null, replay: !!replay, sys: replay || db.prefs.sys ? sysK() : null };
+function obStart(replay, course) {   // course (v4.69): a new system's level check, straight from How much do you know to your level
+  S.ob = { i: course ? OB_STEPS.indexOf('level') : 0, hist: [], why: [], level: null, goal: null, replay: !!replay, course: !!course, sys: replay || db.prefs.sys ? sysK() : null };
   loadHsk().catch(() => {});
   LOG.add('onboarding', { step: 'hi', replay: !!replay });
   obShow();
@@ -14937,7 +15026,7 @@ function obShow() {
   else if (step === 'why') html = obTop() + obSay('happy', 'Why are you learning Chinese?', 'Pick as many as you like.')
     + `<div class="ob-opts" data-pick="why">${OB_WHY.map(([v, g, t]) => obOpt(v, `<span class="ob-glyph">${g}</span>`, t, '', O.why.includes(v))).join('')}</div>
     <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.why.length ? '' : ' disabled'}>Continue</button></div>`;
-  else if (step === 'level') html = obTop() + obSay('focus', 'How much Chinese do you know?', 'Next, a quick check to find your level.')
+  else if (step === 'level') html = obTop() + obSay('focus', O.course ? `How much ${SYS[sysK()].long} do you know?` : 'How much Chinese do you know?', 'Next, a quick check to find your level.')
     + `<div class="ob-opts" data-pick="level">${OB_LEVEL.map(([v, g, t]) => obOpt(v, `<span class="ob-glyph">${g}</span>`, t, '', O.level === v)).join('')}</div>
     <div class="ob-dock"><button class="btn btn-primary" data-ob="next"${O.level ? '' : ' disabled'}>Continue</button></div>`;
   else if (step === 'check') html = obCheckHTML();
@@ -15040,15 +15129,19 @@ function obFinish(how) {
       db.bank.push({ id: uid(), hanzi: r.h, pinyin: r.p, en: meanOf(r), added: now - 60000 - i, hsk: r.lv,
         srs: { first: now, seen: now, iv: 30, n: 1, miss: 0, due: dayStart(now, 3 + Math.floor(i / 6)) } }); });
   }
-  if (!O.replay) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk && { ...O.chk.est, lv, chars: obCharsEst() }, sig, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
+  if (!O.replay && !O.course) { db.prefs.ob = { done: Date.now(), why: O.why, level: O.level, est: O.chk && { ...O.chk.est, lv, chars: obCharsEst() }, sig, how }; if (O.goal) db.prefs.goalMin = O.goal; if (lv) db.prefs.level = lv;
     if (lv && db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }   // today's character was picked before your level was known
+    save(); }
+  else if (O.course) { if (lv) db.prefs.level = lv;   // a new system: its level, and its words went in above
+    if (lv && db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }
     save(); }
   else if (lv) {   // a replay keeps your words and goal, but the level it finds becomes yours (it unlocks the HSK levels up to it)
     db.prefs.level = lv;
     if (db.hotd && !db.hotd.rev && (db.hotd.lv || 1) !== lv) { db.hotd.day = null; db.hotd.past = (db.hotd.past || []).slice(1); hotdPick(); }
     save(); }
   LOG.add('onboarding-done', { how, why: O.why, level: O.level, est: O.chk?.est, sig, goal: O.goal, replay: O.replay, set_level: lv || null });
-  S.ob = null; closeLayer(() => { S.instant = true; if (O.replay) render(); else goStart(); });   // v3.69: the first run ends on the roadmap of the level it found
+  S.ob = null; closeLayer(() => { S.instant = true; if (O.replay) render(); else goStart(); });
+  if (O.course && lv) setTimeout(() => toast(`${SYS[sysK()].long}: you start at ${HSK_NAME(lv)}`), 700);   // v3.69: the first run ends on the roadmap of the level it found
 }
 async function obClick(e) {
   const b = e.target.closest('[data-ob],[data-v],[data-c],[data-qo],[data-so]'); if (!b || !S.ob || b.disabled) return;
@@ -15085,6 +15178,7 @@ async function obClick(e) {
   if (a === 'done') { obEnd(step === 'habit' ? 'not-now' : 'done'); return; }
   if (a === 'quit') { LOG.add('onboarding-done', { how: 'closed', replay: O.replay }); S.ob = null; closeLayer(); return; }
   if (a === 'back') {   // one page (or one round, one card) back; your answers there stay picked
+    if (O.course && step === 'level') { LOG.add('onboarding-done', { how: 'closed', course: true }); S.ob = null; closeLayer(); return; }
     if (step === 'check' && O.chk?.rounds.length > 1) { const R = O.chk.rounds.pop(); delete O.chk.res[O.chk.rounds.at(-1).lv]; delete O.chk.res[R.lv]; obShow(); return; }
     if (step === 'words' && O.q?.cards.length > 1) { const c = O.q.cards.pop(); if (c.spot) O.q.spots.unshift(c.spot); O.q.cards.at(-1).pick = null; obShow(); return; }
     const to = OB_STEPS[O.hist.pop() ?? Math.max(0, O.i - 1)];
@@ -15115,7 +15209,10 @@ async function obClick(e) {
     return;
   }
   if (step === 'goal') { if (canRemind() || !isInstalled()) obGo('habit'); else obEnd('done'); return; }
-  if (step === 'sys') { if (!O.sys) return; b.disabled = true; const ok = await setSys(O.sys, true); b.disabled = false; if (ok && S.ob === O) obGo('why'); return; }   // v4.68: everything after this is in your system
+  if (step === 'placed' && O.course) { obFinish('course'); return; }
+  if (step === 'sys') { if (!O.sys) return;
+    if (O.replay && O.sys !== sysK()) { S.ob = null; closeLayer(); if (!db.prefs.sysShare && !sysHas(O.sys)) sysPick(); else setSys(O.sys); return; }   // a replay: switch as the flag does
+    b.disabled = true; const ok = await setSys(O.sys, { quiet: true, keep: true }); b.disabled = false; if (ok && S.ob === O) obGo('why'); return; }   // v4.68: everything after this is in your system
   obGo(OB_STEPS[O.i + 1]);
 }
 
@@ -15615,6 +15712,8 @@ takePairLink();
 if (location.hash === '#/' && !RELOAD) goStart(); else route();
 CLOUD.start();
 if (FRESH && !CLOUD.back) obStart();
+else if (db.prefs.sysPlace) { delete db.prefs.sysPlace; save(); setTimeout(() => obStart(false, true), 450); }   // v4.69: a new system's level check
+try { const n = sessionStorage.getItem('shicards.sysNote'); if (n) { sessionStorage.removeItem('shicards.sysNote'); if (!db.prefs.sysPlace) setTimeout(() => toast(n), 800); } } catch (_) {}
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
