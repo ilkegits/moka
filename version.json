@@ -1,1 +1,1 @@
-{"version": "4.66", "notes": "This app is called ShiHanzi2 on the home screen and in the browser tab (ilkem's test copy at /moka2/ is now ShiHanzi)"}
+{"version": "4.67", "notes": "The writing check is stricter: every stroke must be drawn in its own place. A 酒 with the 儿 drawn under the box instead of inside it no longer counts as right"}
