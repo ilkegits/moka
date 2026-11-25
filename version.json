@@ -1,1 +1,1 @@
-{"version": "4.71", "notes": "Add card: the boxes no longer jump up and down with each letter you type; the pop-up fills the space above the keyboard and the picks keep their room"}
+{"version": "4.72", "notes": "Add card: the Chinese picks are one row you swipe along, always the same height, and the pop-up only scrolls when you scroll it, so nothing jumps while you type"}
