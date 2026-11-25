@@ -569,7 +569,10 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
 .ac-add::after{content:"";position:absolute;inset:-6px}
 .ac-add:disabled{background:var(--fill);color:var(--muted)}
 .ac-add:not(:disabled):active{opacity:.75}
-.ac-sugs:empty{display:none}
+.ac-sugs:empty:not(.hold){display:none}
+/* v4.71 (ilkem: "the screen moves with each letter"): with the keyboard up, Add card fills the space above it, so the boxes
+   stay put when the picks under them come and go; the picks keep their room until the box is cleared (see paintMeans) */
+html.kb-up .sheet:has(>.ac-head){height:calc(100% - var(--kb) - 8px)}
 .means.ac-sugs{margin:8px 0 0}
 /* v3.63 the front: type characters, or pinyin that turns into characters, or tap the pen and draw one */
 /* v3.66: each side is one box. The Chinese you have so far sits in it, left of where you type; Draw sits at its right end */
@@ -13098,12 +13101,16 @@ function cardSheet(cardId) {
           if (h && !ms.length) ms.push(meanOf(h));
           if (!E.enDirty && ms[0]) { fen.value = ms[0]; E.autoEn = true; }
           means.innerHTML = ms.length > 1 && !E.enFirst ? ms.slice(0, 8).map(m => `<button class="mean" data-m="${esc(m)}">${esc(m)}</button>`).join('') : '';
-          sugs.innerHTML = '';
+          sugs.innerHTML = ''; sugs.style.minHeight = ''; sugs.classList.remove('hold');
           return;
         }
         if (!E.enDirty && E.autoEn) { fen.value = ''; E.autoEn = false; }
         const q = fen.value.trim(), hits = E.D && q.length >= 2 ? searchEnglish(E.D, q).slice(0, 6) : [];   // no Chinese yet: the English looked up the other way
         means.innerHTML = '';   // v4.12: these Chinese picks sit under the Chinese box, not under the English
+        /* v4.71: a letter with no picks (Teac, between Tea and Teach) no longer folds the space away and back on the next one:
+           while there is English typed the picks keep the tallest room they have had; empty, it goes */
+        const room = q ? Math.max(sugs.offsetHeight, parseFloat(sugs.style.minHeight) || 0) : 0;
+        sugs.style.minHeight = room ? room + 'px' : ''; sugs.classList.toggle('hold', !!room);
         sugs.innerHTML = hits.map(r => `<button class="ac-sug" data-h="${esc(r.h)}" data-p="${esc(r.p)}"><span class="hz">${esc(r.h)}</span><span class="wp">${esc(PY(r.h, r.p))}</span></button>`).join('');
       };
       const paintHz = () => {
@@ -14145,7 +14152,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.70';
+const APP_VERSION = '4.71';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
