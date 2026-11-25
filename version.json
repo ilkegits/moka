@@ -1,1 +1,1 @@
-{"version": "4.72", "notes": "Add card: the Chinese picks are one row you swipe along, always the same height, and the pop-up only scrolls when you scroll it, so nothing jumps while you type"}
+{"version": "4.73", "notes": "Add card: no Deck row (cards go into the deck you opened), and nothing on it moves while you type, pick or add: the picks have one fixed slot and the Chinese box is full size from the start"}
