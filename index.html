@@ -507,6 +507,7 @@ html.hdx-on,html.hdx-on body{overflow:hidden}
   box-shadow:inset 0 -4px 0 rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.12),0 14px 24px -10px rgba(30,20,10,.6),0 3px 8px -3px rgba(30,20,10,.3)}
 .fab.fab-ink:active{box-shadow:inset 0 -2px 0 rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.12),0 6px 12px -8px rgba(30,20,10,.6)}
 .fab.fab-ink svg.i{filter:none}
+.dock .fab.fab-ink{right:0;bottom:calc(100% - 4px)}   /* v4.70: the word bank's + rides in the dock, 14px above Practise, so the two can never meet */
 .fab-menu{position:absolute;right:max(18px,calc(50% - 222px));bottom:calc(12px + var(--tabh) + 16px + 76px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:14px}
 .fab-opt{display:flex;align-items:center;gap:14px;margin-right:4px;text-align:right;opacity:0;transform:translateY(16px) scale(.94);transform-origin:right center;transition:opacity .16s,transform .16s}
 #fab-root.open .fab-opt{opacity:1;transform:none;pointer-events:auto;transition:opacity .24s,transform .4s cubic-bezier(.25,1.4,.5,1)}
@@ -11797,7 +11798,6 @@ function renderFab() {
   const opt = (act, hz, t, sub) => `<button class="fab-opt" data-act="${act}"><span class="fab-lab"><b>${t}</b><small>${sub}</small></span><span class="fab-tile" aria-hidden="true">${hz}</span></button>`;
   let html = '';
   if (deck) html = `<button class="fab fab-add" data-act="add-card">${I.plus}Add</button>`;
-  else if (v === 'bank') html = `<button class="fab fab-ink" data-act="quick-add" aria-label="Add a word">${I.plus}</button>`;   // v4.20: just above Practise
   else if (v === 'home' || (v === 'group' && curGroup())) html = `<div class="fab-veil" data-act="fab-close"></div><div class="fab-menu">${v === 'home'
       ? opt('new-group', '组', 'Create group', 'A folder for decks') + opt('new-deck', '卡', 'Create deck', 'Cards for your words')
       : opt('group-add', '移', 'Add decks', 'Move decks you have here') + opt('new-deck', '卡', 'Create deck', 'A new deck in this group')}</div>
@@ -13643,7 +13643,7 @@ function BankView() {
       <p class="muted" style="font-size:11.5px;margin:18px 2px 0">Meanings from CC-CEDICT (mdbg.net, CC BY-SA 4.0)</p>
       <div class="bk-fabgap"></div>`
     : `<div class="empty bk-empty"><div class="big">字</div><h3>Your word bank is empty</h3><p>Words from the lessons you finish land here by themselves. Already know some? Tick them in an HSK level below, or tap + to add one.</p></div>${BankLadder()}`}
-    <div class="dock">${n ? `<button class="btn btn-seal wide" data-act="practise-bank">${I.flip}Practise ${plural(n, 'word')}</button>`
+    <div class="dock"><button class="fab fab-ink" data-act="quick-add" aria-label="Add a word">${I.plus}</button>${n ? `<button class="btn btn-seal wide" data-act="practise-bank">${I.flip}Practise ${plural(n, 'word')}</button>`
       : `<button class="btn btn-seal wide" data-act="open-hsk">Tick words you know</button>`}</div>
   </div>`;
 }
@@ -14145,7 +14145,7 @@ function mountHsk() {
 
 /* ---------- install + updates ---------- */
 // For every release: raise APP_VERSION here AND "version" in version.json (same number).
-const APP_VERSION = '4.69';
+const APP_VERSION = '4.70';
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 addEventListener('appinstalled', () => { installEvt = null; toast('ShiHanzi is on your home screen'); });
